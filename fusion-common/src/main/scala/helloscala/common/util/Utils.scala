@@ -1,4 +1,4 @@
-package helloscala.util
+package helloscala.common.util
 
 import java.lang.management.ManagementFactory
 import java.nio.ByteBuffer

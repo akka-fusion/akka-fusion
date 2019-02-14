@@ -5,16 +5,15 @@ import java.time.OffsetDateTime
 import java.util.Properties
 import java.util.function.Consumer
 
-import helloscala.exception.HSException
-import helloscala.types.ObjectId
-import helloscala.util.{StringUtils, TimeUtils}
-import com.typesafe.config.impl.ConfigurationHelper
 import com.typesafe.config._
+import com.typesafe.config.impl.ConfigurationHelper
+import helloscala.common.exception.HSException
+import helloscala.common.util.{StringUtils, TimeUtils}
 
-import scala.concurrent.duration._
-import scala.util.control.NonFatal
 import scala.collection.JavaConverters._
 import scala.collection.mutable
+import scala.concurrent.duration._
+import scala.util.control.NonFatal
 
 /**
  * Typesafe Config 辅助类
@@ -251,12 +250,8 @@ object ConfigLoader {
     }
 
   implicit val stringLoader: ConfigLoader[String] = ConfigLoader(_.getString)
-  implicit val objectIdLoader: ConfigLoader[ObjectId] =
-    stringLoader.map(ObjectId.apply)
   implicit val seqStringLoader: ConfigLoader[Seq[String]] =
     ConfigLoader(_.getStringList).map(_.asScala)
-  implicit val seqObjectIdLoader: ConfigLoader[Seq[ObjectId]] =
-    seqStringLoader.map(_.map(ObjectId.apply))
   implicit val arrayStringLoader: ConfigLoader[Array[String]] =
     ConfigLoader(_.getStringList).map { list =>
       val arr = new Array[String](list.size())

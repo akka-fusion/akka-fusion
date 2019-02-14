@@ -8,12 +8,11 @@ import helloscala.common.Configuration
 
 import scala.concurrent.Future
 
-class HttpApplication extends AkkaHttpServer {
-  override def actorSystem: ActorSystem = ???
-  override def actorMaterializer: ActorMaterializer = ???
-  override val hlServerValue: String = actorSystem.name
-  override def configuration: Configuration = ???
-  override def routes: AbstractRoute = ???
+class HttpApplication private (val system: ActorSystem, val routes: AbstractRoute) extends AkkaHttpServer {
+  override val materializer: ActorMaterializer = ActorMaterializer()(system)
+  override val hlServerValue: String = system.name
+  private val _configuration = Configuration(system.settings.config)
+  override def configuration: Configuration = _configuration
 
   /**
    * 启动基于Akka HTTP的服务
@@ -22,4 +21,10 @@ class HttpApplication extends AkkaHttpServer {
    */
   override def startServer(): (Future[Http.ServerBinding], Option[Future[Http.ServerBinding]]) =
     startServer("fusion.")
+}
+
+object HttpApplication {
+
+  def apply(system: ActorSystem, routes: AbstractRoute): HttpApplication = new HttpApplication(system, routes)
+
 }

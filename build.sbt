@@ -22,7 +22,6 @@ scalafmtOnCompile in ThisBuild := true
 
 lazy val root = Project(id = "akka-fusion", base = file("."))
   .aggregate(
-    fusionDocs,
     fusionHttpRest,
     fusionHttp,
     fusionOauth,
@@ -30,6 +29,7 @@ lazy val root = Project(id = "akka-fusion", base = file("."))
     fusionMongodb,
     fusionSlick,
     fusionJdbc,
+    fusionTest,
     fusionCore,
     fusionCommon
   )
@@ -46,6 +46,7 @@ lazy val fusionDocs = _project("fusion-docs")
     fusionMongodb,
     fusionSlick,
     fusionJdbc,
+    fusionTest,
     fusionCore,
     fusionCommon
   )
@@ -65,7 +66,7 @@ lazy val fusionDocs = _project("fusion-docs")
 
 lazy val fusionHttpRest = _project("fusion-http-rest")
   .enablePlugins(ParadoxMaterialThemePlugin)
-  .dependsOn(fusionHttp, fusionCore % "compile->compile;test->test")
+  .dependsOn(fusionHttp, fusionTest % "compile->compile;test->test", fusionCore)
   .settings(
     libraryDependencies ++= Seq(
       ) ++ _jacksons
@@ -73,7 +74,7 @@ lazy val fusionHttpRest = _project("fusion-http-rest")
 
 lazy val fusionHttp = _project("fusion-http")
   .enablePlugins(ParadoxMaterialThemePlugin)
-  .dependsOn(fusionCore % "compile->compile;test->test")
+  .dependsOn(fusionTest % "compile->compile;test->test", fusionCore)
   .settings(
     libraryDependencies ++= Seq(
       ) ++ _akkaHttps
@@ -81,7 +82,7 @@ lazy val fusionHttp = _project("fusion-http")
 
 lazy val fusionOauth = _project("fusion-oauth")
   .enablePlugins(ParadoxMaterialThemePlugin)
-  .dependsOn(fusionCore % "compile->compile;test->test")
+  .dependsOn(fusionTest % "compile->compile;test->test", fusionCore)
   .settings(
     mainClass in Compile := Some("fusion.oauth.fusion.OauthMain"),
     libraryDependencies ++= Seq(
@@ -90,7 +91,7 @@ lazy val fusionOauth = _project("fusion-oauth")
 
 lazy val fusionKafka = _project("fusion-kafka")
   .enablePlugins(ParadoxMaterialThemePlugin)
-  .dependsOn(fusionCore % "compile->compile;test->test")
+  .dependsOn(fusionTest % "test->test", fusionCore)
   .settings(
     libraryDependencies ++= Seq(
       _akkaStreamKafka
@@ -99,16 +100,16 @@ lazy val fusionKafka = _project("fusion-kafka")
 
 lazy val fusionMongodb = _project("fusion-mongodb")
   .enablePlugins(ParadoxMaterialThemePlugin)
-  .dependsOn(fusionCore % "compile->compile;test->test")
+  .dependsOn(fusionHttp, fusionTest % "test->test", fusionCore)
   .settings(
     libraryDependencies ++= Seq(
       _alpakkaMongodb
-    )
+    ) 
   )
 
 lazy val fusionSlick = _project("fusion-slick")
   .enablePlugins(ParadoxMaterialThemePlugin)
-  .dependsOn(fusionJdbc, fusionCore % "compile->compile;test->test")
+  .dependsOn(fusionJdbc, fusionTest % "test->test", fusionCore)
   .settings(
     libraryDependencies ++= Seq(
       ) ++ _slicks
@@ -116,16 +117,28 @@ lazy val fusionSlick = _project("fusion-slick")
 
 lazy val fusionJdbc = _project("fusion-jdbc")
   .enablePlugins(ParadoxMaterialThemePlugin)
-  .dependsOn(fusionCore % "compile->compile;test->test")
+  .dependsOn(fusionTest % "test->test", fusionCore)
   .settings(
     libraryDependencies ++= Seq(
       _hikariCP
     )
   )
 
+lazy val fusionTest = _project("fusion-test")
+  .enablePlugins(ParadoxMaterialThemePlugin)
+  .dependsOn(fusionCore, fusionCommon)
+  .settings(Publishing.publishing: _*)
+  .settings(
+    libraryDependencies ++= Seq(
+      "org.scala-lang" % "scala-reflect" % scalaVersion.value,
+      _chillAkka,
+      _scalatest
+    )
+  )
+
 lazy val fusionCore = _project("fusion-core")
   .enablePlugins(ParadoxMaterialThemePlugin)
-  .dependsOn(fusionCommon % "compile->compile;test->test")
+  .dependsOn(fusionCommon)
   .settings(Publishing.publishing: _*)
   .settings(
     libraryDependencies ++= Seq(

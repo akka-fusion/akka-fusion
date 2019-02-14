@@ -1,4 +1,4 @@
-package helloscala.exception
+package helloscala.common.exception
 
 class HSException(val message: String, val cause: Throwable) extends RuntimeException(message, cause) {
   def this(message: String) {

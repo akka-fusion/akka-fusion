@@ -15,7 +15,7 @@ import akka.stream.scaladsl.Flow
 import com.typesafe.scalalogging.StrictLogging
 import com.typesafe.sslconfig.akka.AkkaSSLConfig
 import helloscala.common.Configuration
-import helloscala.util.{PidFile, StringUtils, Utils}
+import helloscala.common.util.{PidFile, StringUtils, Utils}
 import javax.net.ssl.{KeyManagerFactory, SSLContext, TrustManagerFactory}
 
 import scala.concurrent.duration._
@@ -24,9 +24,9 @@ import scala.util.control.NonFatal
 import scala.util.{Failure, Success}
 
 trait AkkaHttpServer extends BaseExceptionPF with BaseRejectionBuilder with StrictLogging {
-  def actorSystem: ActorSystem
+  val system: ActorSystem
 
-  def actorMaterializer: ActorMaterializer
+  val materializer: ActorMaterializer
 
   val hlServerValue: String
 
@@ -114,7 +114,7 @@ trait AkkaHttpServer extends BaseExceptionPF with BaseRejectionBuilder with Stri
 
       val sslContext: SSLContext = SSLContext.getInstance("TLS")
       sslContext.init(keyManagerFactory.getKeyManagers, tmf.getTrustManagers, new SecureRandom)
-      hcc = ConnectionContext.https(sslContext, Some(AkkaSSLConfig(actorSystem)))
+      hcc = ConnectionContext.https(sslContext, Some(AkkaSSLConfig(system)))
     } catch {
       case NonFatal(e) =>
         e.printStackTrace()
@@ -153,10 +153,9 @@ trait AkkaHttpServer extends BaseExceptionPF with BaseRejectionBuilder with Stri
       host: String,
       port: Int,
       httpsPort: Option[Int]): (Future[ServerBinding], Option[Future[ServerBinding]]) = {
-    implicit val system: ActorSystem = actorSystem
-    implicit val mat: ActorMaterializer = actorMaterializer
-    implicit val executionContext: ExecutionContextExecutor =
-      actorSystem.dispatcher
+    implicit val _system: ActorSystem = system
+    implicit val _mat: ActorMaterializer = materializer
+    implicit val executionContext: ExecutionContextExecutor = system.dispatcher
 
     serverHost = host
     serverPort = port
@@ -170,7 +169,7 @@ trait AkkaHttpServer extends BaseExceptionPF with BaseRejectionBuilder with Stri
       }
     val handler = flow.map(handleMapResponse)
 
-    bindingFuture = Http().bindAndHandle(handler, interface = host, port = port, settings = ServerSettings(actorSystem))
+    bindingFuture = Http().bindAndHandle(handler, interface = host, port = port, settings = ServerSettings(system))
 
     bindingFuture.onComplete {
       case Success(binding) =>
@@ -187,7 +186,7 @@ trait AkkaHttpServer extends BaseExceptionPF with BaseRejectionBuilder with Stri
                                    interface = host,
                                    port = portSsl,
                                    connectionContext = generateHttps(),
-                                   settings = ServerSettings(actorSystem))
+                                   settings = ServerSettings(system))
       f.onComplete {
         case Success(binding) =>
           //setting the server binding for possible future uses in the client
@@ -200,9 +199,7 @@ trait AkkaHttpServer extends BaseExceptionPF with BaseRejectionBuilder with Stri
       f
     }
 
-    sys.addShutdownHook {
-      shutdown()
-    }
+    sys.addShutdownHook { shutdown() }
 
     bindingFuture -> httpsBindingFuture
   }

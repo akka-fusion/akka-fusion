@@ -1,4 +1,4 @@
-package helloscala.util
+package helloscala.common.util
 
 import java.sql.{Date => SQLDate, Time => SQLTime, Timestamp => SQLTimestamp}
 import java.time._

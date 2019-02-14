@@ -1,14 +1,24 @@
 package fusion.http
 
-import org.scalatest.{BeforeAndAfterAll, FunSuite, MustMatchers}
+import akka.actor.ActorSystem
+import akka.http.scaladsl.model.{HttpMethods, StatusCodes}
+import akka.http.scaladsl.server.Route
+import fusion.http.server.AbstractRoute
+import fusion.http.util.HttpUtils
 
-import scala.concurrent.Future
+class Routes extends AbstractRoute {
+  override def route: Route = path("hello") {
+    complete("hello")
+  }
+}
 
-class HttpApplicationTest extends FunSuite with MustMatchers with BeforeAndAfterAll {
-  private var binding: Future[_] = _
+class HttpApplicationTest extends HttpApplicationTestSuite {
 
-  test("") {}
+  test("hello") {
+    val response = HttpUtils.singleRequest(HttpMethods.GET, "http://localhost:55555/hello").futureValue
+    println(response)
+    response.status mustBe StatusCodes.OK
+  }
 
-  override protected def beforeAll(): Unit = {}
-  override protected def afterAll(): Unit = {}
+  override protected def createActorSystem(): ActorSystem = ActorSystem("test")
 }

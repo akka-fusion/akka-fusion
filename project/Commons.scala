@@ -1,19 +1,17 @@
+import de.heikoseeberger.sbtheader.HeaderPlugin.autoImport.{HeaderLicense, headerLicense}
 import sbt.Keys._
 import sbt._
-import de.heikoseeberger.sbtheader.HeaderPlugin.autoImport.headerLicense
-import de.heikoseeberger.sbtheader.HeaderPlugin.autoImport.HeaderLicense
-import sbtassembly.AssemblyPlugin.autoImport.{assembly, assemblyMergeStrategy}
-import sbtassembly.{MergeStrategy, PathList}
+import sbtassembly.MergeStrategy
 
 object Commons {
 
+  import Environment.{BuildEnv, buildEnv}
   import sbtassembly.AssemblyKeys.{assembly, assemblyMergeStrategy}
   import sbtassembly.{MergeStrategy, PathList}
-  import Environment.{buildEnv, BuildEnv}
 
   def basicSettings =
     Seq(
-      organization := "helloscala.fusion",
+      organization := "com.helloscala.fusion",
       organizationName := "Helloscala",
       organizationHomepage := Some(url("http://helloscala.com")),
       homepage := Some(url("http://akka-fusion.helloscala.com")),
@@ -79,8 +77,6 @@ object Commons {
 
 object Publishing {
 
-  import Environment._
-
   lazy val publishing = Seq(
     )
 
@@ -112,9 +108,9 @@ object Environment {
 
 object Packaging {
   // Good example https://github.com/typesafehub/activator/blob/master/project/Packaging.scala
+  import Environment.{BuildEnv, buildEnv}
   import com.typesafe.sbt.SbtNativePackager._
   import com.typesafe.sbt.packager.Keys._
-  import Environment.{buildEnv, BuildEnv}
 
   // This is dirty, but play has stolen our keys, and we must mimc them here.
   val stage = TaskKey[File]("stage")

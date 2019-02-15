@@ -1,11 +1,12 @@
-import de.heikoseeberger.sbtheader.HeaderPlugin.autoImport.{HeaderLicense, headerLicense}
+import Environment.{buildEnv, BuildEnv}
+import de.heikoseeberger.sbtheader.HeaderPlugin.autoImport.{headerLicense, HeaderLicense}
 import sbt.Keys._
 import sbt._
 import sbtassembly.MergeStrategy
 
 object Commons {
 
-  import Environment.{BuildEnv, buildEnv}
+  import Environment.{buildEnv, BuildEnv}
   import sbtassembly.AssemblyKeys.{assembly, assemblyMergeStrategy}
   import sbtassembly.{MergeStrategy, PathList}
 
@@ -62,9 +63,9 @@ object Commons {
           val oldStrategy = (assemblyMergeStrategy in assembly).value
           oldStrategy(x)
       },
-      //      resolvers ++= Seq(
-      //      "elasticsearch-releases" at "https://artifacts.elastic.co/maven"
-      //  )
+//            resolvers ++= Seq(
+//            "elasticsearch-releases" at "https://artifacts.elastic.co/maven"
+//        ),
       fork in run := true,
       fork in Test := true,
       parallelExecution in Test := false,
@@ -78,7 +79,13 @@ object Commons {
 object Publishing {
 
   lazy val publishing = Seq(
-    )
+    publishTo := (if (buildEnv.value == BuildEnv.Developement) {
+                    Some("Helloscala_sbt-public_snapshot" at "http://artifactory.helloscala.com/artifactory/sbt-public;build.timestamp=" + new java.util.Date().getTime)
+                  } else {
+                    Some("Helloscala_sbt-public_release" at "http://artifactory.helloscala.com/artifactory/sbt-public")
+                  }),
+    credentials += Credentials(Path.userHome / ".ivy2" / ".credentials_helloscala")
+  )
 
   lazy val noPublish = Seq(
     publish := ((): Unit),
@@ -108,7 +115,7 @@ object Environment {
 
 object Packaging {
   // Good example https://github.com/typesafehub/activator/blob/master/project/Packaging.scala
-  import Environment.{BuildEnv, buildEnv}
+  import Environment.{buildEnv, BuildEnv}
   import com.typesafe.sbt.SbtNativePackager._
   import com.typesafe.sbt.packager.Keys._
 

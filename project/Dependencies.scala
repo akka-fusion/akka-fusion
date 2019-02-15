@@ -152,6 +152,8 @@ object Dependencies {
 
   val _hanlp = "com.hankcs" % "hanlp" % "portable-1.7.1"
 
+  val _guice = "com.google.inject" % "guice" % "4.2.2"
+  
   private val versionJackson = "2.9.8"
 
   val _jacksons = Seq(
@@ -262,6 +264,8 @@ object Dependencies {
 
   val _h2 = "com.h2database" % "h2" % "1.4.197"
 
+  val _bcprovJdk15on = "org.bouncycastle" % "bcprov-jdk15on" % "1.60"
+  
   private val versionQuartz = "2.2.3"
   val _quartz = "org.quartz-scheduler" % "quartz" % versionQuartz
 

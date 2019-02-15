@@ -49,5 +49,17 @@ object HttpDirectives extends HttpDirectives {
 
   private val _offsetDateTimeFromStringUnmarshaller =
     Unmarshaller.strict[String, OffsetDateTime](TimeUtils.toOffsetDateTime)
+//  def ObjectIdPath: PathMatcher1[ObjectId] =
+//    PathMatcher("""[\da-fA-F]{24}""".r) flatMap { string =>
+//      try ObjectId.parse(string).toOption
+//      catch {
+//        case _: IllegalArgumentException ⇒ None
+//      }
+//    }
+
+//  def ObjectIdSegment: PathMatcher1[String] =
+//    PathMatcher("""[\da-fA-F]{24}""".r) flatMap { string =>
+//      Some(string).filter(ObjectId.isValid)
+//    }
 
 }

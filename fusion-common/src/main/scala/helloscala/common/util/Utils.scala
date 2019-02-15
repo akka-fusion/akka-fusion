@@ -12,10 +12,20 @@ import scala.util.control.NonFatal
 import scala.util.matching.Regex
 
 object Utils {
+
   val REGEX_DIGIT: Regex = """[\d,]+""".r
   val RANDOM_CHARS: IndexedSeq[Char] = ('0' to '9') ++ ('a' to 'z') ++ ('A' to 'Z')
 
   val random: SecureRandom = new SecureRandom()
+
+  def using[T <: AutoCloseable, R](res: T)(func: T => R): R = {
+    assert(res != null, "Resource res must not null")
+    try {
+      func(res)
+    } finally {
+      res.close()
+    }
+  }
 
   def swap[X, Y](x: X, y: Y): (Y, X) = (y, x)
 

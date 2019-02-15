@@ -8,6 +8,7 @@ import akka.http.scaladsl.Http.ServerBinding
 import akka.http.scaladsl.model.headers.RawHeader
 import akka.http.scaladsl.model.{HttpRequest, HttpResponse}
 import akka.http.scaladsl.server.Directives.{handleExceptions, handleRejections}
+import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.settings.ServerSettings
 import akka.http.scaladsl.{ConnectionContext, Http, HttpsConnectionContext}
 import akka.stream.ActorMaterializer
@@ -32,14 +33,18 @@ trait AkkaHttpServer extends BaseExceptionPF with BaseRejectionBuilder with Stri
 
   def configuration: Configuration
 
-  def routes: AbstractRoute
+  def routes: Route
 
   def close(): Unit = {}
 
   protected var bindingFuture: Future[ServerBinding] = _
   protected var httpsBindingFuture: Option[Future[ServerBinding]] = _
-  protected var serverHost: String = _
-  protected var serverPort: Int = _
+  private var _serverHost: String = ""
+  private var _serverPort: Int = -1
+  private var _serverPortSsl: Int = -1
+  def serverHost: String = _serverHost
+  def serverPort: Int = _serverPort
+  def serverPortSsl: Int = _serverPortSsl
 
   final def shutdown(): Unit = {
     import scala.concurrent.ExecutionContext.Implicits.global
@@ -69,7 +74,7 @@ trait AkkaHttpServer extends BaseExceptionPF with BaseRejectionBuilder with Stri
   }
 
   def handleMapResponse(response: HttpResponse): HttpResponse = {
-    val name = hlServerValue + ":" + serverHost + ":" + serverPort
+    val name = hlServerValue + ":" + _serverHost + ":" + _serverPort
     val headers = RawHeader("HS-Server", name) +: response.headers
     response.copy(headers = headers)
   }
@@ -157,15 +162,12 @@ trait AkkaHttpServer extends BaseExceptionPF with BaseRejectionBuilder with Stri
     implicit val _mat: ActorMaterializer = materializer
     implicit val executionContext: ExecutionContextExecutor = system.dispatcher
 
-    serverHost = host
-    serverPort = port
-
     writePidfile()
 
     val flow: Flow[HttpRequest, HttpResponse, Any] =
       (handleRejections(rejectionHandler) &
         handleExceptions(exceptionHandler)) {
-        routes.route
+        routes
       }
     val handler = flow.map(handleMapResponse)
 
@@ -173,9 +175,8 @@ trait AkkaHttpServer extends BaseExceptionPF with BaseRejectionBuilder with Stri
 
     bindingFuture.onComplete {
       case Success(binding) =>
-        //setting the server binding for possible future uses in the client
-        //        serverBinding.set(binding)
-        //        binding.unbind()
+        _serverHost = binding.localAddress.getAddress.getHostAddress
+        _serverPort = binding.localAddress.getPort
         afterHttpBindingSuccess(binding)
       case Failure(cause) =>
         afterHttpBindingFailure(cause)
@@ -189,9 +190,7 @@ trait AkkaHttpServer extends BaseExceptionPF with BaseRejectionBuilder with Stri
                                    settings = ServerSettings(system))
       f.onComplete {
         case Success(binding) =>
-          //setting the server binding for possible future uses in the client
-          //        serverBinding.set(binding)
-          //        binding.unbind()
+          _serverPortSsl = binding.localAddress.getPort
           afterHttpsBindingSuccess(binding)
         case Failure(cause) =>
           afterHttpsBindingFailure(cause)

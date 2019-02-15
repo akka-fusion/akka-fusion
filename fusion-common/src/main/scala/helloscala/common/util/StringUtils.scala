@@ -5,6 +5,8 @@ import java.nio.file.{Files, Path}
 import java.security.SecureRandom
 import java.util.{HashMap => JHashMap, Map => JMap}
 
+import org.bouncycastle.util.encoders.Hex
+
 import scala.annotation.tailrec
 import scala.collection.immutable
 import scala.compat.java8.FunctionConverters.asJavaBiConsumer
@@ -206,6 +208,13 @@ object StringUtils {
     }
     sb.toString
   }
+
+  def toHexString(arr: Array[Byte]): String = Hex.toHexString(arr)
+
+  def readLineIterator(is: InputStream): Iterator[String] =
+    Utils.using(scala.io.Source.fromInputStream(is))(_.getLines())
+
+  def toString(is: InputStream): String = readLineIterator(is).mkString
 
   def toString(e: Throwable): String = {
     val pw = new PrintWriter(new StringWriter())

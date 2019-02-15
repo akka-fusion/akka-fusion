@@ -273,7 +273,7 @@ object HttpUtils extends StrictLogging {
   }
 
   /**
-   * 发送 Http 请求，使用 [[akka.http.scaladsl.HttpExt.singleRequest]]
+   * 发送 Http 请求
    *
    * @param request HttpRequest
    * @param mat ActorMaterializer

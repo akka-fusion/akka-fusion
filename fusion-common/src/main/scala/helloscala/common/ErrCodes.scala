@@ -1,7 +1,10 @@
 package helloscala.common
 
 object ErrCodes {
-  val UNKNOWN: Int = -1
+  val ERROR: Int = -1
+  val SUCCESS = 0
+  val OK = 200
+  val CREATE = 201
   val ACCEPTED = 202
   val BAD_REQUEST = 400
   val UNAUTHORIZED = 401

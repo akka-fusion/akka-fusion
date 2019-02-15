@@ -50,7 +50,7 @@ trait BaseRejectionBuilder extends StrictLogging {
       }
       .handleNotFound {
         extractUri { uri =>
-          val msg = s"URI: $uri 未找到！"
+          val msg = s"URI: $uri 路径未找到！"
           logger.info(msg)
           complete(jsonEntity(NotFound, msg))
         }

@@ -2,7 +2,7 @@ package fusion.core.extension
 
 import akka.actor.{ExtendedActorSystem, Extension, ExtensionId, ExtensionIdProvider}
 
-final class FusionCore private (system: ExtendedActorSystem) extends Extension {
+final class FusionCore private (protected val _system: ExtendedActorSystem) extends FusionExtension {
   // System、服务发现
 }
 

@@ -104,7 +104,7 @@ lazy val fusionMongodb = _project("fusion-mongodb")
   .settings(
     libraryDependencies ++= Seq(
       _alpakkaMongodb
-    ) 
+    )
   )
 
 lazy val fusionSlick = _project("fusion-slick")
@@ -143,6 +143,7 @@ lazy val fusionCore = _project("fusion-core")
   .settings(
     libraryDependencies ++= Seq(
       "org.scala-lang" % "scala-reflect" % scalaVersion.value,
+      _guice,
       _chillAkka
     )
   )
@@ -153,8 +154,9 @@ lazy val fusionCommon = _project("fusion-common")
   .settings(
     libraryDependencies ++= Seq(
       _config,
-      "org.scala-lang" % "scala-library" % scalaVersion.value,
+      _bcprovJdk15on,
       _scalaJava8Compat,
+      "org.scala-lang" % "scala-library" % scalaVersion.value,
       _scalatest % Test
     ) ++ _akkas ++ _logs ++ _jacksons
   )
@@ -162,6 +164,7 @@ lazy val fusionCommon = _project("fusion-common")
 def _project(name: String, _base: String = null) =
   Project(id = name, base = file(if (_base eq null) name else _base))
     .settings(basicSettings: _*)
+    .settings(Publishing.publishing: _*)
     .settings(
       paradoxProperties ++= Map(
         "github.base_url" -> s"https://github.com/helloscala/akka-fusion/tree/${version.value}",

@@ -3,9 +3,7 @@ package helloscala.common.jackson
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.core.{JsonParser, JsonProcessingException, TreeNode}
 import com.fasterxml.jackson.databind._
-import com.fasterxml.jackson.databind.introspect.{Annotated, JacksonAnnotationIntrospector}
 import com.fasterxml.jackson.databind.node.{ArrayNode, ObjectNode}
-import com.fasterxml.jackson.databind.ser.impl.{SimpleBeanPropertyFilter, SimpleFilterProvider}
 import com.fasterxml.jackson.databind.ser.{DefaultSerializerProvider, SerializerFactory}
 import helloscala.common.util.Utils
 
@@ -37,16 +35,16 @@ object Jackson {
     if (compare) extract(tree)
     else Left(new IllegalArgumentException(s"compare比较结果为false，需要类型：${ev1.runtimeClass.getName}"))
 
-  private val FILTER_ID_CLASS: Class[akka.protobuf.GeneratedMessage] = classOf[akka.protobuf.GeneratedMessage]
+//  private val FILTER_ID_CLASS: Class[akka.protobuf.GeneratedMessage] = classOf[akka.protobuf.GeneratedMessage]
 
   private def createObjectMapper: ObjectMapper = {
     new ObjectMapper()
-      .setFilterProvider(new SimpleFilterProvider()
-        .addFilter(FILTER_ID_CLASS.getName, SimpleBeanPropertyFilter.serializeAllExcept("allFields")))
-      .setAnnotationIntrospector(new JacksonAnnotationIntrospector() {
-        override def findFilterId(a: Annotated): AnyRef =
-          if (FILTER_ID_CLASS.isAssignableFrom(a.getRawType)) FILTER_ID_CLASS.getName else super.findFilterId(a)
-      })
+//      .setFilterProvider(new SimpleFilterProvider()
+//        .addFilter(FILTER_ID_CLASS.getName, SimpleBeanPropertyFilter.serializeAllExcept("allFields")))
+//      .setAnnotationIntrospector(new JacksonAnnotationIntrospector() {
+//        override def findFilterId(a: Annotated): AnyRef =
+//          if (FILTER_ID_CLASS.isAssignableFrom(a.getRawType)) FILTER_ID_CLASS.getName else super.findFilterId(a)
+//      })
       .findAndRegisterModules()
       .enable(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES)
       .enable(JsonParser.Feature.ALLOW_SINGLE_QUOTES)

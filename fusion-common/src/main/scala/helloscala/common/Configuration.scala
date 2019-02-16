@@ -5,6 +5,7 @@ import java.time.OffsetDateTime
 import java.util.Properties
 import java.util.function.Consumer
 
+import akka.actor.ActorSystem
 import com.typesafe.config._
 import com.typesafe.config.impl.ConfigurationHelper
 import helloscala.common.exception.HSException
@@ -221,6 +222,8 @@ object Configuration {
   }
 
   def apply(): Configuration = Configuration(ConfigFactory.load())
+
+  def apply(system: ActorSystem): Configuration = Configuration(system.settings.config)
 
   def apply(props: Properties): Configuration = Configuration(ConfigurationHelper.fromProperties(props))
 

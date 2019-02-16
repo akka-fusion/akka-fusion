@@ -22,7 +22,7 @@ scalafmtOnCompile in ThisBuild := true
 
 lazy val root = Project(id = "akka-fusion", base = file("."))
   .aggregate(
-    fusionHttpRest,
+    fusionHttpApiGateway,
     fusionHttp,
     fusionOauth,
     fusionKafka,
@@ -39,7 +39,7 @@ lazy val root = Project(id = "akka-fusion", base = file("."))
 lazy val fusionDocs = _project("fusion-docs")
   .enablePlugins(ParadoxMaterialThemePlugin)
   .dependsOn(
-    fusionHttpRest,
+    fusionHttpApiGateway,
     fusionHttp,
     fusionOauth,
     fusionKafka,
@@ -64,7 +64,7 @@ lazy val fusionDocs = _project("fusion-docs")
     }
   )
 
-lazy val fusionHttpRest = _project("fusion-http-rest")
+lazy val fusionHttpApiGateway = _project("fusion-http-api-gateway")
   .enablePlugins(ParadoxMaterialThemePlugin)
   .dependsOn(fusionHttp, fusionTest % "compile->compile;test->test", fusionCore)
   .settings(
@@ -132,6 +132,8 @@ lazy val fusionTest = _project("fusion-test")
     libraryDependencies ++= Seq(
       "org.scala-lang" % "scala-reflect" % scalaVersion.value,
       _chillAkka,
+      _akkaTestkit,
+      _akkaStreamTestkit,
       _scalatest
     )
   )

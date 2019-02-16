@@ -31,7 +31,6 @@ case class SampleResp(hello: String, year: Int, language: String)
 // Service
 @Singleton
 class SampleService @Inject()(implicit ec: ExecutionContext) {
-
   def hello(req: SampleReq): Future[SampleResp] = Future {
     SampleResp(req.hello, req.year, "scala")
   }

@@ -6,6 +6,8 @@ import com.google.inject.AbstractModule
 import helloscala.common.Configuration
 import javax.inject.{Inject, Provider, Singleton}
 
+import scala.concurrent.{ExecutionContext, ExecutionContextExecutor}
+
 @Singleton
 class ConfigurationProvider @Inject()() extends Provider[Configuration] {
   private[this] val configuration = Configuration()
@@ -22,6 +24,11 @@ class ActorSystemProvider @Inject()(configuration: Configuration) extends Provid
 }
 
 @Singleton
+class ExecutionContextExecutorProvider @Inject()(system: ActorSystem) extends Provider[ExecutionContextExecutor] {
+  override def get(): ExecutionContextExecutor = system.dispatcher
+}
+
+@Singleton
 class ActorMaterializerProvider @Inject()(system: ActorSystem) extends Provider[ActorMaterializer] {
   private[this] val materializer = ActorMaterializer()(system)
 
@@ -32,6 +39,8 @@ class BuiltinModule extends AbstractModule {
   override def configure(): Unit = {
     bind(classOf[Configuration]).toProvider(classOf[ConfigurationProvider])
     bind(classOf[ActorSystem]).toProvider(classOf[ActorSystemProvider])
+    bind(classOf[ExecutionContextExecutor]).toProvider(classOf[ExecutionContextExecutorProvider])
+    bind(classOf[ExecutionContext]).to(classOf[ExecutionContextExecutor])
     bind(classOf[ActorMaterializer]).toProvider(classOf[ActorMaterializerProvider])
   }
 }

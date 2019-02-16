@@ -15,6 +15,7 @@ import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.Flow
 import com.typesafe.scalalogging.StrictLogging
 import com.typesafe.sslconfig.akka.AkkaSSLConfig
+import fusion.core.constant.FusionConstant
 import helloscala.common.Configuration
 import helloscala.common.util.{PidFile, StringUtils, Utils}
 import javax.net.ssl.{KeyManagerFactory, SSLContext, TrustManagerFactory}
@@ -74,16 +75,17 @@ trait AkkaHttpServer extends BaseExceptionPF with BaseRejectionBuilder with Stri
   }
 
   def handleMapResponse(response: HttpResponse): HttpResponse = {
-    val name = hlServerValue + ":" + _serverHost + ":" + _serverPort
-    val headers = RawHeader("HS-Server", name) +: response.headers
+    val name = hlServerValue + "/" + _serverHost + ":" + _serverPort
+    val headers = RawHeader(FusionConstant.HEADER_NAME, name) +: response.headers
     response.copy(headers = headers)
   }
 
   def afterHttpBindingSuccess(binding: ServerBinding): Unit =
-    logger.info(s"Server online at http://${binding.localAddress.getHostName}:${binding.localAddress.getPort}/")
+    logger.info(
+      s"Server online at http://${binding.localAddress.getAddress.getHostAddress}:${binding.localAddress.getPort}/")
 
   def afterHttpsBindingSuccess(binding: ServerBinding): Unit =
-    logger.info(s"Server online at https://${binding.localAddress.getHostName}:${binding.localAddress.getPort}/")
+    logger.info(s"Server online at https://${binding.localAddress.getAddress}:${binding.localAddress.getPort}/")
 
   def afterHttpBindingFailure(cause: Throwable): Unit = {
     logger.error(s"Error starting the server ${cause.getMessage}", cause)

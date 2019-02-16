@@ -1,11 +1,14 @@
-# Akka Fusion
+package fusion.docs.sample
 
-Akka Fusion可以轻松创建独立的，生产级的基于Akka的应用程序。我们集成了Akka生态系统里常用及流行的组件，
-因此您可以快速搭建开始你的应用。大多数Akka Fusion应用程序只需要很少的 [配置](https://lightbend.github.io/config/)。
+import akka.http.scaladsl.server.Route
+import fusion.core.inject.Injects
+import fusion.http.FusionServer
+import fusion.http.server.AbstractRoute
+import javax.inject.{Inject, Singleton}
 
-## 快速开始
+import scala.concurrent.{ExecutionContext, Future}
 
-```scala
+// #SampleApplication
 object SampleApplication extends App {
   Injects.instance[SampleServer].start()
 }
@@ -31,22 +34,8 @@ case class SampleResp(hello: String, year: Int, language: String)
 // Service
 @Singleton
 class SampleService @Inject()(implicit ec: ExecutionContext) {
-
   def hello(req: SampleReq): Future[SampleResp] = Future {
     SampleResp(req.hello, req.year, "scala")
   }
 }
-```
-
-测试：
-```
-$ curl -i http://localhost:8000/hello?hello=Hello
-HTTP/1.1 200 OK
-Fusion-Server: fusion/0:0:0:0:0:0:0:0:8000
-Server: akka-http/10.1.7
-Date: Sat, 16 Feb 2019 11:24:37 GMT
-Content-Type: application/json
-Content-Length: 48
-
-{"hello":"Hello","year":2019,"language":"scala"}
-```
+// #SampleApplication

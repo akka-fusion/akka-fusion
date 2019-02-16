@@ -19,22 +19,22 @@
 
 
 <meta name="description" content="fusion-docs">
-<link rel="shortcut icon" href="assets/images/favicon.png">
-<title>Akka Fusion</title>
-<link rel="stylesheet" href="assets/stylesheets/application.451f80e5.css">
-<link rel="stylesheet" href="assets/stylesheets/application-palette.22915126.css">
+<link rel="shortcut icon" href="../assets/images/favicon.png">
+<title>配置 · Akka Fusion</title>
+<link rel="stylesheet" href="../assets/stylesheets/application.451f80e5.css">
+<link rel="stylesheet" href="../assets/stylesheets/application-palette.22915126.css">
 <meta name="theme-color" content="#009688" />
-<link rel="stylesheet" href="lib/material__tabs/dist/mdc.tabs.min.css">
-<link rel="stylesheet" href="lib/prettify/prettify.css">
-<script src="assets/javascripts/modernizr.1aa3b519.js"></script>
+<link rel="stylesheet" href="../lib/material__tabs/dist/mdc.tabs.min.css">
+<link rel="stylesheet" href="../lib/prettify/prettify.css">
+<script src="../assets/javascripts/modernizr.1aa3b519.js"></script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700|Roboto+Mono">
 <style>
 body,input{font-family:"Roboto","Helvetica Neue",Helvetica,Arial,sans-serif}
 code,kbd,pre{font-family:"Roboto Mono","Courier New",Courier,monospace}
 </style>
-<link rel="stylesheet" href="assets/fonts/font-awesome.css">
-<link rel="stylesheet" href="assets/fonts/material-icons.css">
-<link rel="stylesheet" href="assets/stylesheets/paradox-material-theme.css">
+<link rel="stylesheet" href="../assets/fonts/font-awesome.css">
+<link rel="stylesheet" href="../assets/fonts/material-icons.css">
+<link rel="stylesheet" href="../assets/stylesheets/paradox-material-theme.css">
 </head>
 <body
 data-md-color-primary="teal"
@@ -47,7 +47,7 @@ data-md-color-accent="indigo"
 <nav class="md-header-nav md-grid">
 <div class="md-flex">
 <div class="md-flex__cell md-flex__cell--shrink">
-<a href="index.html" title="Akka Fusion" class="md-header-nav__button md-logo">
+<a href="../index.html" title="Akka Fusion" class="md-header-nav__button md-logo">
 <i class="md-icon">local_library</i>
 </a>
 </div>
@@ -56,7 +56,12 @@ data-md-color-accent="indigo"
 </div>
 <div class="md-flex__cell md-flex__cell--stretch">
 <div class="md-flex__ellipsis md-header-nav__title" data-md-component="title">
+<span class="md-header-nav__topic">
 Akka Fusion
+</span>
+<span class="md-header-nav__topic">
+配置
+</span>
 </div>
 </div>
 <div class="md-flex__cell md-flex__cell--shrink">
@@ -111,11 +116,11 @@ helloscala/akka-fusion
 <div class="md-sidebar__inner">
 <nav class="md-nav md-nav--primary" data-md-level="0" style="visibility: hidden">
 <label class="md-nav__title md-nav__title--site" for="drawer">
-<a href="index.html" title="Akka Fusion" class="md-nav__button md-logo">
+<a href="../index.html" title="Akka Fusion" class="md-nav__button md-logo">
 <span class="md-nav__button md-logo">
 <i class="md-icon">local_library</i>
 </a>
-<a href="index.html" title="Akka Fusion">
+<a href="../index.html" title="Akka Fusion">
 Akka Fusion
 </a>
 </label>
@@ -134,16 +139,15 @@ helloscala/akka-fusion
 
 </div>
 <ul>
-  <li><a href="intro/index.html" class="page">Introduction</a></li>
-  <li><a href="configuration/index.html" class="page">配置</a></li>
+  <li><a href="../intro/index.html" class="page">Introduction</a></li>
+  <li><a href="../configuration/index.html" class="active page">配置</a></li>
 </ul>
 <nav class="md-nav md-nav--secondary">
 <label class="md-nav__title" for="__toc">Table of contents</label>
 <ul>
-  <li><a href="index.html#akka-fusion" class="header">Akka Fusion</a>
+  <li><a href="../configuration/index.html#配置" class="header">配置</a>
   <ul>
-    <li><a href="index.html#快速开始" class="header">快速开始</a></li>
-    <li><a href="index.html#目录" class="header">目录</a></li>
+    <li><a href="../configuration/index.html#fusion-core" class="header">fusion-core</a></li>
   </ul></li>
 </ul>
 </nav>
@@ -165,10 +169,9 @@ helloscala/akka-fusion
 <nav class="md-nav md-nav--secondary">
 <label class="md-nav__title" for="__toc">Table of contents</label>
 <ul>
-  <li><a href="index.html#akka-fusion" class="header">Akka Fusion</a>
+  <li><a href="../configuration/index.html#配置" class="header">配置</a>
   <ul>
-    <li><a href="index.html#快速开始" class="header">快速开始</a></li>
-    <li><a href="index.html#目录" class="header">目录</a></li>
+    <li><a href="../configuration/index.html#fusion-core" class="header">fusion-core</a></li>
   </ul></li>
 </ul>
 </nav>
@@ -179,66 +182,18 @@ helloscala/akka-fusion
 <div class="md-content">
 <article class="md-content__inner md-typeset">
 <div class="md-content__searchable">
-<h1><a href="#akka-fusion" name="akka-fusion" class="anchor"><span class="anchor-link"></span></a>Akka Fusion</h1>
-<p>Akka Fusion可以轻松创建独立的，生产级的基于Akka的应用程序。我们集成了Akka生态系统里常用及流行的组件，可以快速搭建你的应用。</p>
-<p>大多数Akka Fusion应用程序只需要很少的 <a href="configuration/index.html">配置</a>。</p>
-<p>官网：<a href="https://helloscala.github.io/akka-fusion/">https://helloscala.github.io/akka-fusion/</a>。</p>
-<p>Akka Fusion以Akka工具库为基础，为用户提供开箱及用的微服务、云应用框架。Akka Fusion集成了Scala/Akka社区各种优秀的开源组件， 让你可以快速开始你的微服务开发，就像Spring Boot、Spring Cloud一样。但Akka Fusion更加强大、易用、安全， 它具有完备的编译期检查，让你在开发阶段即可排除更多的错误。</p>
-<h2><a href="#快速开始" name="快速开始" class="anchor"><span class="anchor-link"></span></a>快速开始</h2>
-<p>代码：</p>
-<pre class="prettyprint"><code class="language-scala">object SampleApplication extends App {
-  Injects.instance[SampleServer].start()
-}
-
-// Server
-@Singleton
-class SampleServer @Inject()(val routes: SampleRoute) extends FusionServer
-
-// Controller
-@Singleton
-class SampleRoute @Inject()(sampleService: SampleService) extends AbstractRoute {
-  override def route: Route = pathGet(&quot;hello&quot;) {
-    parameters((&#39;hello, &#39;year.as[Int].?(2019))).as(SampleReq) { req =&gt;
-      futureComplete(sampleService.hello(req))
-    }
-  }
-}
-
-// Request、Response Model
-case class SampleReq(hello: String, year: Int)
-case class SampleResp(hello: String, year: Int, language: String)
-
-// Service
-@Singleton
-class SampleService @Inject()(implicit ec: ExecutionContext) {
-  def hello(req: SampleReq): Future[SampleResp] = Future {
-    SampleResp(req.hello, req.year, &quot;scala&quot;)
-  }
-}</code></pre><a href="https://github.com/helloscala/akka-boot/tree/master/fusion-docs/src/main/scala/fusion/docs/sample/SampleApplication.scala#L12-L40">Full source at GitHub</a>
-<p>测试：</p>
-<pre><code>$ curl -i http://localhost:8000/hello?hello=Hello
-HTTP/1.1 200 OK
-Fusion-Server: fusion/0:0:0:0:0:0:0:0:8000
-Server: akka-http/10.1.7
-Date: Sat, 16 Feb 2019 11:24:37 GMT
-Content-Type: application/json
-Content-Length: 48
-
-{&quot;hello&quot;:&quot;Hello&quot;,&quot;year&quot;:2019,&quot;language&quot;:&quot;scala&quot;}
-</code></pre>
-<h2><a href="#目录" name="目录" class="anchor"><span class="anchor-link"></span></a>目录</h2>
-<div class="toc ">
-<ul>
-  <li><a href="intro/index.html" class="page">Introduction</a></li>
-  <li><a href="configuration/index.html" class="page">配置</a>
-  <ul>
-    <li><a href="configuration/index.html#fusion-core" class="header">fusion-core</a></li>
-  </ul></li>
-</ul>
-</div>
+<h1><a href="#配置" name="配置" class="anchor"><span class="anchor-link"></span></a>配置</h1>
+<p>Akka Fusion配置。</p>
+<h2><a href="#fusion-core" name="fusion-core" class="anchor"><span class="anchor-link"></span></a>fusion-core</h2>
+<pre class="prettyprint"><code class="language-conf">fusion {
+  # Fusion系统名，同时也设置为ActorSystem的name
+  name = &quot;fusion&quot;
+  # Fusion内建模块（Guice）
+  module += &quot;fusion.core.inject.builtin.BuiltinModule&quot;
+}</code></pre><a href="https://github.com/helloscala/akka-boot/tree/master/fusion-core/src/main/resources/reference.conf">Full source at GitHub</a>
 </div>
 <div>
-<a href="https://github.com/helloscala/akka-boot/tree/master/fusion-docs/src/main/paradox/index.md" title="Edit this page" class="md-source-file md-edit">
+<a href="https://github.com/helloscala/akka-boot/tree/master/fusion-docs/src/main/paradox/configuration/index.md" title="Edit this page" class="md-source-file md-edit">
 Edit this page
 </a>
 </div>
@@ -254,17 +209,17 @@ Edit this page
 <footer class="md-footer">
 <div class="md-footer-nav">
 <nav class="md-footer-nav__inner md-grid">
-<a href="intro/index.html" title="Introduction" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+<a href="../intro/index.html" title="Introduction" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+<div class="md-flex__cell md-flex__cell--shrink">
+<i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
+</div>
 <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
 <span class="md-flex__ellipsis">
 <span class="md-footer-nav__direction">
-Next
+Previous
 </span>
 Introduction
 </span>
-</div>
-<div class="md-flex__cell md-flex__cell--shrink">
-<i class="md-icon md-icon--arrow-forward md-footer-nav__button"></i>
 </div>
 </a>
 </nav>
@@ -287,11 +242,11 @@ and
 </footer>
 
 </div>
-<script src="assets/javascripts/application.583bbe55.js"></script>
-<script src="assets/javascripts/paradox-material-theme.js"></script>
-<script>app.initialize({version:"0.17",url:{base:"."}})</script>
-<script type="text/javascript" src="lib/prettify/prettify.js"></script>
-<script type="text/javascript" src="lib/prettify/lang-scala.js"></script>
+<script src="../assets/javascripts/application.583bbe55.js"></script>
+<script src="../assets/javascripts/paradox-material-theme.js"></script>
+<script>app.initialize({version:"0.17",url:{base:"../."}})</script>
+<script type="text/javascript" src="../lib/prettify/prettify.js"></script>
+<script type="text/javascript" src="../lib/prettify/lang-scala.js"></script>
 <script type="text/javascript">
 document.addEventListener("DOMContentLoaded", function(event) {
 window.prettyPrint && prettyPrint();

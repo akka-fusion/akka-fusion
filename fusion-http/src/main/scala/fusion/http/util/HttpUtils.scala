@@ -2,30 +2,68 @@ package fusion.http.util
 
 import java.nio.charset.{Charset, UnsupportedCharsetException}
 
+import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.unmarshalling.{FromEntityUnmarshaller, Unmarshal}
-import akka.stream.{ActorMaterializer, Materializer, OverflowStrategy, QueueOfferResult}
 import akka.stream.scaladsl.{Keep, Sink, Source}
+import akka.stream.{ActorMaterializer, Materializer, OverflowStrategy, QueueOfferResult}
 import akka.util.ByteString
 import com.fasterxml.jackson.databind.node.ArrayNode
+import com.typesafe.config.{Config, ConfigFactory}
 import com.typesafe.scalalogging.StrictLogging
+import fusion.core.constant.ConfigConstant
 import fusion.http.HttpSourceQueue
 import fusion.http.exception.HttpException
 import helloscala.common.exception.HSException
 import helloscala.common.jackson.Jackson
 import helloscala.common.util.StringUtils
 
+import scala.collection.JavaConverters._
 import scala.collection.immutable
+import scala.concurrent.duration._
 import scala.concurrent.{Await, ExecutionContext, Future, Promise}
 import scala.reflect.ClassTag
 import scala.util.{Failure, Success}
-import scala.concurrent.duration._
-import scala.collection.JavaConverters._
 
 object HttpUtils extends StrictLogging {
 
   val AKKA_HTTP_ROUTES_DISPATCHER = "akka-http-routes-dispatcher"
+  private[util] var customMediaTypes: Map[String, MediaType] = getDefaultMediaTypes(ConfigFactory.load())
+
+  private def getDefaultMediaTypes(config: Config): Map[String, MediaType] = {
+    val compressibles = Map("compressible" -> MediaType.Compressible,
+                            "notcompressible" -> MediaType.NotCompressible,
+                            "gzipped" -> MediaType.Gzipped).withDefaultValue(MediaType.NotCompressible)
+    if (!config.hasPath(ConfigConstant.HTTP.CUSTOM_MEDIA_TYPES)) {
+      Map()
+    } else {
+      config
+        .getStringList(ConfigConstant.HTTP.CUSTOM_MEDIA_TYPES)
+        .asScala
+        .flatMap { line =>
+          try {
+            val Array(mediaType, binary, compress, extensions) = line.split(';')
+            val mt = MediaType.custom(mediaType,
+                                      binary.toBoolean,
+                                      compressibles(compress),
+                                      extensions.split(',').toList.map(_.trim).filter(_.nonEmpty))
+            mt.fileExtensions.map(_ -> mt)
+          } catch {
+            case _: Throwable => Nil
+          }
+        }
+        .toMap
+    }
+  }
+
+  def forExtension(ext: String): Option[MediaType] = {
+    MediaTypes.forExtensionOption(ext).orElse(customMediaTypes.get(ext))
+  }
+
+  def registerMediaType(mediaTypes: MediaType*): Unit = {
+    customMediaTypes = customMediaTypes ++ mediaTypes.flatMap(mediaType => mediaType.fileExtensions.map(_ -> mediaType))
+  }
 
   def dump(response: HttpResponse)(implicit mat: Materializer) {
     val future = Unmarshal(response.entity).to[String]
@@ -39,9 +77,7 @@ object HttpUtils extends StrictLogging {
   @inline
   def haveSuccess(status: Int): Boolean = status >= 200 && status < 300
 
-  def mapHttpResponse[R: ClassTag](
-      response: HttpResponse
-  )(
+  def mapHttpResponse[R: ClassTag](response: HttpResponse)(
       implicit
       mat: Materializer,
       um: FromEntityUnmarshaller[R] = JacksonSupport.unmarshaller,
@@ -80,9 +116,7 @@ object HttpUtils extends StrictLogging {
       mapHttpResponseError[List[R]](response)
     }
 
-  def mapHttpResponseError[R](
-      response: HttpResponse
-  )(
+  def mapHttpResponseError[R](response: HttpResponse)(
       implicit
       mat: Materializer,
       ec: ExecutionContext = null
@@ -121,10 +155,6 @@ object HttpUtils extends StrictLogging {
       case _: UnsupportedCharsetException =>
         None
     }
-
-  //  private def notTransforHeader(header: HttpHeader) = {
-  //    header.lowercaseName().equals("content-type") || header.lowercaseName().equals("content-length")
-  //  }
 
   /**
    * 根据 Content-Type 字符串解析转换成
@@ -182,18 +212,12 @@ object HttpUtils extends StrictLogging {
     Option(httpContentType)
   }
 
-  def getMediaTypeFromSuffix(suffix: String): Option[MediaType] =
-    ???
-
-  def cachedHostConnectionPool(url: String)(implicit mat: ActorMaterializer): HttpSourceQueue = {
+  def cachedHostConnectionPool(url: String)(implicit system: ActorSystem, mat: Materializer): HttpSourceQueue = {
     val uri = Uri(url)
     uri.scheme match {
-      case "http" =>
-        cachedHostConnectionPool(uri.authority.host.address(), uri.authority.port)
-      case "https" =>
-        cachedHostConnectionPoolHttps(uri.authority.host.address(), uri.authority.port)
-      case _ =>
-        throw new IllegalArgumentException(s"URL: $url 不是有效的 http 或 https 协议")
+      case "http"  => cachedHostConnectionPool(uri.authority.host.address(), uri.authority.port)
+      case "https" => cachedHostConnectionPoolHttps(uri.authority.host.address(), uri.authority.port)
+      case _       => throw new IllegalArgumentException(s"URL: $url 不是有效的 http 或 https 协议")
     }
   }
 
@@ -205,16 +229,17 @@ object HttpUtils extends StrictLogging {
    * @param mat  ActorMaterializer
    * @return
    */
-  def cachedHostConnectionPool(host: String, port: Int = 80)(implicit mat: ActorMaterializer): HttpSourceQueue = {
-    implicit val system = mat.system
+  def cachedHostConnectionPool(host: String, port: Int)(
+      implicit system: ActorSystem,
+      mat: Materializer): HttpSourceQueue = {
     val poolClientFlow =
       Http().cachedHostConnectionPool[Promise[HttpResponse]](host, port)
     Source
       .queue[(HttpRequest, Promise[HttpResponse])](512, OverflowStrategy.dropNew)
       .via(poolClientFlow)
       .toMat(Sink.foreach({
-        case ((Success(resp), p)) => p.success(resp)
-        case ((Failure(e), p))    => p.failure(e)
+        case (Success(resp), p) => p.success(resp)
+        case (Failure(e), p)    => p.failure(e)
       }))(Keep.left)
       .run()
   }
@@ -227,22 +252,24 @@ object HttpUtils extends StrictLogging {
    * @param mat  ActorMaterializer
    * @return
    */
-  def cachedHostConnectionPoolHttps(host: String, port: Int = 80)(implicit mat: ActorMaterializer): HttpSourceQueue = {
-    implicit val system = mat.system
+  def cachedHostConnectionPoolHttps(host: String, port: Int = 80)(
+      implicit system: ActorSystem,
+      mat: Materializer): HttpSourceQueue = {
     val poolClientFlow =
       Http().cachedHostConnectionPoolHttps[Promise[HttpResponse]](host, port)
     Source
       .queue[(HttpRequest, Promise[HttpResponse])](512, OverflowStrategy.dropNew)
       .via(poolClientFlow)
       .toMat(Sink.foreach({
-        case ((Success(resp), p)) => p.success(resp)
-        case ((Failure(e), p))    => p.failure(e)
+        case (Success(resp), p) => p.success(resp)
+        case (Failure(e), p)    => p.failure(e)
       }))(Keep.left)
       .run()
   }
 
   /**
    * 发送 Http 请求
+   *
    * @param method 请求方法类型
    * @param uri 请求地址
    * @param params 请求URL查询参数
@@ -313,9 +340,9 @@ object HttpUtils extends StrictLogging {
       ec: ExecutionContext): Future[HttpResponse] = {
     val entity = if (data != null) {
       data match {
-        case entity: MessageEntity => entity
+        case entity: RequestEntity => entity
         case _ =>
-          HttpEntity(ContentTypes.`application/json`, Jackson.defaultObjectMapper.writeValueAsString(data))
+          HttpEntity(ContentTypes.`application/json`, Jackson.stringify(data))
       }
     } else {
       HttpEntity.Empty

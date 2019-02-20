@@ -131,7 +131,9 @@ lazy val fusionJdbc = _project("fusion-jdbc")
   .dependsOn(fusionTest % "test->test", fusionCore)
   .settings(
     libraryDependencies ++= Seq(
-      _hikariCP
+      _hikariCP,
+      _postgresql % Test,
+      _mysql % Test
     )
   )
 

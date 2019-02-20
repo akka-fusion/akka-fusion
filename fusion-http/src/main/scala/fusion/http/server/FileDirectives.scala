@@ -7,14 +7,41 @@ import akka.http.scaladsl.model.Multipart
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server._
 import akka.http.scaladsl.server.directives.FileInfo
-import akka.stream.scaladsl.{FileIO, Source}
+import akka.stream.scaladsl.{FileIO, Sink, Source}
 import akka.util.ByteString
 import fusion.http.model.FileTemp
 import helloscala.common.util.{DigestUtils, StringUtils}
 
+import scala.collection.immutable
 import scala.concurrent.Future
 
 trait FileDirectives {
+
+  def uploadedMultiFile(tmpDirectory: Path): Directive1[immutable.Seq[(FileInfo, Path)]] =
+    entity(as[Multipart.FormData])
+      .flatMap { formData ⇒
+        extractRequestContext.flatMap { ctx ⇒
+          import ctx.{executionContext, materializer}
+
+          val multiPartF = formData.parts
+            .map { part =>
+              val destination = Files.createTempFile(tmpDirectory, part.name, ".tmp")
+              val uploadedF: Future[(FileInfo, Path)] =
+                part.entity.dataBytes
+                  .runWith(FileIO.toPath(destination))
+                  .map(_ => (FileInfo(part.name, part.filename.get, part.entity.contentType), destination))
+              uploadedF
+            }
+            .runWith(Sink.seq)
+            .flatMap(list => Future.sequence(list))
+
+          onSuccess(multiPartF)
+        }
+      }
+      .flatMap {
+        case Nil  => reject(ValidationRejection("没有任何上传文件"))
+        case list => provide(list)
+      }
 
   def uploadedOneFile: Directive1[(FileInfo, Source[ByteString, Any])] = entity(as[Multipart.FormData]).flatMap {
     formData ⇒
@@ -67,6 +94,21 @@ trait FileDirectives {
                 throw e
             }
           onSuccess(uploadF)
+      }
+    }
+
+  def uploadedMultiShaFile(tmpDirectory: Path): Directive1[immutable.Seq[(FileInfo, FileTemp)]] =
+    extractRequestContext.flatMap { ctx =>
+      import ctx.executionContext
+      import ctx.materializer
+      uploadedMultiFile(tmpDirectory).flatMap { list =>
+        val futures = list.map {
+          case (fileInfo, path) =>
+            DigestUtils
+              .reactiveSha256Hex(path)
+              .map(hash => fileInfo -> FileTemp(hash, Files.size(path), path))
+        }
+        onSuccess(Future.sequence(futures))
       }
     }
 

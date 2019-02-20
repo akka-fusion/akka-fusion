@@ -17,18 +17,18 @@ object Dependencies {
 
   val _scalatest = "org.scalatest" %% "scalatest" % "3.0.5"
 
-  val versionAkka = "2.5.20"
+  val versionAkka = "2.5.21"
   lazy val _akkaRemote = "com.typesafe.akka" %% "akka-remote" % versionAkka
 
   val _akkaTestkit = "com.typesafe.akka" %% "akka-testkit" % versionAkka
-  
+
   val _akkaStreamTestkit = "com.typesafe.akka" %% "akka-stream-testkit" % versionAkka
-  
+
   lazy val _akkas = Seq(
     "com.typesafe.akka" %% "akka-slf4j" % versionAkka,
     "com.typesafe.akka" %% "akka-stream" % versionAkka,
 //    "com.typesafe.akka" %% "akka-stream-typed" % versionAkka,
-_akkaTestkit     % Test,
+    _akkaTestkit % Test,
 //    "com.typesafe.akka" %% "akka-actor-testkit-typed" % versionAkka % Test,
     _akkaStreamTestkit % Test
   ).map(
@@ -58,9 +58,11 @@ _akkaTestkit     % Test,
   val versionAkkaHttp = "10.1.7"
   val _akkaHttpCore = "com.typesafe.akka" %% "akka-http-core" % versionAkkaHttp
 
+  val _akkaHttpTestkit = "com.typesafe.akka" %% "akka-http-testkit" % versionAkkaHttp
+
   val _akkaHttps = Seq(
     "com.typesafe.akka" %% "akka-http" % versionAkkaHttp,
-    "com.typesafe.akka" %% "akka-http-testkit" % versionAkkaHttp % Test
+    _akkaHttpTestkit % Test
   ).map(
     _.exclude("com.typesafe.akka", "akka-stream")
       .withCrossVersion(CrossVersion.binary)
@@ -157,7 +159,7 @@ _akkaTestkit     % Test,
   val _hanlp = "com.hankcs" % "hanlp" % "portable-1.7.1"
 
   val _guice = "com.google.inject" % "guice" % "4.2.2"
-  
+
   private val versionJackson = "2.9.8"
 
   val _jacksons = Seq(
@@ -269,7 +271,7 @@ _akkaTestkit     % Test,
   val _h2 = "com.h2database" % "h2" % "1.4.197"
 
   val _bcprovJdk15on = "org.bouncycastle" % "bcprov-jdk15on" % "1.60"
-  
+
   private val versionQuartz = "2.2.3"
   val _quartz = "org.quartz-scheduler" % "quartz" % versionQuartz
 

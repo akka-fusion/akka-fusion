@@ -22,6 +22,7 @@ scalafmtOnCompile in ThisBuild := true
 
 lazy val root = Project(id = "akka-fusion", base = file("."))
   .aggregate(
+    fusionJob,
     fusionHttpApiGateway,
     fusionHttp,
     fusionOauth,
@@ -39,6 +40,7 @@ lazy val root = Project(id = "akka-fusion", base = file("."))
 lazy val fusionDocs = _project("fusion-docs")
   .enablePlugins(ParadoxMaterialThemePlugin)
   .dependsOn(
+    fusionJob,
     fusionHttpApiGateway,
     fusionHttp,
     fusionOauth,
@@ -54,11 +56,11 @@ lazy val fusionDocs = _project("fusion-docs")
   .settings(
     Compile / paradoxMaterialTheme ~= {
       _.withLanguage(java.util.Locale.SIMPLIFIED_CHINESE)
-        .withColor("teal", "indigo")
-        .withRepository(uri("https://github.com/helloscala/akka-fusion"))
+        .withColor("pink", "indigo")
+        .withRepository(uri("https://github.com/ihongka/akka-fusion"))
         .withSocial(
-          uri("http://fusion.helloscala.com/"),
-          uri("https://github.com/yangbajing"),
+          uri("http://ihongka.github.io/akka-fusion/"),
+          uri("https://github.com/ihongka"),
           uri("https://weibo.com/yangbajing")
         )
     }
@@ -66,15 +68,24 @@ lazy val fusionDocs = _project("fusion-docs")
 
 lazy val fusionHttpApiGateway = _project("fusion-http-api-gateway")
   .enablePlugins(ParadoxMaterialThemePlugin)
-  .dependsOn(fusionHttp, fusionTest % "compile->compile;test->test", fusionCore)
+  .dependsOn(fusionHttp, fusionTest % "test->test", fusionCore)
   .settings(
     libraryDependencies ++= Seq(
       ) ++ _jacksons
   )
 
+lazy val fusionJob = _project("fusion-job")
+  .enablePlugins(ParadoxMaterialThemePlugin)
+  .dependsOn(fusionTest % "test->test", fusionCore)
+  .settings(
+    libraryDependencies ++= Seq(
+      _quartz
+    )
+  )
+
 lazy val fusionHttp = _project("fusion-http")
   .enablePlugins(ParadoxMaterialThemePlugin)
-  .dependsOn(fusionTest % "compile->compile;test->test", fusionCore)
+  .dependsOn(fusionTest % "test->test", fusionCore)
   .settings(
     libraryDependencies ++= Seq(
       ) ++ _akkaHttps
@@ -82,7 +93,7 @@ lazy val fusionHttp = _project("fusion-http")
 
 lazy val fusionOauth = _project("fusion-oauth")
   .enablePlugins(ParadoxMaterialThemePlugin)
-  .dependsOn(fusionTest % "compile->compile;test->test", fusionCore)
+  .dependsOn(fusionTest % "test->test", fusionCore)
   .settings(
     mainClass in Compile := Some("fusion.oauth.fusion.OauthMain"),
     libraryDependencies ++= Seq(
@@ -134,6 +145,7 @@ lazy val fusionTest = _project("fusion-test")
       _chillAkka,
       _akkaTestkit,
       _akkaStreamTestkit,
+      _akkaHttpTestkit,
       _scalatest
     )
   )
@@ -169,7 +181,7 @@ def _project(name: String, _base: String = null) =
     .settings(Publishing.publishing: _*)
     .settings(
       paradoxProperties ++= Map(
-        "github.base_url" -> s"https://github.com/helloscala/akka-fusion/tree/${version.value}",
+        "github.base_url" -> s"https://github.com/ihongka/akka-fusion/tree/${version.value}",
         "scala.version" -> scalaVersion.value,
         "scala.binary_version" -> scalaBinaryVersion.value,
         "scaladoc.akka.base_url" -> s"http://doc.akka.io/api/$versionAkka",

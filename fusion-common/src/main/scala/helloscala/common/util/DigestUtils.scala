@@ -1,14 +1,13 @@
 package helloscala.common.util
 
-import java.nio.ByteBuffer
 import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path}
 import java.security.MessageDigest
 
-import akka.stream.ActorMaterializer
+import akka.stream.Materializer
 import akka.stream.scaladsl.{FileIO, Sink}
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 object MessageDigestAlgorithms {
 
@@ -55,18 +54,18 @@ object DigestUtils {
     md.digest()
   }
 
-  def _sha(path: Path, md: MessageDigest): Array[Byte] =
-    _sha(path, md, ByteBuffer.allocateDirect(DEFAULT_BYTE_BUFFER_SIZE))
+//  def _sha(path: Path, md: MessageDigest): Array[Byte] =
+//    _sha(path, md /*, ByteBuffer.allocate(DEFAULT_BYTE_BUFFER_SIZE)*/ )
 
-  def _sha(path: Path, md: MessageDigest, buf: ByteBuffer): Array[Byte] = {
-    val channel = Files.newByteChannel(path)
+  def _sha(path: Path, md: MessageDigest /*, buf: ByteBuffer*/ ): Array[Byte] = {
+    val channel = Files.newInputStream(path)
+    val buf = Array.ofDim[Byte](8192)
     try {
       var rsize = 0
       do {
         rsize = channel.read(buf)
         if (rsize > 0) {
-          md.update(buf)
-          buf.clear()
+          md.update(buf, 0, rsize)
         }
       } while (rsize > 0)
       md.digest()
@@ -90,11 +89,7 @@ object DigestUtils {
     sha1Hex(data.getBytes(StandardCharsets.UTF_8))
 
   def sha1(path: Path): Array[Byte] =
-    _sha(
-      path,
-      digestSha1(),
-      ByteBuffer.allocateDirect(DEFAULT_FILE_BYTE_BUFFER_SIZE)
-    )
+    _sha(path, digestSha1())
 
   def sha1Hex(path: Path): String = StringUtils.hex2Str(sha1(path))
 
@@ -106,13 +101,9 @@ object DigestUtils {
     sha256Hex(data.getBytes(StandardCharsets.UTF_8))
 
   def sha256(path: Path): Array[Byte] =
-    _sha(
-      path,
-      digestSha256(),
-      ByteBuffer.allocateDirect(DEFAULT_FILE_BYTE_BUFFER_SIZE)
-    )
+    _sha(path, digestSha256())
 
-  def sha256Hex(path: Path): String = StringUtils.hex2Str(sha256(path))
+  def sha256HexFromPath(path: Path): String = StringUtils.hex2Str(sha256(path))
 
   def sha512(data: Array[Byte]): Array[Byte] = _sha(data, digestSha512())
 
@@ -122,25 +113,19 @@ object DigestUtils {
     sha512Hex(data.getBytes(StandardCharsets.UTF_8))
 
   def sha512(path: Path): Array[Byte] =
-    _sha(
-      path,
-      digestSha512(),
-      ByteBuffer.allocateDirect(DEFAULT_FILE_BYTE_BUFFER_SIZE)
-    )
+    _sha(path, digestSha512())
 
   def sha512Hex(path: Path): String = StringUtils.hex2Str(sha512(path))
 
   def reactiveSha256Hex(
       path: Path
-  )(implicit mat: ActorMaterializer): Future[String] = {
-    import mat.executionContext
+  )(implicit mat: Materializer, ec: ExecutionContext): Future[String] = {
     reactiveSha256(path).map(bytes => StringUtils.hex2Str(bytes))
   }
 
   def reactiveSha256(
       path: Path
-  )(implicit mat: ActorMaterializer): Future[Array[Byte]] = {
-    import mat.executionContext
+  )(implicit mat: Materializer, ec: ExecutionContext): Future[Array[Byte]] = {
     val md = digestSha256()
     FileIO
       .fromPath(path)

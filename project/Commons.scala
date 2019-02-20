@@ -13,12 +13,12 @@ object Commons {
   def basicSettings =
     Seq(
       organization := "com.helloscala.fusion",
-      organizationName := "Helloscala",
-      organizationHomepage := Some(url("http://helloscala.com")),
-      homepage := Some(url("http://akka-fusion.helloscala.com")),
+      organizationName := "ihongka",
+      organizationHomepage := Some(url("http://ihongka.cn")),
+      homepage := Some(url("http://ihongka.github.cn/akka-fusion")),
       startYear := Some(2018),
       licenses += ("Apache-2.0", new URL("https://www.apache.org/licenses/LICENSE-2.0.txt")),
-      headerLicense := Some(HeaderLicense.ALv2("2019", "Helloscala")),
+      headerLicense := Some(HeaderLicense.ALv2("2019", "ihongka")),
       scalacOptions ++= {
         var list = Seq(
           "-encoding",
@@ -79,8 +79,9 @@ object Commons {
 object Publishing {
 
   lazy val publishing = Seq(
-    publishTo := (if (buildEnv.value == BuildEnv.Developement) {
-                    Some("Helloscala_sbt-public_snapshot" at "http://artifactory.helloscala.com/artifactory/sbt-public;build.timestamp=" + new java.util.Date().getTime)
+    publishTo := (if (version.value.endsWith("SNAPSHOT")) {
+                    Some(
+                      "Helloscala_sbt-public_snapshot" at "http://artifactory.helloscala.com/artifactory/sbt-public;build.timestamp=" + new java.util.Date().getTime)
                   } else {
                     Some("Helloscala_sbt-public_release" at "http://artifactory.helloscala.com/artifactory/sbt-public")
                   }),

@@ -3,7 +3,7 @@ package helloscala.common.util
 import java.lang.management.ManagementFactory
 import java.nio.ByteBuffer
 import java.security.SecureRandom
-import java.time.{LocalDate, LocalDateTime}
+import java.time.{Instant, LocalDate, LocalDateTime}
 import java.util.Properties
 import java.util.concurrent.ThreadLocalRandom
 
@@ -25,6 +25,14 @@ object Utils {
     } finally {
       res.close()
     }
+  }
+
+  def timing[T](func: => T): (T, Instant) = {
+    val begin = Instant.now()
+    val result = func
+    val end = Instant.now()
+    val cost = java.time.Duration.between(begin, end)
+    result -> end
   }
 
   def swap[X, Y](x: X, y: Y): (Y, X) = (y, x)

@@ -166,50 +166,6 @@ trait AbstractRoute extends Directives with HttpDirectives with FileDirectives {
     }
   }
 
-  def multiUploadedFile: Directive1[immutable.Seq[(FileInfo, Path)]] =
-    entity(as[Multipart.FormData])
-      .flatMap { formData ⇒
-        extractRequestContext.flatMap { ctx ⇒
-          import ctx.{executionContext, materializer}
-
-          val multiPartF = formData.parts
-            .map { part =>
-              val destination = Files.createTempFile("akka-http-upload", ".tmp")
-              val uploadedF: Future[(FileInfo, Path)] =
-                part.entity.dataBytes
-                  .runWith(FileIO.toPath(destination))
-                  .map(_ => (FileInfo(part.name, part.filename.get, part.entity.contentType), destination))
-              uploadedF
-            }
-            .runWith(Sink.seq)
-            .flatMap(list => Future.sequence(list))
-
-          onSuccess(multiPartF)
-        }
-      }
-      .flatMap {
-        case Nil  => reject(ValidationRejection("没有任何上传文件"))
-        case list => provide(list)
-      }
-
-  def multiFileUpload: Directive1[immutable.Seq[(FileInfo, Source[ByteString, Any])]] =
-    entity(as[Multipart.FormData])
-      .flatMap { formData ⇒
-        extractRequestContext.flatMap { ctx ⇒
-          import ctx.materializer
-
-          val multiPartF = formData.parts
-            .map(part ⇒ (FileInfo(part.name, part.filename.get, part.entity.contentType), part.entity.dataBytes))
-            .runWith(Sink.seq)
-
-          onSuccess(multiPartF)
-        }
-      }
-      .flatMap {
-        case Nil  => reject(ValidationRejection("没有任何上传文件"))
-        case list => provide(list)
-      }
-
   /**
    * REST API 转发代理
    *

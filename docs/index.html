@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta http-equiv="x-ua-compatible" content="ie=edge">
 <meta name="description" content="fusion-docs">
-<meta name="generator" content="Paradox, paradox-material-theme=0.5.1, mkdocs-material=3.0.3">
+<meta name="generator" content="Paradox, paradox-material-theme=0.6.0, mkdocs-material=3.0.3">
 
 <meta name="lang:clipboard.copy" content="Copy to clipboard">
 <meta name="lang:clipboard.copied" content="Copied to clipboard">
@@ -23,7 +23,7 @@
 <title>Akka Fusion</title>
 <link rel="stylesheet" href="assets/stylesheets/application.451f80e5.css">
 <link rel="stylesheet" href="assets/stylesheets/application-palette.22915126.css">
-<meta name="theme-color" content="#009688" />
+<meta name="theme-color" content="#e91e63" />
 <link rel="stylesheet" href="lib/material__tabs/dist/mdc.tabs.min.css">
 <link rel="stylesheet" href="lib/prettify/prettify.css">
 <script src="assets/javascripts/modernizr.1aa3b519.js"></script>
@@ -37,7 +37,7 @@ code,kbd,pre{font-family:"Roboto Mono","Courier New",Courier,monospace}
 <link rel="stylesheet" href="assets/stylesheets/paradox-material-theme.css">
 </head>
 <body
-data-md-color-primary="teal"
+data-md-color-primary="pink"
 data-md-color-accent="indigo"
 >
 <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
@@ -85,7 +85,7 @@ Type to start searching
 </div>
 <div class="md-flex__cell md-flex__cell--shrink">
 <div class="md-header-nav__source">
-<a href="https://github.com/helloscala/akka-fusion"
+<a href="https://github.com/ihongka/akka-fusion"
 title="Go to repository"
 class="md-source"
 data-md-source="github">
@@ -93,7 +93,7 @@ data-md-source="github">
 <i class="fa fa-github"></i>
 </div>
 <div class="md-source__repository">
-helloscala/akka-fusion
+ihongka/akka-fusion
 </div>
 </a>
 
@@ -120,7 +120,7 @@ Akka Fusion
 </a>
 </label>
 <div class="md-nav__source">
-<a href="https://github.com/helloscala/akka-fusion"
+<a href="https://github.com/ihongka/akka-fusion"
 title="Go to repository"
 class="md-source"
 data-md-source="github">
@@ -128,7 +128,7 @@ data-md-source="github">
 <i class="fa fa-github"></i>
 </div>
 <div class="md-source__repository">
-helloscala/akka-fusion
+ihongka/akka-fusion
 </div>
 </a>
 
@@ -182,11 +182,11 @@ helloscala/akka-fusion
 <h1><a href="#akka-fusion" name="akka-fusion" class="anchor"><span class="anchor-link"></span></a>Akka Fusion</h1>
 <p>Akka Fusion可以轻松创建独立的，生产级的基于Akka的应用程序。我们集成了Akka生态系统里常用及流行的组件，可以快速搭建你的应用。</p>
 <p>大多数Akka Fusion应用程序只需要很少的 <a href="configuration/index.html">配置</a>。</p>
-<p>官网：<a href="https://helloscala.github.io/akka-fusion/">https://helloscala.github.io/akka-fusion/</a>。</p>
+<p>官网：<a href="https://ihongka.github.io/akka-fusion/">https://ihongka.github.io/akka-fusion/</a>。</p>
 <p>Akka Fusion以Akka工具库为基础，为用户提供开箱及用的微服务、云应用框架。Akka Fusion集成了Scala/Akka社区各种优秀的开源组件， 让你可以快速开始你的微服务开发，就像Spring Boot、Spring Cloud一样。但Akka Fusion更加强大、易用、安全， 它具有完备的编译期检查，让你在开发阶段即可排除更多的错误。</p>
 <h2><a href="#快速开始" name="快速开始" class="anchor"><span class="anchor-link"></span></a>快速开始</h2>
 <p>代码：</p>
-<pre class="prettyprint"><code class="language-scala">object SampleApplication extends App {
+<pre class="prettyprint"><a class="icon go-to-source" href="https://github.com/ihongka/akka-fusion/tree/master/fusion-docs/src/main/scala/fusion/docs/sample/SampleApplication.scala#L12-L41" target="_blank" title="Go to snippet source"></a><code class="language-scala">object SampleApplication extends App {
   Injects.instance[SampleServer].start()
 }
 
@@ -211,10 +211,11 @@ case class SampleResp(hello: String, year: Int, language: String)
 // Service
 @Singleton
 class SampleService @Inject()(implicit ec: ExecutionContext) {
+
   def hello(req: SampleReq): Future[SampleResp] = Future {
     SampleResp(req.hello, req.year, &quot;scala&quot;)
   }
-}</code></pre><a href="https://github.com/helloscala/akka-boot/tree/master/fusion-docs/src/main/scala/fusion/docs/sample/SampleApplication.scala#L12-L40">Full source at GitHub</a>
+}</code></pre>
 <p>测试：</p>
 <pre><code>$ curl -i http://localhost:8000/hello?hello=Hello
 HTTP/1.1 200 OK
@@ -238,7 +239,7 @@ Content-Length: 48
 </div>
 </div>
 <div>
-<a href="https://github.com/helloscala/akka-boot/tree/master/fusion-docs/src/main/paradox/index.md" title="Edit this page" class="md-source-file md-edit">
+<a href="https://github.com/ihongka/akka-fusion/tree/master/fusion-docs/src/main/paradox/index.md" title="Edit this page" class="md-source-file md-edit">
 Edit this page
 </a>
 </div>
@@ -279,7 +280,7 @@ and
 
 </div>
 <div class="md-footer-social">
-<a href="http://fusion.helloscala.com/" class="md-footer-social__link fa fa-globe"></a><a href="https://github.com/yangbajing" class="md-footer-social__link fa fa-github"></a><a href="https://weibo.com/yangbajing" class="md-footer-social__link fa fa-globe"></a>
+<a href="http://ihongka.github.io/akka-fusion/" class="md-footer-social__link fa fa-globe"></a><a href="https://github.com/ihongka" class="md-footer-social__link fa fa-github"></a><a href="https://weibo.com/yangbajing" class="md-footer-social__link fa fa-globe"></a>
 </div>
 
 </div>

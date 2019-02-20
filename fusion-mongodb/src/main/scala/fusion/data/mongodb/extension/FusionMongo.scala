@@ -1,57 +1,61 @@
 package fusion.data.mongodb.extension
 
-import akka.actor.{ExtendedActorSystem, Extension, ExtensionId, ExtensionIdProvider}
+import akka.actor.{ActorSystem, ExtendedActorSystem, Extension, ExtensionId, ExtensionIdProvider}
+import com.mongodb.{ConnectionString, MongoClientSettings}
 import fusion.core.extension.FusionExtension
+import fusion.core.util.Components
+import fusion.data.mongodb.MongoTemplate
 import fusion.data.mongodb.constant.MongoConstants
 import helloscala.common.Configuration
 import org.mongodb.scala.{MongoClient, MongoDriverInformation}
 
-import scala.collection.mutable
+final class MongoComponents(system: ActorSystem) extends Components[MongoTemplate] {
+  override val component: MongoTemplate = createMongoTemplate(MongoConstants.PATH_DEFAULT)
+//  private val config = Configuration(system.settings.config).getConfiguration(MongoConstants.PATH_ROOT)
 
-final class FusionMongo private (val _system: ExtendedActorSystem) extends FusionExtension {
-  val mongoClient: MongoClient = createMongoClient(MongoConstants.PATH_ROOT)
-  system.registerOnTermination {
-    close()
+  override protected def lookupComponent(id: String): MongoTemplate = id match {
+    case MongoConstants.PATH_DEFAULT => component
+    case _                           => components.getOrElseUpdate(id, createMongoTemplate(id))
   }
 
-  private val otherMongoClients = mutable.Map.empty[String, MongoClient]
-
-  def lookup(id: String): MongoClient = synchronized {
-    id match {
-      case MongoConstants.PATH_ROOT => mongoClient
-      case _                        => otherMongoClients.getOrElseUpdate(id, createMongoClient(id))
+  override protected def registerComponent(
+      id: String,
+      component: MongoTemplate,
+      replaceExists: Boolean): MongoTemplate = {
+    require(id == MongoConstants.PATH_DEFAULT, s"id不能为默认Mongodb配置ID，$id == ${MongoConstants.PATH_DEFAULT}")
+    val beReplace = Configuration(system.settings.config).getOrElse[Boolean](id + ".replace-exists", replaceExists)
+    components.get(id).foreach {
+      case client if beReplace =>
+        client.close()
+        components.remove(id)
+      case _ =>
+        throw new IllegalAccessException(s"id重复，$id == ${MongoConstants.PATH_DEFAULT}")
     }
-  }
-
-  def registerClient(id: String, mongoClient: MongoClient, replaceExist: Boolean = false): MongoClient = synchronized {
-    require(id == MongoConstants.PATH_ROOT, s"id不能为默认Mongodb配置ID，$id == ${MongoConstants.PATH_ROOT}")
-    otherMongoClients.get(id).foreach { client =>
-      if (!replaceExist) {
-        throw new IllegalAccessException(s"id重复，$id == ${MongoConstants.PATH_ROOT}")
-      }
-      client.close()
-      otherMongoClients.remove(id)
-    }
-    val client = createMongoClient(id)
-    otherMongoClients.put(id, client)
+    val client = createMongoTemplate(id)
+    components.put(id, client)
     client
   }
 
-  private def createMongoClient(path: String): MongoClient = {
+  override def close(): Unit = {
+    component.close()
+    for ((_, client) <- components) {
+      client.close()
+    }
+  }
+
+  private def createMongoTemplate(path: String): MongoTemplate = {
     require(system.settings.config.hasPath(path), s"配置路径不存在，$path")
 
     val conf: Configuration = Configuration(system).getConfiguration(path)
     if (conf.hasPath("uri")) {
-      MongoClient(conf.getString("uri"), getMongoDriverInformation(conf))
+      val settings = MongoClientSettings
+        .builder()
+        .applyConnectionString(new ConnectionString(conf.getString("uri")))
+        .codecRegistry(MongoTemplate.DEFAULT_CODEC_REGISTRY)
+        .build()
+      MongoTemplate(MongoClient(settings, getMongoDriverInformation(conf)))
     } else {
       throw new IllegalAccessException(s"配置路径内无有效参数，$path")
-    }
-  }
-
-  private def close(): Unit = {
-    mongoClient.close()
-    for ((_, client) <- otherMongoClients) {
-      client.close()
     }
   }
 
@@ -69,6 +73,16 @@ final class FusionMongo private (val _system: ExtendedActorSystem) extends Fusio
       None
     }
   }
+
+}
+
+final class FusionMongo private (val _system: ExtendedActorSystem) extends FusionExtension {
+  val components = new MongoComponents(system)
+  system.registerOnTermination {
+    components.close()
+  }
+
+  def mongoTemplate: MongoTemplate = components.component
 }
 
 object FusionMongo extends ExtensionId[FusionMongo] with ExtensionIdProvider {

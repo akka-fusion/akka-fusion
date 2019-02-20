@@ -23,9 +23,9 @@ object Jackson {
   def treeToValue[T](tree: TreeNode)(implicit ev1: ClassTag[T]): T =
     defaultObjectMapper.treeToValue(tree, ev1.runtimeClass).asInstanceOf[T]
 
-  def stringify(v: AnyRef): String = defaultObjectMapper.writeValueAsString(v)
+  def stringify(v: Any): String = defaultObjectMapper.writeValueAsString(v)
 
-  def prettyStringify(v: AnyRef): String = defaultObjectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(v)
+  def prettyStringify(v: Any): String = defaultObjectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(v)
 
   def extract[T](tree: TreeNode)(implicit ev1: ClassTag[T]): Either[JsonProcessingException, T] = Utils.either {
     defaultObjectMapper.treeToValue(tree, ev1.runtimeClass).asInstanceOf[T]

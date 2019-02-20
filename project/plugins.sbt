@@ -19,7 +19,7 @@ addSbtPlugin("com.typesafe.sbt" % "sbt-native-packager" % "1.3.4")
 
 addSbtPlugin("com.geirsson" % "sbt-scalafmt" % "1.5.1")
 
-addSbtPlugin("io.github.jonas" % "sbt-paradox-material-theme" % "0.5.1")
+addSbtPlugin("io.github.jonas" % "sbt-paradox-material-theme" % "0.6.0")
 
 addSbtPlugin("com.dwijnand" % "sbt-dynver" % "3.0.0")
 

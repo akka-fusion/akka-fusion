@@ -20,7 +20,7 @@
 
 <meta name="description" content="fusion-docs">
 <link rel="shortcut icon" href="../assets/images/favicon.png">
-<title>配置 · Akka Fusion</title>
+<title>Data Mongodb · Akka Fusion</title>
 <link rel="stylesheet" href="../assets/stylesheets/application.451f80e5.css">
 <link rel="stylesheet" href="../assets/stylesheets/application-palette.22915126.css">
 <meta name="theme-color" content="#e91e63" />
@@ -60,7 +60,7 @@ data-md-color-accent="indigo"
 Akka Fusion
 </span>
 <span class="md-header-nav__topic">
-配置
+Data Mongodb
 </span>
 </div>
 </div>
@@ -141,18 +141,11 @@ ihongka/akka-fusion
 <ul>
   <li><a href="../intro/index.html" class="page">Introduction</a></li>
   <li><a href="../jdbc/index.html" class="page">Jdbc</a></li>
-  <li><a href="../data-mongodb/index.html" class="page">Data Mongodb</a></li>
+  <li><a href="../data-mongodb/index.html" class="active page">Data Mongodb</a></li>
   <li><a href="../data-kafka/index.html" class="page">Data Kafka</a></li>
-  <li><a href="../configuration/index.html" class="active page">配置</a></li>
+  <li><a href="../configuration/index.html" class="page">配置</a></li>
 </ul>
 <nav class="md-nav md-nav--secondary">
-<label class="md-nav__title" for="__toc">Table of contents</label>
-<ul>
-  <li><a href="../configuration/index.html#配置" class="header">配置</a>
-  <ul>
-    <li><a href="../configuration/index.html#fusion-core" class="header">fusion-core</a></li>
-  </ul></li>
-</ul>
 </nav>
 
 </nav>
@@ -166,37 +159,13 @@ ihongka/akka-fusion
 </div>
 </div>
 </div>
-<div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
-<div class="md-sidebar__scrollwrap">
-<div class="md-sidebar__inner">
-<nav class="md-nav md-nav--secondary">
-<label class="md-nav__title" for="__toc">Table of contents</label>
-<ul>
-  <li><a href="../configuration/index.html#配置" class="header">配置</a>
-  <ul>
-    <li><a href="../configuration/index.html#fusion-core" class="header">fusion-core</a></li>
-  </ul></li>
-</ul>
-</nav>
-
-</div>
-</div>
-</div>
 <div class="md-content">
 <article class="md-content__inner md-typeset">
 <div class="md-content__searchable">
-<h1><a href="#配置" name="配置" class="anchor"><span class="anchor-link"></span></a>配置</h1>
-<p>Akka Fusion配置。</p>
-<h2><a href="#fusion-core" name="fusion-core" class="anchor"><span class="anchor-link"></span></a>fusion-core</h2>
-<pre class="prettyprint"><a class="icon go-to-source" href="https://github.com/ihongka/akka-fusion/tree/master/fusion-core/src/main/resources/reference.conf" target="_blank" title="Go to snippet source"></a><code class="language-conf">fusion {
-  # Fusion系统名，同时也设置为ActorSystem的name
-  name = &quot;fusion&quot;
-  # Fusion内建模块（Guice）
-  module += &quot;fusion.core.inject.builtin.BuiltinModule&quot;
-}</code></pre>
+<h1><a href="#data-mongodb" name="data-mongodb" class="anchor"><span class="anchor-link"></span></a>Data Mongodb</h1>
 </div>
 <div>
-<a href="https://github.com/ihongka/akka-fusion/tree/master/fusion-docs/src/main/paradox/configuration/index.md" title="Edit this page" class="md-source-file md-edit">
+<a href="https://github.com/ihongka/akka-fusion/tree/master/fusion-docs/src/main/paradox/data-mongodb/index.md" title="Edit this page" class="md-source-file md-edit">
 Edit this page
 </a>
 </div>
@@ -212,7 +181,7 @@ Edit this page
 <footer class="md-footer">
 <div class="md-footer-nav">
 <nav class="md-footer-nav__inner md-grid">
-<a href="../data-kafka/index.html" title="Data Kafka" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+<a href="../jdbc/index.html" title="Jdbc" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
 <div class="md-flex__cell md-flex__cell--shrink">
 <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
 </div>
@@ -221,8 +190,21 @@ Edit this page
 <span class="md-footer-nav__direction">
 Previous
 </span>
+Jdbc
+</span>
+</div>
+</a>
+<a href="../data-kafka/index.html" title="Data Kafka" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+<div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+<span class="md-flex__ellipsis">
+<span class="md-footer-nav__direction">
+Next
+</span>
 Data Kafka
 </span>
+</div>
+<div class="md-flex__cell md-flex__cell--shrink">
+<i class="md-icon md-icon--arrow-forward md-footer-nav__button"></i>
 </div>
 </a>
 </nav>

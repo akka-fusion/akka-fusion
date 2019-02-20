@@ -4,9 +4,9 @@ object Dependencies {
   val versionScala = "2.12.8"
   val versionScalaLib = "2.12"
 
-  val _scalameta = "org.scalameta" %% "scalameta" % "4.1.0"
+  val _scalameta = "org.scalameta" %% "scalameta" % "4.1.4"
 
-  val _scalaXml = ("org.scala-lang.modules" %% "scala-xml" % "1.1.0")
+  val _scalaXml = ("org.scala-lang.modules" %% "scala-xml" % "1.1.1")
     .exclude("org.scala-lang", "scala-library")
 
   val _fastparse = "com.lihaoyi" %% "fastparse" % "1.0.0"
@@ -277,11 +277,11 @@ object Dependencies {
 
   val _postgresql = "org.postgresql" % "postgresql" % "42.2.5"
 
-  val _mysql = "mysql" % "mysql-connector-java" % "6.0.6"
+  val _mysql = "mysql" % "mysql-connector-java" % "5.1.47"
 
   val _mssql = "com.microsoft.sqlserver" % "mssql-jdbc" % "6.4.0.jre8"
 
-  val _hikariCP = "com.zaxxer" % "HikariCP" % "3.3.0"
+  val _hikariCP = "com.zaxxer" % "HikariCP" % "3.3.1"
 
   val _protobuf = "com.google.protobuf" % "protobuf-java" % "3.6.1"
 

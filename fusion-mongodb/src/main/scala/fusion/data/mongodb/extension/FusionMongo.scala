@@ -2,6 +2,7 @@ package fusion.data.mongodb.extension
 
 import akka.actor.{ActorSystem, ExtendedActorSystem, Extension, ExtensionId, ExtensionIdProvider}
 import com.mongodb.{ConnectionString, MongoClientSettings}
+import com.typesafe.config.Config
 import fusion.core.extension.FusionExtension
 import fusion.core.util.Components
 import fusion.data.mongodb.MongoTemplate
@@ -9,41 +10,13 @@ import fusion.data.mongodb.constant.MongoConstants
 import helloscala.common.Configuration
 import org.mongodb.scala.{MongoClient, MongoDriverInformation}
 
-final class MongoComponents(system: ActorSystem) extends Components[MongoTemplate] {
-  override val component: MongoTemplate = createMongoTemplate(MongoConstants.PATH_DEFAULT)
-//  private val config = Configuration(system.settings.config).getConfiguration(MongoConstants.PATH_ROOT)
+final private[mongodb] class MongoComponents(system: ActorSystem)
+    extends Components[MongoTemplate](MongoConstants.PATH_DEFAULT) {
+  override def config: Config = system.settings.config
 
-  override protected def lookupComponent(id: String): MongoTemplate = id match {
-    case MongoConstants.PATH_DEFAULT => component
-    case _                           => components.getOrElseUpdate(id, createMongoTemplate(id))
-  }
+  override protected def componentClose(c: MongoTemplate): Unit = c.close()
 
-  override protected def registerComponent(
-      id: String,
-      component: MongoTemplate,
-      replaceExists: Boolean): MongoTemplate = {
-    require(id == MongoConstants.PATH_DEFAULT, s"id不能为默认Mongodb配置ID，$id == ${MongoConstants.PATH_DEFAULT}")
-    val beReplace = Configuration(system.settings.config).getOrElse[Boolean](id + ".replace-exists", replaceExists)
-    components.get(id).foreach {
-      case client if beReplace =>
-        client.close()
-        components.remove(id)
-      case _ =>
-        throw new IllegalAccessException(s"id重复，$id == ${MongoConstants.PATH_DEFAULT}")
-    }
-    val client = createMongoTemplate(id)
-    components.put(id, client)
-    client
-  }
-
-  override def close(): Unit = {
-    component.close()
-    for ((_, client) <- components) {
-      client.close()
-    }
-  }
-
-  private def createMongoTemplate(path: String): MongoTemplate = {
+  override protected def createComponent(path: String): MongoTemplate = {
     require(system.settings.config.hasPath(path), s"配置路径不存在，$path")
 
     val conf: Configuration = Configuration(system).getConfiguration(path)

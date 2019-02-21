@@ -20,7 +20,7 @@
 
 <meta name="description" content="fusion-docs">
 <link rel="shortcut icon" href="../assets/images/favicon.png">
-<title>配置 · Akka Fusion</title>
+<title>Jdbc · Akka Fusion</title>
 <link rel="stylesheet" href="../assets/stylesheets/application.451f80e5.css">
 <link rel="stylesheet" href="../assets/stylesheets/application-palette.22915126.css">
 <meta name="theme-color" content="#e91e63" />
@@ -60,7 +60,7 @@ data-md-color-accent="indigo"
 Akka Fusion
 </span>
 <span class="md-header-nav__topic">
-配置
+Jdbc
 </span>
 </div>
 </div>
@@ -140,17 +140,17 @@ ihongka/akka-fusion
 </div>
 <ul>
   <li><a href="../intro/index.html" class="page">Introduction</a></li>
-  <li><a href="../jdbc/index.html" class="page">Jdbc</a></li>
+  <li><a href="../jdbc/index.html" class="active page">Jdbc</a></li>
   <li><a href="../data-mongodb/index.html" class="page">Data Mongodb</a></li>
   <li><a href="../data-kafka/index.html" class="page">Data Kafka</a></li>
-  <li><a href="../configuration/index.html" class="active page">配置</a></li>
+  <li><a href="../configuration/index.html" class="page">配置</a></li>
 </ul>
 <nav class="md-nav md-nav--secondary">
 <label class="md-nav__title" for="__toc">Table of contents</label>
 <ul>
-  <li><a href="../configuration/index.html#配置" class="header">配置</a>
+  <li><a href="../jdbc/index.html#jdbc" class="header">Jdbc</a>
   <ul>
-    <li><a href="../configuration/index.html#fusion-core" class="header">fusion-core</a></li>
+    <li><a href="../jdbc/index.html#示例" class="header">示例</a></li>
   </ul></li>
 </ul>
 </nav>
@@ -172,9 +172,9 @@ ihongka/akka-fusion
 <nav class="md-nav md-nav--secondary">
 <label class="md-nav__title" for="__toc">Table of contents</label>
 <ul>
-  <li><a href="../configuration/index.html#配置" class="header">配置</a>
+  <li><a href="../jdbc/index.html#jdbc" class="header">Jdbc</a>
   <ul>
-    <li><a href="../configuration/index.html#fusion-core" class="header">fusion-core</a></li>
+    <li><a href="../jdbc/index.html#示例" class="header">示例</a></li>
   </ul></li>
 </ul>
 </nav>
@@ -185,18 +185,63 @@ ihongka/akka-fusion
 <div class="md-content">
 <article class="md-content__inner md-typeset">
 <div class="md-content__searchable">
-<h1><a href="#配置" name="配置" class="anchor"><span class="anchor-link"></span></a>配置</h1>
-<p>Akka Fusion配置。</p>
-<h2><a href="#fusion-core" name="fusion-core" class="anchor"><span class="anchor-link"></span></a>fusion-core</h2>
-<pre class="prettyprint"><a class="icon go-to-source" href="https://github.com/ihongka/akka-fusion/tree/master/fusion-core/src/main/resources/reference.conf" target="_blank" title="Go to snippet source"></a><code class="language-conf">fusion {
-  # Fusion系统名，同时也设置为ActorSystem的name
-  name = &quot;fusion&quot;
-  # Fusion内建模块（Guice）
-  module += &quot;fusion.core.inject.builtin.BuiltinModule&quot;
+<h1><a href="#jdbc" name="jdbc" class="anchor"><span class="anchor-link"></span></a>Jdbc</h1>
+<p>Akka Fusion基于Akka Extension机制提供了配置化的 <a href="https://github.com/brettwooldridge/HikariCP/blob/dev/src/main/java/com/zaxxer/hikari/HikariDataSource.java">HikariDataSource</a> 管理。 同时，提供了 <a href="../../../../../fusion-jdbc/src/main/scala/fusion/jdbc/JdbcTemplate.scala">JdbcTemplate</a> 来简化我们的JDBC编程工作。</p>
+<h2><a href="#示例" name="示例" class="anchor"><span class="anchor-link"></span></a>示例</h2>
+<p><strong><em>配置 src/main/resources/application.conf</em></strong></p>
+<pre class="prettyprint"><a class="icon go-to-source" href="https://github.com/ihongka/akka-fusion/tree/master/fusion-jdbc/src/test/resources/sample/mysql.conf" target="_blank" title="Go to snippet source"></a><code class="language-conf">fusion.jdbc {
+  default {
+    poolName = &quot;hongka&quot;
+    jdbcUrl = &quot;jdbc:mysql://localhost:3306/ihongka?useSSL=false&amp;autoReconnect=true&quot;
+    username = &quot;devops&quot;
+    password = &quot;2019.Devops&quot;
+    connectionTestQuery = &quot;select 1;&quot;
+    maximumPoolSize = 2
+  }
+}</code></pre>
+<p><strong><em>测试代码</em></strong></p>
+<pre class="prettyprint"><a class="icon go-to-source" href="https://github.com/ihongka/akka-fusion/tree/master/fusion-jdbc/src/test/scala/fusion/jdbc/JdbcTemplateTest.scala" target="_blank" title="Go to snippet source"></a><code class="language-scala">package fusion.jdbc
+
+import akka.actor.ActorSystem
+import com.zaxxer.hikari.HikariDataSource
+import fusion.test.FusionTestFunSuite
+import helloscala.common.util.DigestUtils
+import org.scalatest.BeforeAndAfterAll
+
+import scala.concurrent.Await
+import scala.concurrent.duration.Duration
+import scala.util.Random
+
+class JdbcTemplateTest extends FusionTestFunSuite with BeforeAndAfterAll {
+  private val system = ActorSystem()
+  private def dataSource: HikariDataSource = FusionJdbc(system).component
+  private def jdbcTemplate = JdbcTemplate(dataSource)
+
+  test(&quot;insertOne&quot;) {
+    val sql = &quot;&quot;&quot;insert into c_file(file_id, file_subject, file_type, file_url, file_ctime, duration, hash)
+                |values (?, ?, ?, ?, ?, ?, ?);&quot;&quot;&quot;.stripMargin
+    val hash = DigestUtils.sha256Hex(Random.nextString(12))
+    val ret =
+      jdbcTemplate.update(sql,
+                          List(hash, &quot;subject&quot;, 3, s&quot;/${hash.take(2)}/$hash&quot;, System.currentTimeMillis(), 23432, hash))
+    ret mustBe 1
+  }
+
+  test(&quot;selectAll&quot;) {
+    val list = jdbcTemplate.listForMap(&quot;select * from c_file order by file_ctime desc&quot;, Nil)
+    list must not be empty
+    list.foreach(println)
+  }
+
+  override protected def afterAll(): Unit = {
+    system.terminate()
+    Await.ready(system.whenTerminated, Duration.Inf)
+  }
+
 }</code></pre>
 </div>
 <div>
-<a href="https://github.com/ihongka/akka-fusion/tree/master/fusion-docs/src/main/paradox/configuration/index.md" title="Edit this page" class="md-source-file md-edit">
+<a href="https://github.com/ihongka/akka-fusion/tree/master/fusion-docs/src/main/paradox/jdbc/index.md" title="Edit this page" class="md-source-file md-edit">
 Edit this page
 </a>
 </div>
@@ -212,7 +257,7 @@ Edit this page
 <footer class="md-footer">
 <div class="md-footer-nav">
 <nav class="md-footer-nav__inner md-grid">
-<a href="../data-kafka/index.html" title="Data Kafka" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+<a href="../intro/index.html" title="Introduction" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
 <div class="md-flex__cell md-flex__cell--shrink">
 <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
 </div>
@@ -221,8 +266,21 @@ Edit this page
 <span class="md-footer-nav__direction">
 Previous
 </span>
-Data Kafka
+Introduction
 </span>
+</div>
+</a>
+<a href="../data-mongodb/index.html" title="Data Mongodb" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+<div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+<span class="md-flex__ellipsis">
+<span class="md-footer-nav__direction">
+Next
+</span>
+Data Mongodb
+</span>
+</div>
+<div class="md-flex__cell md-flex__cell--shrink">
+<i class="md-icon md-icon--arrow-forward md-footer-nav__button"></i>
 </div>
 </a>
 </nav>

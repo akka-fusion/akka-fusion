@@ -36,6 +36,9 @@ Content-Length: 48
 @@@ index
 
 * [intro](intro/index.md)
+* [jdbc](jdbc/index.md)
+* [data-mongodb](data-mongodb/index.md)
+* [data-kafka](data-kafka/index.md)
 * [configuration](configuration/index.md)
 
 @@@

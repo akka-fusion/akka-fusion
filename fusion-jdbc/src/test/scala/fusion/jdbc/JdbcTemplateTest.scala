@@ -27,6 +27,7 @@ class JdbcTemplateTest extends FusionTestFunSuite with BeforeAndAfterAll {
   }
 
   test("selectAll") {
+    //中华人民共和国
     val list = jdbcTemplate.listForMap("select * from c_file order by file_ctime desc", Nil)
     list must not be empty
     list.foreach(println)

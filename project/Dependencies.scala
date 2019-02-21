@@ -49,11 +49,16 @@ object Dependencies {
     _akkaMultiNodeTestkit
   )
 
-  val versionAkkaManagement = "1.0.0-RC1"
-  lazy val _akkaManagements = Seq(
-    "com.lightbend.akka.management" %% "akka-management" % versionAkkaManagement,
-    "com.lightbend.akka.management" %% "akka-management-cluster-http" % versionAkkaManagement
-  ).map(_.excludeAll(ExclusionRule("com.typesafe.akka")).exclude("org.scala-lang", "scala-library"))
+  val versionAkkaManagement = "1.0.0-RC2"
+  lazy val _akkaManagement =
+    ("com.lightbend.akka.management" %% "akka-management" % versionAkkaManagement)
+      .excludeAll(ExclusionRule("com.typesafe.akka"))
+      .exclude("org.scala-lang", "scala-library")
+
+  lazy val _akkaManagementClusterHttp =
+    ("com.lightbend.akka.management" %% "akka-management-cluster-http" % versionAkkaManagement)
+      .excludeAll(ExclusionRule("com.typesafe.akka"))
+      .exclude("org.scala-lang", "scala-library")
 
   val versionAkkaHttp = "10.1.7"
   val _akkaHttpCore = "com.typesafe.akka" %% "akka-http-core" % versionAkkaHttp

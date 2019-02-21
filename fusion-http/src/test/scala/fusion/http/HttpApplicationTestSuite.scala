@@ -23,6 +23,8 @@ abstract class HttpApplicationTestSuite extends FusionTestFunSuite with BeforeAn
   def httpApplication: HttpApplication = FusionHttp(system).httpApplication
   def serverHost: String = httpApplication.serverHost
   def serverPort: Int = httpApplication.serverPort
+  def managementHost: String = system.settings.config.getString("akka.management.http.hostname")
+  def managementPort: Int = system.settings.config.getInt("akka.management.http.port")
 
   protected def createActorSystem() = ActorSystem("fusion-test")
 
@@ -33,8 +35,7 @@ abstract class HttpApplicationTestSuite extends FusionTestFunSuite with BeforeAn
   override protected def beforeAll(): Unit = {
     _system = createActorSystem()
     _materializer = createActorMaterializer()
-    FusionHttp(system).startAwait(createRoute)
-    val (f, _) = httpApplication.startServer()
+    val (f, _) = FusionHttp(system).startAsync(createRoute)
     binding = Await.result(f, Duration.Inf)
   }
 

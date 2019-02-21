@@ -88,7 +88,8 @@ lazy val fusionHttp = _project("fusion-http")
   .dependsOn(fusionTest % "test->test", fusionCore)
   .settings(
     libraryDependencies ++= Seq(
-      ) ++ _akkaHttps
+      _akkaManagement
+    ) ++ _akkaHttps
   )
 
 lazy val fusionOauth = _project("fusion-oauth")

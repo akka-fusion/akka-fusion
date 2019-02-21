@@ -11,6 +11,8 @@ object ConfigDemo extends App {
               |  kafka-clients {
               |    group.id = "default"
               |  }
+              |  akka.extensions = ["fusion.core.extensions.FusionCore"]
+              |  akka.extensions = ["fusion.core.extensions.DDD"]
               |}""".stripMargin
 
   val config = ConfigFactory.parseString(str)
@@ -18,4 +20,6 @@ object ConfigDemo extends App {
   val newConf = config.withFallback(ConfigFactory.load().getConfig("akka.kafka.producer"))
 
   println(newConf)
+
+  config.getStringList("akka.extensions").forEach(println)
 }

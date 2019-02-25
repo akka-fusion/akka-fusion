@@ -79,13 +79,13 @@ object Commons {
 object Publishing {
 
   lazy val publishing = Seq(
-    publishTo := (if (version.value.endsWith("SNAPSHOT")) {
+    publishTo := (if (version.value.endsWith("-SNAPSHOT")) {
                     Some(
-                      "Helloscala_sbt-public_snapshot" at "http://artifactory.helloscala.com/artifactory/sbt-public;build.timestamp=" + new java.util.Date().getTime)
+                      "Helloscala_sbt-public_snapshot" at "http://118.89.245.43:8081/artifactory/sbt-release;build.timestamp=" + new java.util.Date().getTime)
                   } else {
-                    Some("Helloscala_sbt-public_release" at "http://artifactory.helloscala.com/artifactory/sbt-public")
+                    Some("Helloscala_sbt-public_release" at "http://118.89.245.43:8081/artifactory/libs-release")
                   }),
-    credentials += Credentials(Path.userHome / ".ivy2" / ".credentials_helloscala")
+    credentials += Credentials(Path.userHome / ".ivy2" / ".credentials_ihongka")
   )
 
   lazy val noPublish = Seq(

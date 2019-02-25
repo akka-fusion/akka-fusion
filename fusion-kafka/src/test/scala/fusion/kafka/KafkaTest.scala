@@ -3,7 +3,8 @@ package fusion.kafka
 import java.util.concurrent.TimeUnit
 
 import akka.actor.ActorSystem
-import akka.kafka.Subscriptions
+import akka.kafka.ProducerMessage.PassThroughResult
+import akka.kafka.{ProducerMessage, Subscriptions}
 import akka.kafka.scaladsl.Consumer.DrainingControl
 import akka.kafka.scaladsl.{Consumer, Producer}
 import akka.stream.ActorMaterializer
@@ -38,6 +39,16 @@ class KafkaTest extends FusionTestFunSuite with BeforeAndAfterAll {
       .runWith(Producer.plainSink(producerSettings))
       .futureValue
     println(result)
+  }
+
+  test("flexi") {
+    Source(
+      List(
+        FileEntity("jingyang", "hash", "suffix", "localPath")
+      ))
+      .map(entity => ProducerMessage.single(KafkaUtils.stringProduceRecord(topic, entity), PassThroughResult))
+      .via(Producer.flexiFlow(producerSettings))
+
   }
 
   test("consumer") {

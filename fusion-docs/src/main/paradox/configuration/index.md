@@ -1,7 +1,13 @@
 # 配置
 
-Akka Fusion配置。
+@@toc { depth=2 }
 
-## fusion-core
+@@@ index
 
-@@snip [Fusion Core](../../../../../fusion-core/src/main/resources/reference.conf)
+* [core](core.md)
+* [http](http.md)
+* [jdbc](jdbc.md)
+* [mongodb](mongodb.md)
+* [kafka](kafka.md)
+
+@@@

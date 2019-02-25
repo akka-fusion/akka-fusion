@@ -3,7 +3,6 @@ package fusion.http
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.server.Route
-import akka.http.scaladsl.server.RouteConcatenation._
 import akka.management.scaladsl.AkkaManagement
 import akka.stream.ActorMaterializer
 import fusion.core.constant.FusionConstant

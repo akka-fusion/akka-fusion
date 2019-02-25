@@ -23,7 +23,7 @@
 <title>Akka Fusion</title>
 <link rel="stylesheet" href="assets/stylesheets/application.451f80e5.css">
 <link rel="stylesheet" href="assets/stylesheets/application-palette.22915126.css">
-<meta name="theme-color" content="#e91e63" />
+<meta name="theme-color" content="#3f51b5" />
 <link rel="stylesheet" href="lib/material__tabs/dist/mdc.tabs.min.css">
 <link rel="stylesheet" href="lib/prettify/prettify.css">
 <script src="assets/javascripts/modernizr.1aa3b519.js"></script>
@@ -37,8 +37,8 @@ code,kbd,pre{font-family:"Roboto Mono","Courier New",Courier,monospace}
 <link rel="stylesheet" href="assets/stylesheets/paradox-material-theme.css">
 </head>
 <body
-data-md-color-primary="pink"
-data-md-color-accent="indigo"
+data-md-color-primary="indigo"
+data-md-color-accent="red"
 >
 <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
 <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
@@ -134,11 +134,33 @@ ihongka/akka-fusion
 
 </div>
 <ul>
-  <li><a href="intro/index.html" class="page">Introduction</a></li>
+  <li><a href="intro/index.html" class="page">简介</a></li>
+  <li><a href="http/index.html" class="page">HTTP</a>
+  <ul>
+    <li><a href="http/getting.html" class="page">开始</a></li>
+    <li><a href="http/management.html" class="page">管理API</a></li>
+  </ul></li>
   <li><a href="jdbc/index.html" class="page">Jdbc</a></li>
+  <li><a href="mybatis/index.html" class="page">MyBatis</a>
+  <ul>
+    <li><a href="mybatis/getting.html" class="page">起步</a></li>
+    <li><a href="mybatis/configuration.html" class="page">配置</a></li>
+  </ul></li>
   <li><a href="data-mongodb/index.html" class="page">Data Mongodb</a></li>
-  <li><a href="data-kafka/index.html" class="page">Data Kafka</a></li>
-  <li><a href="configuration/index.html" class="page">配置</a></li>
+  <li><a href="data-kafka/index.html" class="page">Data Kafka</a>
+  <ul>
+    <li><a href="data-kafka/getting.html" class="page">开始</a></li>
+    <li><a href="data-kafka/producer.html" class="page">Kafka Producer</a></li>
+    <li><a href="data-kafka/consumer.html" class="page">Kafka Consumer</a></li>
+  </ul></li>
+  <li><a href="configuration/index.html" class="page">配置</a>
+  <ul>
+    <li><a href="configuration/core.html" class="page">Fusion Core 配置</a></li>
+    <li><a href="configuration/http.html" class="page">Fusion HTTP 配置</a></li>
+    <li><a href="configuration/jdbc.html" class="page">Fusion JDBC 配置</a></li>
+    <li><a href="configuration/mongodb.html" class="page">Fusion Mongodb 配置</a></li>
+    <li><a href="configuration/kafka.html" class="page">Fusion Kafka 配置</a></li>
+  </ul></li>
 </ul>
 <nav class="md-nav md-nav--secondary">
 <label class="md-nav__title" for="__toc">Table of contents</label>
@@ -233,16 +255,36 @@ Content-Length: 48
 <h2><a href="#目录" name="目录" class="anchor"><span class="anchor-link"></span></a>目录</h2>
 <div class="toc ">
 <ul>
-  <li><a href="intro/index.html" class="page">Introduction</a></li>
+  <li><a href="intro/index.html" class="page">简介</a></li>
+  <li><a href="http/index.html" class="page">HTTP</a>
+  <ul>
+    <li><a href="http/getting.html" class="page">开始</a></li>
+    <li><a href="http/management.html" class="page">管理API</a></li>
+  </ul></li>
   <li><a href="jdbc/index.html" class="page">Jdbc</a>
   <ul>
     <li><a href="jdbc/index.html#示例" class="header">示例</a></li>
   </ul></li>
+  <li><a href="mybatis/index.html" class="page">MyBatis</a>
+  <ul>
+    <li><a href="mybatis/index.html#目录" class="header">目录</a></li>
+    <li><a href="mybatis/getting.html" class="page">起步</a></li>
+    <li><a href="mybatis/configuration.html" class="page">配置</a></li>
+  </ul></li>
   <li><a href="data-mongodb/index.html" class="page">Data Mongodb</a></li>
-  <li><a href="data-kafka/index.html" class="page">Data Kafka</a></li>
+  <li><a href="data-kafka/index.html" class="page">Data Kafka</a>
+  <ul>
+    <li><a href="data-kafka/getting.html" class="page">开始</a></li>
+    <li><a href="data-kafka/producer.html" class="page">Kafka Producer</a></li>
+    <li><a href="data-kafka/consumer.html" class="page">Kafka Consumer</a></li>
+  </ul></li>
   <li><a href="configuration/index.html" class="page">配置</a>
   <ul>
-    <li><a href="configuration/index.html#fusion-core" class="header">fusion-core</a></li>
+    <li><a href="configuration/core.html" class="page">Fusion Core 配置</a></li>
+    <li><a href="configuration/http.html" class="page">Fusion HTTP 配置</a></li>
+    <li><a href="configuration/jdbc.html" class="page">Fusion JDBC 配置</a></li>
+    <li><a href="configuration/mongodb.html" class="page">Fusion Mongodb 配置</a></li>
+    <li><a href="configuration/kafka.html" class="page">Fusion Kafka 配置</a></li>
   </ul></li>
 </ul>
 </div>
@@ -264,13 +306,13 @@ Edit this page
 <footer class="md-footer">
 <div class="md-footer-nav">
 <nav class="md-footer-nav__inner md-grid">
-<a href="intro/index.html" title="Introduction" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+<a href="intro/index.html" title="简介" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
 <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
 <span class="md-flex__ellipsis">
 <span class="md-footer-nav__direction">
 Next
 </span>
-Introduction
+简介
 </span>
 </div>
 <div class="md-flex__cell md-flex__cell--shrink">

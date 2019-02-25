@@ -67,6 +67,7 @@ object Dependencies {
 
   val _akkaHttps = Seq(
     "com.typesafe.akka" %% "akka-http" % versionAkkaHttp,
+    "ch.megard" %% "akka-http-cors" % "0.3.4",
     _akkaHttpTestkit % Test
   ).map(
     _.exclude("com.typesafe.akka", "akka-stream")
@@ -153,7 +154,7 @@ object Dependencies {
     "com.typesafe.akka" %% "akka-persistence-cassandra-launcher" % versionAkkaPersistenceCassandra % Test
   )
 
-  val _akkaStreamKafka = ("com.typesafe.akka" %% "akka-stream-kafka" % "1.0-RC1")
+  val _akkaStreamKafka = ("com.typesafe.akka" %% "akka-stream-kafka" % "1.0-RC2")
     .exclude("com.typesafe.akka", "akka-slf4j")
     .cross(CrossVersion.binary)
 
@@ -279,6 +280,8 @@ object Dependencies {
 
   private val versionQuartz = "2.2.3"
   val _quartz = "org.quartz-scheduler" % "quartz" % versionQuartz
+  
+  val _mybatis = "org.mybatis" % "mybatis" % "3.5.0"
 
   val _postgresql = "org.postgresql" % "postgresql" % "42.2.5"
 

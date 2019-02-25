@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="fusion.mybatis.mapper.FileMapper">
+    <resultMap id="CFile" type="fusion.mybatis.model.CFile">
+        <result column="file_id" property="fileId"/>
+        <result column="file_subject" property="fileSubject"/>
+        <result column="file_url" property="fileUrl"/>
+        <result column="duration" property="duration"/>
+        <result column="table_auto_uptime" property="tableAutoUptime"/>
+    </resultMap>
+    <select id="list" resultMap="CFile">
+        select file_id, file_subject, file_url, duration, table_auto_uptime from c_file limit #{size}
+    </select>
+</mapper>

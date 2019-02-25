@@ -2,7 +2,7 @@ import Commons._
 import Dependencies._
 import Environment._
 
-buildEnv in ThisBuild := {
+buildEnv in Global := {
   sys.props
     .get("build.env")
     .orElse(sys.env.get("BUILD_ENV"))
@@ -29,6 +29,7 @@ lazy val root = Project(id = "akka-fusion", base = file("."))
     fusionKafka,
     fusionMongodb,
     fusionSlick,
+    fusionMybatis,
     fusionJdbc,
     fusionTest,
     fusionCore,
@@ -47,6 +48,7 @@ lazy val fusionDocs = _project("fusion-docs")
     fusionKafka,
     fusionMongodb,
     fusionSlick,
+    fusionMybatis,
     fusionJdbc,
     fusionTest,
     fusionCore,
@@ -56,7 +58,7 @@ lazy val fusionDocs = _project("fusion-docs")
   .settings(
     Compile / paradoxMaterialTheme ~= {
       _.withLanguage(java.util.Locale.SIMPLIFIED_CHINESE)
-        .withColor("pink", "indigo")
+        .withColor("indigo", "red")
         .withRepository(uri("https://github.com/ihongka/akka-fusion"))
         .withSocial(
           uri("http://ihongka.github.io/akka-fusion/"),
@@ -127,6 +129,16 @@ lazy val fusionSlick = _project("fusion-slick")
       ) ++ _slicks
   )
 
+lazy val fusionMybatis = _project("fusion-mybatis")
+  .enablePlugins(ParadoxMaterialThemePlugin)
+  .dependsOn(fusionJdbc, fusionTest % "test->test", fusionCore)
+  .settings(
+    libraryDependencies ++= Seq(
+      _mybatis,
+      _mysql % Test
+    )
+  )
+
 lazy val fusionJdbc = _project("fusion-jdbc")
   .enablePlugins(ParadoxMaterialThemePlugin)
   .dependsOn(fusionTest % "test->test", fusionCore)
@@ -185,6 +197,7 @@ def _project(name: String, _base: String = null) =
     .settings(
       paradoxProperties ++= Map(
         "github.base_url" -> s"https://github.com/ihongka/akka-fusion/tree/${version.value}",
+        "version" -> version.value,
         "scala.version" -> scalaVersion.value,
         "scala.binary_version" -> scalaBinaryVersion.value,
         "scaladoc.akka.base_url" -> s"http://doc.akka.io/api/$versionAkka",

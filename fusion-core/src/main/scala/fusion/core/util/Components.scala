@@ -12,14 +12,11 @@ abstract class Components[T](DEFAULT_ID: String) extends AutoCloseable {
   protected def createComponent(id: String): T
   protected def componentClose(c: T): Unit
 
-  val component: T = createComponent(DEFAULT_ID)
+  def component: T = lookup(DEFAULT_ID)
 
   final def lookup(id: String): T = synchronized(lookupComponent(id))
 
-  protected def lookupComponent(id: String): T = id match {
-    case DEFAULT_ID => component
-    case _          => components.getOrElseUpdate(id, createComponent(id))
-  }
+  protected def lookupComponent(id: String): T = components.getOrElseUpdate(id, createComponent(id))
 
   final def register(id: String, other: T, replaceExists: Boolean = false): T =
     synchronized(registerComponent(id, other, replaceExists))
@@ -35,14 +32,10 @@ abstract class Components[T](DEFAULT_ID: String) extends AutoCloseable {
       case _ =>
         throw new IllegalAccessException(s"id重复，$id == $DEFAULT_ID")
     }
-    val client = createComponent(id)
-    components.put(id, client)
-    client
+    components.put(id, other)
+    other
   }
 
-  override def close(): Unit = {
-    componentClose(component)
-    components.valuesIterator.foreach(componentClose)
-  }
+  override def close(): Unit = synchronized(components.valuesIterator.foreach(componentClose))
 
 }

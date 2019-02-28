@@ -53,6 +53,17 @@ trait AbstractRoute extends Directives with HttpDirectives with FileDirectives {
       req
     }
 
+
+
+  def generateHeaders: Directive1[Map[String, String]] =
+    extractRequest.flatMap { request =>
+      val headerMap = request.headers
+        .map(header => header.name() -> header.value())
+        .toMap
+      if (true) provide(headerMap)
+      else reject(ForbiddenRejection("User authentication failed"))
+    }
+
   //  def extractPageInput: Directive1[PageInput] = extract { ctx =>
   //    val query = ctx.request.uri.query()
   //    val page = query

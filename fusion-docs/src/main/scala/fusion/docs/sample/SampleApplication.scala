@@ -1,9 +1,9 @@
 package fusion.docs.sample
 
 import akka.http.scaladsl.server.Route
-import fusion.core.inject.Injects
-import fusion.http.FusionServer
+import fusion.inject.Injects
 import fusion.http.server.AbstractRoute
+import fusion.starter.http.FusionServer
 import javax.inject.{Inject, Singleton}
 
 import scala.concurrent.{ExecutionContext, Future}

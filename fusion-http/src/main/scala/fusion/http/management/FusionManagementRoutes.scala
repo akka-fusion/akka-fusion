@@ -5,7 +5,7 @@ import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.management.scaladsl.{ManagementRouteProvider, ManagementRouteProviderSettings}
-import fusion.http.constant.HttpConstants
+import fusion.core.constant.FusionConstants
 import fusion.http.util.HttpUtils
 import helloscala.common.{Configuration, ErrCodes}
 
@@ -25,7 +25,8 @@ class FusionManagementRoutes(system: ExtendedActorSystem) extends ManagementRout
       Thread.sleep(d.toMillis)
       system.terminate()
       val atMost =
-        Configuration(system.settings.config).get[Duration](s"${HttpConstants.PATH_MANAGE}.terminate-timeout")
+        Configuration(system.settings.config)
+          .get[Duration](s"${FusionConstants.AKKA_MANAGEMENT_FUSION}.terminate-timeout")
       Await.ready(system.whenTerminated, atMost)
     }).start()
     complete(HttpUtils.entityJson(s"""{"status":${ErrCodes.OK},"message":"$msg"}"""))

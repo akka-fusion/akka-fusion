@@ -1,8 +1,9 @@
-package fusion.core.inject.builtin
+package fusion.inject.builtin
 
 import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
 import com.google.inject.AbstractModule
+import com.typesafe.config.Config
 import helloscala.common.Configuration
 import javax.inject.{Inject, Provider, Singleton}
 
@@ -13,6 +14,11 @@ class ConfigurationProvider @Inject()() extends Provider[Configuration] {
   private[this] val configuration = Configuration()
 
   override def get(): Configuration = configuration
+}
+
+@Singleton
+class ConfigProvider @Inject()(configuration: Configuration) extends Provider[Config] {
+  override def get(): Config = configuration.underlying
 }
 
 @Singleton

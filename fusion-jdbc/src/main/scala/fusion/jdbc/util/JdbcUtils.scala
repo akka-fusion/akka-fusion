@@ -1,7 +1,7 @@
 package fusion.jdbc.util
 
 import java.lang.reflect.{Field, Method, Modifier}
-import java.sql.{Array => SQLArray, _}
+import java.sql._
 import java.time._
 import java.util.{Objects, Properties}
 

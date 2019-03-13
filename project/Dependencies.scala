@@ -65,9 +65,11 @@ object Dependencies {
 
   val _akkaHttpTestkit = "com.typesafe.akka" %% "akka-http-testkit" % versionAkkaHttp
 
+  val _akkaHttpCors = "ch.megard" %% "akka-http-cors" % "0.3.4"
+
   val _akkaHttps = Seq(
     "com.typesafe.akka" %% "akka-http" % versionAkkaHttp,
-    "ch.megard" %% "akka-http-cors" % "0.3.4",
+    _akkaHttpCors,
     _akkaHttpTestkit % Test
   ).map(
     _.exclude("com.typesafe.akka", "akka-stream")
@@ -154,11 +156,17 @@ object Dependencies {
     "com.typesafe.akka" %% "akka-persistence-cassandra-launcher" % versionAkkaPersistenceCassandra % Test
   )
 
-  val _akkaStreamKafka = ("com.typesafe.akka" %% "akka-stream-kafka" % "1.0-RC2")
-    .exclude("com.typesafe.akka", "akka-slf4j")
-    .cross(CrossVersion.binary)
+  val versionAkkaStreamKafka = "1.0.1"
+
+  val _akkaStreamKafkas = Seq(
+    ("com.typesafe.akka" %% "akka-stream-kafka" % versionAkkaStreamKafka)
+      .exclude("com.typesafe.akka", "akka-slf4j")
+      .cross(CrossVersion.binary)
+  )
 
   val _chillAkka = "com.twitter" %% "chill-akka" % "0.9.3"
+
+  val _neotypes = "com.dimafeng" %% "neotypes" % "0.4.0"
 
   val _config = "com.typesafe" % "config" % "1.3.3"
 
@@ -232,32 +240,19 @@ object Dependencies {
     "org.typelevel" %% "cats-free"
   ).map(_ % versionCats)
 
-  private val versionCirce = "0.10.0"
-
-  val _circes = Seq(
-    "io.circe" %% "circe-core" % versionCirce,
-    "io.circe" %% "circe-generic" % versionCirce,
-    "io.circe" %% "circe-parser" % versionCirce,
-    "io.circe" %% "circe-java8" % versionCirce,
-    "io.circe" %% "circe-config" % "0.4.1"
-  )
+  val _osLib = "com.lihaoyi" %% "os-lib" % "0.2.7"
 
   val _shapeless = "com.chuusai" %% "shapeless" % "2.3.3"
 
-  private val versionMacwire = "2.3.1"
+  val _jwt = "com.pauldijou" %% "jwt-core" % "2.1.0"
 
-  val _macwires = Seq(
-    "com.softwaremill.macwire" %% "macros" % versionMacwire % "provided",
-    ("com.softwaremill.macwire" %% "macrosakka" % versionMacwire % "provided")
-      .exclude("com.typesafe.akka", "akka-actor")
-      .cross(CrossVersion.binary),
-    "com.softwaremill.macwire" %% "util" % versionMacwire,
-    "com.softwaremill.macwire" %% "proxy" % versionMacwire
-  )
+  val _requests = "com.lihaoyi" %% "requests" % "0.1.7"
+
+  private val versionSlick = "3.3.0"
 
   val _slicks = Seq(
-    "com.typesafe.slick" %% "slick" % "3.2.3",
-    "com.typesafe.slick" %% "slick-testkit" % "3.2.3" % Test
+    "com.typesafe.slick" %% "slick" % versionSlick,
+    "com.typesafe.slick" %% "slick-testkit" % versionSlick % Test
   )
 
   private val versionDoobie = "0.6.0"
@@ -280,7 +275,7 @@ object Dependencies {
 
   private val versionQuartz = "2.2.3"
   val _quartz = "org.quartz-scheduler" % "quartz" % versionQuartz
-  
+
   val _mybatis = "org.mybatis" % "mybatis" % "3.5.0"
 
   val _postgresql = "org.postgresql" % "postgresql" % "42.2.5"
@@ -298,5 +293,9 @@ object Dependencies {
   val _commonsVfs = "org.apache.commons" % "commons-vfs2" % "2.2"
 
   val _jsch = "com.jcraft" % "jsch" % "0.1.55"
+
+  val _nacosClient = "com.alibaba.nacos" % "nacos-client" % "0.9.0"
+
+  val _jakartaMail = "com.sun.mail" % "jakarta.mail" % "1.6.3"
 
 }

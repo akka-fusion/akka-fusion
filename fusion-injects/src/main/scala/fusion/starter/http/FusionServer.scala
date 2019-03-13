@@ -1,8 +1,9 @@
-package fusion.http
+package fusion.starter.http
 
 import akka.actor.ActorSystem
-import fusion.core.inject.Injects
 import fusion.http.server.AbstractRoute
+import fusion.http.{FusionHttp, HttpApplication}
+import fusion.inject.Injects
 
 trait FusionServer {
   val routes: AbstractRoute

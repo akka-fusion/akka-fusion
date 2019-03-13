@@ -5,8 +5,7 @@ import akka.http.scaladsl.Http
 import akka.http.scaladsl.server.Route
 import akka.management.scaladsl.AkkaManagement
 import akka.stream.ActorMaterializer
-import fusion.core.constant.FusionConstant
-import fusion.http.constant.HttpConstants
+import fusion.core.constant.FusionConstants
 import fusion.http.server.AkkaHttpServer
 import helloscala.common.Configuration
 
@@ -17,7 +16,7 @@ class HttpApplication private (val system: ActorSystem, _routes: Route) extends 
   override val hlServerValue: String = system.name
   private val _configuration = Configuration(system.settings.config)
   override val routes: Route = {
-    if (system.settings.config.getBoolean(s"${HttpConstants.PATH_MANAGE}.enable")) {
+    if (system.settings.config.getBoolean(s"${FusionConstants.AKKA_MANAGEMENT_FUSION}.enable")) {
       AkkaManagement(system).start(settings => {
         settings
       })
@@ -32,7 +31,7 @@ class HttpApplication private (val system: ActorSystem, _routes: Route) extends 
    * @return (http绑定，https绑定)
    */
   override def startServer(): (Future[Http.ServerBinding], Option[Future[Http.ServerBinding]]) =
-    startServer(FusionConstant.ROOT_PREFIX)
+    startServer(FusionConstants.ROOT_PREFIX)
 }
 
 object HttpApplication {

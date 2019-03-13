@@ -15,7 +15,7 @@
 编写 `src/main/application.conf` 配置文件，添加以下配置：
 
 ```hocon
-include "fusion-http.conf"
+include reference.conf
 ```
 
 创建Scala文件：`src/main/scala/docs/http/SampleHttp.scala`

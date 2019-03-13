@@ -2,25 +2,21 @@ package fusion.http.server
 
 import java.io.File
 import java.nio.charset.{Charset, StandardCharsets}
-import java.nio.file.{Files, Path, Paths}
+import java.nio.file.{Files, Paths}
 
-import akka.http.scaladsl.model.headers
-import akka.http.scaladsl.model._
+import akka.http.scaladsl.model.{headers, _}
 import akka.http.scaladsl.model.headers.CacheDirectives
 import akka.http.scaladsl.server.PathMatcher.{Matched, Unmatched}
-import akka.http.scaladsl.server.directives.FileInfo
 import akka.http.scaladsl.server._
+import akka.http.scaladsl.server.directives.FileInfo
 import akka.http.scaladsl.server.util.Tuple
 import akka.http.scaladsl.unmarshalling.FromRequestUnmarshaller
-import akka.stream.scaladsl.{FileIO, Sink, Source}
-import akka.util.ByteString
 import fusion.core.model.ApiResult
 import fusion.http.AkkaHttpSourceQueue
 import fusion.http.util.HttpUtils
 import helloscala.common.exception.HSException
 
 import scala.annotation.tailrec
-import scala.collection.immutable
 import scala.concurrent.Future
 
 trait AbstractRoute extends Directives with HttpDirectives with FileDirectives {

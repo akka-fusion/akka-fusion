@@ -15,7 +15,7 @@ import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.Flow
 import com.typesafe.scalalogging.StrictLogging
 import com.typesafe.sslconfig.akka.AkkaSSLConfig
-import fusion.core.constant.FusionConstant
+import fusion.core.constant.FusionConstants
 import helloscala.common.Configuration
 import helloscala.common.util.{PidFile, StringUtils, Utils}
 import javax.net.ssl.{KeyManagerFactory, SSLContext, TrustManagerFactory}
@@ -76,7 +76,7 @@ trait AkkaHttpServer extends BaseExceptionPF with BaseRejectionBuilder with Stri
 
   def handleMapResponse(response: HttpResponse): HttpResponse = {
     val name = hlServerValue + "/" + _serverHost + ":" + _serverPort
-    val headers = RawHeader(FusionConstant.HEADER_NAME, name) +: response.headers
+    val headers = RawHeader(FusionConstants.HEADER_NAME, name) +: response.headers
     response.copy(headers = headers)
   }
 

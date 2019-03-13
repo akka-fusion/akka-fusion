@@ -22,15 +22,20 @@ scalafmtOnCompile in ThisBuild := true
 
 lazy val root = Project(id = "akka-fusion", base = file("."))
   .aggregate(
+    fusionInjects,
     fusionJob,
+    fusionDiscoveryServer,
+    fusionDiscoveryClient,
     fusionHttpApiGateway,
     fusionHttp,
     fusionOauth,
+    fusionNeo4j,
     fusionKafka,
     fusionMongodb,
     fusionSlick,
     fusionMybatis,
     fusionJdbc,
+    fusionMail,
     fusionTest,
     fusionCore,
     fusionCommon
@@ -41,15 +46,20 @@ lazy val root = Project(id = "akka-fusion", base = file("."))
 lazy val fusionDocs = _project("fusion-docs")
   .enablePlugins(ParadoxMaterialThemePlugin)
   .dependsOn(
+    fusionInjects,
     fusionJob,
+    fusionDiscoveryServer,
+    fusionDiscoveryClient,
     fusionHttpApiGateway,
     fusionHttp,
     fusionOauth,
+    fusionNeo4j,
     fusionKafka,
     fusionMongodb,
     fusionSlick,
     fusionMybatis,
     fusionJdbc,
+    fusionMail,
     fusionTest,
     fusionCore,
     fusionCommon
@@ -65,19 +75,51 @@ lazy val fusionDocs = _project("fusion-docs")
           uri("https://github.com/ihongka"),
           uri("https://weibo.com/yangbajing")
         )
-    }
+    },
+    paradoxProperties ++= Map(
+      "github.base_url" -> s"https://github.com/ihongka/akka-fusion/tree/${version.value}",
+      "version" -> version.value,
+      "scala.version" -> scalaVersion.value,
+      "scala.binary_version" -> scalaBinaryVersion.value,
+      "scaladoc.akka.base_url" -> s"http://doc.akka.io/api/$versionAkka",
+      "akka.version" -> versionAkka
+    )
+  )
+
+lazy val fusionInjects = _project("fusion-injects")
+  .dependsOn(fusionHttp, fusionTest % "test->test")
+  .settings(
+    libraryDependencies ++= Seq(
+      _guice
+    )
   )
 
 lazy val fusionHttpApiGateway = _project("fusion-http-api-gateway")
-  .enablePlugins(ParadoxMaterialThemePlugin)
   .dependsOn(fusionHttp, fusionTest % "test->test", fusionCore)
   .settings(
     libraryDependencies ++= Seq(
-      ) ++ _jacksons
+      )
   )
 
+lazy val fusionDiscoveryServer = _project("fusion-discovery-server")
+  .dependsOn(fusionDiscoveryClient, fusionHttp, fusionTest % "test->test", fusionCore)
+  .settings(
+    libraryDependencies ++= Seq(
+      )
+  )
+  .settings(Publishing.noPublish)
+
+lazy val fusionDiscoveryClient = _project("fusion-discovery-client")
+  .dependsOn(fusionTest % "test->test", fusionCore)
+  .settings(
+    libraryDependencies ++= Seq(
+      _nacosClient,
+      _requests
+    )
+  )
+  .settings(Publishing.noPublish)
+
 lazy val fusionJob = _project("fusion-job")
-  .enablePlugins(ParadoxMaterialThemePlugin)
   .dependsOn(fusionTest % "test->test", fusionCore)
   .settings(
     libraryDependencies ++= Seq(
@@ -86,7 +128,6 @@ lazy val fusionJob = _project("fusion-job")
   )
 
 lazy val fusionHttp = _project("fusion-http")
-  .enablePlugins(ParadoxMaterialThemePlugin)
   .dependsOn(fusionTest % "test->test", fusionCore)
   .settings(
     libraryDependencies ++= Seq(
@@ -95,25 +136,30 @@ lazy val fusionHttp = _project("fusion-http")
   )
 
 lazy val fusionOauth = _project("fusion-oauth")
-  .enablePlugins(ParadoxMaterialThemePlugin)
   .dependsOn(fusionTest % "test->test", fusionCore)
   .settings(
     mainClass in Compile := Some("fusion.oauth.fusion.OauthMain"),
     libraryDependencies ++= Seq(
-      )
+      _jwt
+    )
   )
 
 lazy val fusionKafka = _project("fusion-kafka")
-  .enablePlugins(ParadoxMaterialThemePlugin)
   .dependsOn(fusionTest % "test->test", fusionCore)
   .settings(
     libraryDependencies ++= Seq(
-      _akkaStreamKafka
+    ) ++ _akkaStreamKafkas
+  )
+
+lazy val fusionNeo4j = _project("fusion-neo4j")
+  .dependsOn(fusionTest % "test->test", fusionCore)
+  .settings(
+    libraryDependencies ++= Seq(
+      _neotypes
     )
   )
 
 lazy val fusionMongodb = _project("fusion-mongodb")
-  .enablePlugins(ParadoxMaterialThemePlugin)
   .dependsOn(fusionHttp, fusionTest % "test->test", fusionCore)
   .settings(
     libraryDependencies ++= Seq(
@@ -122,7 +168,6 @@ lazy val fusionMongodb = _project("fusion-mongodb")
   )
 
 lazy val fusionSlick = _project("fusion-slick")
-  .enablePlugins(ParadoxMaterialThemePlugin)
   .dependsOn(fusionJdbc, fusionTest % "test->test", fusionCore)
   .settings(
     libraryDependencies ++= Seq(
@@ -130,7 +175,6 @@ lazy val fusionSlick = _project("fusion-slick")
   )
 
 lazy val fusionMybatis = _project("fusion-mybatis")
-  .enablePlugins(ParadoxMaterialThemePlugin)
   .dependsOn(fusionJdbc, fusionTest % "test->test", fusionCore)
   .settings(
     libraryDependencies ++= Seq(
@@ -140,7 +184,6 @@ lazy val fusionMybatis = _project("fusion-mybatis")
   )
 
 lazy val fusionJdbc = _project("fusion-jdbc")
-  .enablePlugins(ParadoxMaterialThemePlugin)
   .dependsOn(fusionTest % "test->test", fusionCore)
   .settings(
     libraryDependencies ++= Seq(
@@ -150,14 +193,20 @@ lazy val fusionJdbc = _project("fusion-jdbc")
     )
   )
 
+lazy val fusionMail = _project("fusion-mail")
+  .dependsOn(fusionTest % "test->test", fusionCore)
+  .settings(
+    libraryDependencies ++= Seq(
+      _jakartaMail
+    )
+  )
+
 lazy val fusionTest = _project("fusion-test")
-  .enablePlugins(ParadoxMaterialThemePlugin)
   .dependsOn(fusionCore, fusionCommon)
   .settings(Publishing.publishing: _*)
   .settings(
     libraryDependencies ++= Seq(
       "org.scala-lang" % "scala-reflect" % scalaVersion.value,
-      _chillAkka,
       _akkaTestkit,
       _akkaStreamTestkit,
       _akkaHttpTestkit,
@@ -166,19 +215,17 @@ lazy val fusionTest = _project("fusion-test")
   )
 
 lazy val fusionCore = _project("fusion-core")
-  .enablePlugins(ParadoxMaterialThemePlugin)
   .dependsOn(fusionCommon)
   .settings(Publishing.publishing: _*)
   .settings(
     libraryDependencies ++= Seq(
       "org.scala-lang" % "scala-reflect" % scalaVersion.value,
-      _guice,
+      _osLib,
       _chillAkka
     )
   )
 
 lazy val fusionCommon = _project("fusion-common")
-  .enablePlugins(ParadoxMaterialThemePlugin)
   .settings(Publishing.publishing: _*)
   .settings(
     libraryDependencies ++= Seq(
@@ -194,13 +241,3 @@ def _project(name: String, _base: String = null) =
   Project(id = name, base = file(if (_base eq null) name else _base))
     .settings(basicSettings: _*)
     .settings(Publishing.publishing: _*)
-    .settings(
-      paradoxProperties ++= Map(
-        "github.base_url" -> s"https://github.com/ihongka/akka-fusion/tree/${version.value}",
-        "version" -> version.value,
-        "scala.version" -> scalaVersion.value,
-        "scala.binary_version" -> scalaBinaryVersion.value,
-        "scaladoc.akka.base_url" -> s"http://doc.akka.io/api/$versionAkka",
-        "akka.version" -> versionAkka
-      )
-    )

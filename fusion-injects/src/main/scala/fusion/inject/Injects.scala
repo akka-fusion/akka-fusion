@@ -1,4 +1,4 @@
-package fusion.core.inject
+package fusion.inject
 
 import com.google.inject.{Guice, Injector, Key, Module}
 import com.typesafe.config.ConfigFactory
@@ -6,12 +6,13 @@ import helloscala.common.util.StringUtils
 import javax.inject.Named
 
 import scala.collection.JavaConverters._
+import scala.collection.mutable
 import scala.reflect.ClassTag
 
 object Injects {
   lazy val injector: Injector = Guice.createInjector(generateModules(): _*)
 
-  private def generateModules() =
+  private def generateModules(): mutable.Seq[Module] =
     ConfigFactory
       .load()
       .getStringList("fusion.module")

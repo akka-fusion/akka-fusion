@@ -1,5 +1,6 @@
 package fusion.http.server
 
+import java.net.{InetAddress, InetSocketAddress}
 import java.nio.file.Paths
 import java.security.{KeyStore, SecureRandom}
 
@@ -15,7 +16,7 @@ import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.Flow
 import com.typesafe.scalalogging.StrictLogging
 import com.typesafe.sslconfig.akka.AkkaSSLConfig
-import fusion.core.constant.FusionConstants
+import fusion.core.constant.{FusionConstants, PropKeys}
 import helloscala.common.Configuration
 import helloscala.common.util.{PidFile, StringUtils, Utils}
 import javax.net.ssl.{KeyManagerFactory, SSLContext, TrustManagerFactory}
@@ -177,8 +178,7 @@ trait AkkaHttpServer extends BaseExceptionPF with BaseRejectionBuilder with Stri
 
     bindingFuture.onComplete {
       case Success(binding) =>
-        _serverHost = binding.localAddress.getAddress.getHostAddress
-        _serverPort = binding.localAddress.getPort
+        _saveServer(binding.localAddress)
         afterHttpBindingSuccess(binding)
       case Failure(cause) =>
         afterHttpBindingFailure(cause)
@@ -203,6 +203,13 @@ trait AkkaHttpServer extends BaseExceptionPF with BaseRejectionBuilder with Stri
     sys.addShutdownHook { shutdown() }
 
     bindingFuture -> httpsBindingFuture
+  }
+
+  private def _saveServer(localAddress: InetSocketAddress): Unit = {
+    _serverHost = localAddress.getAddress.getHostAddress
+    _serverPort = localAddress.getPort
+    System.setProperty("fusion.server.host", _serverHost)
+    System.setProperty("fusion.server.port", _serverPort.toString)
   }
 
   private def writePidfile(): Unit = {

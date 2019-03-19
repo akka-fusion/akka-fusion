@@ -11,7 +11,7 @@ import org.scalatest.BeforeAndAfterAll
 class FusionMailTest extends TestKit(ActorSystem("mail-test")) with FusionTestFunSuite with BeforeAndAfterAll {
 
   test("init") {
-    val mailHelper = FusionMail(system).component
+    val mailHelper = FusionMail(system).components.lookup("fusion.mail.wangyi")
 
     val msg = mailHelper.createMimeMessage
     msg.setFrom("devops@ihongka.cn")

@@ -146,17 +146,16 @@ ihongka/akka-fusion
     <li><a href="../http/management.html" class="page">管理API</a></li>
   </ul></li>
   <li><a href="../jdbc/index.html" class="page">Jdbc</a></li>
-  <li><a href="../mybatis/index.html" class="page">MyBatis</a>
-  <ul>
-    <li><a href="../mybatis/getting.html" class="page">起步</a></li>
-    <li><a href="../mybatis/configuration.html" class="page">配置</a></li>
-  </ul></li>
   <li><a href="../data-mongodb/index.html" class="page">Data Mongodb</a></li>
   <li><a href="../data-kafka/index.html" class="page">Data Kafka</a>
   <ul>
     <li><a href="../data-kafka/getting.html" class="page">开始</a></li>
     <li><a href="../data-kafka/producer.html" class="page">Kafka Producer</a></li>
     <li><a href="../data-kafka/consumer.html" class="page">Kafka Consumer</a></li>
+  </ul></li>
+  <li><a href="../discovery-client/index.html" class="page">服务注册、发现（Client）</a>
+  <ul>
+    <li><a href="../discovery-client/nacos.html" class="page">连接 Nacos</a></li>
   </ul></li>
   <li><a href="../configuration/index.html" class="page">配置</a>
   <ul>
@@ -183,7 +182,7 @@ ihongka/akka-fusion
 <ul style="display: none">
 <li class="md-nav__item md-version" id="project.version">
 <label class="md-nav__link" for="__version">
-<i class="md-icon" title="Version">label_outline</i> 1.0.0*
+<i class="md-icon" title="Version">label_outline</i> 1.0.0-alpha6
 </label>
 </li>
 </ul>
@@ -213,16 +212,16 @@ ihongka/akka-fusion
 <div class="md-content__searchable">
 <h1><a href="#开始" name="开始" class="anchor"><span class="anchor-link"></span></a>开始</h1>
 <h2><a href="#依赖" name="依赖" class="anchor"><span class="anchor-link"></span></a>依赖</h2>
-<p>要使用 <strong>Fusion Http</strong>，需要在你的项目添加如下依赖：</p><dl class="dependency"><dt>sbt</dt><dd><pre class="prettyprint"><code class="language-scala">libraryDependencies += "com.helloscala.fusion" %% "fusion-http" % "1.0.0-SNAPSHOT"</code></pre></dd><dt>Maven</dt><dd><pre class="prettyprint"><code class="language-xml">&lt;dependency&gt;
+<p>要使用 <strong>Fusion Http</strong>，需要在你的项目添加如下依赖：</p><dl class="dependency"><dt>sbt</dt><dd><pre class="prettyprint"><code class="language-scala">libraryDependencies += "com.helloscala.fusion" %% "fusion-http" % "1.0.0-alpha6"</code></pre></dd><dt>Maven</dt><dd><pre class="prettyprint"><code class="language-xml">&lt;dependency&gt;
   &lt;groupId&gt;com.helloscala.fusion&lt;/groupId&gt;
   &lt;artifactId&gt;fusion-http_2.12&lt;/artifactId&gt;
-  &lt;version&gt;1.0.0-SNAPSHOT&lt;/version&gt;
+  &lt;version&gt;1.0.0-alpha6&lt;/version&gt;
 &lt;/dependency&gt;</code></pre></dd><dt>Gradle</dt><dd><pre class="prettyprint"><code class="language-gradle">dependencies {
-  compile group: 'com.helloscala.fusion', name: 'fusion-http_2.12', version: '1.0.0-SNAPSHOT'
+  compile group: 'com.helloscala.fusion', name: 'fusion-http_2.12', version: '1.0.0-alpha6'
 }</code></pre></dd></dl>
 <h2><a href="#示例程序" name="示例程序" class="anchor"><span class="anchor-link"></span></a>示例程序</h2>
 <p>编写 <code>src/main/application.conf</code> 配置文件，添加以下配置：</p>
-<pre class="prettyprint"><code class="language-hocon">include &quot;fusion-http.conf&quot;
+<pre class="prettyprint"><code class="language-hocon">include reference.conf
 </code></pre>
 <p>创建Scala文件：<code>src/main/scala/docs/http/SampleHttp.scala</code></p>
 <pre class="prettyprint"><a class="icon go-to-source" href="https://github.com/ihongka/akka-fusion/tree/master/fusion-docs/src/main/scala/docs/http/SampleHttp.scala#L8-L17" target="_blank" title="Go to snippet source"></a><code class="language-scala">object SampleHttp extends App with Directives {
@@ -284,7 +283,7 @@ Edit this page
 </div>
 <div class="print-only">
 <span class="md-source-file md-version">
-1.0.0*
+1.0.0-alpha6
 </span>
 </div>
 </article>

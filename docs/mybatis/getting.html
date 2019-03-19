@@ -20,7 +20,7 @@
 
 <meta name="description" content="fusion-docs">
 <link rel="shortcut icon" href="../assets/images/favicon.png">
-<title>起步 · Akka Fusion</title>
+<title>起步 · MyBatis</title>
 <link rel="stylesheet" href="../assets/stylesheets/application.451f80e5.css">
 <link rel="stylesheet" href="../assets/stylesheets/application-palette.22915126.css">
 <meta name="theme-color" content="#3f51b5" />
@@ -47,7 +47,7 @@ data-md-color-accent="red"
 <nav class="md-header-nav md-grid">
 <div class="md-flex">
 <div class="md-flex__cell md-flex__cell--shrink">
-<a href="../index.html" title="Akka Fusion" class="md-header-nav__button md-logo">
+<a href="../mybatis/index.html" title="MyBatis" class="md-header-nav__button md-logo">
 <i class="md-icon">local_library</i>
 </a>
 </div>
@@ -57,7 +57,7 @@ data-md-color-accent="red"
 <div class="md-flex__cell md-flex__cell--stretch">
 <div class="md-flex__ellipsis md-header-nav__title" data-md-component="title">
 <span class="md-header-nav__topic">
-Akka Fusion
+MyBatis
 </span>
 <span class="md-header-nav__topic">
 起步
@@ -116,12 +116,12 @@ ihongka/akka-fusion
 <div class="md-sidebar__inner">
 <nav class="md-nav md-nav--primary" data-md-level="0" style="visibility: hidden">
 <label class="md-nav__title md-nav__title--site" for="drawer">
-<a href="../index.html" title="Akka Fusion" class="md-nav__button md-logo">
+<a href="../mybatis/index.html" title="MyBatis" class="md-nav__button md-logo">
 <span class="md-nav__button md-logo">
 <i class="md-icon">local_library</i>
 </a>
-<a href="../index.html" title="Akka Fusion">
-Akka Fusion
+<a href="../mybatis/index.html" title="MyBatis">
+MyBatis
 </a>
 </label>
 <div class="md-nav__source">
@@ -139,33 +139,8 @@ ihongka/akka-fusion
 
 </div>
 <ul>
-  <li><a href="../intro/index.html" class="page">简介</a></li>
-  <li><a href="../http/index.html" class="page">HTTP</a>
-  <ul>
-    <li><a href="../http/getting.html" class="page">开始</a></li>
-    <li><a href="../http/management.html" class="page">管理API</a></li>
-  </ul></li>
-  <li><a href="../jdbc/index.html" class="page">Jdbc</a></li>
-  <li><a href="../mybatis/index.html" class="page">MyBatis</a>
-  <ul>
-    <li><a href="../mybatis/getting.html" class="active page">起步</a></li>
-    <li><a href="../mybatis/configuration.html" class="page">配置</a></li>
-  </ul></li>
-  <li><a href="../data-mongodb/index.html" class="page">Data Mongodb</a></li>
-  <li><a href="../data-kafka/index.html" class="page">Data Kafka</a>
-  <ul>
-    <li><a href="../data-kafka/getting.html" class="page">开始</a></li>
-    <li><a href="../data-kafka/producer.html" class="page">Kafka Producer</a></li>
-    <li><a href="../data-kafka/consumer.html" class="page">Kafka Consumer</a></li>
-  </ul></li>
-  <li><a href="../configuration/index.html" class="page">配置</a>
-  <ul>
-    <li><a href="../configuration/core.html" class="page">Fusion Core 配置</a></li>
-    <li><a href="../configuration/http.html" class="page">Fusion HTTP 配置</a></li>
-    <li><a href="../configuration/jdbc.html" class="page">Fusion JDBC 配置</a></li>
-    <li><a href="../configuration/mongodb.html" class="page">Fusion Mongodb 配置</a></li>
-    <li><a href="../configuration/kafka.html" class="page">Fusion Kafka 配置</a></li>
-  </ul></li>
+  <li><a href="../mybatis/getting.html" class="active page">起步</a></li>
+  <li><a href="../mybatis/configuration.html" class="page">配置</a></li>
 </ul>
 <nav class="md-nav md-nav--secondary">
 <label class="md-nav__title" for="__toc">Table of contents</label>
@@ -182,7 +157,7 @@ ihongka/akka-fusion
 <ul style="display: none">
 <li class="md-nav__item md-version" id="project.version">
 <label class="md-nav__link" for="__version">
-<i class="md-icon" title="Version">label_outline</i> 1.0.0*
+<i class="md-icon" title="Version">label_outline</i> 1.0.0-alpha6
 </label>
 </li>
 </ul>
@@ -210,12 +185,12 @@ ihongka/akka-fusion
 <article class="md-content__inner md-typeset">
 <div class="md-content__searchable">
 <h1><a href="#起步" name="起步" class="anchor"><span class="anchor-link"></span></a>起步</h1>
-<h2><a href="#依赖" name="依赖" class="anchor"><span class="anchor-link"></span></a>依赖</h2><dl class="dependency"><dt>sbt</dt><dd><pre class="prettyprint"><code class="language-scala">libraryDependencies += "com.helloscala.fusion" %% "fusion-mybatis" % "1.0.0-SNAPSHOT"</code></pre></dd><dt>Maven</dt><dd><pre class="prettyprint"><code class="language-xml">&lt;dependency&gt;
+<h2><a href="#依赖" name="依赖" class="anchor"><span class="anchor-link"></span></a>依赖</h2><dl class="dependency"><dt>sbt</dt><dd><pre class="prettyprint"><code class="language-scala">libraryDependencies += "com.helloscala.fusion" %% "fusion-mybatis" % "1.0.0-alpha6"</code></pre></dd><dt>Maven</dt><dd><pre class="prettyprint"><code class="language-xml">&lt;dependency&gt;
   &lt;groupId&gt;com.helloscala.fusion&lt;/groupId&gt;
   &lt;artifactId&gt;fusion-mybatis_2.12&lt;/artifactId&gt;
-  &lt;version&gt;1.0.0-SNAPSHOT&lt;/version&gt;
+  &lt;version&gt;1.0.0-alpha6&lt;/version&gt;
 &lt;/dependency&gt;</code></pre></dd><dt>Gradle</dt><dd><pre class="prettyprint"><code class="language-gradle">dependencies {
-  compile group: 'com.helloscala.fusion', name: 'fusion-mybatis_2.12', version: '1.0.0-SNAPSHOT'
+  compile group: 'com.helloscala.fusion', name: 'fusion-mybatis_2.12', version: '1.0.0-alpha6'
 }</code></pre></dd></dl>
 <h2><a href="#示例" name="示例" class="anchor"><span class="anchor-link"></span></a>示例</h2>
 <pre class="prettyprint"><a class="icon go-to-source" href="https://github.com/ihongka/akka-fusion/tree/master/fusion-mybatis/src/test/scala/fusion/mybatis/FusionMybatisTest.scala#L10-L31" target="_blank" title="Go to snippet source"></a><code class="language-scala">class FusionMybatisTest extends TestKit(ActorSystem(&quot;fusion-mybatis&quot;)) with FusionTestFunSuite {
@@ -248,7 +223,7 @@ Edit this page
 </div>
 <div class="print-only">
 <span class="md-source-file md-version">
-1.0.0*
+1.0.0-alpha6
 </span>
 </div>
 </article>

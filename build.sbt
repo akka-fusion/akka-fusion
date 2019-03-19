@@ -87,7 +87,7 @@ lazy val fusionDocs = _project("fusion-docs")
   )
 
 lazy val fusionInjects = _project("fusion-injects")
-  .dependsOn(fusionHttp, fusionTest % "test->test")
+  .dependsOn(fusionHttp, fusionDiscoveryClient, fusionTest % "test->test")
   .settings(
     libraryDependencies ++= Seq(
       _guice
@@ -100,6 +100,7 @@ lazy val fusionHttpApiGateway = _project("fusion-http-api-gateway")
     libraryDependencies ++= Seq(
       )
   )
+  .settings(Publishing.noPublish)
 
 lazy val fusionDiscoveryServer = _project("fusion-discovery-server")
   .dependsOn(fusionDiscoveryClient, fusionHttp, fusionTest % "test->test", fusionCore)
@@ -113,11 +114,9 @@ lazy val fusionDiscoveryClient = _project("fusion-discovery-client")
   .dependsOn(fusionTest % "test->test", fusionCore)
   .settings(
     libraryDependencies ++= Seq(
-      _nacosClient,
-      _requests
+      _nacosClient
     )
   )
-  .settings(Publishing.noPublish)
 
 lazy val fusionJob = _project("fusion-job")
   .dependsOn(fusionTest % "test->test", fusionCore)
@@ -148,7 +147,7 @@ lazy val fusionKafka = _project("fusion-kafka")
   .dependsOn(fusionTest % "test->test", fusionCore)
   .settings(
     libraryDependencies ++= Seq(
-    ) ++ _akkaStreamKafkas
+      ) ++ _akkaStreamKafkas
   )
 
 lazy val fusionNeo4j = _project("fusion-neo4j")
@@ -163,8 +162,7 @@ lazy val fusionMongodb = _project("fusion-mongodb")
   .dependsOn(fusionHttp, fusionTest % "test->test", fusionCore)
   .settings(
     libraryDependencies ++= Seq(
-      _alpakkaMongodb
-    )
+      ) ++ _alpakkaMongodb
   )
 
 lazy val fusionSlick = _project("fusion-slick")
@@ -230,6 +228,7 @@ lazy val fusionCommon = _project("fusion-common")
   .settings(
     libraryDependencies ++= Seq(
       _config,
+      _requests,
       _bcprovJdk15on,
       _scalaJava8Compat,
       "org.scala-lang" % "scala-library" % scalaVersion.value,

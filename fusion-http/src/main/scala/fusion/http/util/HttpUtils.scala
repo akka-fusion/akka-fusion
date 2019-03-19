@@ -128,7 +128,8 @@ object HttpUtils extends StrictLogging {
     } else {
       Unmarshal(response.entity)
         .to[String]
-        .map(errMsg => Left(HttpException(response.status, errMsg)))(if (ec eq null) mat.executionContext else ec)
+        .map(errMsg => Left(HttpException(response.status.intValue(), errMsg)))(
+          if (ec eq null) mat.executionContext else ec)
     }
 
   def queryToMap(request: HttpRequest): Map[String, String] =

@@ -49,8 +49,6 @@ trait AbstractRoute extends Directives with HttpDirectives with FileDirectives {
       req
     }
 
-
-
   def generateHeaders: Directive1[Map[String, String]] =
     extractRequest.flatMap { request =>
       val headerMap = request.headers
@@ -110,6 +108,11 @@ trait AbstractRoute extends Directives with HttpDirectives with FileDirectives {
 
   def postEntity[T](um: FromRequestUnmarshaller[T]): Directive1[T] =
     post & entity(um)
+
+//  def entityAs[T]: Directive1[T] = {
+//    import fusion.http.util.JacksonSupport._
+//    entity(as[T])
+//  }
 
   def completionStageComplete(
       future: java.util.concurrent.CompletionStage[AnyRef],

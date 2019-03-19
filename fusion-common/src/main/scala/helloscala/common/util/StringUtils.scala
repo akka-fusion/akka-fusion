@@ -110,11 +110,15 @@ object StringUtils {
    * @param name the column name to be converted
    * @return the name using "camel case"
    */
-  def convertUnderscoreToProperty(name: String): String =
+  def convertUnderscoreToProperty(name: String): String = convertToProperty(name, '_')
+
+  def convertStrikethroughToProperty(name: String): String = convertToProperty(name, '-')
+
+  def convertToProperty(name: String, ch: Char): String =
     if (isBlank(name)) {
       ""
     } else {
-      val arr = name.split('_')
+      val arr = name.split(ch)
       arr.head + arr.tail.map(item => item.head.toUpper + item.tail).mkString
     }
 

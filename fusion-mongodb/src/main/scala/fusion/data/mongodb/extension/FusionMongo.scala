@@ -1,14 +1,14 @@
 package fusion.data.mongodb.extension
 
 import akka.actor.{ActorSystem, ExtendedActorSystem, Extension, ExtensionId, ExtensionIdProvider}
-import com.mongodb.{ConnectionString, MongoClientSettings}
+import com.mongodb.reactivestreams.client.MongoClients
+import com.mongodb.{ConnectionString, MongoClientSettings, MongoDriverInformation}
 import com.typesafe.config.Config
 import fusion.core.extension.FusionExtension
 import fusion.core.util.Components
 import fusion.data.mongodb.MongoTemplate
 import fusion.data.mongodb.constant.MongoConstants
 import helloscala.common.Configuration
-import org.mongodb.scala.{MongoClient, MongoDriverInformation}
 
 final private[mongodb] class MongoComponents(system: ActorSystem)
     extends Components[MongoTemplate](MongoConstants.PATH_DEFAULT) {
@@ -26,7 +26,9 @@ final private[mongodb] class MongoComponents(system: ActorSystem)
         .applyConnectionString(new ConnectionString(conf.getString("uri")))
         .codecRegistry(MongoTemplate.DEFAULT_CODEC_REGISTRY)
         .build()
-      MongoTemplate(MongoClient(settings, getMongoDriverInformation(conf)))
+      val mongoClient =
+        getMongoDriverInformation(conf).map(MongoClients.create(settings, _)).getOrElse(MongoClients.create(settings))
+      MongoTemplate(mongoClient)
     } else {
       throw new IllegalAccessException(s"配置路径内无有效参数，$path")
     }

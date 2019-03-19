@@ -2,17 +2,18 @@ package fusion.mongodb.test
 
 import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
+import akka.stream.alpakka.mongodb.scaladsl.MongoSource
+import akka.stream.scaladsl.{Sink, Source}
+import com.mongodb.reactivestreams.client.{MongoClients, MongoCollection}
 import com.mongodb.{ConnectionString, MongoClientSettings}
 import fusion.data.mongodb.MongoTemplate
 import fusion.test.FusionTestFunSuite
-import org.mongodb.scala.bson.codecs.DEFAULT_CODEC_REGISTRY
-import org.mongodb.scala.bson.codecs.Macros._
-import org.mongodb.scala.{MongoClient, MongoCollection}
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.time.{Millis, Span}
 
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
+import org.mongodb.scala.bson.codecs.Macros._
 
 case class FileEntity(_id: String, fileName: String, size: Long, localPath: String, hash: String)
 
@@ -27,12 +28,11 @@ class MongodbTest extends FusionTestFunSuite with BeforeAndAfterAll {
   val mongoClientSettings = MongoClientSettings
     .builder()
     .applyConnectionString(new ConnectionString("mongodb://localhost:27017"))
-    .codecRegistry(DEFAULT_CODEC_REGISTRY)
+    .codecRegistry(MongoTemplate.DEFAULT_CODEC_REGISTRY)
     .build()
-  val client = MongoTemplate(MongoClient(mongoClientSettings))
+  val template = MongoTemplate(MongoClients.create(mongoClientSettings))
 
-  val fileCollection: MongoCollection[FileEntity] =
-    client.getCollection[FileEntity]("abc", "file", List(classOf[FileEntity]))
+  val fileCollection: MongoCollection[FileEntity] = template.getCollection("abc", "file", List(classOf[FileEntity]))
 
   test("mongodb") {
     val data = List(
@@ -50,18 +50,20 @@ class MongodbTest extends FusionTestFunSuite with BeforeAndAfterAll {
 //      .futureValue
 //    println(result)
 
-    val result = fileCollection.insertOne(data.head).toFuture().futureValue
+    val result = Source.fromPublisher(fileCollection.insertOne(data.head)).runWith(Sink.head).futureValue
     println(result)
+  }
 
-//    val docs: immutable.Seq[FileEntity] = MongoSource[FileEntity](fileCollection.find()).runWith(Sink.seq).futureValue
-//    docs must not be empty
-//    docs.foreach(println)
+  test("find") {
+    val docs = MongoSource[FileEntity](fileCollection.find()).runWith(Sink.seq).futureValue
+    docs must not be empty
+    docs.foreach(println)
   }
 
   override protected def afterAll(): Unit = {
-    val f = client.getDatabase("abc").getCollection("file").drop().toFuture()
+    val f = Source.fromPublisher(template.getDatabase("abc").getCollection("file").drop()).runWith(Sink.head)
     Await.ready(f, Duration.Inf)
-    client.close()
+    template.close()
     system.terminate()
   }
 

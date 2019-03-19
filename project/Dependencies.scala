@@ -77,7 +77,7 @@ object Dependencies {
       .exclude("com.typesafe.akka", "akka-stream-testkit")
       .withCrossVersion(CrossVersion.binary))
 
-  private val versionAlpakka = "1.0-M2"
+  private val versionAlpakka = "1.0-M3"
 
   val _alpakkaSimpleCodecs =
     ("com.lightbend.akka" %% "akka-stream-alpakka-simple-codecs" % versionAlpakka)
@@ -107,9 +107,11 @@ object Dependencies {
     ("com.lightbend.akka" %% "akka-stream-alpakka-unix-domain-socket" % versionAlpakka)
       .excludeAll(ExclusionRule("com.typesafe.akka"))
 
-  val _alpakkaMongodb =
+  val _alpakkaMongodb = Seq(
     ("com.lightbend.akka" %% "akka-stream-alpakka-mongodb" % versionAlpakka)
-      .excludeAll(ExclusionRule("com.typesafe.akka"))
+      .excludeAll(ExclusionRule("com.typesafe.akka")),
+    "org.mongodb.scala" %% "mongo-scala-bson" % "2.6.0"
+  )
 
   val _alpakkaCassandra =
     ("com.lightbend.akka" %% "akka-stream-alpakka-cassandra" % versionAlpakka)
@@ -148,13 +150,6 @@ object Dependencies {
                            //                           _alpakkaHbase,
                            //                           _alpakksHdfs,
                            _alpakkaElasticsearch)
-
-  private val versionAkkaPersistenceCassandra = "0.89"
-
-  val _akkaPersistenceCassandras = Seq(
-    "com.typesafe.akka" %% "akka-persistence-cassandra" % versionAkkaPersistenceCassandra,
-    "com.typesafe.akka" %% "akka-persistence-cassandra-launcher" % versionAkkaPersistenceCassandra % Test
-  )
 
   val versionAkkaStreamKafka = "1.0.1"
 

@@ -8,6 +8,7 @@ import java.util.function.Consumer
 import akka.actor.ActorSystem
 import com.typesafe.config._
 import com.typesafe.config.impl.ConfigurationHelper
+import com.typesafe.scalalogging.StrictLogging
 import helloscala.common.exception.HSException
 import helloscala.common.util.{StringUtils, TimeUtils}
 
@@ -211,15 +212,42 @@ case class Configuration(underlying: Config) {
    */
   def globalError(message: String, e: Option[Throwable] = None): HSException =
     Configuration.configError(message, Option(underlying.root.origin), e)
+
+  override def toString: String = underlying.toString
 }
 
-object Configuration {
+object Configuration extends StrictLogging {
+  // #fromDiscovery
+  private val KEY = "fusion.discovery.enable"
 
-  def configError(message: String, origin: Option[ConfigOrigin], me: Option[Throwable]): HSException = {
-    val msg = origin.map(o => s"[$o] $message").getOrElse(message)
-    me.map(e => new HSException(msg, e))
-      .getOrElse(new HSException(msg))
+  def fromDiscovery(): Configuration = {
+    import scala.language.existentials
+    ConfigFactory.invalidateCaches()
+    val c = ConfigFactory.load()
+    val enable = if (c.hasPath(KEY)) c.getBoolean(KEY) || System.getProperty(KEY).toBoolean else false
+    if (enable) {
+      try {
+        val clz = Option(Class.forName("fusion.discovery.DiscoveryUtils"))
+          .getOrElse(Class.forName("fusion.discovery.DiscoveryUtils$"))
+        val service = clz.getMethod("defaultConfigService").invoke(null)
+        val clzConfigService = Class.forName("fusion.discovery.client.FusionConfigService")
+        val confStr = clzConfigService.getMethod("getConfig").invoke(service).toString
+        logger.info(s"收到配置内容：$confStr")
+        parseString(confStr)
+      } catch {
+        case e: ReflectiveOperationException =>
+          logger.info(s"服务发现组件缺失，使用本地默认配置：${e.toString}")
+          Configuration()
+        case e: Throwable =>
+          logger.error("拉取配置内容失败，使用本地默认配置", e)
+          Configuration()
+      }
+    } else {
+      logger.info("使用本地默认配置")
+      Configuration()
+    }
   }
+  // #fromDiscovery
 
   def apply(): Configuration = Configuration(ConfigFactory.load())
 
@@ -227,7 +255,13 @@ object Configuration {
 
   def apply(props: Properties): Configuration = Configuration(ConfigurationHelper.fromProperties(props))
 
-  def parseString(content: String): Configuration = Configuration(ConfigFactory.parseString(content))
+  def parseString(content: String): Configuration =
+    Configuration(ConfigFactory.parseString(content).resolve().withFallback(ConfigFactory.load()))
+
+  def configError(message: String, origin: Option[ConfigOrigin], me: Option[Throwable]): HSException = {
+    val msg = origin.map(o => s"[$o] $message").getOrElse(message)
+    me.map(e => new HSException(msg, e)).getOrElse(new HSException(msg))
+  }
 
 }
 

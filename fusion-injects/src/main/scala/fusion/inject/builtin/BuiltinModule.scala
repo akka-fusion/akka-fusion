@@ -1,20 +1,13 @@
 package fusion.inject.builtin
 
 import akka.actor.ActorSystem
-import akka.stream.ActorMaterializer
+import akka.stream.{ActorMaterializer, Materializer}
 import com.google.inject.AbstractModule
 import com.typesafe.config.Config
 import helloscala.common.Configuration
 import javax.inject.{Inject, Provider, Singleton}
 
 import scala.concurrent.{ExecutionContext, ExecutionContextExecutor}
-
-@Singleton
-class ConfigurationProvider @Inject()() extends Provider[Configuration] {
-  private[this] val configuration = Configuration()
-
-  override def get(): Configuration = configuration
-}
 
 @Singleton
 class ConfigProvider @Inject()(configuration: Configuration) extends Provider[Config] {
@@ -48,5 +41,6 @@ class BuiltinModule extends AbstractModule {
     bind(classOf[ExecutionContextExecutor]).toProvider(classOf[ExecutionContextExecutorProvider])
     bind(classOf[ExecutionContext]).to(classOf[ExecutionContextExecutor])
     bind(classOf[ActorMaterializer]).toProvider(classOf[ActorMaterializerProvider])
+    bind(classOf[Materializer]).to(classOf[ActorMaterializer])
   }
 }

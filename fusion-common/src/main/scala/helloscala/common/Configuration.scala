@@ -224,7 +224,7 @@ object Configuration extends StrictLogging {
     import scala.language.existentials
     ConfigFactory.invalidateCaches()
     val c = ConfigFactory.load()
-    val enable = if (c.hasPath(KEY)) c.getBoolean(KEY) || System.getProperty(KEY).toBoolean else false
+    val enable = if (c.hasPath(KEY)) c.getBoolean(KEY) || Option(System.getProperty(KEY)).exists(_.toBoolean) else false
     if (enable) {
       try {
         val clz = Option(Class.forName("fusion.discovery.DiscoveryUtils"))

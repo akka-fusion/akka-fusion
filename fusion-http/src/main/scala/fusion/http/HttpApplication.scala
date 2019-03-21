@@ -5,7 +5,7 @@ import akka.http.scaladsl.Http
 import akka.http.scaladsl.server.Route
 import akka.management.scaladsl.AkkaManagement
 import akka.stream.ActorMaterializer
-import fusion.core.constant.FusionConstants
+import fusion.core.constant.{ConfigKeys, FusionConstants}
 import fusion.http.server.AkkaHttpServer
 import helloscala.common.Configuration
 
@@ -16,7 +16,7 @@ class HttpApplication private (val system: ActorSystem, _routes: Route) extends 
   override val hlServerValue: String = system.name
   private val _configuration = Configuration(system.settings.config)
   override val routes: Route = {
-    if (system.settings.config.getBoolean(s"${FusionConstants.AKKA_MANAGEMENT_FUSION}.enable")) {
+    if (system.settings.config.getBoolean(ConfigKeys.AKKA_MANAGEMENT_FUSION_ENABLE)) {
       AkkaManagement(system).start(settings => {
         settings
       })

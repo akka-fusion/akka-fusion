@@ -6,7 +6,8 @@ import akka.http.scaladsl.server.Route
 import akka.stream.ActorMaterializer
 import fusion.core.extension.FusionExtension
 
-import scala.concurrent.Future
+import scala.concurrent.duration._
+import scala.concurrent.{Await, Future}
 
 final class FusionHttp private (protected val _system: ExtendedActorSystem) extends FusionExtension {
   private var _httpApplication: HttpApplication = _
@@ -16,9 +17,9 @@ final class FusionHttp private (protected val _system: ExtendedActorSystem) exte
   implicit def materializer: ActorMaterializer = httpApplication.materializer
 
   def startAwait(route: Route): HttpApplication = {
-    _httpApplication = HttpApplication(system, route)
-    httpApplication.startServerAwait()
-    httpApplication
+    val (httpF, maybeHttpsF) = startAsync(route)
+    Await.result(httpF, 60.seconds)
+    _httpApplication
   }
 
   def startAsync(route: Route): (Future[Http.ServerBinding], Option[Future[Http.ServerBinding]]) = {

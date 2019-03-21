@@ -12,7 +12,7 @@ import akka.util.ByteString
 import com.fasterxml.jackson.databind.node.ArrayNode
 import com.typesafe.config.{Config, ConfigFactory}
 import com.typesafe.scalalogging.StrictLogging
-import fusion.core.constant.ConfigConstant
+import fusion.core.constant.ConfigKeys
 import fusion.http.HttpSourceQueue
 import fusion.http.exception.HttpException
 import helloscala.common.exception.HSException
@@ -35,11 +35,11 @@ object HttpUtils extends StrictLogging {
     val compressibles = Map("compressible" -> MediaType.Compressible,
                             "notcompressible" -> MediaType.NotCompressible,
                             "gzipped" -> MediaType.Gzipped).withDefaultValue(MediaType.NotCompressible)
-    if (!config.hasPath(ConfigConstant.HTTP.CUSTOM_MEDIA_TYPES)) {
+    if (!config.hasPath(ConfigKeys.HTTP.CUSTOM_MEDIA_TYPES)) {
       Map()
     } else {
       config
-        .getStringList(ConfigConstant.HTTP.CUSTOM_MEDIA_TYPES)
+        .getStringList(ConfigKeys.HTTP.CUSTOM_MEDIA_TYPES)
         .asScala
         .flatMap { line =>
           try {

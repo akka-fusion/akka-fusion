@@ -1,7 +1,6 @@
 package fusion.http.server
 
-import java.net.{InetAddress, InetSocketAddress}
-import java.nio.file.Paths
+import java.net.InetSocketAddress
 import java.security.{KeyStore, SecureRandom}
 
 import akka.actor.ActorSystem
@@ -16,9 +15,8 @@ import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.Flow
 import com.typesafe.scalalogging.StrictLogging
 import com.typesafe.sslconfig.akka.AkkaSSLConfig
-import fusion.core.constant.{FusionConstants, PropKeys}
+import fusion.core.constant.FusionConstants
 import helloscala.common.Configuration
-import helloscala.common.util.{PidFile, StringUtils, Utils}
 import javax.net.ssl.{KeyManagerFactory, SSLContext, TrustManagerFactory}
 
 import scala.concurrent.duration._
@@ -144,7 +142,7 @@ trait AkkaHttpServer extends BaseExceptionPF with BaseRejectionBuilder with Stri
   /**
    * 启动基于Akka HTTP的服务
    *
-   * @param prefix 配置前缀，需要包含尾部的点符号。如：mass.job应用设置为 mass.job.
+   * @param prefix 配置前缀，需要包含尾部的点符号。如：fusion应用设置为fusion.
    * @return (http绑定，https绑定)
    */
   def startServer(prefix: String): (Future[ServerBinding], Option[Future[ServerBinding]]) =
@@ -160,12 +158,11 @@ trait AkkaHttpServer extends BaseExceptionPF with BaseRejectionBuilder with Stri
   def startServer(
       host: String,
       port: Int,
-      httpsPort: Option[Int]): (Future[ServerBinding], Option[Future[ServerBinding]]) = {
+      httpsPort: Option[Int]
+  ): (Future[ServerBinding], Option[Future[ServerBinding]]) = {
     implicit val _system: ActorSystem = system
     implicit val _mat: ActorMaterializer = materializer
     implicit val executionContext: ExecutionContextExecutor = system.dispatcher
-
-    writePidfile()
 
     val flow: Flow[HttpRequest, HttpResponse, Any] =
       (handleRejections(rejectionHandler) &
@@ -210,24 +207,6 @@ trait AkkaHttpServer extends BaseExceptionPF with BaseRejectionBuilder with Stri
     _serverPort = localAddress.getPort
     System.setProperty("fusion.server.host", _serverHost)
     System.setProperty("fusion.server.port", _serverPort.toString)
-  }
-
-  private def writePidfile(): Unit = {
-    val pidfilePath = Option(System.getProperty("pidfile.path"))
-      .orElse(configuration.get[Option[String]]("pidfile.path"))
-      .orNull
-    try {
-      if (StringUtils.isNoneBlank(pidfilePath)) {
-        PidFile(Utils.getPid)
-          .create(Paths.get(pidfilePath), deleteOnExit = true)
-      } else {
-        logger.warn("-Dpidfile.path 未设置，将不写入 .pid 文件。")
-      }
-    } catch {
-      case NonFatal(e) =>
-        logger.error(s"将进程ID写入文件：$pidfilePath 失败", e)
-        System.exit(-1)
-    }
   }
 
 }

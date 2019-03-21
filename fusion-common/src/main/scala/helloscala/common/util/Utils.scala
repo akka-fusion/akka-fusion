@@ -7,11 +7,13 @@ import java.time.{Instant, LocalDate, LocalDateTime}
 import java.util.Properties
 import java.util.concurrent.ThreadLocalRandom
 
+import com.typesafe.scalalogging.StrictLogging
+
 import scala.util.Try
 import scala.util.control.NonFatal
 import scala.util.matching.Regex
 
-object Utils {
+object Utils extends StrictLogging {
 
   val REGEX_DIGIT: Regex = """[\d,]+""".r
   val RANDOM_CHARS: IndexedSeq[Char] = ('0' to '9') ++ ('a' to 'z') ++ ('A' to 'Z')
@@ -26,6 +28,29 @@ object Utils {
       res.close()
     }
   }
+
+  def quietly(f: => Unit): Unit =
+    try {
+      f
+    } catch {
+      case NonFatal(e) => // do nothing
+        logger.warn(s"Quietly exception: ${e.toString}")
+    }
+
+  def quietly(f: => Unit, message: => String): Unit =
+    try {
+      f
+    } catch {
+      case NonFatal(_) => // do nothing
+        logger.error(s"Quietly message: $message")
+    }
+
+  def quietlyRecover[T](f: => T)(recover: Throwable => T): T =
+    try {
+      f
+    } catch {
+      case e: Throwable => recover(e)
+    }
 
   def timing[T](func: => T): (T, Instant) = {
     val begin = Instant.now()

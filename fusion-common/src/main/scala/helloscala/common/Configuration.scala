@@ -3,6 +3,7 @@ package helloscala.common
 import java.nio.file.{Path, Paths}
 import java.time.OffsetDateTime
 import java.util.Properties
+import java.util.concurrent.locks.ReentrantReadWriteLock
 import java.util.function.Consumer
 
 import akka.actor.ActorSystem
@@ -220,6 +221,32 @@ object Configuration extends StrictLogging {
   // #fromDiscovery
   private val KEY = "fusion.discovery.enable"
 
+  private var _configuration: Configuration = Configuration()
+  private val lock = new ReentrantReadWriteLock()
+
+  def instance(): Configuration = {
+    val l = lock.readLock()
+    try {
+      l.lock()
+      _configuration
+    } finally {
+      l.unlock()
+    }
+  }
+
+  def instance(c: Config): Configuration = instance(Configuration(c))
+
+  def instance(c: Configuration): Configuration = {
+    val l = lock.writeLock()
+    try {
+      l.lock()
+      _configuration = c
+      _configuration
+    } finally {
+      l.unlock()
+    }
+  }
+
   def fromDiscovery(): Configuration = {
     import scala.language.existentials
     ConfigFactory.invalidateCaches()
@@ -243,7 +270,11 @@ object Configuration extends StrictLogging {
           Configuration()
       }
     } else {
-      logger.info("使用本地默认配置")
+      val configFrom = Option(System.getProperty("config.file")).map(_ => "-Dconfig.file") orElse
+        Option(System.getProperty("config.resource")).map(_ => "-Dconfig.resource") orElse
+        Option(System.getProperty("config.url")).map(_ => "-Dconfig.url") getOrElse
+        "Jar包内部"
+      logger.info(s"使用本地配置，来自：$configFrom")
       Configuration()
     }
   }
@@ -268,14 +299,10 @@ object Configuration extends StrictLogging {
 /**
  * A config loader
  */
-trait ConfigLoader[A] {
-  self =>
+trait ConfigLoader[A] { self =>
   def load(config: Config, path: String = ""): A
 
-  def map[B](f: A => B): ConfigLoader[B] = new ConfigLoader[B] {
-    override def load(config: Config, path: String): B =
-      f(self.load(config, path))
-  }
+  def map[B](f: A => B): ConfigLoader[B] = (config: Config, path: String) => f(self.load(config, path))
 }
 
 object ConfigLoader {

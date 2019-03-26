@@ -1,8 +1,11 @@
 package fusion.discovery.client.nacos
 
+import java.util.Properties
 import java.util.concurrent.TimeUnit
 
 import akka.actor.ActorSystem
+import fusion.core.constant.PropKeys
+import fusion.discovery.{DiscoveryConstants, DiscoveryUtils}
 import fusion.test.FusionTestFunSuite
 import helloscala.common.Configuration
 import org.scalatest.BeforeAndAfterAll
@@ -16,7 +19,6 @@ class FusionNacosTest extends FusionTestFunSuite with BeforeAndAfterAll {
   private val GROUP = "DEFAULT_GROUP"
   private val SERVICE_NAME = "hongka.resource.app"
 
-  /*
   test("ConfigService") {
     val props = new Properties()
     props.setProperty("serverAddr", SERVER_ADDR)
@@ -29,10 +31,10 @@ class FusionNacosTest extends FusionTestFunSuite with BeforeAndAfterAll {
   }
 
   test("configuration") {
-    val configuration = Configuration()
-    configuration.getString(NacosConstants.CONF_SERVER_ADDR) mustBe SERVER_ADDR
-    configuration.getString(NacosConstants.CONF_NAMESPACE) mustBe NAMESPACE
-    configuration.getString(NacosConstants.CONF_DATA_ID) mustBe DATA_ID
+    val configuration = Configuration().getConfiguration(DiscoveryUtils.methodConfPath)
+    configuration.getString(PropKeys.SERVER_ADDR) mustBe SERVER_ADDR
+    configuration.getString(PropKeys.NAMESPACE) mustBe NAMESPACE
+    configuration.getString(PropKeys.DATA_ID) mustBe DATA_ID
   }
 
   test("ddd") {
@@ -45,17 +47,17 @@ class FusionNacosTest extends FusionTestFunSuite with BeforeAndAfterAll {
       .invoke(service, DATA_ID, GROUP, Long.box(3000))
     println(result)
   }
-   */
 
   test("FusionNacos") {
     val confStr = FusionNacos(system).configService.getConfig
     println(confStr)
 
     confStr must not be null
-    val configuration = Configuration.parseString(confStr)
-    configuration.getString(NacosConstants.CONF_SERVER_ADDR) mustBe SERVER_ADDR
-    configuration.getString(NacosConstants.CONF_NAMESPACE) mustBe NAMESPACE
-    configuration.getString(NacosConstants.CONF_DATA_ID) mustBe DATA_ID
+    val configuration =
+      Configuration.parseString(confStr).getConfiguration(DiscoveryUtils.methodConfPath)
+    configuration.getString(PropKeys.SERVER_ADDR) mustBe SERVER_ADDR
+    configuration.getString(PropKeys.NAMESPACE) mustBe NAMESPACE
+    configuration.getString(PropKeys.DATA_ID) mustBe DATA_ID
   }
 
   override protected def beforeAll(): Unit = {

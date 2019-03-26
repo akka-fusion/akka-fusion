@@ -4,18 +4,18 @@ object Dependencies {
   val versionScala = "2.12.8"
   val versionScalaLib = "2.12"
 
-  val _scalameta = "org.scalameta" %% "scalameta" % "4.1.4"
+  val _scalameta = "org.scalameta" %% "scalameta" % "4.1.5"
 
   val _scalaXml = ("org.scala-lang.modules" %% "scala-xml" % "1.1.1")
     .exclude("org.scala-lang", "scala-library")
 
-  val _fastparse = "com.lihaoyi" %% "fastparse" % "1.0.0"
+  val _fastparse = "com.lihaoyi" %% "fastparse" % "2.1.0"
 
   val _scalaJava8Compat =
     ("org.scala-lang.modules" %% "scala-java8-compat" % "0.9.0")
       .exclude("org.scala-lang", "scala-library")
 
-  val _scalatest = "org.scalatest" %% "scalatest" % "3.0.5"
+  val _scalatest = "org.scalatest" %% "scalatest" % "3.0.7"
 
   val versionAkka = "2.5.21"
   lazy val _akkaRemote = "com.typesafe.akka" %% "akka-remote" % versionAkka
@@ -49,7 +49,7 @@ object Dependencies {
     _akkaMultiNodeTestkit
   )
 
-  val versionAkkaManagement = "1.0.0-RC2"
+  val versionAkkaManagement = "1.0.0"
   lazy val _akkaManagement =
     ("com.lightbend.akka.management" %% "akka-management" % versionAkkaManagement)
       .excludeAll(ExclusionRule("com.typesafe.akka"))
@@ -77,7 +77,7 @@ object Dependencies {
       .exclude("com.typesafe.akka", "akka-stream-testkit")
       .withCrossVersion(CrossVersion.binary))
 
-  private val versionAlpakka = "1.0-M3"
+  private val versionAlpakka = "1.0-RC1"
 
   val _alpakkaSimpleCodecs =
     ("com.lightbend.akka" %% "akka-stream-alpakka-simple-codecs" % versionAlpakka)
@@ -159,9 +159,9 @@ object Dependencies {
       .cross(CrossVersion.binary)
   )
 
-  val _chillAkka = "com.twitter" %% "chill-akka" % "0.9.3"
+  val _chillAkka = ("com.twitter" %% "chill-akka" % "0.9.3").exclude("com.typesafe", "config").exclude("org.scala-lang", "scala-library")
 
-  val _neotypes = "com.dimafeng" %% "neotypes" % "0.4.0"
+  val _neotypes = "com.dimafeng" %% "neotypes" % "0.5.0"
 
   val _config = "com.typesafe" % "config" % "1.3.3"
 
@@ -169,6 +169,21 @@ object Dependencies {
 
   val _guice = "com.google.inject" % "guice" % "4.2.2"
 
+  private val versionCats = "1.4.0"
+
+  val _catses = Seq(
+    "org.typelevel" %% "cats-laws",
+    "org.typelevel" %% "cats-free"
+  ).map(_ % versionCats)
+
+  private val circeVersion = "0.11.1"
+
+  val _circes = Seq(
+    "io.circe" %% "circe-core",
+    "io.circe" %% "circe-generic",
+    "io.circe" %% "circe-parser"
+  ).map(_ % circeVersion)
+  
   private val versionJackson = "2.9.8"
 
   val _jacksons = Seq(
@@ -226,16 +241,9 @@ object Dependencies {
     _kamonSystemMetrics
   )
 
-  val _scopt = "com.github.scopt" %% "scopt" % "3.7.0"
+  val _scopt = "com.github.scopt" %% "scopt" % "3.7.1"
 
-  private val versionCats = "1.4.0"
-
-  val _catses = Seq(
-    "org.typelevel" %% "cats-laws",
-    "org.typelevel" %% "cats-free"
-  ).map(_ % versionCats)
-
-  val _osLib = "com.lihaoyi" %% "os-lib" % "0.2.7"
+  val _osLib = "com.lihaoyi" %% "os-lib" % "0.2.8"
 
   val _shapeless = "com.chuusai" %% "shapeless" % "2.3.3"
 
@@ -266,7 +274,7 @@ object Dependencies {
 
   val _h2 = "com.h2database" % "h2" % "1.4.197"
 
-  val _bcprovJdk15on = "org.bouncycastle" % "bcprov-jdk15on" % "1.60"
+  val _bcprovJdk15on = "org.bouncycastle" % "bcprov-jdk15on" % "1.61"
 
   private val versionQuartz = "2.2.3"
   val _quartz = "org.quartz-scheduler" % "quartz" % versionQuartz
@@ -289,7 +297,7 @@ object Dependencies {
 
   val _jsch = "com.jcraft" % "jsch" % "0.1.55"
 
-  val _nacosClient = "com.alibaba.nacos" % "nacos-client" % "0.9.0"
+  val _nacosClient = "com.alibaba.nacos" % "nacos-client" % "0.9.1"
 
   val _jakartaMail = "com.sun.mail" % "jakarta.mail" % "1.6.3"
 

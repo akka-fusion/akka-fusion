@@ -4,10 +4,13 @@ import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
 import akka.stream.alpakka.mongodb.scaladsl.MongoSource
 import akka.stream.scaladsl.{Sink, Source}
+import com.mongodb.client.model.{Filters, ReplaceOptions}
 import com.mongodb.reactivestreams.client.{MongoClients, MongoCollection}
 import com.mongodb.{ConnectionString, MongoClientSettings}
 import fusion.data.mongodb.MongoTemplate
 import fusion.test.FusionTestFunSuite
+import org.bson.Document
+import org.bson.types.ObjectId
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.time.{Millis, Span}
 
@@ -60,9 +63,48 @@ class MongodbTest extends FusionTestFunSuite with BeforeAndAfterAll {
     docs.foreach(println)
   }
 
+  private val client = MongoClients.create()
+  private val testColl = client.getDatabase("test").getCollection("test")
+
+  test("insert duplicate") {
+    val ret = Source
+      .fromPublisher(
+        testColl
+          .insertOne(new Document("_id", new ObjectId("5c77d4c5f86831232761e850")).append("name", "杨景")))
+      .runWith(Sink.head)
+      .futureValue
+    println(ret)
+    val ret2 = Source
+      .fromPublisher(
+        testColl
+          .insertOne(new Document("_id", new ObjectId("5c77d4c5f86831232761e850")).append("name", "杨景")))
+      .runWith(Sink.head)
+      .futureValue
+    println(ret2)
+  }
+
+  test("update upsert") {
+    val id = "5c77d4c5f86831232761e890"
+    val ret = Source
+      .fromPublisher(
+        testColl
+          .replaceOne(Filters.eq("_id", id), new Document("name", "杨景"), new ReplaceOptions().upsert(true)))
+      .runWith(Sink.head)
+      .futureValue
+    println(ret)
+    val ret2 = Source
+      .fromPublisher(
+        testColl
+          .replaceOne(Filters.eq("_id", id), new Document("name", "杨景").append("age", 33)))
+      .runWith(Sink.head)
+      .futureValue
+    println(ret2)
+  }
+
   override protected def afterAll(): Unit = {
     val f = Source.fromPublisher(template.getDatabase("abc").getCollection("file").drop()).runWith(Sink.head)
     Await.ready(f, Duration.Inf)
+    client.close()
     template.close()
     system.terminate()
   }

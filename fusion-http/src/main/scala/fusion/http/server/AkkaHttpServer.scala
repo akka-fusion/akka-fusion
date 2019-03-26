@@ -13,6 +13,7 @@ import akka.http.scaladsl.settings.ServerSettings
 import akka.http.scaladsl.{ConnectionContext, Http, HttpsConnectionContext}
 import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.Flow
+import com.typesafe.config.ConfigFactory
 import com.typesafe.scalalogging.StrictLogging
 import com.typesafe.sslconfig.akka.AkkaSSLConfig
 import fusion.core.constant.FusionConstants
@@ -207,6 +208,7 @@ trait AkkaHttpServer extends BaseExceptionPF with BaseRejectionBuilder with Stri
     _serverPort = localAddress.getPort
     System.setProperty("fusion.server.host", _serverHost)
     System.setProperty("fusion.server.port", _serverPort.toString)
+    ConfigFactory.invalidateCaches()
   }
 
 }

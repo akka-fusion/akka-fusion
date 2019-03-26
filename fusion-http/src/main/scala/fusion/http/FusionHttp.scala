@@ -32,5 +32,5 @@ final class FusionHttp private (protected val _system: ExtendedActorSystem) exte
 object FusionHttp extends ExtensionId[FusionHttp] with ExtensionIdProvider {
 
   override def createExtension(system: ExtendedActorSystem): FusionHttp = new FusionHttp(system)
-  override def lookup(): ExtensionId[_ <: Extension] = FusionHttp
+  override def lookup(): ExtensionId[_ <: Extension]                    = FusionHttp
 }

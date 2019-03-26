@@ -12,7 +12,7 @@ import scala.concurrent.duration._
 
 object KafkaDemo extends App {
   implicit val system = ActorSystem()
-  implicit val mat = ActorMaterializer()
+  implicit val mat    = ActorMaterializer()
   import system.dispatcher
 
   val (producerQueue, _) = Source
@@ -30,7 +30,7 @@ object KafkaDemo extends App {
   Source(1 to 10)
     .map(_.toString)
     .throttle(1, 2.seconds)
-    .runForeach(producerQueue offer _)
+    .runForeach(producerQueue.offer(_))
     .onComplete(tryValue => println(s"producer send over: $tryValue"))
 
   StdIn.readLine()

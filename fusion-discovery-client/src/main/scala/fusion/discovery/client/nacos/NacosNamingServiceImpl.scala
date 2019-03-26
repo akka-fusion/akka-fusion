@@ -43,8 +43,7 @@ class NacosNamingServiceImpl(props: NacosDiscoveryProperties, val underlying: JN
       props.serviceName.getOrElse(config.getString("fusion.name")),
       props.instanceIp,
       props.instancePort,
-      props.instanceClusterName.getOrElse(Constants.NAMING_DEFAULT_CLUSTER_NAME)
-    )
+      props.instanceClusterName.getOrElse(Constants.NAMING_DEFAULT_CLUSTER_NAME))
 
   override def getAllInstances(serviceName: String): Seq[DiscoveryInstance] =
     underlying.getAllInstances(serviceName).asScala.map(_.toDiscoveryInstance)

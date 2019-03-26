@@ -12,19 +12,19 @@ import scala.concurrent.duration.Duration
 
 abstract class HttpApplicationTestSuite extends FusionTestFunSuite with BeforeAndAfterAll {
 
-  private var _system: ActorSystem = _
+  private var _system: ActorSystem             = _
   private var _materializer: ActorMaterializer = _
 
   protected var binding: ServerBinding = _
 
-  implicit protected def system: ActorSystem = _system
+  implicit protected def system: ActorSystem             = _system
   implicit protected def materializer: ActorMaterializer = _materializer
 
   def httpApplication: HttpApplication = FusionHttp(system).httpApplication
-  def serverHost: String = httpApplication.serverHost
-  def serverPort: Int = httpApplication.serverPort
-  def managementHost: String = system.settings.config.getString("akka.management.http.hostname")
-  def managementPort: Int = system.settings.config.getInt("akka.management.http.port")
+  def serverHost: String               = httpApplication.serverHost
+  def serverPort: Int                  = httpApplication.serverPort
+  def managementHost: String           = system.settings.config.getString("akka.management.http.hostname")
+  def managementPort: Int              = system.settings.config.getInt("akka.management.http.port")
 
   protected def createActorSystem() = ActorSystem("fusion-test")
 

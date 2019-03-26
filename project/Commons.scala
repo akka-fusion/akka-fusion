@@ -29,9 +29,9 @@ object Commons {
           "-Xlint",
           "-Yno-adapted-args", //akka-http heavily depends on adapted args and => Unit implicits break otherwise
           "-Ypartial-unification",
-          "-opt:l:inline",
-          "-opt-inline-from",
-          "-Ywarn-dead-code"
+          "-Ywarn-dead-code",
+          "-Yrangepos", // required by SemanticDB compiler plugin
+          "-Ywarn-unused-import" // required by `RemoveUnused` rule
         )
         if (scalaVersion.value.startsWith("2.12")) {
           list ++= Seq("-opt:l:inline", "-opt-inline-from")
@@ -48,17 +48,19 @@ object Commons {
       },
       test in assembly := {},
       assemblyMergeStrategy in assembly := {
-        case PathList("javax", "servlet", xs @ _*)                => MergeStrategy.first
-        case PathList("io", "netty", xs @ _*)                     => MergeStrategy.first
-        case PathList("jnr", xs @ _*)                             => MergeStrategy.first
-        case PathList("com", "datastax", xs @ _*)                 => MergeStrategy.first
-        case PathList("com", "kenai", xs @ _*)                    => MergeStrategy.first
-        case PathList("org", "objectweb", xs @ _*)                => MergeStrategy.first
-        case PathList(ps @ _*) if ps.last endsWith ".html"        => MergeStrategy.first
-        case "application.conf"                                   => MergeStrategy.concat
-        case "META-INF/io.netty.versions.properties"              => MergeStrategy.first
-        case PathList("org", "slf4j", xs @ _*)                    => MergeStrategy.first
-        case "META-INF/native/libnetty-transport-native-epoll.so" => MergeStrategy.first
+        case PathList("javax", "servlet", xs @ _*) => MergeStrategy.first
+        case PathList("io", "netty", xs @ _*)      => MergeStrategy.first
+        case PathList("jnr", xs @ _*)              => MergeStrategy.first
+        case PathList("com", "datastax", xs @ _*)  => MergeStrategy.first
+        case PathList("com", "kenai", xs @ _*)     => MergeStrategy.first
+        case PathList("org", "objectweb", xs @ _*) => MergeStrategy.first
+        case PathList(ps @ _*) if ps.last.endsWith(".html") =>
+          MergeStrategy.first
+        case "application.conf"                      => MergeStrategy.concat
+        case "META-INF/io.netty.versions.properties" => MergeStrategy.first
+        case PathList("org", "slf4j", xs @ _*)       => MergeStrategy.first
+        case "META-INF/native/libnetty-transport-native-epoll.so" =>
+          MergeStrategy.first
         case x =>
           val oldStrategy = (assemblyMergeStrategy in assembly).value
           oldStrategy(x)
@@ -69,10 +71,7 @@ object Commons {
       fork in run := true,
       fork in Test := true,
       parallelExecution in Test := false,
-      libraryDependencies ++= Seq(
-        Dependencies._scalatest % Test
-      )
-    ) ++ Environment.settings // ++ Formatting.settings
+      libraryDependencies ++= Seq(Dependencies._scalatest % Test)) ++ Environment.settings // ++ Formatting.settings
 
 }
 
@@ -80,19 +79,15 @@ object Publishing {
 
   lazy val publishing = Seq(
     publishTo := (if (version.value.endsWith("-SNAPSHOT")) {
-                    Some(
-                      "Helloscala_sbt-public_snapshot" at "http://118.89.245.43:8081/artifactory/sbt-release;build.timestamp=" + new java.util.Date().getTime)
+                    Some("Helloscala_sbt-public_snapshot".at(
+                      "http://118.89.245.43:8081/artifactory/sbt-release;build.timestamp=" + new java.util.Date().getTime))
                   } else {
-                    Some("Helloscala_sbt-public_release" at "http://118.89.245.43:8081/artifactory/libs-release")
+                    Some("Helloscala_sbt-public_release".at("http://118.89.245.43:8081/artifactory/libs-release"))
                   }),
-    credentials += Credentials(Path.userHome / ".ivy2" / ".credentials_ihongka")
-  )
+    credentials += Credentials(Path.userHome / ".ivy2" / ".credentials_ihongka"))
 
-  lazy val noPublish = Seq(
-    publish := ((): Unit),
-    publishLocal := ((): Unit),
-    publishTo := None
-  )
+  lazy val noPublish =
+    Seq(publish := ((): Unit), publishLocal := ((): Unit), publishTo := None)
 }
 
 object Environment {
@@ -103,15 +98,13 @@ object Environment {
 
   val buildEnv = settingKey[BuildEnv.Value]("The current build environment")
 
-  val settings = Seq(
-    onLoadMessage := {
-      // old message as well
-      val defaultMessage = onLoadMessage.value
-      val env = buildEnv.value
-      s"""|$defaultMessage
+  val settings = Seq(onLoadMessage := {
+    // old message as well
+    val defaultMessage = onLoadMessage.value
+    val env            = buildEnv.value
+    s"""|$defaultMessage
           |Working in build environment: $env""".stripMargin
-    }
-  )
+  })
 }
 
 object Packaging {
@@ -122,7 +115,7 @@ object Packaging {
 
   // This is dirty, but play has stolen our keys, and we must mimc them here.
   val stage = TaskKey[File]("stage")
-  val dist = TaskKey[File]("dist")
+  val dist  = TaskKey[File]("dist")
 
   val settings = Seq(
     name in Universal := s"${name.value}",
@@ -139,12 +132,10 @@ object Packaging {
     bashScriptExtraDefines ++= Seq(
       """addJava "-Dconfig.file=${app_home}/../conf/application.conf"""",
       """addJava "-Dpidfile.path=${app_home}/../run/%s.pid"""".format(name.value),
-      """addJava "-Dlogback.configurationFile=${app_home}/../conf/logback.xml""""
-    ),
+      """addJava "-Dlogback.configurationFile=${app_home}/../conf/logback.xml""""),
     bashScriptConfigLocation := Some("${app_home}/../conf/jvmopts"),
     scriptClasspath := Seq("*"),
-    mappings in (Compile, packageDoc) := Seq()
-  )
+    mappings in (Compile, packageDoc) := Seq())
 
   // Create a new MergeStrategy for aop.xml files
   val aopMerge: MergeStrategy = new MergeStrategy {
@@ -155,15 +146,21 @@ object Packaging {
     def apply(tempDir: File, path: String, files: Seq[File]): Either[String, Seq[(File, String)]] = {
       val dt =
         DocType("aspectj", PublicID("-//AspectJ//DTD//EN", "http://www.eclipse.org/aspectj/dtd/aspectj.dtd"), Nil)
-      val file = MergeStrategy.createMergeTarget(tempDir, path)
+      val file            = MergeStrategy.createMergeTarget(tempDir, path)
       val xmls: Seq[Elem] = files.map(XML.loadFile)
-      val aspectsChildren: Seq[Node] = xmls.flatMap(_ \\ "aspectj" \ "aspects" \ "_")
-      val weaverChildren: Seq[Node] = xmls.flatMap(_ \\ "aspectj" \ "weaver" \ "_")
+      val aspectsChildren: Seq[Node] =
+        xmls.flatMap(_ \\ "aspectj" \ "aspects" \ "_")
+      val weaverChildren: Seq[Node] =
+        xmls.flatMap(_ \\ "aspectj" \ "weaver" \ "_")
       val options: String = xmls.map(x => (x \\ "aspectj" \ "weaver" \ "@options").text).mkString(" ").trim
-      val weaverAttr = if (options.isEmpty) Null else new UnprefixedAttribute("options", options, Null)
-      val aspects = new Elem(null, "aspects", Null, TopScope, false, aspectsChildren: _*)
+      val weaverAttr =
+        if (options.isEmpty) Null
+        else new UnprefixedAttribute("options", options, Null)
+      val aspects =
+        new Elem(null, "aspects", Null, TopScope, false, aspectsChildren: _*)
       val weaver = new Elem(null, "weaver", weaverAttr, TopScope, false, weaverChildren: _*)
-      val aspectj = new Elem(null, "aspectj", Null, TopScope, false, aspects, weaver)
+      val aspectj =
+        new Elem(null, "aspectj", Null, TopScope, false, aspects, weaver)
       XML.save(file.toString, aspectj, "UTF-8", xmlDecl = false, dt)
       IO.append(file, IO.Newline.getBytes(IO.defaultCharset))
       Right(Seq(file -> path))

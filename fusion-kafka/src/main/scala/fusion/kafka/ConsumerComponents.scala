@@ -17,8 +17,9 @@ final private[kafka] class ConsumerComponents(system: ActorSystem)
     ConsumerSettings(conf.underlying, new StringDeserializer, new StringDeserializer)
       .withBootstrapServers(conf.getOrElse[String]("kafka-clients.bootstrap.servers", "localhost:9092"))
       .withGroupId(conf.getOrElse("kafka-clients.group.id", "default"))
-      .withProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG,
-                    conf.getOrElse[String]("kafka-clients." + ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest"))
+      .withProperty(
+        ConsumerConfig.AUTO_OFFSET_RESET_CONFIG,
+        conf.getOrElse[String]("kafka-clients." + ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest"))
   }
 
   override protected def componentClose(c: ConsumerSettings[String, String]): Unit = {}

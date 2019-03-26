@@ -9,10 +9,10 @@ import javax.mail._
 class MailHelper(props: Properties, authenticator: Authenticator) extends AutoCloseable {
   private val session = Session.getDefaultInstance(props, authenticator)
 
-  def user: String = props.getProperty("mail.smtp.user")
+  def user: String     = props.getProperty("mail.smtp.user")
   def password: String = props.getProperty("mail.smtp.password")
 
-  def createMimeMessage: MimeMessage = new MimeMessage(session)
+  def createMimeMessage: MimeMessage                  = new MimeMessage(session)
   def createMimeMessage(is: InputStream): MimeMessage = new MimeMessage(session, is)
 
   /**

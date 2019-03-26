@@ -33,7 +33,7 @@ object JacksonSupport extends JacksonSupport {
     !isSuccess(content)
 
   def isSuccess(content: String)(implicit objectMapper: ObjectMapper = Jackson.defaultObjectMapper): Boolean = {
-    val node = getJsonNode(content)
+    val node    = getJsonNode(content)
     val errCode = node.get("errCode")
     if (errCode eq null) true else errCode.asInt(0) == 0
   }
@@ -45,12 +45,10 @@ object JacksonSupport extends JacksonSupport {
 trait JacksonSupport {
 
   private val jsonStringUnmarshaller =
-    Unmarshaller.byteStringUnmarshaller
-      .forContentTypes(MediaTypes.`application/json`)
-      .mapWithCharset {
-        case (ByteString.empty, _) => throw Unmarshaller.NoContentException
-        case (data, charset)       => data.decodeString(charset.nioCharset.name)
-      }
+    Unmarshaller.byteStringUnmarshaller.forContentTypes(MediaTypes.`application/json`).mapWithCharset {
+      case (ByteString.empty, _) => throw Unmarshaller.NoContentException
+      case (data, charset)       => data.decodeString(charset.nioCharset.name)
+    }
 
   //  private val jsonStringMarshaller = Marshaller.stringMarshaller(MediaTypes.`application/json`)
 

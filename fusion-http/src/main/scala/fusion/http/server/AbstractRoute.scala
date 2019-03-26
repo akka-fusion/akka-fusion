@@ -51,9 +51,7 @@ trait AbstractRoute extends Directives with HttpDirectives with FileDirectives {
 
   def generateHeaders: Directive1[Map[String, String]] =
     extractRequest.flatMap { request =>
-      val headerMap = request.headers
-        .map(header => header.name() -> header.value())
-        .toMap
+      val headerMap = request.headers.map(header => header.name() -> header.value()).toMap
       if (true) provide(headerMap)
       else reject(ForbiddenRejection("User authentication failed"))
     }
@@ -88,8 +86,9 @@ trait AbstractRoute extends Directives with HttpDirectives with FileDirectives {
     mapResponseHeaders(
       h =>
         h ++
-          List(headers.`Cache-Control`(CacheDirectives.`no-store`, CacheDirectives.`no-cache`),
-               headers.RawHeader("Pragma", "no-cache")))
+          List(
+            headers.`Cache-Control`(CacheDirectives.`no-store`, CacheDirectives.`no-cache`),
+            headers.RawHeader("Pragma", "no-cache")))
 
   def completeOk: Route = complete(HttpEntity.Empty)
 
@@ -126,8 +125,7 @@ trait AbstractRoute extends Directives with HttpDirectives with FileDirectives {
   def futureComplete(
       future: Future[AnyRef],
       needContainer: Boolean = false,
-      successCode: StatusCode = StatusCodes.OK
-  ): Route = {
+      successCode: StatusCode = StatusCodes.OK): Route = {
     val f: AnyRef => Route = objectComplete(_, needContainer, successCode)
     onSuccess(future).apply(f)
   }
@@ -136,8 +134,7 @@ trait AbstractRoute extends Directives with HttpDirectives with FileDirectives {
   final def objectComplete(
       obj: Any,
       needContainer: Boolean = false,
-      successCode: StatusCode = StatusCodes.OK
-  ): Route = {
+      successCode: StatusCode = StatusCodes.OK): Route = {
     obj match {
       case Right(result) =>
         objectComplete(result, needContainer, successCode)
@@ -185,9 +182,9 @@ trait AbstractRoute extends Directives with HttpDirectives with FileDirectives {
    */
   def restApiProxy(uri: Uri)(implicit sourceQueue: AkkaHttpSourceQueue): Route =
     extractRequestContext { ctx =>
-      val req = ctx.request
+      val req     = ctx.request
       val request = req.copy(uri = uri.withQuery(req.uri.query()))
-      val future = HttpUtils.hostRequest(request)(sourceQueue.httpSourceQueue, ctx.executionContext)
+      val future  = HttpUtils.hostRequest(request)(sourceQueue.httpSourceQueue, ctx.executionContext)
       onSuccess(future) { response =>
         complete(response)
       }

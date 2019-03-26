@@ -25,7 +25,7 @@ class MongodbTest extends FusionTestFunSuite with BeforeAndAfterAll {
   implicit override def patienceConfig: PatienceConfig =
     PatienceConfig(scaled(Span(10000, Millis)), scaled(Span(15, Millis)))
 
-  implicit val system = ActorSystem()
+  implicit val system       = ActorSystem()
   implicit val materializer = ActorMaterializer()
 
   val mongoClientSettings = MongoClientSettings
@@ -63,21 +63,19 @@ class MongodbTest extends FusionTestFunSuite with BeforeAndAfterAll {
     docs.foreach(println)
   }
 
-  private val client = MongoClients.create()
+  private val client   = MongoClients.create()
   private val testColl = client.getDatabase("test").getCollection("test")
 
   test("insert duplicate") {
     val ret = Source
       .fromPublisher(
-        testColl
-          .insertOne(new Document("_id", new ObjectId("5c77d4c5f86831232761e850")).append("name", "杨景")))
+        testColl.insertOne(new Document("_id", new ObjectId("5c77d4c5f86831232761e850")).append("name", "杨景")))
       .runWith(Sink.head)
       .futureValue
     println(ret)
     val ret2 = Source
       .fromPublisher(
-        testColl
-          .insertOne(new Document("_id", new ObjectId("5c77d4c5f86831232761e850")).append("name", "杨景")))
+        testColl.insertOne(new Document("_id", new ObjectId("5c77d4c5f86831232761e850")).append("name", "杨景")))
       .runWith(Sink.head)
       .futureValue
     println(ret2)
@@ -87,19 +85,18 @@ class MongodbTest extends FusionTestFunSuite with BeforeAndAfterAll {
     val id = "5c77d4c5f86831232761e890"
     val ret = Source
       .fromPublisher(
-        testColl
-          .replaceOne(Filters.eq("_id", id), new Document("name", "杨景"), new ReplaceOptions().upsert(true)))
+        testColl.replaceOne(Filters.eq("_id", id), new Document("name", "杨景"), new ReplaceOptions().upsert(true)))
       .runWith(Sink.head)
       .futureValue
     println(ret)
     val ret2 = Source
-      .fromPublisher(
-        testColl
-          .replaceOne(Filters.eq("_id", id), new Document("name", "杨景").append("age", 33)))
+      .fromPublisher(testColl.replaceOne(Filters.eq("_id", id), new Document("name", "杨景").append("age", 33)))
       .runWith(Sink.head)
       .futureValue
     println(ret2)
   }
+
+  test("geo") {}
 
   override protected def afterAll(): Unit = {
     val f = Source.fromPublisher(template.getDatabase("abc").getCollection("file").drop()).runWith(Sink.head)

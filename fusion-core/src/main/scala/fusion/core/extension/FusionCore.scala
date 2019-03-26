@@ -35,6 +35,6 @@ final class FusionCore private (protected val _system: ExtendedActorSystem) exte
 }
 
 object FusionCore extends ExtensionId[FusionCore] with ExtensionIdProvider {
-  override def lookup(): ExtensionId[_ <: Extension] = FusionCore
+  override def lookup(): ExtensionId[_ <: Extension]                    = FusionCore
   override def createExtension(system: ExtendedActorSystem): FusionCore = new FusionCore(system)
 }

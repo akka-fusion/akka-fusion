@@ -19,14 +19,13 @@ class FusionManagementRoutes(system: ExtendedActorSystem) extends ManagementRout
   }
 
   def shutdownRoute: Route = (path("shutdown") & post) {
-    val d = 1.second
+    val d   = 1.second
     val msg = s"${d}后开始关闭Fusion系统"
     new Thread(() => {
       Thread.sleep(d.toMillis)
       system.terminate()
       val atMost =
-        Configuration(system.settings.config)
-          .get[Duration](s"${ConfigKeys.AKKA_MANAGEMENT_FUSION}.terminate-timeout")
+        Configuration(system.settings.config).get[Duration](s"${ConfigKeys.AKKA_MANAGEMENT_FUSION}.terminate-timeout")
       Await.ready(system.whenTerminated, atMost)
     }).start()
     complete(HttpUtils.entityJson(s"""{"status":${ErrCodes.OK},"message":"$msg"}"""))

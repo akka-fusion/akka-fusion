@@ -28,13 +28,14 @@ import scala.util.{Failure, Success}
 
 object HttpUtils extends StrictLogging {
 
-  val AKKA_HTTP_ROUTES_DISPATCHER = "akka-http-routes-dispatcher"
+  val AKKA_HTTP_ROUTES_DISPATCHER                            = "akka-http-routes-dispatcher"
   private[util] var customMediaTypes: Map[String, MediaType] = getDefaultMediaTypes(ConfigFactory.load())
 
   private def getDefaultMediaTypes(config: Config): Map[String, MediaType] = {
-    val compressibles = Map("compressible" -> MediaType.Compressible,
-                            "notcompressible" -> MediaType.NotCompressible,
-                            "gzipped" -> MediaType.Gzipped).withDefaultValue(MediaType.NotCompressible)
+    val compressibles = Map(
+      "compressible"    -> MediaType.Compressible,
+      "notcompressible" -> MediaType.NotCompressible,
+      "gzipped"         -> MediaType.Gzipped).withDefaultValue(MediaType.NotCompressible)
     if (!config.hasPath(ConfigKeys.HTTP.CUSTOM_MEDIA_TYPES)) {
       Map()
     } else {
@@ -44,10 +45,11 @@ object HttpUtils extends StrictLogging {
         .flatMap { line =>
           try {
             val Array(mediaType, binary, compress, extensions) = line.split(';')
-            val mt = MediaType.custom(mediaType,
-                                      binary.toBoolean,
-                                      compressibles(compress),
-                                      extensions.split(',').toList.map(_.trim).filter(_.nonEmpty))
+            val mt = MediaType.custom(
+              mediaType,
+              binary.toBoolean,
+              compressibles(compress),
+              extensions.split(',').toList.map(_.trim).filter(_.nonEmpty))
             mt.fileExtensions.map(_ -> mt)
           } catch {
             case _: Throwable => Nil
@@ -67,7 +69,7 @@ object HttpUtils extends StrictLogging {
 
   def dump(response: HttpResponse)(implicit mat: Materializer) {
     val future = Unmarshal(response.entity).to[String]
-    val value = Await.result(future, 10.seconds)
+    val value  = Await.result(future, 10.seconds)
     println(s"[$response]\n\t\t$value\n")
   }
 
@@ -81,34 +83,24 @@ object HttpUtils extends StrictLogging {
       implicit
       mat: Materializer,
       um: FromEntityUnmarshaller[R] = JacksonSupport.unmarshaller,
-      ec: ExecutionContext = null
-  ): Future[Either[HSException, R]] =
+      ec: ExecutionContext = null): Future[Either[HSException, R]] =
     if (HttpUtils.haveSuccess(response.status)) {
-      Unmarshal(response.entity)
-        .to[R]
-        .map(v => Right(v))(if (ec eq null) mat.executionContext else ec)
+      Unmarshal(response.entity).to[R].map(v => Right(v))(if (ec eq null) mat.executionContext else ec)
     } else {
       mapHttpResponseError[R](response)
     }
 
-  def mapHttpResponseList[R](
-      response: HttpResponse
-  )(
+  def mapHttpResponseList[R](response: HttpResponse)(
       implicit
       ev1: ClassTag[R],
       mat: Materializer,
-      ec: ExecutionContext = null
-  ): Future[Either[HSException, List[R]]] =
+      ec: ExecutionContext = null): Future[Either[HSException, List[R]]] =
     if (HttpUtils.haveSuccess(response.status)) {
       Unmarshal(response.entity)
         .to[ArrayNode](JacksonSupport.unmarshaller, ec, mat)
         .map { array =>
           val list = array.asScala
-            .map(
-              node =>
-                Jackson.defaultObjectMapper
-                  .treeToValue(node, ev1.runtimeClass)
-                  .asInstanceOf[R])
+            .map(node => Jackson.defaultObjectMapper.treeToValue(node, ev1.runtimeClass).asInstanceOf[R])
             .toList
           Right(list)
         }(if (ec eq null) mat.executionContext else ec)
@@ -119,8 +111,7 @@ object HttpUtils extends StrictLogging {
   def mapHttpResponseError[R](response: HttpResponse)(
       implicit
       mat: Materializer,
-      ec: ExecutionContext = null
-  ): Future[Either[HSException, R]] =
+      ec: ExecutionContext = null): Future[Either[HSException, R]] =
     if (response.entity.contentType.mediaType == MediaTypes.`application/json`) {
       Unmarshal(response.entity)
         .to[HSException](JacksonSupport.unmarshaller, ec, mat)
@@ -147,7 +138,7 @@ object HttpUtils extends StrictLogging {
     try {
       if (StringUtils.isNoneBlank(ct) && ct.contains("=")) {
         val arr = ct.split('=')
-        val cs = Charset.forName(arr.last)
+        val cs  = Charset.forName(arr.last)
         Option(cs)
       } else {
         None
@@ -167,7 +158,7 @@ object HttpUtils extends StrictLogging {
     // TODO akka-http 的ContentType/MediaType覆盖不够怎么办？
 
     var contentType = value
-    var charset = ""
+    var charset     = ""
     if (StringUtils.isNoneBlank(contentType)) {
       val arr = contentType.split(';')
       contentType = arr(0)
@@ -197,14 +188,10 @@ object HttpUtils extends StrictLogging {
   }
 
   private def tupleKeyToContentType(charset: String, tupleKey: (String, String)) = {
-    val mediaType = MediaTypes
-      .getForKey(tupleKey)
-      .getOrElse(MediaTypes.`application/octet-stream`)
+    val mediaType = MediaTypes.getForKey(tupleKey).getOrElse(MediaTypes.`application/octet-stream`)
     val httpContentType: ContentType = mediaType match {
       case woc: MediaType.WithOpenCharset =>
-        val httpCharset = HttpCharsets
-          .getForKeyCaseInsensitive(charset)
-          .getOrElse(HttpCharsets.`UTF-8`)
+        val httpCharset = HttpCharsets.getForKeyCaseInsensitive(charset).getOrElse(HttpCharsets.`UTF-8`)
         woc.withCharset(httpCharset)
       case mt: MediaType.Binary           => ContentType(mt)
       case mt: MediaType.WithFixedCharset => ContentType(mt)
@@ -286,17 +273,12 @@ object HttpUtils extends StrictLogging {
       data: AnyRef = null,
       headers: immutable.Seq[HttpHeader] = Nil,
       protocol: HttpProtocol = HttpProtocols.`HTTP/1.1`)(implicit mat: ActorMaterializer): Future[HttpResponse] = {
-    val request = HttpRequest(
-      method,
-      uri.withQuery(Uri.Query(uri.query() ++ params: _*)),
-      headers,
-      entity = data match {
+    val request =
+      HttpRequest(method, uri.withQuery(Uri.Query(uri.query() ++ params: _*)), headers, entity = data match {
         case null                    => HttpEntity.Empty
         case entity: UniversalEntity => entity
         case _                       => HttpEntity(ContentTypes.`application/json`, Jackson.stringify(data))
-      },
-      protocol = protocol
-    )
+      }, protocol = protocol)
     singleRequest(request)
   }
 
@@ -378,7 +360,7 @@ object HttpUtils extends StrictLogging {
   def toStrictEntity(responseEntity: ResponseEntity)(implicit mat: Materializer): HttpEntity.Strict = {
     import scala.concurrent.duration._
     val dr = 10.seconds
-    val f = responseEntity.toStrict(dr)
+    val f  = responseEntity.toStrict(dr)
     Await.result(f, dr)
   }
 

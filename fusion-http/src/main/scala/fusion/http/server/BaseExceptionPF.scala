@@ -19,7 +19,7 @@ trait BaseExceptionPF extends StrictLogging {
         val response = ex match {
           case e: HttpException =>
             val msg = s"HTTP异常，URI[$uri] ${e.getLocalizedMessage}"
-            val t = e.getCause
+            val t   = e.getCause
             if (t != null) logger.warn(msg, t) else logger.warn(s"URI[$uri] ${e.toString}")
             jsonEntity(e.httpStatus, e.getLocalizedMessage)
 

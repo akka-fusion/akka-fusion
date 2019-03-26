@@ -73,7 +73,7 @@ trait FileDirectives {
       import ctx.materializer
       uploadedOneFile.flatMap {
         case (fileInfo, source) =>
-          val sha = DigestUtils.digestSha256()
+          val sha     = DigestUtils.digestSha256()
           val tmpPath = Files.createTempFile(tmpDirectory, "", "upload")
           val uploadF = source
             .map { bytes =>
@@ -104,9 +104,7 @@ trait FileDirectives {
       uploadedMultiFile(tmpDirectory).flatMap { list =>
         val futures = list.map {
           case (fileInfo, path) =>
-            DigestUtils
-              .reactiveSha256Hex(path)
-              .map(hash => fileInfo -> FileTemp(hash, Files.size(path), path))
+            DigestUtils.reactiveSha256Hex(path).map(hash => fileInfo -> FileTemp(hash, Files.size(path), path))
         }
         onSuccess(Future.sequence(futures))
       }

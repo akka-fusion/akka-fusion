@@ -19,8 +19,7 @@ class MybatisComponents(system: ActorSystem) extends Components[SqlSessionFactor
       new Environment(
         if (config.hasPath(s"$id.env")) config.getString(s"$id.env") else config.getString(jdbcSourcePath),
         new JdbcTransactionFactory(),
-        FusionJdbc(system).components.lookup(config.getString(jdbcSourcePath))
-      ))
+        FusionJdbc(system).components.lookup(config.getString(jdbcSourcePath))))
     val packagesPath = s"$id.package-names"
     if (config.hasPath(packagesPath)) {
       config.getStringList(packagesPath).forEach(packageName => configuration.addMappers(packageName))
@@ -38,10 +37,10 @@ class MybatisComponents(system: ActorSystem) extends Components[SqlSessionFactor
 
 class FusionMybatis private (override protected val _system: ExtendedActorSystem) extends FusionExtension {
   val components: MybatisComponents = new MybatisComponents(system)
-  def component: SqlSessionFactory = components.component
+  def component: SqlSessionFactory  = components.component
 }
 
 object FusionMybatis extends ExtensionId[FusionMybatis] with ExtensionIdProvider {
   override def createExtension(system: ExtendedActorSystem): FusionMybatis = new FusionMybatis(system)
-  override def lookup(): ExtensionId[_ <: Extension] = FusionMybatis
+  override def lookup(): ExtensionId[_ <: Extension]                       = FusionMybatis
 }

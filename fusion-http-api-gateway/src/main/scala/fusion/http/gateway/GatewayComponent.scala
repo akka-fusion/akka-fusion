@@ -21,15 +21,14 @@ object GatewayComponent {
    * @param config [[Config]]
    * @return
    */
-  def proxyRoute(
-      path: String = "fusion.http.gateway.target-uri",
-      config: Config = ConfigFactory.load()
-  )(implicit system: ActorSystem, mat: Materializer): Route = {
+  def proxyRoute(path: String = "fusion.http.gateway.target-uri", config: Config = ConfigFactory.load())(
+      implicit system: ActorSystem,
+      mat: Materializer): Route = {
     import mat.executionContext
     extractRequestContext { ctx =>
-      val uri = config.getString(path)
+      val uri            = config.getString(path)
       implicit val queue = queues.computeIfAbsent(uri, _ => HttpUtils.cachedHostConnectionPool(uri))
-      val request = ctx.request.copy(uri = uri)
+      val request        = ctx.request.copy(uri = uri)
       onSuccess(HttpUtils.hostRequest(request)) { response =>
         complete(response)
       }

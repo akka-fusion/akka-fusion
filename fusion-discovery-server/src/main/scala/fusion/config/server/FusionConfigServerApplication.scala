@@ -6,6 +6,6 @@ import fusion.http.FusionHttp
 
 object FusionConfigServerApplication extends App {
   implicit val system = ActorSystem()
-  val route = new Routes().route
+  val route           = new Routes().route
   FusionHttp(system).startAwait(route)
 }

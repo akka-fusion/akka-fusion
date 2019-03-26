@@ -44,7 +44,7 @@ trait BaseRejectionBuilder extends StrictLogging {
       }
       .handleAll[MethodRejection] { methodRejections =>
         val description = methodRejections.map(_.supported.name).mkString(" or ")
-        val msg = s"不支持的方法！当前支持：$description!"
+        val msg         = s"不支持的方法！当前支持：$description!"
         logger.info(msg)
         complete(jsonEntity(MethodNotAllowed, msg))
       }

@@ -13,8 +13,8 @@ import scala.concurrent.Future
 
 class HttpApplication private (val system: ActorSystem, _routes: Route) extends AkkaHttpServer {
   override val materializer: ActorMaterializer = ActorMaterializer()(system)
-  override val hlServerValue: String = system.name
-  private val _configuration = Configuration(system.settings.config)
+  override val hlServerValue: String           = system.name
+  private val _configuration                   = Configuration(system.settings.config)
   override val routes: Route = {
     if (system.settings.config.getBoolean(ConfigKeys.AKKA_MANAGEMENT_FUSION_ENABLE)) {
       AkkaManagement(system).start(settings => {

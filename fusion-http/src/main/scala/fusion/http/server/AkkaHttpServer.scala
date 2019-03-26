@@ -38,14 +38,14 @@ trait AkkaHttpServer extends BaseExceptionPF with BaseRejectionBuilder with Stri
 
   def close(): Unit = {}
 
-  protected var bindingFuture: Future[ServerBinding] = _
+  protected var bindingFuture: Future[ServerBinding]              = _
   protected var httpsBindingFuture: Option[Future[ServerBinding]] = _
-  private var _serverHost: String = ""
-  private var _serverPort: Int = -1
-  private var _serverPortSsl: Int = -1
-  def serverHost: String = _serverHost
-  def serverPort: Int = _serverPort
-  def serverPortSsl: Int = _serverPortSsl
+  private var _serverHost: String                                 = ""
+  private var _serverPort: Int                                    = -1
+  private var _serverPortSsl: Int                                 = -1
+  def serverHost: String                                          = _serverHost
+  def serverPort: Int                                             = _serverPort
+  def serverPortSsl: Int                                          = _serverPortSsl
 
   final def shutdown(): Unit = {
     import scala.concurrent.ExecutionContext.Implicits.global
@@ -75,7 +75,7 @@ trait AkkaHttpServer extends BaseExceptionPF with BaseRejectionBuilder with Stri
   }
 
   def handleMapResponse(response: HttpResponse): HttpResponse = {
-    val name = hlServerValue + "/" + _serverHost + ":" + _serverPort
+    val name    = hlServerValue + "/" + _serverHost + ":" + _serverPort
     val headers = RawHeader(FusionConstants.HEADER_NAME, name) +: response.headers
     response.copy(headers = headers)
   }
@@ -150,8 +150,7 @@ trait AkkaHttpServer extends BaseExceptionPF with BaseRejectionBuilder with Stri
     startServer(
       configuration.getString(s"${prefix}server.host"),
       configuration.getInt(s"${prefix}server.port"),
-      configuration.get[Option[Int]](s"${prefix}server.https-port")
-    )
+      configuration.get[Option[Int]](s"${prefix}server.https-port"))
 
   /**
    * 根据设置的host:绑定主机名和port:绑定网络端口 启动Akka HTTP服务
@@ -159,10 +158,9 @@ trait AkkaHttpServer extends BaseExceptionPF with BaseRejectionBuilder with Stri
   def startServer(
       host: String,
       port: Int,
-      httpsPort: Option[Int]
-  ): (Future[ServerBinding], Option[Future[ServerBinding]]) = {
-    implicit val _system: ActorSystem = system
-    implicit val _mat: ActorMaterializer = materializer
+      httpsPort: Option[Int]): (Future[ServerBinding], Option[Future[ServerBinding]]) = {
+    implicit val _system: ActorSystem                       = system
+    implicit val _mat: ActorMaterializer                    = materializer
     implicit val executionContext: ExecutionContextExecutor = system.dispatcher
 
     val flow: Flow[HttpRequest, HttpResponse, Any] =
@@ -183,11 +181,12 @@ trait AkkaHttpServer extends BaseExceptionPF with BaseRejectionBuilder with Stri
     }
 
     httpsBindingFuture = httpsPort.map { portSsl =>
-      val f = Http().bindAndHandle(handler,
-                                   interface = host,
-                                   port = portSsl,
-                                   connectionContext = generateHttps(),
-                                   settings = ServerSettings(system))
+      val f = Http().bindAndHandle(
+        handler,
+        interface = host,
+        port = portSsl,
+        connectionContext = generateHttps(),
+        settings = ServerSettings(system))
       f.onComplete {
         case Success(binding) =>
           _serverPortSsl = binding.localAddress.getPort

@@ -35,8 +35,8 @@ final private[mongodb] class MongoComponents(system: ActorSystem)
   }
 
   private def getMongoDriverInformation(conf: Configuration): Option[MongoDriverInformation] = {
-    val maybeDriverName = conf.get[Option[String]]("driverName")
-    val maybeDriverVersion = conf.get[Option[String]]("driverVersion")
+    val maybeDriverName     = conf.get[Option[String]]("driverName")
+    val maybeDriverVersion  = conf.get[Option[String]]("driverVersion")
     val maybeDriverPlatform = conf.get[Option[String]]("driverPlatform")
     if (maybeDriverName.isDefined || maybeDriverVersion.isDefined || maybeDriverPlatform.isDefined) {
       val builder = MongoDriverInformation.builder()
@@ -62,5 +62,5 @@ final class FusionMongo private (val _system: ExtendedActorSystem) extends Fusio
 
 object FusionMongo extends ExtensionId[FusionMongo] with ExtensionIdProvider {
   override def createExtension(system: ExtendedActorSystem): FusionMongo = new FusionMongo(system)
-  override def lookup(): ExtensionId[_ <: Extension] = FusionMongo
+  override def lookup(): ExtensionId[_ <: Extension]                     = FusionMongo
 }

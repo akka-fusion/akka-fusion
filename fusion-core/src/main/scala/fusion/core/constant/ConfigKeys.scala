@@ -2,7 +2,7 @@ package fusion.core.constant
 
 object ConfigKeys {
 
-  val AKKA_MANAGEMENT_FUSION = "akka.management.fusion"
+  val AKKA_MANAGEMENT_FUSION        = "akka.management.fusion"
   val AKKA_MANAGEMENT_FUSION_ENABLE = "akka.management.fusion.enable"
 
   object FUSION {

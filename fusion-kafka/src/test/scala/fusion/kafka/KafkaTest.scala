@@ -20,9 +20,9 @@ case class FileEntity(_id: String, hash: String, suffix: String, localPath: Stri
 
 class KafkaTest extends FusionTestFunSuite with BeforeAndAfterAll {
   override def patienceTimeout: FiniteDuration = 10.seconds
-  implicit val system = ActorSystem()
-  implicit val mat = ActorMaterializer()
-  val bootstrapServers = "192.168.31.98:9092"
+  implicit val system                          = ActorSystem()
+  implicit val mat                             = ActorMaterializer()
+  val bootstrapServers                         = "192.168.31.98:9092"
 
   val topic = "uploaded-file"
 
@@ -31,10 +31,7 @@ class KafkaTest extends FusionTestFunSuite with BeforeAndAfterAll {
   val consumerSettings = FusionKafkaConsumer(system).consumer
 
   test("producer") {
-    val result = Source(
-      List(
-        FileEntity("jingyang", "hash", "suffix", "localPath")
-      ))
+    val result = Source(List(FileEntity("jingyang", "hash", "suffix", "localPath")))
       .map(entity => new ProducerRecord[String, String](topic, Jackson.stringify(entity)))
       .runWith(Producer.plainSink(producerSettings))
       .futureValue
@@ -42,10 +39,7 @@ class KafkaTest extends FusionTestFunSuite with BeforeAndAfterAll {
   }
 
   test("flexi") {
-    Source(
-      List(
-        FileEntity("jingyang", "hash", "suffix", "localPath")
-      ))
+    Source(List(FileEntity("jingyang", "hash", "suffix", "localPath")))
       .map(entity => ProducerMessage.single(KafkaUtils.stringProduceRecord(topic, entity), PassThroughResult))
       .via(Producer.flexiFlow(producerSettings))
 

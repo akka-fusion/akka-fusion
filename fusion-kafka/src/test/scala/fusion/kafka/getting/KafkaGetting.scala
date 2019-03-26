@@ -14,7 +14,7 @@ import scala.io.StdIn
 
 object KafkaGetting extends App {
   implicit val system = ActorSystem()
-  implicit val mat = ActorMaterializer()
+  implicit val mat    = ActorMaterializer()
   import system.dispatcher
   val config = system.settings.config
 

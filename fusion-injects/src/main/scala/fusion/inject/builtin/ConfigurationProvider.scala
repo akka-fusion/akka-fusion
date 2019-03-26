@@ -5,6 +5,6 @@ import javax.inject.{Inject, Provider, Singleton}
 
 @Singleton
 class ConfigurationProvider @Inject()() extends Provider[Configuration] {
-  private[this] val configuration = Configuration.fromDiscovery()
+  private[this] val configuration   = Configuration.fromDiscovery()
   override def get(): Configuration = configuration
 }

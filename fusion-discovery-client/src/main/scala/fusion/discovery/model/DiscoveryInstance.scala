@@ -11,8 +11,7 @@ case class DiscoveryInstance(
     weight: Double = 1.0D,
     healthy: Boolean = true,
     enabled: Boolean = true,
-    metadata: Map[String, String] = Map()
-) {
+    metadata: Map[String, String] = Map()) {
 
   def toInetAddr: String = ip + ":" + port
 

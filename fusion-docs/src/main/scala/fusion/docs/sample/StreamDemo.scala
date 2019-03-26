@@ -12,7 +12,7 @@ import scala.concurrent.duration._
 
 object StreamDemo extends App {
   implicit val system = ActorSystem()
-  implicit val mat = ActorMaterializer()
+  implicit val mat    = ActorMaterializer()
   import system.dispatcher
 
   val (queue, resultF) = Source

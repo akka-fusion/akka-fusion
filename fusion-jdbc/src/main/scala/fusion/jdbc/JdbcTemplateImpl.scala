@@ -18,8 +18,8 @@ private[jdbc] class JdbcTemplateImpl(
     val dataSource: DataSource,
     _useTransaction: Boolean,
     ignoreWarnings: Boolean,
-    _allowPrintLog: Boolean
-) extends JdbcTemplate {
+    _allowPrintLog: Boolean)
+    extends JdbcTemplate {
 
   private[this] val logger = Logger(LoggerFactory.getLogger(getClass.getName))
 
@@ -29,7 +29,7 @@ private[jdbc] class JdbcTemplateImpl(
   private[this] def allowPrintLog: Boolean = _allowPrintLog && logger.underlying.isDebugEnabled
 
   override def withTransaction[R](func: Connection => R): R = {
-    val conn = dataSource.getConnection
+    val conn     = dataSource.getConnection
     val isCommit = conn.getAutoCommit
     conn.setAutoCommit(false)
     try {
@@ -62,21 +62,15 @@ private[jdbc] class JdbcTemplateImpl(
         val rs = pstmt.executeQuery()
         if (rs.next()) Utils.parseLong(rs.getObject(1), 0L) else 0L
       }),
-      needUseTransaction
-    )
+      needUseTransaction)
   }
 
   override def size(sql: String, args: Seq[Any])(implicit connection: Connection = JdbcTemplate.EmptyConnection): Long =
-    execute(
-      connection,
-      JdbcUtils.preparedStatementCreator(sql),
-      JdbcUtils.preparedStatementAction(args, pstmt => {
-        JdbcUtils.setStatementParameters(pstmt, args)
-        val rs = pstmt.executeQuery()
-        if (rs.next()) Utils.parseLong(rs.getObject(1), 0L) else 0L
-      }),
-      needUseTransaction
-    )
+    execute(connection, JdbcUtils.preparedStatementCreator(sql), JdbcUtils.preparedStatementAction(args, pstmt => {
+      JdbcUtils.setStatementParameters(pstmt, args)
+      val rs = pstmt.executeQuery()
+      if (rs.next()) Utils.parseLong(rs.getObject(1), 0L) else 0L
+    }), needUseTransaction)
 
   override def listForMap(sql: String, args: Seq[Any])(
       implicit connection: Connection = JdbcTemplate.EmptyConnection): List[Map[String, Object]] =
@@ -84,23 +78,15 @@ private[jdbc] class JdbcTemplateImpl(
 
   override def listForObject[R](sql: String, args: Seq[Any], rowMapper: (ResultSet) => R)(
       implicit connection: Connection = JdbcTemplate.EmptyConnection): List[R] =
-    execute(
-      connection,
-      JdbcUtils.preparedStatementCreator(sql),
-      JdbcUtils.preparedStatementAction(
-        args,
-        stmt => {
-          JdbcUtils.setStatementParameters(stmt, args)
-          val rs = stmt.executeQuery()
-          val buffer = mutable.Buffer.empty[R]
-          while (rs.next()) {
-            buffer.append(rowMapper(rs))
-          }
-          buffer.toList
-        }
-      ),
-      needUseTransaction
-    )
+    execute(connection, JdbcUtils.preparedStatementCreator(sql), JdbcUtils.preparedStatementAction(args, stmt => {
+      JdbcUtils.setStatementParameters(stmt, args)
+      val rs     = stmt.executeQuery()
+      val buffer = mutable.Buffer.empty[R]
+      while (rs.next()) {
+        buffer.append(rowMapper(rs))
+      }
+      buffer.toList
+    }), needUseTransaction)
 
   override def findForMap(sql: String, args: Seq[Any])(
       implicit connection: Connection = JdbcTemplate.EmptyConnection): Option[Map[String, Object]] =
@@ -108,16 +94,11 @@ private[jdbc] class JdbcTemplateImpl(
 
   override def findForObject[R](sql: String, args: Seq[Any], rowMapper: (ResultSet) => R)(
       implicit connection: Connection = JdbcTemplate.EmptyConnection): Option[R] =
-    execute(
-      connection,
-      JdbcUtils.preparedStatementCreator(sql),
-      JdbcUtils.preparedStatementAction(args, stmt => {
-        JdbcUtils.setStatementParameters(stmt, args)
-        val rs = stmt.executeQuery()
-        if (rs.next()) Option(rowMapper(rs)) else None
-      }),
-      needUseTransaction
-    )
+    execute(connection, JdbcUtils.preparedStatementCreator(sql), JdbcUtils.preparedStatementAction(args, stmt => {
+      JdbcUtils.setStatementParameters(stmt, args)
+      val rs = stmt.executeQuery()
+      if (rs.next()) Option(rowMapper(rs)) else None
+    }), needUseTransaction)
 
   override def namedListForMap(sql: String, args: Map[String, Any])(
       implicit connection: Connection = JdbcTemplate.EmptyConnection): List[Map[String, Object]] =
@@ -126,23 +107,15 @@ private[jdbc] class JdbcTemplateImpl(
   override def namedListForObject[R](sql: String, args: Map[String, Any], rowMapper: ResultSet => R)(
       implicit connection: Connection = JdbcTemplate.EmptyConnection): List[R] = {
     val (_sql, paramIndex) = JdbcUtils.namedParameterToQuestionMarked(sql)
-    execute(
-      connection,
-      JdbcUtils.preparedStatementCreator(_sql, sql),
-      JdbcUtils.preparedStatementAction(
-        args,
-        stmt => {
-          JdbcUtils.setStatementParameters(stmt, args, paramIndex)
-          val rs = stmt.executeQuery()
-          val buffer = mutable.Buffer.empty[R]
-          while (rs.next()) {
-            buffer.append(rowMapper(rs))
-          }
-          buffer.toList
-        }
-      ),
-      needUseTransaction
-    )
+    execute(connection, JdbcUtils.preparedStatementCreator(_sql, sql), JdbcUtils.preparedStatementAction(args, stmt => {
+      JdbcUtils.setStatementParameters(stmt, args, paramIndex)
+      val rs     = stmt.executeQuery()
+      val buffer = mutable.Buffer.empty[R]
+      while (rs.next()) {
+        buffer.append(rowMapper(rs))
+      }
+      buffer.toList
+    }), needUseTransaction)
   }
 
   override def namedFindForMap(sql: String, args: Map[String, Any])(
@@ -152,16 +125,11 @@ private[jdbc] class JdbcTemplateImpl(
   override def namedFindForObject[R](sql: String, args: Map[String, Any], rowMapper: ResultSet => R)(
       implicit connection: Connection = JdbcTemplate.EmptyConnection): Option[R] = {
     val (_sql, paramIndex) = JdbcUtils.namedParameterToQuestionMarked(sql)
-    execute(
-      connection,
-      JdbcUtils.preparedStatementCreator(_sql, sql),
-      JdbcUtils.preparedStatementAction(args, stmt => {
-        JdbcUtils.setStatementParameters(stmt, args, paramIndex)
-        val rs = stmt.executeQuery()
-        if (rs.next()) Option(rowMapper(rs)) else None
-      }),
-      needUseTransaction
-    )
+    execute(connection, JdbcUtils.preparedStatementCreator(_sql, sql), JdbcUtils.preparedStatementAction(args, stmt => {
+      JdbcUtils.setStatementParameters(stmt, args, paramIndex)
+      val rs = stmt.executeQuery()
+      if (rs.next()) Option(rowMapper(rs)) else None
+    }), needUseTransaction)
 
   }
 
@@ -172,44 +140,49 @@ private[jdbc] class JdbcTemplateImpl(
 
   override def update(sql: String, args: Iterable[Any])(
       implicit connection: Connection = JdbcTemplate.EmptyConnection): Int =
-    execute(connection,
-            JdbcUtils.preparedStatementCreator(sql),
-            JdbcUtils.preparedStatementActionUseUpdate(args),
-            needUseTransaction)
+    execute(
+      connection,
+      JdbcUtils.preparedStatementCreator(sql),
+      JdbcUtils.preparedStatementActionUseUpdate(args),
+      needUseTransaction)
 
   override def javaUpdate(sql: String, args: java.util.Collection[Object], conn: Connection): Int =
     update(sql, args.asScala)
 
   override def updateBatch(sql: String, argsList: Iterable[Iterable[Any]])(
       implicit connection: Connection = JdbcTemplate.EmptyConnection): Array[Int] =
-    execute(connection,
-            JdbcUtils.preparedStatementCreator(sql),
-            JdbcUtils.preparedStatementActionUseBatchUpdate(argsList),
-            needUseTransaction)
+    execute(
+      connection,
+      JdbcUtils.preparedStatementCreator(sql),
+      JdbcUtils.preparedStatementActionUseBatchUpdate(argsList),
+      needUseTransaction)
 
   override def namedUpdate(sql: String, args: Map[String, Any])(
       implicit connection: Connection = JdbcTemplate.EmptyConnection): Int = {
     val (_sql, paramIndex) = JdbcUtils.namedParameterToQuestionMarked(sql)
-    execute(connection,
-            JdbcUtils.preparedStatementCreator(_sql, sql),
-            JdbcUtils.preparedStatementActionUseUpdate(args, paramIndex),
-            needUseTransaction)
+    execute(
+      connection,
+      JdbcUtils.preparedStatementCreator(_sql, sql),
+      JdbcUtils.preparedStatementActionUseUpdate(args, paramIndex),
+      needUseTransaction)
   }
 
   override def namedUpdateBatch(sql: String, argsList: Iterable[Map[String, Any]])(
       implicit connection: Connection = JdbcTemplate.EmptyConnection): Array[Int] = {
     val (_sql, paramIndex) = JdbcUtils.namedParameterToQuestionMarked(sql)
-    execute(connection,
-            JdbcUtils.preparedStatementCreator(_sql, sql),
-            JdbcUtils.preparedStatementActionUseBatchUpdate(argsList, paramIndex),
-            needUseTransaction)
+    execute(
+      connection,
+      JdbcUtils.preparedStatementCreator(_sql, sql),
+      JdbcUtils.preparedStatementActionUseBatchUpdate(argsList, paramIndex),
+      needUseTransaction)
   }
 
   override def execute(sql: String): Boolean =
-    execute(JdbcTemplate.EmptyConnection,
-            JdbcUtils.preparedStatementCreator(sql),
-            JdbcUtils.preparedStatementAction(Nil, pstmt => pstmt.execute()),
-            needUseTransaction)
+    execute(
+      JdbcTemplate.EmptyConnection,
+      JdbcUtils.preparedStatementCreator(sql),
+      JdbcUtils.preparedStatementAction(Nil, pstmt => pstmt.execute()),
+      needUseTransaction)
 
   override def execute[R](
       externalConn: Connection,

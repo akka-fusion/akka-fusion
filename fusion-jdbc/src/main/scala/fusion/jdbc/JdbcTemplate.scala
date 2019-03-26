@@ -168,8 +168,7 @@ object JdbcTemplate {
       dataSource,
       configuration.getOrElse[Boolean]("useTransaction", true),
       configuration.getOrElse[Boolean]("ignoreWarnings", true),
-      configuration.getOrElse[Boolean]("allowPrintLog", true)
-    )
+      configuration.getOrElse[Boolean]("allowPrintLog", true))
 
   def apply(dataSource: DataSource): JdbcTemplate = apply(dataSource, true, true, true)
 
@@ -177,8 +176,7 @@ object JdbcTemplate {
       dataSource: DataSource,
       useTransaction: Boolean,
       ignoreWarnings: Boolean,
-      allowPrintLog: Boolean
-  ): JdbcTemplate =
+      allowPrintLog: Boolean): JdbcTemplate =
     new JdbcTemplateImpl(dataSource, useTransaction, ignoreWarnings, allowPrintLog)
 
 }

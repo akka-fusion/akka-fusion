@@ -36,7 +36,7 @@ object JdbcUtils extends StrictLogging {
         }
       } else {
         val candidates: java.util.Set[Method] = new java.util.HashSet[Method](1)
-        val methods: scala.Array[Method] = clazz.getMethods
+        val methods: scala.Array[Method]      = clazz.getMethods
         for (method <- methods) { if (methodName == method.getName) { candidates.add(method) } }
         if (candidates.size == 1) { return candidates.iterator.next }
         null
@@ -53,11 +53,10 @@ object JdbcUtils extends StrictLogging {
       index: Int,
       requiredType: Class[_],
       defaultTimeZone: ZoneOffset = TimeUtils.ZONE_CHINA_OFFSET): Any = {
+    require(Objects.nonNull(requiredType), "requiredType non null")
     val columnType = rs.getMetaData.getColumnType(index)
 
-    if (requiredType == null) {
-      getResultSetValue(rs, index)
-    } else if (classOf[String] == requiredType) {
+    if (classOf[String] == requiredType) {
       rs.getString(index)
     } else if (classOf[BigDecimal] == requiredType) {
       rs.getBigDecimal(index)
@@ -66,16 +65,16 @@ object JdbcUtils extends StrictLogging {
     } else if (classOf[java.sql.Date] == requiredType) {
       rs.getDate(index)
     } else if (classOf[LocalDate] == requiredType) {
-      rs.getDate(index).toLocalDate
+      Option(rs.getDate(index)).map(_.toLocalDate).orNull
     } else if (classOf[LocalTime] == requiredType) {
-      rs.getTime(index).toLocalTime
+      Option(rs.getTime(index)).map(_.toLocalTime).orNull
     } else if (classOf[OffsetDateTime] == requiredType) {
       if (Types.BIGINT == columnType) {
         TimeUtils.toOffsetDateTime(rs.getLong(index))
       } else if (Types.INTEGER == columnType) {
         Instant.ofEpochSecond(rs.getInt(index)).atOffset(defaultTimeZone)
       } else {
-        rs.getTimestamp(index).toInstant.atOffset(defaultTimeZone)
+        Option(rs.getTimestamp(index)).map(_.toInstant.atOffset(defaultTimeZone)).orNull
       }
     } else if (classOf[ZonedDateTime] == requiredType) {
       if (Types.BIGINT == columnType) {
@@ -83,7 +82,7 @@ object JdbcUtils extends StrictLogging {
       } else if (Types.INTEGER == columnType) {
         Instant.ofEpochSecond(rs.getInt(index)).atZone(defaultTimeZone)
       } else {
-        rs.getTimestamp(index).toInstant.atZone(defaultTimeZone)
+        Option(rs.getTimestamp(index)).map(_.toInstant.atZone(defaultTimeZone)).orNull
       }
     } else if (classOf[LocalDateTime] == requiredType) {
       if (Types.BIGINT == columnType) {
@@ -91,7 +90,7 @@ object JdbcUtils extends StrictLogging {
       } else if (Types.INTEGER == columnType) {
         LocalDateTime.ofInstant(Instant.ofEpochSecond(rs.getInt(index)), defaultTimeZone)
       } else {
-        rs.getTimestamp(index).toLocalDateTime
+        Option(rs.getTimestamp(index)).map(_.toLocalDateTime).orNull
       }
     } else if (classOf[java.sql.Time] == requiredType) {
       rs.getTime(index)
@@ -177,7 +176,7 @@ object JdbcUtils extends StrictLogging {
    */
   @throws[SQLException]
   def getResultSetValue(rs: ResultSet, index: Int): AnyRef = {
-    val obj = rs.getObject(index)
+    val obj               = rs.getObject(index)
     val className: String = if (obj == null) null else obj.getClass.getName
 
     obj match {
@@ -218,11 +217,11 @@ object JdbcUtils extends StrictLogging {
    * @return (转换后SQL语句，提取出的参数和索引)，索引从1开始编号
    */
   def namedParameterToQuestionMarked(sql: String, TAG: Char = '?'): (String, Map[String, Int]) = {
-    val sqlBuf = new java.lang.StringBuilder()
+    val sqlBuf   = new java.lang.StringBuilder()
     var paramBuf = new java.lang.StringBuilder()
-    val params = mutable.Map.empty[String, Int]
-    var idx = 0
-    var isName = false
+    val params   = mutable.Map.empty[String, Int]
+    var idx      = 0
+    var isName   = false
     sql.foreach {
       case TAG =>
         sqlBuf.append('?')
@@ -319,13 +318,13 @@ object JdbcUtils extends StrictLogging {
 
   private def filterFields(fields: scala.Array[Field]): Map[String, Field] = {
     val result = mutable.Map.empty[String, Field]
-    val len = fields.length
-    var i = 0
+    val len    = fields.length
+    var i      = 0
     while (i < len) {
       val field = fields(i)
-      val anns = field.getDeclaredAnnotations
+      val anns  = field.getDeclaredAnnotations
       val isInvalid = Modifier.isStatic(field.getModifiers) ||
-        anns.exists(ann => ann.annotationType() == BeanIgnoreClass)
+      anns.exists(ann => ann.annotationType() == BeanIgnoreClass)
       if (!isInvalid) {
         field.setAccessible(true)
         result.put(field.getName, field)
@@ -338,11 +337,11 @@ object JdbcUtils extends StrictLogging {
   def resultSetToBean[T](rs: ResultSet)(implicit ev1: ClassTag[T]): T = resultSetToBean(rs, toPropertiesName = true)
 
   def resultSetToBean[T](rs: ResultSet, toPropertiesName: Boolean)(implicit ev1: ClassTag[T]): T = {
-    val dest = ev1.runtimeClass.newInstance().asInstanceOf[T]
-    val cls = dest.getClass
-    val fields = filterFields(cls.getDeclaredFields)
-    val metaData = rs.getMetaData
-    var col = 1
+    val dest        = ev1.runtimeClass.newInstance().asInstanceOf[T]
+    val cls         = dest.getClass
+    val fields      = filterFields(cls.getDeclaredFields)
+    val metaData    = rs.getMetaData
+    var col         = 1
     val columnCount = metaData.getColumnCount
     while (col <= columnCount) {
       var label = metaData.getColumnLabel(col)
@@ -351,7 +350,7 @@ object JdbcUtils extends StrictLogging {
       }
       for (field <- fields.get(label)) {
         val requiredType = field.getType
-        val value = getResultSetValue(rs, col, requiredType)
+        val value        = getResultSetValue(rs, col, requiredType)
         field.set(dest, value)
       }
       col += 1
@@ -415,12 +414,12 @@ object JdbcUtils extends StrictLogging {
 
   def isString(sqlType: Int): Boolean =
     Types.VARCHAR == sqlType || Types.VARCHAR == Types.CHAR || Types.VARCHAR == Types.LONGNVARCHAR ||
-      Types.VARCHAR == Types.LONGVARCHAR || Types.VARCHAR == Types.NCHAR || Types.VARCHAR == Types.NVARCHAR
+    Types.VARCHAR == Types.LONGVARCHAR || Types.VARCHAR == Types.NCHAR || Types.VARCHAR == Types.NVARCHAR
 
   def isNumeric(sqlType: Int): Boolean =
     Types.BIT == sqlType || Types.BIGINT == sqlType || Types.DECIMAL == sqlType || Types.DOUBLE == sqlType ||
-      Types.FLOAT == sqlType || Types.INTEGER == sqlType || Types.NUMERIC == sqlType || Types.REAL == sqlType ||
-      Types.SMALLINT == sqlType || Types.TINYINT == sqlType
+    Types.FLOAT == sqlType || Types.INTEGER == sqlType || Types.NUMERIC == sqlType || Types.REAL == sqlType ||
+    Types.SMALLINT == sqlType || Types.TINYINT == sqlType
 
   /**
    * 从SQL结果元数据中获取列表。将首先通过 label 获取，若 label 不存在再从 name 获取
@@ -440,16 +439,15 @@ object JdbcUtils extends StrictLogging {
       ignoreWarnings: Boolean = true,
       allowPrintLog: Boolean = true,
       useTransaction: Boolean = false,
-      autoClose: Boolean = false
-  )(implicit con: Connection): R = {
+      autoClose: Boolean = false)(implicit con: Connection): R = {
     assert(Objects.nonNull(con), "con: Connection must not be null")
     assert(Objects.nonNull(pscFunc), "Connection => PreparedStatement must not be null")
     assert(Objects.nonNull(actionFunc), "PreparedStatement => R must not be null")
 
     var pstmt: PreparedStatement = null
-    val isAutoCommit = con.getAutoCommit
-    var commitSuccess = false
-    var beginTime: Instant = null
+    val isAutoCommit             = con.getAutoCommit
+    var commitSuccess            = false
+    var beginTime: Instant       = null
     try {
       if (autoClose && useTransaction) {
         con.setAutoCommit(false)
@@ -477,7 +475,7 @@ object JdbcUtils extends StrictLogging {
       val parameterTypes =
         try {
           if (allowPrintLog) {
-            val metaData = pstmt.getParameterMetaData
+            val metaData  = pstmt.getParameterMetaData
             val metaCount = metaData.getParameterCount
             (1 to metaCount).map(idx => metaData.getParameterTypeName(idx))
           } else
@@ -520,7 +518,7 @@ object JdbcUtils extends StrictLogging {
       pscFunc: ConnectionPreparedStatementCreator,
       actionFunc: PreparedStatementAction[_]): Unit = {
     val endTime = Instant.now()
-    val dua = java.time.Duration.between(beginTime, endTime)
+    val dua     = java.time.Duration.between(beginTime, endTime)
     val sql = pscFunc match {
       case pscFuncImpl: ConnectionPreparedStatementCreatorImpl =>
         pscFuncImpl.getSql
@@ -578,13 +576,14 @@ object JdbcUtils extends StrictLogging {
     createHikariDataSource(props)
   }
 
-  private val REMOVED_KEYS = List("useTransaction",
-                                  "ignoreWarnings",
-                                  "allowPrintLog",
-                                  "maxConnections",
-                                  "numThreads",
-                                  "registerMbeans",
-                                  "queueSize")
+  private val REMOVED_KEYS = List(
+    "useTransaction",
+    "ignoreWarnings",
+    "allowPrintLog",
+    "maxConnections",
+    "numThreads",
+    "registerMbeans",
+    "queueSize")
 
   @inline def createHikariDataSource(config: Configuration): HikariDataSource =
     createHikariDataSource(config.getProperties(null))

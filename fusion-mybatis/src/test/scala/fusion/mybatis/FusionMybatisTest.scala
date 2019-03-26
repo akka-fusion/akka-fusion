@@ -22,7 +22,7 @@ class FusionMybatisTest extends TestKit(ActorSystem("fusion-mybatis")) with Fusi
     val sqlSessionFactory = FusionMybatis(system).component
     Utils.using(sqlSessionFactory.openSession()) { session =>
       val fileMapper = session.getMapper(classOf[FileMapper])
-      val list = fileMapper.list(10)
+      val list       = fileMapper.list(10)
       list.forEach(println)
       list must not be empty
     }

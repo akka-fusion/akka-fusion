@@ -12,7 +12,7 @@ import scala.concurrent.duration._
 class DigestUtilsTest extends FunSuite with BeforeAndAfterAll with MustMatchers {
 
   implicit val system = ActorSystem()
-  implicit val mat = ActorMaterializer()
+  implicit val mat    = ActorMaterializer()
   import system.dispatcher
 
   test("digest") {
@@ -24,7 +24,7 @@ class DigestUtilsTest extends FunSuite with BeforeAndAfterAll with MustMatchers 
     fromPath("/opt/Desktop/红卡专辑：火灾/汽车起火如何逃生1.m4a") mustBe fromPathFuture("/opt/Desktop/红卡专辑：火灾/汽车起火如何逃生1.m4a")
   }
 
-  def fromPath(path: String) = DigestUtils.sha256HexFromPath(Paths.get(path))
+  def fromPath(path: String)       = DigestUtils.sha256HexFromPath(Paths.get(path))
   def fromPathFuture(path: String) = Await.result(DigestUtils.reactiveSha256Hex(Paths.get(path)), 10.seconds)
 
   override protected def afterAll(): Unit = {

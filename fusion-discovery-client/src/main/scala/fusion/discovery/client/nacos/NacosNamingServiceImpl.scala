@@ -6,8 +6,10 @@ import com.alibaba.nacos.api.naming.{NamingService => JNamingService}
 import com.alibaba.nacos.api.selector.AbstractSelector
 import com.typesafe.config.Config
 import fusion.discovery.client.FusionNamingService
-import fusion.discovery.model.{DiscoveryEvent, DiscoveryInstance, DiscoveryList, DiscoveryServiceInfo}
-import helloscala.common.Configuration
+import fusion.discovery.model.DiscoveryEvent
+import fusion.discovery.model.DiscoveryInstance
+import fusion.discovery.model.DiscoveryList
+import fusion.discovery.model.DiscoveryServiceInfo
 
 import scala.collection.JavaConverters._
 

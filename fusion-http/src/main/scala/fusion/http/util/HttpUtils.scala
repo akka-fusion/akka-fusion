@@ -1,16 +1,24 @@
 package fusion.http.util
 
-import java.nio.charset.{Charset, UnsupportedCharsetException}
+import java.nio.charset.Charset
+import java.nio.charset.UnsupportedCharsetException
 
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model._
-import akka.http.scaladsl.unmarshalling.{FromEntityUnmarshaller, Unmarshal}
-import akka.stream.scaladsl.{Keep, Sink, Source}
-import akka.stream.{ActorMaterializer, Materializer, OverflowStrategy, QueueOfferResult}
+import akka.http.scaladsl.unmarshalling.FromEntityUnmarshaller
+import akka.http.scaladsl.unmarshalling.Unmarshal
+import akka.stream.scaladsl.Keep
+import akka.stream.scaladsl.Sink
+import akka.stream.scaladsl.Source
+import akka.stream.ActorMaterializer
+import akka.stream.Materializer
+import akka.stream.OverflowStrategy
+import akka.stream.QueueOfferResult
 import akka.util.ByteString
 import com.fasterxml.jackson.databind.node.ArrayNode
-import com.typesafe.config.{Config, ConfigFactory}
+import com.typesafe.config.Config
+import com.typesafe.config.ConfigFactory
 import com.typesafe.scalalogging.StrictLogging
 import fusion.core.constant.ConfigKeys
 import fusion.http.HttpSourceQueue
@@ -22,9 +30,13 @@ import helloscala.common.util.StringUtils
 import scala.collection.JavaConverters._
 import scala.collection.immutable
 import scala.concurrent.duration._
-import scala.concurrent.{Await, ExecutionContext, Future, Promise}
+import scala.concurrent.Await
+import scala.concurrent.ExecutionContext
+import scala.concurrent.Future
+import scala.concurrent.Promise
 import scala.reflect.ClassTag
-import scala.util.{Failure, Success}
+import scala.util.Failure
+import scala.util.Success
 
 object HttpUtils extends StrictLogging {
 

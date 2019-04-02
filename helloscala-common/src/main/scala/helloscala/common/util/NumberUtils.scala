@@ -1,6 +1,7 @@
 package helloscala.common.util
 
-import java.math.{BigInteger, BigDecimal => JBigDecimal}
+import java.math.BigInteger
+import java.math.{BigDecimal => JBigDecimal}
 
 object NumberUtils {
   private val LONG_MIN = BigInteger.valueOf(Long.MinValue)

@@ -1,9 +1,13 @@
 package helloscala.common.jackson
 
 import com.fasterxml.jackson.annotation.JsonInclude
-import com.fasterxml.jackson.core.{JsonParser, JsonProcessingException, TreeNode}
-import com.fasterxml.jackson.databind.node.{ArrayNode, ObjectNode}
-import com.fasterxml.jackson.databind.ser.{DefaultSerializerProvider, SerializerFactory}
+import com.fasterxml.jackson.core.JsonParser
+import com.fasterxml.jackson.core.JsonProcessingException
+import com.fasterxml.jackson.core.TreeNode
+import com.fasterxml.jackson.databind.node.ArrayNode
+import com.fasterxml.jackson.databind.node.ObjectNode
+import com.fasterxml.jackson.databind.ser.DefaultSerializerProvider
+import com.fasterxml.jackson.databind.ser.SerializerFactory
 import com.fasterxml.jackson.databind._
 import helloscala.common.util.Utils
 

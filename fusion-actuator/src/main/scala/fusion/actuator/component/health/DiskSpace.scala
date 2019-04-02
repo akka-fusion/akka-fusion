@@ -2,7 +2,8 @@ package fusion.actuator.component.health
 
 import java.nio.file.FileSystems
 
-import fusion.core.model.{Health, HealthComponent}
+import fusion.core.model.Health
+import fusion.core.model.HealthComponent
 
 object DiskSpace extends HealthComponent {
   override def health: Health = {

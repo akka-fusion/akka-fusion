@@ -1,5 +1,7 @@
 package fusion.jdbc
-import java.sql.{Connection, ResultSet, SQLException}
+import java.sql.Connection
+import java.sql.ResultSet
+import java.sql.SQLException
 
 import com.typesafe.config.Config
 import helloscala.common.Configuration

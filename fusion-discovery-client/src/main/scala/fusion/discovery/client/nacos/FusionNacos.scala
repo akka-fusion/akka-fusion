@@ -1,10 +1,14 @@
 package fusion.discovery.client.nacos
 
-import akka.actor.{ExtendedActorSystem, Extension, ExtensionId, ExtensionIdProvider}
+import akka.actor.ExtendedActorSystem
+import akka.actor.Extension
+import akka.actor.ExtensionId
+import akka.actor.ExtensionIdProvider
 import com.typesafe.scalalogging.StrictLogging
 import fusion.core.extension.FusionExtension
 import fusion.discovery.DiscoveryUtils
-import fusion.discovery.client.{FusionConfigService, FusionNamingService}
+import fusion.discovery.client.FusionConfigService
+import fusion.discovery.client.FusionNamingService
 
 final class FusionNacos private (protected val _system: ExtendedActorSystem)
     extends FusionExtension

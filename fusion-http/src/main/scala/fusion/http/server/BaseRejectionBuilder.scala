@@ -1,6 +1,7 @@
 package fusion.http.server
 import akka.http.scaladsl.model.StatusCodes._
-import akka.http.scaladsl.server.Directives.{complete, extractUri}
+import akka.http.scaladsl.server.Directives.complete
+import akka.http.scaladsl.server.Directives.extractUri
 import akka.http.scaladsl.server.RejectionHandler.Builder
 import akka.http.scaladsl.server._
 import com.typesafe.scalalogging.StrictLogging

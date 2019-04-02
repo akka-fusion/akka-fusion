@@ -2,10 +2,14 @@ package fusion.core.extension
 
 import java.nio.file.Paths
 
-import akka.actor.{ExtendedActorSystem, Extension, ExtensionId, ExtensionIdProvider}
+import akka.actor.ExtendedActorSystem
+import akka.actor.Extension
+import akka.actor.ExtensionId
+import akka.actor.ExtensionIdProvider
 import com.typesafe.scalalogging.StrictLogging
 import fusion.core.constant.ConfigKeys
-import helloscala.common.util.{PidFile, Utils}
+import helloscala.common.util.PidFile
+import helloscala.common.util.Utils
 
 import scala.util.control.NonFatal
 

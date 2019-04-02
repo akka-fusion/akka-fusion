@@ -2,28 +2,38 @@ package fusion.discovery.client
 
 import java.util.Properties
 
-import com.alibaba.nacos.api.naming.listener.{Event, NamingEvent}
-import com.alibaba.nacos.api.naming.pojo.{Instance, ListView, ServiceInfo}
+import com.alibaba.nacos.api.naming.listener.Event
+import com.alibaba.nacos.api.naming.listener.NamingEvent
+import com.alibaba.nacos.api.naming.pojo.Instance
+import com.alibaba.nacos.api.naming.pojo.ListView
+import com.alibaba.nacos.api.naming.pojo.ServiceInfo
 import fusion.discovery.model._
-import helloscala.common.util.{AsInt, AsLong, Utils}
+import helloscala.common.util.AsBoolean
+import helloscala.common.util.AsInt
+import helloscala.common.util.AsLong
+import helloscala.common.util.Utils
 
 import scala.collection.JavaConverters._
 
 package object nacos {
-  implicit class NacosDiscoveryProperties(underlying: Properties) extends Properties {
+  implicit final class NacosDiscoveryProperties(underlying: Properties) extends Properties {
     import fusion.core.constant.PropKeys._
     underlying.forEach((key, value) => put(key, value))
 
     def serviceName: Option[String]         = Utils.option(getProperty(SERVICE_NAME))
     def namespace: Option[String]           = Utils.option(getProperty(NAMESPACE))
     def dataId: String                      = getProperty(DATA_ID)
-    def group: String                       = Utils.option(getProperty(GROUP)).getOrElse("DEFAULT_GROUP")
+    def group: String                       = Utils.option(getProperty(GROUP)).getOrElse(NacosConstants.DEFAULT_GROUP)
     def timeoutMs: Long                     = AsLong.unapply(get(TIMEOUT_MS)).getOrElse(3000L)
     def instanceIp: String                  = getProperty(INSTANCE_IP)
     def instancePort: Int                   = AsInt.unapply(get(INSTANCE_PORT)).get
     def instanceClusterName: Option[String] = Utils.option(getProperty(INSTANCE_CLUSTER_NAME))
     def instanceWeight: Double              = Utils.option(getProperty(INSTANCE_WEIGHT)).map(_.toDouble).getOrElse(1.0)
-    def isAutoRegisterInstance: Boolean     = Option(get(AUTO_REGISTER_INSTANCE)).map(_.toString).forall(_.toBoolean)
+
+    def isAutoRegisterInstance: Boolean =
+      Option(get(AUTO_REGISTER_INSTANCE))
+        .flatMap(v => AsBoolean.unapply(v))
+        .getOrElse(NacosConstants.DEFAULT_AUTO_REGISTER_INSTANCE)
   }
 
   implicit final class ToDiscoveryList[T](v: ListView[T]) {

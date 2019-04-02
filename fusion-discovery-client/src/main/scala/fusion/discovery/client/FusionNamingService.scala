@@ -1,7 +1,10 @@
 package fusion.discovery.client
 
 import com.typesafe.config.Config
-import fusion.discovery.model.{DiscoveryEvent, DiscoveryInstance, DiscoveryList, DiscoveryServiceInfo}
+import fusion.discovery.model.DiscoveryEvent
+import fusion.discovery.model.DiscoveryInstance
+import fusion.discovery.model.DiscoveryList
+import fusion.discovery.model.DiscoveryServiceInfo
 
 trait FusionNamingService {
 

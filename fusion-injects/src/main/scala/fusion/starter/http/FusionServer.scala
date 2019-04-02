@@ -2,7 +2,8 @@ package fusion.starter.http
 
 import akka.actor.ActorSystem
 import fusion.http.server.AbstractRoute
-import fusion.http.{FusionHttp, HttpApplication}
+import fusion.http.FusionHttp
+import fusion.http.HttpApplication
 import fusion.inject.Injects
 
 trait FusionServer {

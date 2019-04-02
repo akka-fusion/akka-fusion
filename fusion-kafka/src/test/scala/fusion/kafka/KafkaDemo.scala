@@ -1,10 +1,15 @@
 package fusion.kafka
 
 import akka.actor.ActorSystem
-import akka.kafka.{ProducerMessage, Subscriptions}
-import akka.kafka.scaladsl.{Consumer, Producer}
-import akka.stream.{ActorMaterializer, OverflowStrategy}
-import akka.stream.scaladsl.{Keep, Sink, Source}
+import akka.kafka.ProducerMessage
+import akka.kafka.Subscriptions
+import akka.kafka.scaladsl.Consumer
+import akka.kafka.scaladsl.Producer
+import akka.stream.ActorMaterializer
+import akka.stream.OverflowStrategy
+import akka.stream.scaladsl.Keep
+import akka.stream.scaladsl.Sink
+import akka.stream.scaladsl.Source
 
 import scala.concurrent.Await
 import scala.io.StdIn

@@ -1,13 +1,16 @@
 package helloscala.common.util
 
 import java.nio.charset.StandardCharsets
-import java.nio.file.{Files, Path}
+import java.nio.file.Files
+import java.nio.file.Path
 import java.security.MessageDigest
 
 import akka.stream.Materializer
-import akka.stream.scaladsl.{FileIO, Sink}
+import akka.stream.scaladsl.FileIO
+import akka.stream.scaladsl.Sink
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
+import scala.concurrent.Future
 
 object MessageDigestAlgorithms {
 

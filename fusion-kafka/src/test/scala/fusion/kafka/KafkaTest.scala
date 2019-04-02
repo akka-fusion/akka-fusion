@@ -4,11 +4,15 @@ import java.util.concurrent.TimeUnit
 
 import akka.actor.ActorSystem
 import akka.kafka.ProducerMessage.PassThroughResult
-import akka.kafka.{ProducerMessage, Subscriptions}
+import akka.kafka.ProducerMessage
+import akka.kafka.Subscriptions
 import akka.kafka.scaladsl.Consumer.DrainingControl
-import akka.kafka.scaladsl.{Consumer, Producer}
+import akka.kafka.scaladsl.Consumer
+import akka.kafka.scaladsl.Producer
 import akka.stream.ActorMaterializer
-import akka.stream.scaladsl.{Keep, Sink, Source}
+import akka.stream.scaladsl.Keep
+import akka.stream.scaladsl.Sink
+import akka.stream.scaladsl.Source
 import fusion.test.FusionTestFunSuite
 import helloscala.common.jackson.Jackson
 import org.apache.kafka.clients.producer.ProducerRecord

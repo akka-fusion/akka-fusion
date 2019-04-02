@@ -1,6 +1,9 @@
 package fusion.inject
 
-import com.google.inject.{Guice, Injector, Key, Module}
+import com.google.inject.Guice
+import com.google.inject.Injector
+import com.google.inject.Key
+import com.google.inject.Module
 import com.typesafe.config.ConfigFactory
 import helloscala.common.util.StringUtils
 import javax.inject.Named

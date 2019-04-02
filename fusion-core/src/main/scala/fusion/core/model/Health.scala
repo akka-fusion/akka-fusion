@@ -1,6 +1,7 @@
 package fusion.core.model
 
 trait HealthComponent {
+
   def name: String = {
     val s   = getClass.getSimpleName
     val str = s.head.toLower + s.tail

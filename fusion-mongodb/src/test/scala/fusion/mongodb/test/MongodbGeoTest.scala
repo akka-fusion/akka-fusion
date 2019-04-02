@@ -3,10 +3,16 @@ package fusion.mongodb.test
 import akka.Done
 import akka.actor.ActorSystem
 import akka.stream.ActorAttributes.SupervisionStrategy
-import akka.stream.scaladsl.{Flow, Sink, Source}
-import akka.stream.{ActorMaterializer, Attributes, Supervision}
+import akka.stream.scaladsl.Flow
+import akka.stream.scaladsl.Sink
+import akka.stream.scaladsl.Source
+import akka.stream.ActorMaterializer
+import akka.stream.Attributes
+import akka.stream.Supervision
 import com.mongodb.client.model.Filters
-import com.mongodb.client.model.geojson.{Point, Polygon, Position}
+import com.mongodb.client.model.geojson.Point
+import com.mongodb.client.model.geojson.Polygon
+import com.mongodb.client.model.geojson.Position
 import com.mongodb.reactivestreams.client._
 import fusion.data.mongodb.MongoTemplate
 import fusion.test.FusionTestFunSuite

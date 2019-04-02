@@ -5,7 +5,8 @@ import java.util.Properties
 import com.alibaba.nacos.api.NacosFactory
 import com.typesafe.scalalogging.StrictLogging
 import fusion.discovery.DiscoveryUtils
-import fusion.discovery.client.{FusionConfigService, FusionNamingService}
+import fusion.discovery.client.FusionConfigService
+import fusion.discovery.client.FusionNamingService
 
 object NacosServiceFactory extends StrictLogging {
 

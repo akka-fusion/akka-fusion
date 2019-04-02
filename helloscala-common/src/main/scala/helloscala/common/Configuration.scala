@@ -1,6 +1,7 @@
 package helloscala.common
 
-import java.nio.file.{Path, Paths}
+import java.nio.file.Path
+import java.nio.file.Paths
 import java.time.OffsetDateTime
 import java.util.Properties
 import java.util.concurrent.locks.ReentrantReadWriteLock
@@ -11,7 +12,8 @@ import com.typesafe.config._
 import com.typesafe.config.impl.ConfigurationHelper
 import com.typesafe.scalalogging.StrictLogging
 import helloscala.common.exception.HSException
-import helloscala.common.util.{StringUtils, TimeUtils}
+import helloscala.common.util.StringUtils
+import helloscala.common.util.TimeUtils
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable

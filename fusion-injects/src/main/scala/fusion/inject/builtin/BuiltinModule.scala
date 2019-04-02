@@ -1,13 +1,17 @@
 package fusion.inject.builtin
 
 import akka.actor.ActorSystem
-import akka.stream.{ActorMaterializer, Materializer}
+import akka.stream.ActorMaterializer
+import akka.stream.Materializer
 import com.google.inject.AbstractModule
 import com.typesafe.config.Config
 import helloscala.common.Configuration
-import javax.inject.{Inject, Provider, Singleton}
+import javax.inject.Inject
+import javax.inject.Provider
+import javax.inject.Singleton
 
-import scala.concurrent.{ExecutionContext, ExecutionContextExecutor}
+import scala.concurrent.ExecutionContext
+import scala.concurrent.ExecutionContextExecutor
 
 @Singleton
 class ConfigProvider @Inject()(configuration: Configuration) extends Provider[Config] {

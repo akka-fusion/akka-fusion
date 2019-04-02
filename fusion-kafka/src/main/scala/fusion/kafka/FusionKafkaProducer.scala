@@ -1,6 +1,9 @@
 package fusion.kafka
 
-import akka.actor.{ExtendedActorSystem, Extension, ExtensionId, ExtensionIdProvider}
+import akka.actor.ExtendedActorSystem
+import akka.actor.Extension
+import akka.actor.ExtensionId
+import akka.actor.ExtensionIdProvider
 import akka.kafka.ProducerSettings
 
 final class FusionKafkaProducer private (system: ExtendedActorSystem) extends Extension {

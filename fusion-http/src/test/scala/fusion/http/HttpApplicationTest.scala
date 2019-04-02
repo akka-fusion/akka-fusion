@@ -1,7 +1,8 @@
 package fusion.http
 
 import akka.actor.ActorSystem
-import akka.http.scaladsl.model.{HttpMethods, StatusCodes}
+import akka.http.scaladsl.model.HttpMethods
+import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Route
 import com.typesafe.scalalogging.StrictLogging
 import fusion.http.server.AbstractRoute

@@ -1,7 +1,8 @@
 package fusion.actuator.route
 
 import akka.actor.ExtendedActorSystem
-import akka.http.scaladsl.model.{ContentTypes, HttpEntity}
+import akka.http.scaladsl.model.ContentTypes
+import akka.http.scaladsl.model.HttpEntity
 import akka.http.scaladsl.server.Route
 import com.typesafe.scalalogging.StrictLogging
 

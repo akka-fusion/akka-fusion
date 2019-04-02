@@ -2,7 +2,8 @@ package fusion.test
 
 import org.scalatest._
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.time.{Millis, Span}
+import org.scalatest.time.Millis
+import org.scalatest.time.Span
 
 import scala.concurrent.duration._
 

@@ -1,11 +1,15 @@
 package fusion.http.server
 
-import java.time.{LocalDate, LocalDateTime, LocalTime, OffsetDateTime}
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
+import java.time.OffsetDateTime
 
 import akka.http.scaladsl.model.HttpEntity
 import akka.http.scaladsl.server.Directive0
 import akka.http.scaladsl.server.Directives._
-import akka.http.scaladsl.unmarshalling.{FromStringUnmarshaller, Unmarshaller}
+import akka.http.scaladsl.unmarshalling.FromStringUnmarshaller
+import akka.http.scaladsl.unmarshalling.Unmarshaller
 import helloscala.common.util.TimeUtils
 
 trait HttpDirectives {

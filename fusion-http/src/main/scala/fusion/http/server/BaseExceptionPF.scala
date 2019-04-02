@@ -2,7 +2,8 @@ package fusion.http.server
 import java.util.concurrent.TimeoutException
 
 import akka.http.scaladsl.model.StatusCodes
-import akka.http.scaladsl.server.Directives.{complete, extractUri}
+import akka.http.scaladsl.server.Directives.complete
+import akka.http.scaladsl.server.Directives.extractUri
 import akka.http.scaladsl.server.ExceptionHandler
 import com.typesafe.scalalogging.StrictLogging
 import fusion.http.exception.HttpException

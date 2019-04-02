@@ -1,6 +1,7 @@
 package fusion.jdbc
 
-import java.sql.{Connection, PreparedStatement}
+import java.sql.Connection
+import java.sql.PreparedStatement
 
 import helloscala.common.util.StringUtils
 

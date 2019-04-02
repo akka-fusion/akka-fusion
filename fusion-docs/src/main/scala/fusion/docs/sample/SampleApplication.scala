@@ -4,9 +4,11 @@ import akka.http.scaladsl.server.Route
 import fusion.inject.Injects
 import fusion.http.server.AbstractRoute
 import fusion.starter.http.FusionServer
-import javax.inject.{Inject, Singleton}
+import javax.inject.Inject
+import javax.inject.Singleton
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
+import scala.concurrent.Future
 
 // #SampleApplication
 object SampleApplication extends App {

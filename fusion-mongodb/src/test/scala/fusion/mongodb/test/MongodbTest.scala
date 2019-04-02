@@ -3,16 +3,21 @@ package fusion.mongodb.test
 import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
 import akka.stream.alpakka.mongodb.scaladsl.MongoSource
-import akka.stream.scaladsl.{Sink, Source}
-import com.mongodb.client.model.{Filters, ReplaceOptions}
-import com.mongodb.reactivestreams.client.{MongoClients, MongoCollection}
-import com.mongodb.{ConnectionString, MongoClientSettings}
+import akka.stream.scaladsl.Sink
+import akka.stream.scaladsl.Source
+import com.mongodb.client.model.Filters
+import com.mongodb.client.model.ReplaceOptions
+import com.mongodb.reactivestreams.client.MongoClients
+import com.mongodb.reactivestreams.client.MongoCollection
+import com.mongodb.ConnectionString
+import com.mongodb.MongoClientSettings
 import fusion.data.mongodb.MongoTemplate
 import fusion.test.FusionTestFunSuite
 import org.bson.Document
 import org.bson.types.ObjectId
 import org.scalatest.BeforeAndAfterAll
-import org.scalatest.time.{Millis, Span}
+import org.scalatest.time.Millis
+import org.scalatest.time.Span
 
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration

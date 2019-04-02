@@ -1,9 +1,13 @@
 package fusion.data.mongodb.codec
 
-import java.nio.file.{Path, Paths}
+import java.nio.file.Path
+import java.nio.file.Paths
 
-import org.bson.{BsonReader, BsonWriter}
-import org.bson.codecs.{Codec, DecoderContext, EncoderContext}
+import org.bson.BsonReader
+import org.bson.BsonWriter
+import org.bson.codecs.Codec
+import org.bson.codecs.DecoderContext
+import org.bson.codecs.EncoderContext
 
 // XXX Path是一个 Iterable[Path]，会造成write时被单成数组而造成无限循环
 class PathCodec extends Codec[Path] {

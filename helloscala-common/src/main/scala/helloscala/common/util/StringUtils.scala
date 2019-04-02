@@ -1,9 +1,13 @@
 package helloscala.common.util
 
-import java.io.{InputStream, PrintWriter, StringWriter}
-import java.nio.file.{Files, Path}
+import java.io.InputStream
+import java.io.PrintWriter
+import java.io.StringWriter
+import java.nio.file.Files
+import java.nio.file.Path
 import java.security.SecureRandom
-import java.util.{Map => JMap, HashMap => JHashMap}
+import java.util.{Map => JMap}
+import java.util.{HashMap => JHashMap}
 
 import org.bouncycastle.util.encoders.Hex
 

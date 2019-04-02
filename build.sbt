@@ -163,7 +163,12 @@ lazy val fusionTest = _project("fusion-test")
 lazy val fusionCore = _project("fusion-core")
   .dependsOn(fusionCommon)
   .settings(Publishing.publishing: _*)
-  .settings(libraryDependencies ++= Seq("org.scala-lang" % "scala-reflect" % scalaVersion.value, _osLib, _chillAkka))
+  .settings(
+    libraryDependencies ++= Seq(
+      "org.scala-lang" % "scala-reflect" % scalaVersion.value,
+      _scalameta,
+      _osLib,
+      _chillAkka))
 
 lazy val fusionCommon = _project("fusion-common")
   .dependsOn(helloscalaCommon)

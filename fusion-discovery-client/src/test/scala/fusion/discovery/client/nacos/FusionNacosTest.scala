@@ -4,6 +4,7 @@ import java.util.Properties
 import java.util.concurrent.TimeUnit
 
 import akka.actor.ActorSystem
+import com.alibaba.nacos.api.NacosFactory
 import fusion.core.constant.PropKeys
 import fusion.discovery.DiscoveryUtils
 import fusion.test.FusionTestFunSuite
@@ -15,18 +16,17 @@ class FusionNacosTest extends FusionTestFunSuite with BeforeAndAfterAll {
 
   private val SERVER_ADDR  = "123.206.9.104:8849"
   private val NAMESPACE    = "3cc379e7-d0c0-461c-9700-abe252c60151"
-  private val DATA_ID      = "hongka.resource.app"
-  private val GROUP        = "DEFAULT_GROUP"
-  private val SERVICE_NAME = "hongka.resource.app"
+  private val DATA_ID      = "hongka.file.app"
+  private val GROUP        = NacosConstants.DEFAULT_GROUP
+  private val SERVICE_NAME = "hongka-file-app"
 
   test("ConfigService") {
     val props = new Properties()
     props.setProperty("serverAddr", SERVER_ADDR)
     props.setProperty("namespace", NAMESPACE)
-//    val configService = NacosFactory.createConfigService(props)
-    val configService = DiscoveryUtils.defaultConfigService
-    val confStr       = configService.getConfig(DATA_ID, GROUP, 3000)
-    println(confStr)
+    val configService = NacosFactory.createConfigService(props)
+//    val configService = DiscoveryUtils.defaultConfigService
+    val confStr = configService.getConfig(DATA_ID, GROUP, 3000)
     confStr must not be null
   }
 
@@ -62,17 +62,17 @@ class FusionNacosTest extends FusionTestFunSuite with BeforeAndAfterAll {
 
   override protected def beforeAll(): Unit = {
     super.beforeAll()
-//    System.setProperty(NacosConstants.CONF_SERVER_ADDR, SERVER_ADDR)
-//    System.setProperty(NacosConstants.CONF_NAMESPACE, NAMESPACE)
-//    System.setProperty(NacosConstants.CONF_SERVICE_NAME, SERVICE_NAME)
-//    System.setProperty(NacosConstants.CONF_TIMEOUT_MS, "3000")
-//    System.setProperty("fusion.name", DATA_ID)
+    System.setProperty("fusion.discovery.nacos." + PropKeys.SERVER_ADDR, SERVER_ADDR)
+    System.setProperty("fusion.discovery.nacos." + PropKeys.NAMESPACE, NAMESPACE)
+    System.setProperty("fusion.discovery.nacos." + PropKeys.SERVICE_NAME, SERVICE_NAME)
+    System.setProperty("fusion.discovery.nacos." + PropKeys.TIMEOUT_MS, "3000")
+    System.setProperty("fusion.name", DATA_ID)
     val configuration = Configuration.fromDiscovery()
     system = ActorSystem("test", configuration.underlying)
   }
 
   override protected def afterAll(): Unit = {
-    TimeUnit.MINUTES.sleep(2)
+    TimeUnit.SECONDS.sleep(2)
     system.terminate()
     super.afterAll()
   }

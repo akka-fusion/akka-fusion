@@ -3,7 +3,9 @@ package helloscala.common.util
 import java.time.format.DateTimeFormatter
 import java.time._
 import java.util.Date
-import java.sql.{Date => SQLDate, Time => SQLTime, Timestamp => SQLTimestamp}
+import java.sql.{Date => SQLDate}
+import java.sql.{Time => SQLTime}
+import java.sql.{Timestamp => SQLTimestamp}
 
 import com.typesafe.scalalogging.StrictLogging
 

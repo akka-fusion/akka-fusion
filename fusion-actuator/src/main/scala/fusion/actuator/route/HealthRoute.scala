@@ -1,10 +1,13 @@
 package fusion.actuator.route
 
 import akka.actor.ExtendedActorSystem
-import akka.http.scaladsl.model.{ContentTypes, HttpEntity, StatusCodes}
+import akka.http.scaladsl.model.ContentTypes
+import akka.http.scaladsl.model.HttpEntity
+import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Route
 import com.typesafe.scalalogging.StrictLogging
-import fusion.core.model.{Health, HealthComponent}
+import fusion.core.model.Health
+import fusion.core.model.HealthComponent
 import helloscala.common.jackson.Jackson
 import helloscala.common.util.Utils
 

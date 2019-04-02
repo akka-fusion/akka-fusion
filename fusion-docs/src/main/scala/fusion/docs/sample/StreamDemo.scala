@@ -3,8 +3,11 @@ package fusion.docs.sample
 import java.util.concurrent.TimeUnit
 
 import akka.actor.ActorSystem
-import akka.stream.{ActorMaterializer, OverflowStrategy}
-import akka.stream.scaladsl.{Keep, Sink, Source}
+import akka.stream.ActorMaterializer
+import akka.stream.OverflowStrategy
+import akka.stream.scaladsl.Keep
+import akka.stream.scaladsl.Sink
+import akka.stream.scaladsl.Source
 
 import scala.concurrent.Await
 import scala.io.StdIn

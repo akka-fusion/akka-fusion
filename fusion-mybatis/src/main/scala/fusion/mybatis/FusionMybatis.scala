@@ -1,13 +1,19 @@
 package fusion.mybatis
 
-import akka.actor.{ActorSystem, ExtendedActorSystem, Extension, ExtensionId, ExtensionIdProvider}
+import akka.actor.ActorSystem
+import akka.actor.ExtendedActorSystem
+import akka.actor.Extension
+import akka.actor.ExtensionId
+import akka.actor.ExtensionIdProvider
 import com.typesafe.config.Config
 import fusion.core.extension.FusionExtension
 import fusion.core.util.Components
 import fusion.jdbc.FusionJdbc
 import fusion.mybatis.constant.MybatisConstants
 import org.apache.ibatis.mapping.Environment
-import org.apache.ibatis.session.{Configuration, SqlSessionFactory, SqlSessionFactoryBuilder}
+import org.apache.ibatis.session.Configuration
+import org.apache.ibatis.session.SqlSessionFactory
+import org.apache.ibatis.session.SqlSessionFactoryBuilder
 import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory
 
 class MybatisComponents(system: ActorSystem) extends Components[SqlSessionFactory](MybatisConstants.PATH_DEFAULT) {

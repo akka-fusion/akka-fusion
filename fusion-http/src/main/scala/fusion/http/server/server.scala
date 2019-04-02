@@ -1,6 +1,7 @@
 package fusion.http
 
-import akka.http.scaladsl.model.{HttpEntity, StatusCode}
+import akka.http.scaladsl.model.HttpEntity
+import akka.http.scaladsl.model.StatusCode
 import fusion.http.util.HttpUtils
 
 package object server {

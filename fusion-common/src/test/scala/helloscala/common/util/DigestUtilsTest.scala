@@ -4,7 +4,9 @@ import java.nio.file.Paths
 
 import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
-import org.scalatest.{BeforeAndAfterAll, FunSuite, MustMatchers}
+import org.scalatest.BeforeAndAfterAll
+import org.scalatest.FunSuite
+import org.scalatest.MustMatchers
 
 import scala.concurrent.Await
 import scala.concurrent.duration._

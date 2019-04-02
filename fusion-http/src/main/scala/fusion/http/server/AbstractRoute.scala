@@ -1,12 +1,16 @@
 package fusion.http.server
 
 import java.io.File
-import java.nio.charset.{Charset, StandardCharsets}
-import java.nio.file.{Files, Paths}
+import java.nio.charset.Charset
+import java.nio.charset.StandardCharsets
+import java.nio.file.Files
+import java.nio.file.Paths
 
-import akka.http.scaladsl.model.{headers, _}
+import akka.http.scaladsl.model.headers
+import akka.http.scaladsl.model._
 import akka.http.scaladsl.model.headers.CacheDirectives
-import akka.http.scaladsl.server.PathMatcher.{Matched, Unmatched}
+import akka.http.scaladsl.server.PathMatcher.Matched
+import akka.http.scaladsl.server.PathMatcher.Unmatched
 import akka.http.scaladsl.server._
 import akka.http.scaladsl.server.directives.FileInfo
 import akka.http.scaladsl.server.util.Tuple

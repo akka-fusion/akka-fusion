@@ -1,16 +1,20 @@
 package fusion.http.server
 
 import java.io.IOException
-import java.nio.file.{Files, Path}
+import java.nio.file.Files
+import java.nio.file.Path
 
 import akka.http.scaladsl.model.Multipart
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server._
 import akka.http.scaladsl.server.directives.FileInfo
-import akka.stream.scaladsl.{FileIO, Sink, Source}
+import akka.stream.scaladsl.FileIO
+import akka.stream.scaladsl.Sink
+import akka.stream.scaladsl.Source
 import akka.util.ByteString
 import fusion.http.model.FileTemp
-import helloscala.common.util.{DigestUtils, StringUtils}
+import helloscala.common.util.DigestUtils
+import helloscala.common.util.StringUtils
 
 import scala.collection.immutable
 import scala.concurrent.Future
@@ -21,7 +25,8 @@ trait FileDirectives {
     entity(as[Multipart.FormData])
       .flatMap { formData ⇒
         extractRequestContext.flatMap { ctx ⇒
-          import ctx.{executionContext, materializer}
+          import ctx.executionContext
+          import ctx.materializer
 
           val multiPartF = formData.parts
             .map { part =>
@@ -46,7 +51,8 @@ trait FileDirectives {
   def uploadedOneFile: Directive1[(FileInfo, Source[ByteString, Any])] = entity(as[Multipart.FormData]).flatMap {
     formData ⇒
       Directive[Tuple1[(FileInfo, Source[ByteString, Any])]] { inner ⇒ ctx ⇒
-        import ctx.{executionContext, materializer}
+        import ctx.executionContext
+        import ctx.materializer
 
         // Streamed multipart data must be processed in a certain way, that is, before you can expect the next part you
         // must have fully read the entity of the current part.

@@ -4,10 +4,12 @@ import akka.actor.ExtendedActorSystem
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
-import akka.management.scaladsl.{ManagementRouteProvider, ManagementRouteProviderSettings}
+import akka.management.scaladsl.ManagementRouteProvider
+import akka.management.scaladsl.ManagementRouteProviderSettings
 import fusion.core.constant.ConfigKeys
 import fusion.http.util.HttpUtils
-import helloscala.common.{Configuration, ErrCodes}
+import helloscala.common.Configuration
+import helloscala.common.ErrCodes
 
 import scala.concurrent.Await
 import scala.concurrent.duration._

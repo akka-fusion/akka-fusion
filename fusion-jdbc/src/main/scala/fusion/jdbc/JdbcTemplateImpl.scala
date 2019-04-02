@@ -1,6 +1,7 @@
 package fusion.jdbc
 
-import java.sql.{Connection, ResultSet}
+import java.sql.Connection
+import java.sql.ResultSet
 import java.util.Objects
 
 import com.typesafe.scalalogging.Logger

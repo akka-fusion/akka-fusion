@@ -3,13 +3,18 @@ package helloscala.common.util
 import java.lang.management.ManagementFactory
 import java.nio.ByteBuffer
 import java.security.SecureRandom
-import java.time.{Duration, Instant, LocalDate, LocalDateTime}
+import java.time.Duration
+import java.time.Instant
+import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.Properties
 import java.util.concurrent.ThreadLocalRandom
 
 import com.typesafe.scalalogging.StrictLogging
 
-import scala.util.{Failure, Success, Try}
+import scala.util.Failure
+import scala.util.Success
+import scala.util.Try
 import scala.util.control.NonFatal
 import scala.util.matching.Regex
 

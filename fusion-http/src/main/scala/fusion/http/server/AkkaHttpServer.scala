@@ -1,16 +1,21 @@
 package fusion.http.server
 
 import java.net.InetSocketAddress
-import java.security.{KeyStore, SecureRandom}
+import java.security.KeyStore
+import java.security.SecureRandom
 
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http.ServerBinding
 import akka.http.scaladsl.model.headers.RawHeader
-import akka.http.scaladsl.model.{HttpRequest, HttpResponse}
-import akka.http.scaladsl.server.Directives.{handleExceptions, handleRejections}
+import akka.http.scaladsl.model.HttpRequest
+import akka.http.scaladsl.model.HttpResponse
+import akka.http.scaladsl.server.Directives.handleExceptions
+import akka.http.scaladsl.server.Directives.handleRejections
 import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.settings.ServerSettings
-import akka.http.scaladsl.{ConnectionContext, Http, HttpsConnectionContext}
+import akka.http.scaladsl.ConnectionContext
+import akka.http.scaladsl.Http
+import akka.http.scaladsl.HttpsConnectionContext
 import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.Flow
 import com.typesafe.config.ConfigFactory
@@ -18,12 +23,17 @@ import com.typesafe.scalalogging.StrictLogging
 import com.typesafe.sslconfig.akka.AkkaSSLConfig
 import fusion.core.constant.FusionConstants
 import helloscala.common.Configuration
-import javax.net.ssl.{KeyManagerFactory, SSLContext, TrustManagerFactory}
+import javax.net.ssl.KeyManagerFactory
+import javax.net.ssl.SSLContext
+import javax.net.ssl.TrustManagerFactory
 
 import scala.concurrent.duration._
-import scala.concurrent.{Await, ExecutionContextExecutor, Future}
+import scala.concurrent.Await
+import scala.concurrent.ExecutionContextExecutor
+import scala.concurrent.Future
 import scala.util.control.NonFatal
-import scala.util.{Failure, Success}
+import scala.util.Failure
+import scala.util.Success
 
 trait AkkaHttpServer extends BaseExceptionPF with BaseRejectionBuilder with StrictLogging {
   val system: ActorSystem

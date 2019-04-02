@@ -5,7 +5,8 @@ import akka.http.scaladsl.Http
 import akka.http.scaladsl.server.Route
 import akka.management.scaladsl.AkkaManagement
 import akka.stream.ActorMaterializer
-import fusion.core.constant.{ConfigKeys, FusionConstants}
+import fusion.core.constant.ConfigKeys
+import fusion.core.constant.FusionConstants
 import fusion.http.server.AkkaHttpServer
 import helloscala.common.Configuration
 

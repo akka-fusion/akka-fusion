@@ -8,6 +8,7 @@ import java.util.Date
 import scala.util.Try
 
 object AsString {
+
   def unapply(v: Any): Option[String] = v match {
     case null      => None
     case s: String => Some(s)
@@ -17,6 +18,7 @@ object AsString {
 }
 
 object AsChar {
+
   def unapply(v: Any): Option[Char] = v match {
     case null         => None
     case c: Char      => Some(c)
@@ -26,6 +28,7 @@ object AsChar {
 }
 
 object AsByte {
+
   def unapply(v: Any): Option[Byte] = v match {
     case null              => None
     case b: Byte           => Some(b)
@@ -36,6 +39,7 @@ object AsByte {
 }
 
 object AsBoolean {
+
   def unapply(v: Any): Option[Boolean] = v match {
     case null                 => None
     case b: Boolean           => Some(b)
@@ -52,6 +56,7 @@ object AsBoolean {
 }
 
 object AsShort {
+
   def unapply(v: Any): Option[Short] = v match {
     case null               => None
     case s: Short           => Some(s)
@@ -62,6 +67,7 @@ object AsShort {
 }
 
 object AsInt {
+
   def unapply(v: Any): Option[Int] = v match {
     case null       => None
     case i: Int     => Some(i)
@@ -72,6 +78,7 @@ object AsInt {
 }
 
 object AsLong {
+
   def unapply(v: Any): Option[Long] = v match {
     case null              => None
     case l: Long           => Some(l)
@@ -82,6 +89,7 @@ object AsLong {
 }
 
 object AsFloat {
+
   def unapply(v: Any): Option[Float] = v match {
     //    case null               => None
     case f: Float           => Some(f)
@@ -92,6 +100,7 @@ object AsFloat {
 }
 
 object AsDouble {
+
   def unapply(v: Any): Option[Double] = v match {
     //    case null                => None
     case d: Double           => Some(d)
@@ -101,6 +110,7 @@ object AsDouble {
 }
 
 object AsDate {
+
   def unapply(v: AnyRef): Option[Date] = v match {
     //    case null    => None
     case d: Date        => Some(d)
@@ -110,6 +120,7 @@ object AsDate {
 }
 
 object AsSQLDate {
+
   def unapply(v: AnyRef): Option[sql.Date] = v match {
     case d: sql.Date     => Some(d)
     case AsTimestamp(ts) => Some(new sql.Date(ts.getTime))
@@ -119,6 +130,7 @@ object AsSQLDate {
 }
 
 object AsSQLTime {
+
   def unapply(v: AnyRef): Option[sql.Time] = v match {
     case t: sql.Time     => Some(t)
     case AsTimestamp(ts) => Some(new sql.Time(ts.getTime))
@@ -128,6 +140,7 @@ object AsSQLTime {
 }
 
 object AsTimestamp {
+
   def unapply(v: AnyRef): Option[Timestamp] = v match {
     //    case null          => None
     case ts: Timestamp  => Some(ts)
@@ -137,6 +150,7 @@ object AsTimestamp {
 }
 
 object AsInstant {
+
   def unapply(v: AnyRef): Option[Instant] = v match {
     //    case null         => None
     case ins: Instant => Some(ins)
@@ -146,6 +160,7 @@ object AsInstant {
 }
 
 object AsLocalDate {
+
   def unapply(v: AnyRef): Option[LocalDate] = v match {
     //    case null                 => None
     case ld: LocalDate        => Some(ld)
@@ -157,6 +172,7 @@ object AsLocalDate {
 }
 
 object AsLocalTime {
+
   def unapply(v: AnyRef): Option[LocalTime] = v match {
     //    case null                 => None
     case lt: LocalTime        => Some(lt)
@@ -167,6 +183,7 @@ object AsLocalTime {
 }
 
 object AsLocalDateTime {
+
   def unapply(v: AnyRef): Option[LocalDateTime] = v match {
     //    case null                 => None
     case ldt: LocalDateTime   => Some(ldt)
@@ -178,6 +195,7 @@ object AsLocalDateTime {
 }
 
 object AsZonedDateTime {
+
   def unapply(v: AnyRef): Option[ZonedDateTime] = v match {
     //    case null               => None
     case zdt: ZonedDateTime => Some(zdt)

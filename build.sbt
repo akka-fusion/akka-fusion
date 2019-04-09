@@ -16,9 +16,9 @@ buildEnv in Global := {
     .getOrElse(BuildEnv.Developement)
 }
 
-scalaVersion in ThisBuild := Dependencies.versionScala
+scalaVersion in Global := Dependencies.versionScala
 
-scalafmtOnCompile in ThisBuild := true
+scalafmtOnCompile in Global := true
 
 lazy val root = Project(id = "akka-fusion", base = file("."))
   .aggregate(
@@ -160,15 +160,16 @@ lazy val fusionTest = _project("fusion-test")
       _akkaHttpTestkit,
       _scalatest))
 
-lazy val fusionCore = _project("fusion-core")
-  .dependsOn(fusionCommon)
-  .settings(Publishing.publishing: _*)
-  .settings(
-    libraryDependencies ++= Seq(
-      "org.scala-lang" % "scala-reflect" % scalaVersion.value,
-      _scalameta,
-      _osLib,
-      _chillAkka))
+lazy val fusionCore =
+  _project("fusion-core")
+    .dependsOn(fusionCommon)
+    .settings(Publishing.publishing: _*)
+    .settings(
+      libraryDependencies ++= Seq(
+        "org.scala-lang" % "scala-reflect" % scalaVersion.value,
+        _scalameta,
+        _osLib,
+        _chillAkka) ++ _alpakkas)
 
 lazy val fusionCommon = _project("fusion-common")
   .dependsOn(helloscalaCommon)

@@ -22,8 +22,7 @@ object Utils extends StrictLogging {
 
   val REGEX_DIGIT: Regex             = """[\d,]+""".r
   val RANDOM_CHARS: IndexedSeq[Char] = ('0' to '9') ++ ('a' to 'z') ++ ('A' to 'Z')
-
-  val random: SecureRandom = new SecureRandom()
+  val random: SecureRandom           = new SecureRandom()
 
   def try2option[T](value: Try[T], log: Throwable => Unit): Option[T] = value match {
     case Success(v) => Some(v)
@@ -78,7 +77,13 @@ object Utils extends StrictLogging {
    * 获取当前进程 pid
    */
   @inline def getPid: Long =
-    java.lang.Long.parseLong(ManagementFactory.getRuntimeMXBean.getName.split("@")(0))
+    try {
+      java.lang.Long.parseLong(ManagementFactory.getRuntimeMXBean.getName.split("@")(0))
+    } catch {
+      case NonFatal(e) =>
+        logger.error("getPid failure", e)
+        -1
+    }
 
   def either[T <: Throwable, R](func: => R): Either[T, R] =
     try {
@@ -95,8 +100,7 @@ object Utils extends StrictLogging {
    * @param s 字符串
    * @return
    */
-  def parseInt(s: CharSequence): Option[Int] =
-    REGEX_DIGIT.findFirstIn(s).map(_.replaceAll(",", "").toInt)
+  def parseInt(s: CharSequence): Option[Int] = AsInt.unapply(s)
 
   def parseInt(s: CharSequence, deft: => Int): Int =
     parseInt(s).getOrElse(deft)
@@ -115,13 +119,7 @@ object Utils extends StrictLogging {
 
   def parseLong(s: Any, deft: => Long): Long = parseLong(s).getOrElse(deft)
 
-  def parseLong(s: Any): Option[Long] = s match {
-    case l: Long    => Some(l)
-    case i: Int     => Some(i.toLong)
-    case s: String  => Try(s.toLong).toOption
-    case bi: BigInt => Some(bi.longValue())
-    case _          => None
-  }
+  def parseLong(s: Any): Option[Long] = AsLong.unapply(s)
 
   def isNoneBlank(content: String): Boolean = !isBlank(content)
 
@@ -200,9 +198,17 @@ object Utils extends StrictLogging {
   @inline
   def option[V](v: V): Option[V] = Option(v)
 
+  @inline
+  def some[T](v: T): Option[T] = Option(v)
+
   def propertiesToMap(props: Properties): Map[String, String] = {
     import scala.collection.JavaConverters._
     props.stringPropertyNames().asScala.map(name => name -> props.getProperty(name)).toMap
+  }
+
+  def propertiesToMapObject(props: Properties): Map[String, Object] = {
+    import scala.collection.JavaConverters._
+    props.stringPropertyNames().asScala.map(name => name -> props.get(name)).toMap
   }
 
   def closeQuiet(io: AutoCloseable): Unit = {
@@ -210,21 +216,6 @@ object Utils extends StrictLogging {
       io.close()
     } catch {
       case _: Throwable => // do nothing
-    }
-  }
-
-  def some[T](v: T): Option[T] = Option(v)
-
-  def test(): Unit = {
-    val 1    = 1
-    val 1    = 2
-    val 3    = 3
-    val 8239 = 43
-
-    val s: Option[String] = null
-    s match {
-      case Some(v) => println("Some(v)")
-      case _       => println("None")
     }
   }
 

@@ -12,7 +12,8 @@ class ModelTest extends FusionTestFunSuite {
         "diskSpace"    -> Health.up("total" -> 316933124096L, "free" -> 124918386688L, "threshold" -> 10485760),
         "db"           -> Health.up("database" -> "MySQL", "hello" -> 1),
         "refreshScope" -> Health.up()))
-    println(Jackson.prettyStringify(health))
+    val jsonStr = Jackson.prettyStringify(health)
+    jsonStr must include(""""total" : 316933124096""")
   }
 
 }

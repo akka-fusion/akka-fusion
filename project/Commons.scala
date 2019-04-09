@@ -1,14 +1,19 @@
-import Environment.{buildEnv, BuildEnv}
-import de.heikoseeberger.sbtheader.HeaderPlugin.autoImport.{headerLicense, HeaderLicense}
+import Environment.buildEnv
+import Environment.BuildEnv
+import de.heikoseeberger.sbtheader.HeaderPlugin.autoImport.headerLicense
+import de.heikoseeberger.sbtheader.HeaderPlugin.autoImport.HeaderLicense
 import sbt.Keys._
 import sbt._
 import sbtassembly.MergeStrategy
 
 object Commons {
 
-  import Environment.{buildEnv, BuildEnv}
-  import sbtassembly.AssemblyKeys.{assembly, assemblyMergeStrategy}
-  import sbtassembly.{MergeStrategy, PathList}
+  import Environment.buildEnv
+  import Environment.BuildEnv
+  import sbtassembly.AssemblyKeys.assembly
+  import sbtassembly.AssemblyKeys.assemblyMergeStrategy
+  import sbtassembly.MergeStrategy
+  import sbtassembly.PathList
 
   def basicSettings =
     Seq(
@@ -109,7 +114,8 @@ object Environment {
 
 object Packaging {
   // Good example https://github.com/typesafehub/activator/blob/master/project/Packaging.scala
-  import Environment.{buildEnv, BuildEnv}
+  import Environment.buildEnv
+  import Environment.BuildEnv
   import com.typesafe.sbt.SbtNativePackager._
   import com.typesafe.sbt.packager.Keys._
 

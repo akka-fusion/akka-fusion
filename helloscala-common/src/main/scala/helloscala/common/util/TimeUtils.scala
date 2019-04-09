@@ -10,6 +10,7 @@ import java.sql.{Timestamp => SQLTimestamp}
 import com.typesafe.scalalogging.StrictLogging
 
 import scala.util.Try
+import scala.util.control.NonFatal
 
 object TimeUtils extends StrictLogging {
 
@@ -41,11 +42,12 @@ object TimeUtils extends StrictLogging {
 
   /**
    * 函数执行时间
+   *
    * @param func 待执行函数
    * @tparam R func函数返回类型
    * @return (func函数返回值，函数执行时间纳秒数)
    */
-  def executeTime[R](func: => R): (R, Long) = {
+  def executeNanoTime[R](func: => R): (R, Long) = {
     val begin  = System.nanoTime()
     val result = func
     val end    = System.nanoTime()
@@ -54,6 +56,7 @@ object TimeUtils extends StrictLogging {
 
   /**
    * 函数执行时间
+   *
    * @param func 待执行函数
    * @tparam R func函数返回类型
    * @return (func函数返回值，函数执行时间毫秒数)
@@ -173,27 +176,37 @@ object TimeUtils extends StrictLogging {
     if (date eq null) null
     else toLocalDateTime(date.toInstant)
 
-  def zoneOf(str: String): ZoneId =
-    if (str.indexOf('-') >= 0 || str.indexOf('+') >= 0) ZoneOffset.of(str)
-    else if (str == "Z") ZoneOffset.UTC
-    else ZoneId.of(str)
+  private val OFFSET_REGEX = "([:\\d-+]+)".r
+
+  def zoneOf(str: String): ZoneId = str match {
+    case OFFSET_REGEX(offset) => zoneOffsetOf(offset)
+    case _ =>
+      val begin = str.indexOf('[') + 1
+      if (begin > 0) {
+        require(begin > 0 && begin < str.length, s"$str 无有效的'['符号")
+        val end = str.indexOf(']')
+        require(end > begin && end < str.length, s"$str 无有效的']'符号")
+        val id = str.substring(begin, end)
+        ZoneId.of(id)
+      } else {
+        ZoneId.of(str)
+      }
+  }
 
   def zoneOffsetOf(str: String): ZoneOffset =
     if (str.indexOf('-') >= 0 || str.indexOf('+') >= 0) ZoneOffset.of(str)
     else if (str == "Z") ZoneOffset.UTC
     else ZoneOffset.of(str)
 
+  private val TIME_REGEX = "([:\\d\\.]+)".r
+
   def toZonedDateTime(zdt: String): ZonedDateTime =
     try {
       zdt.split("""[ Tt]+""") match {
-        case Array(date, timezone) =>
-          val (time, zone) = timezone.split("""[+-]""") match {
-            case Array(timeStr, zoneStr) =>
-              (timeStr, zoneOf((if (timezone.indexOf('-') < 0) '+' else '-') + zoneStr))
-            case Array(timeStr) => (timeStr, ZONE_CHINA_OFFSET)
-            case _ =>
-              throw new DateTimeException(s"$zdt 无有效的时区信息，推荐格式：yyyy-MM-dd HH:mm:ss[+Z]")
-          }
+        case Array(date, timeAndZone) =>
+          val time =
+            TIME_REGEX.findFirstIn(timeAndZone).getOrElse(throw new DateTimeException(s"$timeAndZone 不能截取有效的时间部分"))
+          val zone = Utils.option(timeAndZone.replaceFirst(time, "")).map(zoneOf).getOrElse(ZONE_CHINA_OFFSET)
           toZonedDateTime(date, time, zone)
         case Array(dOrT) =>
           if (containsDateKeys(dOrT)) toZonedDateTime(dOrT, "")
@@ -202,9 +215,15 @@ object TimeUtils extends StrictLogging {
           throw new DateTimeException(s"$zdt 是无效的日期时间格式，推荐格式：yyyy-MM-dd HH:mm:ss[+Z]")
       }
     } catch {
-      case e: Exception =>
-        logger.warn(s"toZonedDateTime error: $zdt")
-        throw e
+      case ex: Throwable =>
+        try {
+          ZonedDateTime.parse(zdt)
+        } catch {
+          case NonFatal(e) =>
+            e.initCause(ex)
+            logger.warn(s"toZonedDateTime error: $zdt", e)
+            throw e
+        }
     }
 
   def toZonedDateTime(date: String, time: String): ZonedDateTime =
@@ -254,6 +273,13 @@ object TimeUtils extends StrictLogging {
   def toEpochMilli(dt: LocalDateTime): Long =
     dt.toInstant(ZONE_CHINA_OFFSET).toEpochMilli
 
+  def toEpochMilli(dt: ZonedDateTime): Long =
+    dt.toInstant.toEpochMilli
+
+  def toEpochMilli(dt: OffsetDateTime): Long =
+    dt.toInstant.toEpochMilli
+
+  @deprecated("使用toEpochMilli(dt: LocalDateTime)或toEpochMilli(odt: OffsetDateTime)", "1.0.0")
   def toEpochMilli(dt: String): Long =
     toLocalDateTime(dt).toInstant(ZONE_CHINA_OFFSET).toEpochMilli
 
@@ -270,6 +296,8 @@ object TimeUtils extends StrictLogging {
   def toSqlTime(time: LocalTime) =
     new SQLTime(toEpochMilli(time.atDate(LocalDate.now())))
 
+  def toSqlTime(time: String): SQLTime = SQLTime.valueOf(time)
+
   /**
    * @return 一天的开始：
    */
@@ -281,18 +309,22 @@ object TimeUtils extends StrictLogging {
   def nowEnd(): LocalDateTime =
     LocalTime.of(23, 59, 59, 999999999).atDate(LocalDate.now())
 
-  def toDayInt(localDateTime: LocalDateTime): Int =
-    toDayInt(localDateTime.toLocalDate)
+  def toDayInt(ldt: LocalDateTime): Int = toDayInt(ldt.toLocalDate)
+
+  def toDayInt(odt: OffsetDateTime): Int = toDayInt(odt.toLocalDate)
+
+  def toDayInt(zdt: ZonedDateTime): Int = toDayInt(zdt.toLocalDate)
 
   /**
    * 将 LocalDate(2017-11-21) 转换成 20171121 (Int类型)
-   * @param localDate
+   *
+   * @param d 日期对象
    * @return
    */
-  def toDayInt(localDate: LocalDate): Int =
-    localDate.getYear * 10000 + localDate.getMonthValue * 100 + localDate.getDayOfMonth
+  def toDayInt(d: LocalDate): Int =
+    d.getYear * 10000 + d.getMonthValue * 100 + d.getDayOfMonth
 
-  private[this] val funcId = new java.util.concurrent.atomic.AtomicInteger()
+  private[this] lazy val funcId = new java.util.concurrent.atomic.AtomicLong()
 
   def time[R](func: => R): R = {
     val fid   = funcId.incrementAndGet()

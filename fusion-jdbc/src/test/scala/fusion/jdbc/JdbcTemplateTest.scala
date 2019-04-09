@@ -1,18 +1,15 @@
 package fusion.jdbc
 
-import java.sql.Timestamp
 import java.time.OffsetDateTime
 
 import akka.actor.ActorSystem
 import com.zaxxer.hikari.HikariDataSource
 import fusion.jdbc.util.JdbcUtils
 import fusion.test.FusionTestFunSuite
-import helloscala.common.util.DigestUtils
 import org.scalatest.BeforeAndAfterAll
 
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
-import scala.util.Random
 
 class CFile {
   var fileId: String                  = _

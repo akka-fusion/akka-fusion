@@ -64,12 +64,8 @@ class ActivityService extends BridgeService[Activity, ActivityAction] {
   override def like(action: ActivityAction): Either[String, Daka] = {
     for {
       activity <- activities.find(a => a.id == action.activityId).toRight(s"点赞失败：活动不存在。输入: $action。")
-      _ <- getStageOrLeft(
-        activity.stages,
-        action.time,
-        Activity.StageType.CHUXUAN,
-        leftMsg => s"打卡失败：${leftMsg}输入：$action")
-      daka <- activity.dakas.find(v => v.id == action.targetId).toRight(s"打卡不存在，dakaId: ${action.targetId}")
+      _        <- getStageOrLeft(activity.stages, action.time, Activity.StageType.CHUXUAN, msg => s"打卡失败：${msg}输入：$action")
+      daka     <- activity.dakas.find(v => v.id == action.targetId).toRight(s"打卡不存在，dakaId: ${action.targetId}")
     } yield {
       daka.likes +:= DakaLike(ObjectId.get().toString, action.targetId, action.userId, action.time)
       daka
@@ -79,12 +75,8 @@ class ActivityService extends BridgeService[Activity, ActivityAction] {
   override def comment(action: ActivityAction): Either[String, Comment] = {
     for {
       activity <- activities.find(a => a.id == action.activityId).toRight(s"评论失败：活动不存在。输入: $action。")
-      _ <- getStageOrLeft(
-        activity.stages,
-        action.time,
-        Activity.StageType.FUXUAN,
-        leftMsg => s"评论失败：${leftMsg}输入：$action")
-      daka <- activity.dakas.find(v => v.id == action.targetId).toRight(s"评论失败：打卡不存在。输入: $action")
+      _        <- getStageOrLeft(activity.stages, action.time, Activity.StageType.FUXUAN, msg => s"评论失败：${msg}输入：$action")
+      daka     <- activity.dakas.find(v => v.id == action.targetId).toRight(s"评论失败：打卡不存在。输入: $action")
     } yield {
       val comment = Comment(ObjectId.get().toString, daka.id, action.userId, action.time)
       daka.comments +:= comment

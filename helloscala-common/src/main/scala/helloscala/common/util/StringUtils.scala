@@ -21,6 +21,7 @@ object StringUtils {
   val PRINTER_CHARS: immutable.IndexedSeq[Char] = ('0' to '9') ++ ('a' to 'z') ++ ('A' to 'Z')
   private val HEX_CHARS: Array[Char]            = "0123456789abcdef".toCharArray
   private val HEX_CHAR_SETS                     = Set[Char]() ++ ('0' to '9') ++ ('a' to 'f') ++ ('A' to 'F')
+  private val random                            = new SecureRandom()
 
   def extractFirstName(msg: Any): Option[String] = msg match {
     case c: AnyRef =>
@@ -77,9 +78,7 @@ object StringUtils {
   def isNoneBlank(s: CharSequence): Boolean = !isBlank(s)
 
   def randomString(size: Int): String = {
-    new SecureRandom()
-    val random = SecureRandom.getInstanceStrong
-    val len    = PRINTER_CHARS.length
+    val len = PRINTER_CHARS.length
     (0 until size).map(_ => PRINTER_CHARS(random.nextInt(len))).mkString
   }
 

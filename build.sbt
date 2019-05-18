@@ -186,7 +186,8 @@ lazy val helloscalaCommon = _project("helloscala-common")
       _scalaJava8Compat,
       _akkaStream,
       "org.scala-lang" % "scala-library" % scalaVersion.value,
-      _scalatest       % Test) ++ _logs ++ _jacksons)
+      _scalatest       % Test) ++ _logs ++ _jacksons ++ _pois
+  )
 
 def _project(name: String, _base: String = null) =
   Project(id = name, base = file(if (_base eq null) name else _base))

@@ -11,11 +11,13 @@ import fusion.test.FusionTestFunSuite
 import helloscala.common.Configuration
 import org.scalatest.BeforeAndAfterAll
 
+import scala.language.existentials
+
 class FusionNacosTest extends FusionTestFunSuite with BeforeAndAfterAll {
   private var system: ActorSystem = _
 
-  private val SERVER_ADDR  = "123.206.9.104:8849"
-  private val NAMESPACE    = "3cc379e7-d0c0-461c-9700-abe252c60151"
+  private val SERVER_ADDR  = "localhost:8848"
+  private val NAMESPACE    = "5b764784-f457-46fb-96c6-4f086d5d0ce1"
   private val DATA_ID      = "hongka.file.app"
   private val GROUP        = NacosConstants.DEFAULT_GROUP
   private val SERVICE_NAME = "hongka-file-app"
@@ -49,7 +51,7 @@ class FusionNacosTest extends FusionTestFunSuite with BeforeAndAfterAll {
   }
 
   test("FusionNacos") {
-    val confStr = FusionNacos(system).configService.getConfig
+    val confStr = FusionNacos(system).component.configService.getConfig
     println(confStr)
 
     confStr must not be null

@@ -4,48 +4,75 @@ import com.alibaba.nacos.api.common.Constants
 import com.alibaba.nacos.api.naming.pojo.Instance
 import com.alibaba.nacos.api.naming.{NamingService => JNamingService}
 import com.alibaba.nacos.api.selector.AbstractSelector
-import com.typesafe.config.Config
+import com.typesafe.scalalogging.StrictLogging
 import fusion.discovery.client.FusionNamingService
 import fusion.discovery.model.DiscoveryEvent
 import fusion.discovery.model.DiscoveryInstance
 import fusion.discovery.model.DiscoveryList
 import fusion.discovery.model.DiscoveryServiceInfo
+import helloscala.common.exception.HSBadRequestException
 
 import scala.collection.JavaConverters._
 
 class NacosNamingServiceImpl(props: NacosDiscoveryProperties, val underlying: JNamingService)
-    extends FusionNamingService {
+    extends FusionNamingService
+    with StrictLogging {
 
-  override def registerInstance(serviceName: String, ip: String, port: Int): Unit =
-    underlying.registerInstance(serviceName, ip, port)
+  override def registerInstance(serviceName: String, ip: String, port: Int): DiscoveryInstance =
+    registerInstance(DiscoveryInstance(ip, port, serviceName))
 
-  override def registerInstance(serviceName: String, ip: String, port: Int, clusterName: String): Unit =
-    underlying.registerInstance(serviceName, ip, port, clusterName)
+  override def registerInstance(serviceName: String, ip: String, port: Int, clusterName: String): DiscoveryInstance =
+    registerInstance(
+      DiscoveryInstance(
+        ip,
+        port,
+        serviceName,
+        clusterName,
+        props.instanceWeight,
+        props.healthy,
+        ephemeral = props.ephemeral))
 
-  override def registerInstance(serviceName: String, instance: DiscoveryInstance): Unit =
-    underlying.registerInstance(serviceName, instance.toNacosInstance)
+  override def registerInstance(serviceName: String, instance: DiscoveryInstance): DiscoveryInstance =
+    registerInstance(instance.copy(serviceName = serviceName))
 
-  override def registerInstanceCurrent(config: Config): Unit = {
-    val instance: Instance = new Instance
-    instance.setIp(props.instanceIp)
-    instance.setPort(props.instancePort)
-    instance.setWeight(props.instanceWeight)
-    props.instanceClusterName.foreach(instance.setClusterName)
-    registerInstance(props.serviceName.getOrElse(config.getString("fusion.name")), instance.toDiscoveryInstance)
+  override def registerInstance(instance: DiscoveryInstance): DiscoveryInstance = {
+    logger.info(s"注册服务实例: $instance")
+    underlying.registerInstance(instance.serviceName, /*instance.groupName, */ instance.toNacosInstance)
+    instance
   }
 
-  override def deregisterInstance(serviceName: String, ip: String, port: Int): Unit =
-    underlying.deregisterInstance(serviceName, ip, port)
-
-  override def deregisterInstance(serviceName: String, ip: String, port: Int, clusterName: String): Unit =
-    underlying.deregisterInstance(serviceName, ip, port, clusterName)
-
-  override def deregisterInstanceCurrent(config: Config): Unit =
-    deregisterInstance(
-      props.serviceName.getOrElse(config.getString("fusion.name")),
+  override def registerInstanceCurrent(): DiscoveryInstance = {
+    val inst = DiscoveryInstance(
       props.instanceIp,
       props.instancePort,
-      props.instanceClusterName.getOrElse(Constants.NAMING_DEFAULT_CLUSTER_NAME))
+      props.serviceName.getOrElse(throw HSBadRequestException("未指定服务名 [serviceName]")),
+      props.instanceClusterName,
+      props.instanceWeight,
+      props.healthy,
+      ephemeral = props.ephemeral,
+      group = props.group)
+    registerInstance(inst)
+  }
+
+  override def deregisterInstance(serviceName: String, ip: String, port: Int): Unit = {
+    underlying.deregisterInstance(serviceName, ip, port)
+  }
+
+  override def deregisterInstance(serviceName: String, ip: String, port: Int, clusterName: String): Unit = {
+    underlying.deregisterInstance(serviceName, ip, port, clusterName)
+  }
+
+  override def deregisterInstance(instance: DiscoveryInstance): Unit = {
+    logger.info(s"取消服务注册: $instance")
+    underlying.deregisterInstance(instance.serviceName, instance.group, instance.toNacosInstance)
+  }
+
+  override def deregisterInstanceCurrent(): Unit =
+    deregisterInstance(
+      props.serviceName.getOrElse(throw HSBadRequestException("未指定服务名 [serviceName]")),
+      props.instanceIp,
+      props.instancePort,
+      props.instanceClusterName)
 
   override def getAllInstances(serviceName: String): Seq[DiscoveryInstance] =
     underlying.getAllInstances(serviceName).asScala.map(_.toDiscoveryInstance)

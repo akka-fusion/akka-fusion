@@ -21,7 +21,7 @@ final private[jdbc] class JdbcComponents(val config: Config)
 
 class FusionJdbc private (val _system: ExtendedActorSystem) extends FusionExtension {
   val components = new JdbcComponents(system.settings.config)
-  system.registerOnTermination(components.close())
+  system.registerOnTermination { components.close() }
   def component: HikariDataSource = components.component
 }
 

@@ -2,6 +2,7 @@ package fusion.discovery.model
 
 case class DiscoveryServiceInfo(
     name: String,
+    groupName: String,
     clusters: String,
     cacheMillis: Long = 1000L,
     hosts: Seq[DiscoveryInstance] = Nil,

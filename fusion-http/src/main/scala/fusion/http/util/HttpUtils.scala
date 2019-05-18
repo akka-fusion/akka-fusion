@@ -9,8 +9,10 @@ import akka.http.scaladsl.model._
 import akka.http.scaladsl.unmarshalling.FromEntityUnmarshaller
 import akka.http.scaladsl.unmarshalling.Unmarshal
 import akka.stream.scaladsl.Keep
+import akka.stream.scaladsl.RunnableGraph
 import akka.stream.scaladsl.Sink
 import akka.stream.scaladsl.Source
+import akka.stream.scaladsl.SourceQueueWithComplete
 import akka.stream.ActorMaterializer
 import akka.stream.Materializer
 import akka.stream.OverflowStrategy
@@ -37,6 +39,7 @@ import scala.concurrent.Promise
 import scala.reflect.ClassTag
 import scala.util.Failure
 import scala.util.Success
+import scala.util.Try
 
 object HttpUtils extends StrictLogging {
 
@@ -212,12 +215,14 @@ object HttpUtils extends StrictLogging {
     Option(httpContentType)
   }
 
-  def cachedHostConnectionPool(url: String)(implicit system: ActorSystem, mat: Materializer): HttpSourceQueue = {
-    val uri = Uri(url)
+  def cachedHostConnectionPool(url: String)(implicit system: ActorSystem, mat: Materializer): HttpSourceQueue =
+    cachedHostConnectionPool(Uri(url))
+
+  def cachedHostConnectionPool(uri: Uri)(implicit system: ActorSystem, mat: Materializer): HttpSourceQueue = {
     uri.scheme match {
       case "http"  => cachedHostConnectionPool(uri.authority.host.address(), uri.authority.port)
       case "https" => cachedHostConnectionPoolHttps(uri.authority.host.address(), uri.authority.port)
-      case _       => throw new IllegalArgumentException(s"URL: $url 不是有效的 http 或 https 协议")
+      case _       => throw new IllegalArgumentException(s"URI: $uri 不是有效的 http 或 https 协议")
     }
   }
 
@@ -232,8 +237,7 @@ object HttpUtils extends StrictLogging {
   def cachedHostConnectionPool(host: String, port: Int)(
       implicit system: ActorSystem,
       mat: Materializer): HttpSourceQueue = {
-    val poolClientFlow =
-      Http().cachedHostConnectionPool[Promise[HttpResponse]](host, port)
+    val poolClientFlow = Http().cachedHostConnectionPool[Promise[HttpResponse]](host, port)
     Source
       .queue[(HttpRequest, Promise[HttpResponse])](512, OverflowStrategy.dropNew)
       .via(poolClientFlow)
@@ -255,8 +259,7 @@ object HttpUtils extends StrictLogging {
   def cachedHostConnectionPoolHttps(host: String, port: Int = 80)(
       implicit system: ActorSystem,
       mat: Materializer): HttpSourceQueue = {
-    val poolClientFlow =
-      Http().cachedHostConnectionPoolHttps[Promise[HttpResponse]](host, port)
+    val poolClientFlow = Http().cachedHostConnectionPoolHttps[Promise[HttpResponse]](host, port)
     Source
       .queue[(HttpRequest, Promise[HttpResponse])](512, OverflowStrategy.dropNew)
       .via(poolClientFlow)

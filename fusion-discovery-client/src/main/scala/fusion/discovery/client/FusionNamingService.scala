@@ -1,6 +1,5 @@
 package fusion.discovery.client
 
-import com.typesafe.config.Config
 import fusion.discovery.model.DiscoveryEvent
 import fusion.discovery.model.DiscoveryInstance
 import fusion.discovery.model.DiscoveryList
@@ -15,7 +14,7 @@ trait FusionNamingService {
    * @param ip          instance ip
    * @param port        instance port
    */
-  def registerInstance(serviceName: String, ip: String, port: Int): Unit
+  def registerInstance(serviceName: String, ip: String, port: Int): DiscoveryInstance
 
   /**
    * register a instance to service with specified cluster name
@@ -26,7 +25,7 @@ trait FusionNamingService {
    * @param clusterName instance cluster name
    *
    */
-  def registerInstance(serviceName: String, ip: String, port: Int, clusterName: String): Unit
+  def registerInstance(serviceName: String, ip: String, port: Int, clusterName: String): DiscoveryInstance
 
   /**
    * register a instance to service with specified instance properties
@@ -35,9 +34,11 @@ trait FusionNamingService {
    * @param instance    instance to register
    *
    */
-  def registerInstance(serviceName: String, instance: DiscoveryInstance): Unit
+  def registerInstance(serviceName: String, instance: DiscoveryInstance): DiscoveryInstance
 
-  def registerInstanceCurrent(config: Config): Unit
+  def registerInstance(instance: DiscoveryInstance): DiscoveryInstance
+
+  def registerInstanceCurrent(): DiscoveryInstance
 
   /**
    * deregister instance from a service
@@ -60,7 +61,9 @@ trait FusionNamingService {
    */
   def deregisterInstance(serviceName: String, ip: String, port: Int, clusterName: String): Unit
 
-  def deregisterInstanceCurrent(config: Config): Unit
+  def deregisterInstance(instance: DiscoveryInstance): Unit
+
+  def deregisterInstanceCurrent(): Unit
 
   /**
    * get all instances of a service

@@ -3,30 +3,32 @@ import sbt._
 object Dependencies {
   val versionScala           = "2.12.8"
   val versionScalaLib        = "2.12"
+  val versionScalaXml        = "1.2.0"
   val versionAkka            = "2.5.22"
   val versionAkkaManagement  = "1.0.0"
   val versionAkkaHttp        = "10.1.8"
   val versionAlpakka         = "1.0.0"
-  val versionAkkaStreamKafka = "1.0.1"
-  val versionCats            = "1.4.0"
+  val versionAkkaStreamKafka = "1.0.2"
   val versionCirce           = "0.11.1"
   val versionKamon           = "1.1.3"
   val versionJackson         = "2.9.8"
   val versionSlick           = "3.3.0"
-  val versionPoi             = "4.0.1"
+  val versionPoi             = "4.1.0"
   val versionDoobie          = "0.6.0"
   val versionQuartz          = "2.2.3"
+  val versionScalameta       = "4.1.6"
+  val versionScalatest = "3.0.7"
 
-  val _scalameta = "org.scalameta" %% "scalameta" % "4.1.5"
+  val _scalameta = "org.scalameta" %% "scalameta" % versionScalameta
 
-  val _scalaXml = ("org.scala-lang.modules" %% "scala-xml" % "1.1.1").exclude("org.scala-lang", "scala-library")
+  val _scalaXml = ("org.scala-lang.modules" %% "scala-xml" % versionScalaXml).exclude("org.scala-lang", "scala-library")
 
   val _scalaJava8Compat =
     ("org.scala-lang.modules" %% "scala-java8-compat" % "0.9.0").exclude("org.scala-lang", "scala-library")
 
   val _fastparse = "com.lihaoyi" %% "fastparse" % "2.1.0"
 
-  val _scalatest = "org.scalatest" %% "scalatest" % "3.0.7"
+  val _scalatest = "org.scalatest" %% "scalatest" % versionScalatest
 
   val _akkaRemote        = "com.typesafe.akka" %% "akka-remote"         % versionAkka
   val _akkaStream        = "com.typesafe.akka" %% "akka-stream"         % versionAkka
@@ -147,7 +149,6 @@ object Dependencies {
   val _config   = "com.typesafe" % "config" % "1.3.3"
   val _hanlp    = "com.hankcs" % "hanlp" % "portable-1.7.1"
   val _guice    = "com.google.inject" % "guice" % "4.2.2"
-  val _catses   = Seq("org.typelevel" %% "cats-laws", "org.typelevel" %% "cats-free").map(_ % versionCats)
 
   val _circes =
     Seq("io.circe" %% "circe-core", "io.circe" %% "circe-generic", "io.circe" %% "circe-parser").map(_ % versionCirce)
@@ -190,6 +191,7 @@ object Dependencies {
     .exclude("org.scala-lang", "scala-library")
   val _kamonPrometheus = "io.kamon" %% "kamon-prometheus" % "1.1.1"
   val _kamonZipkin     = "io.kamon" %% "kamon-zipkin" % "1.0.0"
+  val _kamonLogback    = "io.kamon" %% "kamon-logback" % "1.0.4"
   val _kamons          = Seq(_kamonAkka, _kamonAkkaRemote, _kamonAkkaHttp, _kamonZipkin, _kamonPrometheus, _kamonSystemMetrics)
 
   val _scopt     = "com.github.scopt" %% "scopt"     % "3.7.1"
@@ -206,10 +208,8 @@ object Dependencies {
 
   val _pois = Seq("org.apache.poi" % "poi-scratchpad" % versionPoi, "org.apache.poi" % "poi-ooxml" % versionPoi)
 
-  val _logs = Seq(
-    "io.kamon"                   %% "kamon-logback"  % "1.0.4",
-    "com.typesafe.scala-logging" %% "scala-logging"  % "3.9.0",
-    "ch.qos.logback"             % "logback-classic" % "1.2.3")
+  val _logs =
+    Seq("com.typesafe.scala-logging" %% "scala-logging" % "3.9.0", "ch.qos.logback" % "logback-classic" % "1.2.3")
 
   val _h2                = "com.h2database"          % "h2"                   % "1.4.197"
   val _bcprovJdk15on     = "org.bouncycastle"        % "bcprov-jdk15on"       % "1.61"
@@ -223,6 +223,6 @@ object Dependencies {
   val _swaggerAnnotation = "io.swagger.core.v3"      % "swagger-annotations"  % "2.0.6"
   val _commonsVfs        = "org.apache.commons"      % "commons-vfs2"         % "2.2"
   val _jsch              = "com.jcraft"              % "jsch"                 % "0.1.55"
-  val _nacosClient       = "com.alibaba.nacos"       % "nacos-client"         % "0.9.1"
+  val _nacosClient       = "com.alibaba.nacos"       % "nacos-client"         % "1.0.0"
   val _jakartaMail       = "com.sun.mail"            % "jakarta.mail"         % "1.6.3"
 }

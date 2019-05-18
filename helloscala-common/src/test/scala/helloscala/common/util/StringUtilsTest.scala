@@ -9,6 +9,7 @@ class StringUtilsTest extends FunSuite with MustMatchers {
     (StringUtils.randomString(8) must have).length(8)
     (StringUtils.randomString(8) must have).length(8)
     (StringUtils.randomString(8) must have).length(8)
+    println(StringUtils.randomString(12))
   }
 
 }

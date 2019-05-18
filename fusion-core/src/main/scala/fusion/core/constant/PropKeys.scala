@@ -11,7 +11,8 @@ object PropKeys {
   val SERVICE_NAME           = "serviceName"
   val INSTANCE_IP            = "instanceIp"
   val INSTANCE_PORT          = "instancePort"
-  val INSTANCE_CLUSTER_NAME  = "instanceClusterName"
   val INSTANCE_WEIGHT        = "instanceWeight"
+  val HEALTHY                = "healthy"
+  val EPHEMERAL              = "ephemeral"
   val AUTO_REGISTER_INSTANCE = "autoRegisterInstance"
 }

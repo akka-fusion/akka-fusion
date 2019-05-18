@@ -11,6 +11,7 @@ import java.util.Properties
 import java.util.concurrent.ThreadLocalRandom
 
 import com.typesafe.scalalogging.StrictLogging
+import helloscala.common.exception.HSInternalErrorException
 
 import scala.util.Failure
 import scala.util.Success
@@ -19,10 +20,23 @@ import scala.util.control.NonFatal
 import scala.util.matching.Regex
 
 object Utils extends StrictLogging {
-
   val REGEX_DIGIT: Regex             = """[\d,]+""".r
   val RANDOM_CHARS: IndexedSeq[Char] = ('0' to '9') ++ ('a' to 'z') ++ ('A' to 'Z')
   val random: SecureRandom           = new SecureRandom()
+
+  def requireNonNull[T](v: T): T = requireNonNull(v, "requirement not null.")
+
+  def requireNonNull[T](v: T, msg: String): T = {
+    if (null != v) v
+    else throw HSInternalErrorException(msg)
+  }
+
+  def require(predicate: Boolean): Unit = require(predicate, "requirement failed.")
+
+  def require(predicate: Boolean, msg: String): Unit = {
+    if (!predicate)
+      throw HSInternalErrorException(msg)
+  }
 
   def try2option[T](value: Try[T], log: Throwable => Unit): Option[T] = value match {
     case Success(v) => Some(v)

@@ -16,9 +16,9 @@ addSbtPlugin("com.dwijnand"      % "sbt-dynver"                 % "3.0.0")
 addSbtPlugin("com.typesafe.sbt"  % "sbt-git"                    % "0.9.3")
 addSbtPlugin("io.kamon"          % "sbt-aspectj-runner"         % "1.1.1")
 addSbtPlugin("com.lightbend.sbt" % "sbt-javaagent"              % "0.1.4")
-addSbtPlugin("com.thesamet"      % "sbt-protoc"                 % "0.99.19")
 addSbtPlugin("com.geirsson"      % "sbt-scalafmt"               % "1.5.1")
+addSbtPlugin("com.thesamet"      % "sbt-protoc"                 % "0.99.20")
 //addSbtPlugin("org.scalameta"     % "sbt-scalafmt"               % "2.0.0-RC6")
 //addSbtPlugin("ch.epfl.scala"     % "sbt-scalafix"               % "0.9.1")
 
-libraryDependencies += "com.thesamet.scalapb" %% "compilerplugin" % "0.8.3"
+libraryDependencies += "com.thesamet.scalapb" %% "compilerplugin" % "0.8.4"

@@ -1,15 +1,13 @@
-import Environment.buildEnv
-import Environment.BuildEnv
-import de.heikoseeberger.sbtheader.HeaderPlugin.autoImport.headerLicense
 import de.heikoseeberger.sbtheader.HeaderPlugin.autoImport.HeaderLicense
+import de.heikoseeberger.sbtheader.HeaderPlugin.autoImport.headerLicense
 import sbt.Keys._
 import sbt._
 import sbtassembly.MergeStrategy
 
 object Commons {
 
-  import Environment.buildEnv
   import Environment.BuildEnv
+  import Environment.buildEnv
   import sbtassembly.AssemblyKeys.assembly
   import sbtassembly.AssemblyKeys.assemblyMergeStrategy
   import sbtassembly.MergeStrategy
@@ -114,8 +112,8 @@ object Environment {
 
 object Packaging {
   // Good example https://github.com/typesafehub/activator/blob/master/project/Packaging.scala
-  import Environment.buildEnv
   import Environment.BuildEnv
+  import Environment.buildEnv
   import com.typesafe.sbt.SbtNativePackager._
   import com.typesafe.sbt.packager.Keys._
 

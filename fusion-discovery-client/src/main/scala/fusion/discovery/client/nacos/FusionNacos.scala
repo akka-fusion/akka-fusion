@@ -1,29 +1,35 @@
 package fusion.discovery.client.nacos
 
+import akka.actor.ActorSystem
 import akka.actor.ExtendedActorSystem
 import akka.actor.Extension
 import akka.actor.ExtensionId
 import akka.actor.ExtensionIdProvider
+import com.typesafe.config.Config
 import com.typesafe.scalalogging.StrictLogging
 import fusion.core.extension.FusionExtension
+import fusion.core.util.Components
 import fusion.discovery.DiscoveryUtils
-import fusion.discovery.client.FusionConfigService
-import fusion.discovery.client.FusionNamingService
+
+final private[discovery] class NacosComponents(system: ActorSystem)
+    extends Components[NacosDiscovery](DiscoveryUtils.methodConfPath) {
+
+  override protected def createComponent(id: String): NacosDiscovery =
+    new NacosDiscovery(NacosPropertiesUtils.configProps(id), system)
+
+  override protected def componentClose(c: NacosDiscovery): Unit = c.close()
+
+  override def config: Config = system.settings.config
+}
 
 final class FusionNacos private (protected val _system: ExtendedActorSystem)
     extends FusionExtension
     with StrictLogging {
-  if (DiscoveryUtils.defaultSetting.isAutoRegisterInstance) {
-    logger.info(s"开始自动注册服务到Nacos: ${system.settings.config}")
-    namingService.registerInstanceCurrent(system.settings.config)
-  }
 
-  system.registerOnTermination {
-    namingService.deregisterInstanceCurrent(system.settings.config)
-  }
+  def component: NacosDiscovery = components.component
 
-  def configService: FusionConfigService = DiscoveryUtils.defaultConfigService
-  def namingService: FusionNamingService = DiscoveryUtils.defaultNamingService
+  val components = new NacosComponents(system)
+  system.registerOnTermination { components.close() }
 }
 
 object FusionNacos extends ExtensionId[FusionNacos] with ExtensionIdProvider {

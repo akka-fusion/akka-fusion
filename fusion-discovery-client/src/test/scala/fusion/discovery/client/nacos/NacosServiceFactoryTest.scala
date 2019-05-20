@@ -9,25 +9,25 @@ import helloscala.common.Configuration
 class NacosServiceFactoryTest extends FusionTestFunSuite {
 
   // #NacosServiceFactoryTest
-  test("通过Server地址直接访问") {
-    val configService = NacosServiceFactory.configService("123.206.9.104:8849")
+  test("通过serverAddr地址和namespace直接访问") {
+    val configService = NacosServiceFactory.configService("localhost:8848", "5b764784-f457-46fb-96c6-4f086d5d0ce1")
     val confStr       = configService.getConfig("hongka.file.app", NacosConstants.DEFAULT_GROUP, 3000)
     confStr must not be empty
     val config = ConfigFactory.parseString(confStr).resolve()
     config.getString("fusion.name") mustBe "file-local"
   }
 
-  test("通过namespace访问") {
+  test("通过Properties访问") {
     val props = new Properties()
-    props.put("serverAddr", "123.206.9.104:8849")
-    props.put("namespace", "7bf36554-e291-4789-b5fb-9e515ca58ba0")
+    props.put("serverAddr", "localhost:8848")
+    props.put("namespace", "5b764784-f457-46fb-96c6-4f086d5d0ce1")
 
     val configService = NacosServiceFactory.configService(props)
     val confStr       = configService.getConfig("hongka.file.app", NacosConstants.DEFAULT_GROUP, 3000)
     confStr must not be empty
     ConfigFactory.invalidateCaches()
     val config = ConfigFactory.parseString(confStr).resolve()
-    config.getString("fusion.name") mustBe "file-app"
+    config.getString("fusion.name") mustBe "file-local"
   }
 
   test("尝试发现配置，失败读本地配置") {

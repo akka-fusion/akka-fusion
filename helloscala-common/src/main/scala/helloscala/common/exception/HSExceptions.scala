@@ -91,3 +91,30 @@ case class HSInternalErrorException(
     extends HSException(errCode, message, cause) {
   override val httpStatus: Int = ErrCodes.INTERNAL_ERROR
 }
+
+case class HSBadGatewayException(
+    message: String,
+    override val data: AnyRef = null,
+    errCode: Int = ErrCodes.BAD_GATEWAY,
+    cause: Throwable = null)
+    extends HSException(errCode, message, cause) {
+  override val httpStatus: Int = ErrCodes.BAD_GATEWAY
+}
+
+case class HSServiceUnavailableException(
+    message: String,
+    override val data: AnyRef = null,
+    errCode: Int = ErrCodes.SERVICE_UNAVAILABLE,
+    cause: Throwable = null)
+    extends HSException(errCode, message, cause) {
+  override val httpStatus: Int = ErrCodes.SERVICE_UNAVAILABLE
+}
+
+case class HSGatewayTimeoutException(
+    message: String,
+    override val data: AnyRef = null,
+    errCode: Int = ErrCodes.GATEWAY_TIMEOUT,
+    cause: Throwable = null)
+    extends HSException(errCode, message, cause) {
+  override val httpStatus: Int = ErrCodes.GATEWAY_TIMEOUT
+}

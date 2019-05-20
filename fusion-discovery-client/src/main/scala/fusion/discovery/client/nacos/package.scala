@@ -2,6 +2,7 @@ package fusion.discovery.client
 
 import java.util.Properties
 
+import com.alibaba.nacos.api.common.Constants
 import com.alibaba.nacos.api.naming.listener.Event
 import com.alibaba.nacos.api.naming.listener.NamingEvent
 import com.alibaba.nacos.api.naming.pojo.Instance
@@ -20,15 +21,17 @@ package object nacos {
     import fusion.core.constant.PropKeys._
     underlying.forEach((key, value) => put(key, value))
 
-    def serviceName: Option[String]         = Utils.option(getProperty(SERVICE_NAME))
-    def namespace: Option[String]           = Utils.option(getProperty(NAMESPACE))
-    def dataId: String                      = getProperty(DATA_ID)
-    def group: String                       = Utils.option(getProperty(GROUP)).getOrElse(NacosConstants.DEFAULT_GROUP)
-    def timeoutMs: Long                     = AsLong.unapply(get(TIMEOUT_MS)).getOrElse(3000L)
-    def instanceIp: String                  = getProperty(INSTANCE_IP)
-    def instancePort: Int                   = AsInt.unapply(get(INSTANCE_PORT)).get
-    def instanceClusterName: Option[String] = Utils.option(getProperty(INSTANCE_CLUSTER_NAME))
-    def instanceWeight: Double              = Utils.option(getProperty(INSTANCE_WEIGHT)).map(_.toDouble).getOrElse(1.0)
+    def serviceName: Option[String] = Utils.option(getProperty(SERVICE_NAME))
+    def namespace: Option[String]   = Utils.option(getProperty(NAMESPACE))
+    def dataId: String              = getProperty(DATA_ID)
+    def group: String               = Utils.option(getProperty(GROUP)).getOrElse(NacosConstants.DEFAULT_GROUP)
+    def timeoutMs: Long             = AsLong.unapply(get(TIMEOUT_MS)).getOrElse(3000L)
+    def instanceIp: String          = getProperty(INSTANCE_IP)
+    def instancePort: Int           = AsInt.unapply(get(INSTANCE_PORT)).get
+    def instanceClusterName: String = Utils.option(getProperty(CLUSTER_NAME)).getOrElse(Constants.DEFAULT_CLUSTER_NAME)
+    def instanceWeight: Double      = Utils.option(getProperty(INSTANCE_WEIGHT)).map(_.toDouble).getOrElse(1.0)
+    def healthy: Boolean            = Utils.option(getProperty(HEALTHY)).forall(_.toBoolean)
+    def ephemeral: Boolean          = Utils.option(getProperty(EPHEMERAL)).forall(_.toBoolean)
 
     def isAutoRegisterInstance: Boolean =
       Option(get(AUTO_REGISTER_INSTANCE))
@@ -44,7 +47,6 @@ package object nacos {
 
     def toDiscoveryInstance: DiscoveryInstance =
       DiscoveryInstance(
-        instance.getInstanceId,
         instance.getIp,
         instance.getPort,
         instance.getServiceName,
@@ -52,7 +54,10 @@ package object nacos {
         instance.getWeight,
         instance.isHealthy,
         instance.isEnabled,
-        Option(instance.getMetadata).map(_.asScala.toMap).getOrElse(Map()))
+        instance.isEphemeral,
+        Option(instance.getMetadata).map(_.asScala.toMap).getOrElse(Map()),
+        Constants.DEFAULT_GROUP,
+        instance.getInstanceId)
   }
 
   implicit final class ToNacosInstantce(instance: DiscoveryInstance) {
@@ -68,6 +73,8 @@ package object nacos {
       payload.setPort(instance.port)
       payload.setServiceName(instance.serviceName)
       payload.setWeight(instance.weight)
+      payload.setEphemeral(instance.ephemeral)
+      payload.setMetadata(instance.metadata.asJava)
       payload
     }
   }
@@ -77,6 +84,7 @@ package object nacos {
     def toDiscoveryServiceInfo =
       DiscoveryServiceInfo(
         v.getName,
+        v.getGroupName,
         v.getClusters,
         v.getCacheMillis,
         v.getHosts.asScala.map(_.toDiscoveryInstance),

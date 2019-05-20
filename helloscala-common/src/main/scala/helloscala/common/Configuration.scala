@@ -3,6 +3,7 @@ package helloscala.common
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.time.OffsetDateTime
+import java.util.Objects
 import java.util.Properties
 import java.util.concurrent.locks.ReentrantReadWriteLock
 import java.util.function.Consumer
@@ -252,7 +253,8 @@ object Configuration extends StrictLogging {
           .getOrElse(Class.forName("fusion.discovery.DiscoveryUtils$"))
         val service          = clz.getMethod("defaultConfigService").invoke(null)
         val clzConfigService = Class.forName("fusion.discovery.client.FusionConfigService")
-        val confStr          = clzConfigService.getMethod("getConfig").invoke(service).toString
+        val value            = clzConfigService.getMethod("getConfig").invoke(service)
+        val confStr          = Objects.requireNonNull(value, "未能获取到配置内容").toString
         logger.info(s"收到配置内容：$confStr")
         parseString(confStr)
       } catch {

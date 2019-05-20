@@ -103,7 +103,7 @@ lazy val fusionDiscoveryServer = _project("fusion-discovery-server")
   .settings(Publishing.noPublish)
 
 lazy val fusionDiscoveryClient = _project("fusion-discovery-client")
-  .dependsOn(fusionTest % "test->test", fusionCore)
+  .dependsOn(fusionHttp, fusionTest % "test->test", fusionCore)
   .settings(libraryDependencies ++= Seq(_nacosClient))
 
 lazy val fusionJob =
@@ -186,8 +186,7 @@ lazy val helloscalaCommon = _project("helloscala-common")
       _scalaJava8Compat,
       _akkaStream,
       "org.scala-lang" % "scala-library" % scalaVersion.value,
-      _scalatest       % Test) ++ _logs ++ _jacksons ++ _pois
-  )
+      _scalatest       % Test) ++ _logs ++ _jacksons ++ _pois)
 
 def _project(name: String, _base: String = null) =
   Project(id = name, base = file(if (_base eq null) name else _base))

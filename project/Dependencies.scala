@@ -17,7 +17,7 @@ object Dependencies {
   val versionDoobie          = "0.6.0"
   val versionQuartz          = "2.2.3"
   val versionScalameta       = "4.1.6"
-  val versionScalatest = "3.0.7"
+  val versionScalatest       = "3.0.7"
 
   val _scalameta = "org.scalameta" %% "scalameta" % versionScalameta
 
@@ -145,10 +145,10 @@ object Dependencies {
   val _chillAkka = ("com.twitter" %% "chill-akka" % "0.9.3")
     .exclude("com.typesafe", "config")
     .exclude("org.scala-lang", "scala-library")
-  val _neotypes = "com.dimafeng" %% "neotypes" % "0.5.0"
-  val _config   = "com.typesafe" % "config" % "1.3.3"
-  val _hanlp    = "com.hankcs" % "hanlp" % "portable-1.7.1"
-  val _guice    = "com.google.inject" % "guice" % "4.2.2"
+  val _neotypes = "com.dimafeng"      %% "neotypes" % "0.5.0"
+  val _config   = "com.typesafe"      % "config"    % "1.3.3"
+  val _hanlp    = "com.hankcs"        % "hanlp"     % "portable-1.7.1"
+  val _guice    = "com.google.inject" % "guice"     % "4.2.2"
 
   val _circes =
     Seq("io.circe" %% "circe-core", "io.circe" %% "circe-generic", "io.circe" %% "circe-parser").map(_ % versionCirce)

@@ -32,6 +32,7 @@ package object nacos {
     def instanceWeight: Double      = Utils.option(getProperty(INSTANCE_WEIGHT)).map(_.toDouble).getOrElse(1.0)
     def healthy: Boolean            = Utils.option(getProperty(HEALTHY)).forall(_.toBoolean)
     def ephemeral: Boolean          = Utils.option(getProperty(EPHEMERAL)).forall(_.toBoolean)
+    def enable: Boolean             = Utils.option(getProperty(ENABLE)).forall(_.toBoolean)
 
     def isAutoRegisterInstance: Boolean =
       Option(get(AUTO_REGISTER_INSTANCE))
@@ -65,7 +66,7 @@ package object nacos {
     def toNacosInstance: Instance = {
       val payload = new Instance
       payload.setClusterName(instance.clusterName)
-      payload.setEnabled(instance.enabled)
+      payload.setEnabled(instance.enable)
       payload.setHealthy(instance.healthy)
       payload.setInstanceId(instance.instanceId)
       payload.setIp(instance.ip)

@@ -2,48 +2,40 @@ package fusion.http.gateway
 
 import java.util.concurrent.ConcurrentHashMap
 
-import akka.actor.ActorSystem
 import akka.http.scaladsl.model.Uri
 import akka.http.scaladsl.model.Uri.Authority
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
-import akka.stream.Materializer
-import fusion.http.HttpSourceQueue
+import com.typesafe.config.Config
+import fusion.core.http.HttpSourceQueue
 import fusion.http.util.HttpUtils
 
 object GatewayComponent {
   val queues = new ConcurrentHashMap[Authority, HttpSourceQueue]()
 
-//  /**
-//   *
-//   * @param path "fusion.http.gateway.target-uri"
-//   * @param config [[Config]]
-//   * @return
-//   */
-//  def proxyRoute(path: String = "fusion.http.gateway.target-uri", config: Config = ConfigFactory.load())(
-//      implicit system: ActorSystem,
-//      mat: Materializer): Route = {
-//    extractRequestContext { ctx =>
-//      val uri     = config.getString(path)
-//      val queue   = queues.computeIfAbsent(uri, _ => HttpUtils.cachedHostConnectionPool(uri))
-//      val request = ctx.request.copy(uri = uri)
-//      onSuccess(HttpUtils.hostRequest(request)(queue, mat.executionContext)) { response =>
-//        complete(response)
-//      }
-//    }
-//  }
+  /**
+   * @param config 全局配置 [[Config]]
+   * @param path "fusion.http.gateway.target-uri"
+   * @return
+   */
+  def proxyRouteFromPath(config: Config, path: String = "fusion.http.gateway.target-uri"): Route =
+    proxyRoute(Uri(config.getString(path)))
 
-  def proxyRoute(targetBaseUri: Uri)(implicit system: ActorSystem, mat: Materializer): Route =
+  def proxyRoute(targetBaseUri: Uri): Route =
     proxyRoute(targetBaseUri, identity)
 
-  def proxyRoute(targetBaseUri: Uri, uriMapping: Uri => Uri)(implicit system: ActorSystem, mat: Materializer): Route = {
+  def proxyRoute(targetBaseUri: Uri, uriMapping: Uri => Uri): Route = {
     extractRequestContext { ctx =>
-      val queue =
-        queues.computeIfAbsent(targetBaseUri.authority, _ => HttpUtils.cachedHostConnectionPool(targetBaseUri))
-      val uri     = ctx.request.uri.copy(scheme = targetBaseUri.scheme, authority = targetBaseUri.authority)
-      val request = ctx.request.copy(uri = uriMapping(uri))
-      onSuccess(HttpUtils.hostRequest(request)(queue, mat.executionContext)) { response =>
-        complete(response)
+      extractActorSystem { implicit system =>
+        import ctx.materializer
+        val queue =
+          queues.computeIfAbsent(targetBaseUri.authority, _ => HttpUtils.cachedHostConnectionPool(targetBaseUri))
+        val uri       = ctx.request.uri.copy(scheme = targetBaseUri.scheme, authority = targetBaseUri.authority)
+        val request   = ctx.request.copy(uri = uriMapping(uri))
+        val responseF = HttpUtils.hostRequest(request)(queue, ctx.materializer.executionContext)
+        onSuccess(responseF) { response =>
+          complete(response)
+        }
       }
     }
   }

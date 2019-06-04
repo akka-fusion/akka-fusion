@@ -27,14 +27,15 @@ final private[mongodb] class MongoComponents(system: ActorSystem)
 
     val conf: Configuration = Configuration(system).getConfiguration(path)
     if (conf.hasPath("uri")) {
+      val connectionString = new ConnectionString(conf.getString("uri"))
       val settings = MongoClientSettings
         .builder()
-        .applyConnectionString(new ConnectionString(conf.getString("uri")))
+        .applyConnectionString(connectionString)
         .codecRegistry(MongoTemplate.DEFAULT_CODEC_REGISTRY)
         .build()
       val mongoClient =
         getMongoDriverInformation(conf).map(MongoClients.create(settings, _)).getOrElse(MongoClients.create(settings))
-      MongoTemplate(mongoClient)
+      MongoTemplate(mongoClient, connectionString.getDatabase)
     } else {
       throw new IllegalAccessException(s"配置路径内无有效参数，$path")
     }

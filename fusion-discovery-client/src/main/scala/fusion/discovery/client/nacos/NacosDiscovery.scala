@@ -18,6 +18,7 @@ class NacosDiscovery(setting: NacosDiscoveryProperties, context: ActorRefFactory
   val namingService: FusionNamingService =
     NacosServiceFactory.namingService(NacosPropertiesUtils.namingProps(DiscoveryUtils.methodConfPath))
   val httpClient = HttpClient(namingService, ActorMaterializer()(context))
+
   logger.info(s"自动注册服务到Nacos: ${setting.isAutoRegisterInstance}")
   if (setting.isAutoRegisterInstance) {
     val inst = namingService.registerInstanceCurrent()

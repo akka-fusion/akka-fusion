@@ -10,12 +10,14 @@ case class DiscoveryInstance(
     clusterName: String = Constants.DEFAULT_CLUSTER_NAME,
     weight: Double = 1.0D,
     healthy: Boolean = true,
-    enabled: Boolean = true,
+    enable: Boolean = true,
     ephemeral: Boolean = true,
     metadata: Map[String, String] = Map(),
     group: String = Constants.DEFAULT_GROUP,
     // ip#port#clasterName#group@@serviceName
     instanceId: String = null) {
+
+  def isEnabled: Boolean = enable
 
   def toInetAddr: String = ip + ":" + port
 

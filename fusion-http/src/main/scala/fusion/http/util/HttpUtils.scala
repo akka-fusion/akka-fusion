@@ -8,38 +8,38 @@ import akka.http.scaladsl.Http
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.unmarshalling.FromEntityUnmarshaller
 import akka.http.scaladsl.unmarshalling.Unmarshal
-import akka.stream.scaladsl.Keep
-import akka.stream.scaladsl.RunnableGraph
-import akka.stream.scaladsl.Sink
-import akka.stream.scaladsl.Source
-import akka.stream.scaladsl.SourceQueueWithComplete
 import akka.stream.ActorMaterializer
 import akka.stream.Materializer
 import akka.stream.OverflowStrategy
 import akka.stream.QueueOfferResult
+import akka.stream.scaladsl.Keep
+import akka.stream.scaladsl.Sink
+import akka.stream.scaladsl.Source
 import akka.util.ByteString
+import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.ArrayNode
+import com.fasterxml.jackson.databind.node.ObjectNode
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
 import com.typesafe.scalalogging.StrictLogging
 import fusion.core.constant.ConfigKeys
-import fusion.http.HttpSourceQueue
+import fusion.core.http.HttpSourceQueue
 import fusion.http.exception.HttpException
+import helloscala.common.ErrCodes
 import helloscala.common.exception.HSException
 import helloscala.common.jackson.Jackson
 import helloscala.common.util.StringUtils
 
 import scala.collection.JavaConverters._
 import scala.collection.immutable
-import scala.concurrent.duration._
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import scala.concurrent.Promise
+import scala.concurrent.duration._
 import scala.reflect.ClassTag
 import scala.util.Failure
 import scala.util.Success
-import scala.util.Try
 
 object HttpUtils extends StrictLogging {
 
@@ -89,54 +89,115 @@ object HttpUtils extends StrictLogging {
   }
 
   @inline
-  def haveSuccess(status: StatusCode): Boolean = haveSuccess(status.intValue())
+  def haveSuccess(status: StatusCode): Boolean = is2xx(status.intValue())
 
   @inline
-  def haveSuccess(status: Int): Boolean = status >= 200 && status < 300
+  def haveSuccess(status: Int): Boolean = is2xx(status)
 
-  def mapHttpResponse[R: ClassTag](response: HttpResponse)(
-      implicit
-      mat: Materializer,
-      um: FromEntityUnmarshaller[R] = JacksonSupport.unmarshaller,
-      ec: ExecutionContext = null): Future[Either[HSException, R]] =
-    if (HttpUtils.haveSuccess(response.status)) {
-      Unmarshal(response.entity).to[R].map(v => Right(v))(if (ec eq null) mat.executionContext else ec)
+  @inline
+  def is2xx(status: StatusCode): Boolean = is2xx(status.intValue())
+
+  @inline
+  def is2xx(status: Int): Boolean = status >= 200 && status < 300
+
+  def mapObjectNode(response: HttpResponse)(
+      implicit mat: Materializer,
+      um: FromEntityUnmarshaller[ObjectNode]): Future[ObjectNode] = {
+    if (HttpUtils.is2xx(response.status)) {
+      mapObjectNode(response.entity)
     } else {
-      mapHttpResponseError[R](response)
+      mapHttpResponseError(response)
     }
+  }
 
-  def mapHttpResponseList[R](response: HttpResponse)(
-      implicit
-      ev1: ClassTag[R],
-      mat: Materializer,
-      ec: ExecutionContext = null): Future[Either[HSException, List[R]]] =
-    if (HttpUtils.haveSuccess(response.status)) {
+  def mapObjectNode(entity: ResponseEntity)(
+      implicit mat: Materializer,
+      um: FromEntityUnmarshaller[ObjectNode]): Future[ObjectNode] = {
+    Unmarshal(entity).to[ObjectNode]
+  }
+
+  def mapArrayNode(
+      response: HttpResponse)(implicit mat: Materializer, um: FromEntityUnmarshaller[ArrayNode]): Future[ArrayNode] = {
+    if (HttpUtils.is2xx(response.status)) {
+      mapArrayNode(response.entity)
+    } else {
+      mapHttpResponseError(response)
+    }
+  }
+
+  def mapArrayNode(
+      entity: ResponseEntity)(implicit mat: Materializer, um: FromEntityUnmarshaller[ArrayNode]): Future[ArrayNode] = {
+    Unmarshal(entity).to[ArrayNode]
+  }
+
+  def mapHttpResponse[R: ClassTag](
+      response: HttpResponse)(implicit mat: Materializer, um: FromEntityUnmarshaller[R]): Future[R] = {
+    implicit val ec: ExecutionContext = mat.executionContext
+    if (HttpUtils.is2xx(response.status)) {
+      Unmarshal(response.entity).to[R]
+    } else {
+      mapHttpResponseError(response)
+    }
+  }
+
+  def mapHttpResponseEither[R: ClassTag](response: HttpResponse)(
+      implicit mat: Materializer,
+      um: FromEntityUnmarshaller[R]): Future[Either[HSException, R]] = {
+    implicit val ec: ExecutionContext = mat.executionContext
+    mapHttpResponse(response).map(Right(_)).recoverWith {
+      case e: HSException => Future.successful(Left(e))
+    }
+  }
+
+  def mapHttpResponseList[R](response: HttpResponse)(implicit ev1: ClassTag[R], mat: Materializer): Future[List[R]] = {
+    implicit val ec: ExecutionContext = mat.executionContext
+    if (HttpUtils.is2xx(response.status)) {
       Unmarshal(response.entity)
         .to[ArrayNode](JacksonSupport.unmarshaller, ec, mat)
         .map { array =>
-          val list = array.asScala
+          array.asScala
             .map(node => Jackson.defaultObjectMapper.treeToValue(node, ev1.runtimeClass).asInstanceOf[R])
             .toList
-          Right(list)
         }(if (ec eq null) mat.executionContext else ec)
     } else {
       mapHttpResponseError[List[R]](response)
     }
+  }
 
-  def mapHttpResponseError[R](response: HttpResponse)(
-      implicit
-      mat: Materializer,
-      ec: ExecutionContext = null): Future[Either[HSException, R]] =
+  def mapHttpResponseListEither[R](
+      response: HttpResponse)(implicit ev1: ClassTag[R], mat: Materializer): Future[Either[HSException, List[R]]] = {
+    implicit val ec: ExecutionContext = mat.executionContext
+    mapHttpResponseList(response).map(Right(_)).recoverWith {
+      case e: HSException => Future.successful(Left(e))
+    }
+  }
+
+  def mapHttpResponseError[R](response: HttpResponse)(implicit mat: Materializer): Future[R] = {
+    implicit val ec: ExecutionContext = mat.executionContext
     if (response.entity.contentType.mediaType == MediaTypes.`application/json`) {
-      Unmarshal(response.entity)
-        .to[HSException](JacksonSupport.unmarshaller, ec, mat)
-        .map(e => Left(e))(if (ec eq null) mat.executionContext else ec)
+      Unmarshal(response.entity).to[JsonNode](JacksonSupport.unmarshaller, ec, mat).flatMap { json =>
+        val errCode = Option(json.get("errCode"))
+          .orElse(Option(json.get("status")))
+          .map(_.asInt(ErrCodes.INTERNAL_ERROR))
+          .getOrElse(ErrCodes.INTERNAL_ERROR)
+        val message =
+          Option(json.get("message")).orElse(Option(json.get("msg"))).map(_.asText("")).getOrElse("HTTP响应错误")
+        Future.failed(HttpException(response.status.intValue(), message, data = json, errCode))
+      }
     } else {
       Unmarshal(response.entity)
         .to[String]
-        .map(errMsg => Left(HttpException(response.status.intValue(), errMsg)))(
-          if (ec eq null) mat.executionContext else ec)
+        .flatMap(errMsg => Future.failed(HttpException(response.status.intValue(), errMsg)))
     }
+  }
+
+  def mapHttpResponseErrorEither[R](response: HttpResponse)(
+      implicit mat: Materializer): Future[Either[HSException, R]] = {
+    implicit val ec: ExecutionContext = mat.executionContext
+    mapHttpResponseError(response).recoverWith {
+      case e: HSException => Future.successful(Left(e))
+    }
+  }
 
   def queryToMap(request: HttpRequest): Map[String, String] =
     queryToMap(request.uri.query())

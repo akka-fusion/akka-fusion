@@ -14,5 +14,6 @@ object PropKeys {
   val INSTANCE_WEIGHT        = "instanceWeight"
   val HEALTHY                = "healthy"
   val EPHEMERAL              = "ephemeral"
+  val ENABLE                 = "enable"
   val AUTO_REGISTER_INSTANCE = "autoRegisterInstance"
 }

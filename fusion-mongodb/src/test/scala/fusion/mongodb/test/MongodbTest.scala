@@ -40,7 +40,8 @@ class MongodbTest extends FusionTestFunSuite with BeforeAndAfterAll {
     .build()
   val template = MongoTemplate(MongoClients.create(mongoClientSettings))
 
-  val fileCollection: MongoCollection[FileEntity] = template.getCollection("abc", "file", List(classOf[FileEntity]))
+  val fileCollection: MongoCollection[FileEntity] =
+    template.getDatabaseCollection("abc", "file", List(classOf[FileEntity]))
 
   test("mongodb") {
     val data = List(

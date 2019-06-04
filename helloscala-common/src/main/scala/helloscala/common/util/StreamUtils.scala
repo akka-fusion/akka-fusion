@@ -1,0 +1,22 @@
+package helloscala.common.util
+
+import akka.stream.Materializer
+import akka.stream.scaladsl.Sink
+import akka.stream.scaladsl.Source
+import org.reactivestreams.Publisher
+
+import scala.collection.immutable
+import scala.concurrent.Future
+
+object StreamUtils {
+
+  def publishToHead[T](publisher: Publisher[T])(implicit mat: Materializer): Future[T] =
+    Source.fromPublisher(publisher).runWith(Sink.head)
+
+  def publishToHeadOption[T](publisher: Publisher[T])(implicit mat: Materializer): Future[Option[T]] =
+    Source.fromPublisher(publisher).runWith(Sink.headOption)
+
+  def publishToSeq[T](publisher: Publisher[T])(implicit mat: Materializer): Future[immutable.Seq[T]] =
+    Source.fromPublisher(publisher).runWith(Sink.seq)
+
+}

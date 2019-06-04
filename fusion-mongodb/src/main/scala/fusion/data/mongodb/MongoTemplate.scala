@@ -4,6 +4,7 @@ import akka.stream.Materializer
 import akka.stream.scaladsl.Sink
 import akka.stream.scaladsl.Source
 import com.mongodb.ClientSessionOptions
+import com.mongodb.client.model.ReplaceOptions
 import com.mongodb.reactivestreams.client._
 import fusion.data.mongodb.codec.FusionCodecProvider
 import org.bson.Document
@@ -18,17 +19,27 @@ import scala.collection.immutable
 import scala.concurrent.Future
 import scala.reflect.ClassTag
 
-class MongoTemplate private (val client: MongoClient) extends AutoCloseable {
+class MongoTemplate private (val client: MongoClient, defaultDbName: String) extends AutoCloseable {
   def startSession(): Publisher[ClientSession] = client.startSession()
 
   def startSession(options: ClientSessionOptions): Publisher[ClientSession] = client.startSession(options)
 
   def getDatabase(name: String): MongoDatabase = client.getDatabase(name)
+  def defaultDatabase: MongoDatabase           = client.getDatabase(defaultDbName)
 
-  def getCollection(dbName: String, collName: String): MongoCollection[Document] =
+  def getCollection(collName: String): MongoCollection[Document] = getDatabaseCollection(defaultDbName, collName)
+
+  def getDatabaseCollection(dbName: String, collName: String): MongoCollection[Document] =
     getDatabase(dbName).getCollection(collName)
 
   def getCollection[T](
+      collName: String,
+      codecProviders: Seq[CodecProvider],
+      codecRegistry: CodecRegistry = MongoTemplate.DEFAULT_CODEC_REGISTRY)(
+      implicit ev1: ClassTag[T]): MongoCollection[T] =
+    getDatabaseCollection(defaultDbName, collName, codecProviders, codecRegistry)
+
+  def getDatabaseCollection[T](
       dbName: String,
       collName: String,
       codecProviders: Seq[CodecProvider],
@@ -61,5 +72,10 @@ object MongoTemplate {
     fromProviders(DocumentCodecProvider(), IterableCodecProvider()),
     fromProviders(new FusionCodecProvider()))
 
-  def apply(client: MongoClient): MongoTemplate = new MongoTemplate(client)
+  def apply(client: MongoClient): MongoTemplate = apply(client, "test")
+
+  def apply(client: MongoClient, defaultDatabase: String): MongoTemplate =
+    new MongoTemplate(client, if (defaultDatabase eq null) "test" else defaultDatabase)
+
+  def replaceOptions: ReplaceOptions = new ReplaceOptions().upsert(true)
 }

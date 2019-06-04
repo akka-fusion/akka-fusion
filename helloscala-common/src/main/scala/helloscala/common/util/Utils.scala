@@ -7,10 +7,12 @@ import java.time.Duration
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.util.Objects
 import java.util.Properties
 import java.util.concurrent.ThreadLocalRandom
 
 import com.typesafe.scalalogging.StrictLogging
+import helloscala.common.exception.HSException
 import helloscala.common.exception.HSInternalErrorException
 
 import scala.util.Failure
@@ -26,10 +28,19 @@ object Utils extends StrictLogging {
 
   def requireNonNull[T](v: T): T = requireNonNull(v, "requirement not null.")
 
-  def requireNonNull[T](v: T, msg: String): T = {
-    if (null != v) v
-    else throw HSInternalErrorException(msg)
-  }
+  def requireNonNull[T](v: T, msg: String): T =
+    try {
+      Objects.requireNonNull(v)
+    } catch {
+      case _: Exception => throw HSInternalErrorException(msg)
+    }
+
+  def requireNonNull[T](v: T, e: => HSException): T =
+    try {
+      Objects.requireNonNull(v)
+    } catch {
+      case _: Exception => throw e
+    }
 
   def require(predicate: Boolean): Unit = require(predicate, "requirement failed.")
 

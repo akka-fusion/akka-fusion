@@ -30,6 +30,9 @@ final class FusionNacos private (protected val _system: ExtendedActorSystem)
 
   val components = new NacosComponents(system)
   system.registerOnTermination { components.close() }
+
+  // XXX 重要，除了打印默认Naming服务状态外，同时还会触发服务自动注册（若配置为true的话）
+  logger.info(component.namingService.getServerStatus)
 }
 
 object FusionNacos extends ExtensionId[FusionNacos] with ExtensionIdProvider {

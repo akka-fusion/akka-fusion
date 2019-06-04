@@ -49,6 +49,7 @@ class NacosNamingServiceImpl(props: NacosDiscoveryProperties, val underlying: JN
       props.instanceClusterName,
       props.instanceWeight,
       props.healthy,
+      enable = props.enable,
       ephemeral = props.ephemeral,
       group = props.group)
     registerInstance(inst)

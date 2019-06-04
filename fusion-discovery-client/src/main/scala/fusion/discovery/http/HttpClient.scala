@@ -9,18 +9,27 @@ import akka.http.scaladsl.model.HttpResponse
 import akka.http.scaladsl.model.Uri
 import akka.http.scaladsl.model.Uri.Authority
 import akka.stream.ActorMaterializer
+import akka.stream.Materializer
+import akka.stream.OverflowStrategy
 import akka.stream.QueueOfferResult
+import akka.stream.scaladsl.Keep
+import akka.stream.scaladsl.Sink
+import akka.stream.scaladsl.Source
+import fusion.core.http.HttpSourceQueue
 import fusion.discovery.client.FusionNamingService
-import fusion.http.HttpSourceQueue
-import fusion.http.util.HttpUtils
 import helloscala.common.exception.HSBadGatewayException
 import helloscala.common.exception.HSServiceUnavailableException
 import helloscala.common.util.Utils
 
 import scala.concurrent.Future
 import scala.concurrent.Promise
+import scala.util.Failure
+import scala.util.Success
 
-final class HttpClient private (val namingService: FusionNamingService, val materializer: ActorMaterializer)
+final class HttpClient private (
+    val namingService: FusionNamingService,
+    val materializer: ActorMaterializer,
+    val httpSourceQueueBufferSize: Int = 512)
     extends AutoCloseable {
 
   private val httpSourceQueueMap              = new ConcurrentHashMap[Authority, HttpSourceQueue]()
@@ -36,7 +45,7 @@ final class HttpClient private (val namingService: FusionNamingService, val mate
   def request(req: HttpRequest): Future[HttpResponse] = hostRequest(req)
 
   /**
-   * 发送 Http 请求，使用 CachedHostConnectionPool。见：[[fusion.http.util.HttpUtils.cachedHostConnectionPool()]]
+   * 发送 Http 请求，使用 CachedHostConnectionPool。
    *
    * @param req 发送请求，将通过Nacos替换对应服务(serviceName)为实际的访问地址
    * @return Future[HttpResponse]
@@ -46,7 +55,7 @@ final class HttpClient private (val namingService: FusionNamingService, val mate
     val uri             = request.uri
     val responsePromise = Promise[HttpResponse]()
     httpSourceQueueMap
-      .computeIfAbsent(uri.authority, _ => HttpUtils.cachedHostConnectionPool(uri))
+      .computeIfAbsent(uri.authority, _ => cachedHostConnectionPool(uri))
       .offer(request -> responsePromise)
       .flatMap {
         case QueueOfferResult.Enqueued    => responsePromise.future
@@ -67,6 +76,23 @@ final class HttpClient private (val namingService: FusionNamingService, val mate
     val serviceName = uri.authority.host.address()
     val inst        = Utils.requireNonNull(namingService.selectOneHealthyInstance(serviceName), s"服务： $serviceName 不存在")
     uri.withAuthority(inst.ip, inst.port)
+  }
+
+  private def cachedHostConnectionPool(uri: Uri)(implicit system: ActorSystem, mat: Materializer): HttpSourceQueue = {
+    val ua = uri.authority
+    val poolClientFlow = uri.scheme match {
+      case "http"  => Http().cachedHostConnectionPool[Promise[HttpResponse]](ua.host.address(), ua.port)
+      case "https" => Http().cachedHostConnectionPoolHttps[Promise[HttpResponse]](ua.host.address(), ua.port)
+      case _       => throw new IllegalArgumentException(s"URI: $uri 不是有效的 http 或 https 协议")
+    }
+    Source
+      .queue[(HttpRequest, Promise[HttpResponse])](httpSourceQueueBufferSize, OverflowStrategy.dropNew)
+      .via(poolClientFlow)
+      .toMat(Sink.foreach({
+        case (Success(resp), p) => p.success(resp)
+        case (Failure(e), p)    => p.failure(e)
+      }))(Keep.left)
+      .run()
   }
 
   override def close(): Unit = httpSourceQueueMap.clear()

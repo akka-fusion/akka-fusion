@@ -1,5 +1,11 @@
 # 连接 Nacos
 
+为什么是Nacos？
+
+1. Nacos真的不错，提供了易用的SDK；
+2. 很可能公司已经投资了大量的基于Spring Cloud的产品/实现，而Nacos是Spring Cloud里非常主流的一个服务注册/发现的实现；
+3. Akka的扩展性很好，可非常容易的接入Nacos。
+
 ## 依赖
 
 要使用Fusion提供到服务发现、注册客户端功能，需添加以下依赖：

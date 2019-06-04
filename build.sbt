@@ -103,8 +103,8 @@ lazy val fusionDiscoveryServer = _project("fusion-discovery-server")
   .settings(Publishing.noPublish)
 
 lazy val fusionDiscoveryClient = _project("fusion-discovery-client")
-  .dependsOn(fusionHttp, fusionTest % "test->test", fusionCore)
-  .settings(libraryDependencies ++= Seq(_nacosClient))
+  .dependsOn(fusionTest % "test->test", fusionCore)
+  .settings(libraryDependencies ++= Seq(_nacosClient) ++ _akkaHttps)
 
 lazy val fusionJob =
   _project("fusion-job").dependsOn(fusionTest % "test->test", fusionCore).settings(libraryDependencies ++= Seq(_quartz))
@@ -164,12 +164,13 @@ lazy val fusionCore =
   _project("fusion-core")
     .dependsOn(fusionCommon)
     .settings(Publishing.publishing: _*)
-    .settings(
-      libraryDependencies ++= Seq(
-        "org.scala-lang" % "scala-reflect" % scalaVersion.value,
-        _scalameta,
-        _osLib,
-        _chillAkka) ++ _alpakkas)
+    .settings(libraryDependencies ++= Seq(
+      "org.scala-lang" % "scala-reflect" % scalaVersion.value,
+      _osLib,
+      _akkaHttpCore,
+      _scalameta.exclude("com.thesamet.scalapb", "scalapb-runtime_2.12"),
+      "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion % "protobuf",
+      _chillAkka) ++ _alpakkas)
 
 lazy val fusionCommon = _project("fusion-common")
   .dependsOn(helloscalaCommon)

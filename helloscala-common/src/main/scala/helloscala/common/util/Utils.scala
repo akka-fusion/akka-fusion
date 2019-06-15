@@ -9,7 +9,6 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.Objects
 import java.util.Properties
-import java.util.concurrent.ThreadLocalRandom
 
 import com.typesafe.scalalogging.StrictLogging
 import helloscala.common.exception.HSException
@@ -22,9 +21,8 @@ import scala.util.control.NonFatal
 import scala.util.matching.Regex
 
 object Utils extends StrictLogging {
-  val REGEX_DIGIT: Regex             = """[\d,]+""".r
-  val RANDOM_CHARS: IndexedSeq[Char] = ('0' to '9') ++ ('a' to 'z') ++ ('A' to 'Z')
-  val random: SecureRandom           = new SecureRandom()
+  val REGEX_DIGIT: Regex   = """[\d,]+""".r
+  val random: SecureRandom = new SecureRandom()
 
   def requireNonNull[T](v: T): T = requireNonNull(v, "requirement not null.")
 
@@ -155,19 +153,6 @@ object Utils extends StrictLogging {
     val dst = new Array[Byte](buf.remaining())
     buf.get(dst)
     dst
-  }
-
-  def randomString(n: Int): String = {
-    val len = RANDOM_CHARS.length
-    val sb  = new StringBuilder
-    var i   = 0
-    while (i < n) {
-      i += 1
-      val idx = ThreadLocalRandom.current().nextInt(len)
-      val c   = RANDOM_CHARS.apply(idx)
-      sb.append(c)
-    }
-    sb.toString()
   }
 
   def randomBytes(size: Int): Array[Byte] = {

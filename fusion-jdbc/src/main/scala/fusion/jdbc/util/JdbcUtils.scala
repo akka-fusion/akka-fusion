@@ -52,6 +52,17 @@ object JdbcUtils extends StrictLogging {
     getMethodIfAvailable(clazz, methodName, paramTypes: _*) != null
   }
 
+  def getDatabaseInfo(md: DatabaseMetaData): Map[String, Any] = {
+    Map(
+      "driverVersion"          -> md.getDriverVersion,
+      "databaseProductName"    -> md.getDatabaseProductName,
+      "databaseProductVersion" -> md.getDatabaseProductVersion,
+      "databaseMajorVersion"   -> md.getDatabaseMajorVersion,
+      "databaseMinorVersion"   -> md.getDatabaseMinorVersion,
+      "jdbcMajorVersion"       -> md.getJDBCMajorVersion,
+      "jdbcMinorVersion"       -> md.getJDBCMinorVersion)
+  }
+
   def columnLabels(metadata: ResultSetMetaData): immutable.IndexedSeq[String] =
     (1 to metadata.getColumnCount).map(i => Option(metadata.getColumnLabel(i)).getOrElse(metadata.getColumnName(i)))
 
@@ -176,7 +187,7 @@ object JdbcUtils extends StrictLogging {
    * @param rs    is the ResultSet holding the data
    * @param index is the column index
    * @return the value object
-   * @throws SQLException if thrown by the JDBC API
+   * @throws java.sql.SQLException if thrown by the JDBC API
    * @see java.sql.Blob
    * @see java.sql.Clob
    * @see java.sql.Timestamp

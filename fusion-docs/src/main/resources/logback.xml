@@ -23,6 +23,7 @@
     <logger name="ch.qos" level="WARN"/>
     <logger name="slick.jdbc.JdbcBackend.statement" level="DEBUG"/>
     <logger name="slick.jdbc.JdbcBackend.benchmark" level="DEBUG"/>
+    <logger name="slick" level="INFO"/>
     <!--<logger name="org.mongodb.driver.protocol.command" level="DEBUG"/>-->
     <logger name="net.schmizz.sshj" level="WARN"/>
     <logger name="com.zaxxer" level="WARN"/>

@@ -13,7 +13,6 @@ import akka.http.scaladsl.server.PathMatcher.Matched
 import akka.http.scaladsl.server.PathMatcher.Unmatched
 import akka.http.scaladsl.server._
 import akka.http.scaladsl.server.directives.FileInfo
-import akka.http.scaladsl.server.util.Tuple
 import akka.http.scaladsl.unmarshalling.FromRequestUnmarshaller
 import fusion.core.model.ApiResult
 import fusion.http.AkkaHttpSourceQueue
@@ -77,12 +76,9 @@ trait AbstractRoute extends Directives with HttpDirectives with FileDirectives {
     rawNotPathPrefixTest(Slash ~ pm)
 
   def rawNotPathPrefixTest[L](pm: PathMatcher[L]): Directive0 = {
-    implicit val LIsTuple: Tuple[L] = pm.ev
     extract(ctx => pm(ctx.unmatchedPath)).flatMap {
-      case Matched(v, values) ⇒
-        println(s"notPathPrefixTest v: $v, values: $values")
-        reject
-      case Unmatched ⇒ pass
+      case Matched(v, values) ⇒ reject
+      case Unmatched          ⇒ pass
     }
   }
 

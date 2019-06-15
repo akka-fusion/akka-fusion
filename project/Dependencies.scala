@@ -5,7 +5,9 @@ object Dependencies {
   val versionScalaLib        = "2.12"
   val versionScalaXml        = "1.2.0"
   val versionJava8Compat     = "0.9.0"
-  val versionAkka            = "2.5.22"
+  val versionScalameta       = "4.1.11"
+  val versionScalatest       = "3.0.7"
+  val versionAkka            = "2.5.23"
   val versionAkkaManagement  = "1.0.1"
   val versionAkkaHttp        = "10.1.8"
   val versionAkkaHttpCors    = "0.4.0"
@@ -18,16 +20,18 @@ object Dependencies {
   val versionKamon           = "1.1.3"
   val versionJackson         = "2.9.8"
   val versionSlick           = "3.3.0"
+  val versionSlickPg         = "0.17.3"
   val versionPoi             = "4.1.0"
   val versionDoobie          = "0.6.0"
-  val versionQuartz          = "2.2.3"
+  val versionQuartz          = "2.3.1"
   val versionBcprovJdk15on   = "1.61"
-  val versionScalameta       = "4.1.10"
-  val versionScalatest       = "3.0.7"
   val versionNacos           = "1.0.0"
   val versionJsch            = "0.1.55"
   val versionJakartaMail     = "1.6.3"
   val versionHikariCP        = "3.3.1"
+  val versionMybatis         = "3.5.1"
+  val versionMybatisPlus     = "3.1.1"
+  val versionLombok          = "1.18.8"
   val versionMySQL           = "8.0.16"
   val versionPostgres        = "42.2.5"
   val versionFastparse       = "2.1.2"
@@ -35,16 +39,16 @@ object Dependencies {
   val versionOsLib           = "0.2.9"
   val versionMongoScalaBson  = "2.6.0"
   val versionChillAkka       = "0.9.3"
+  val versionLogbackKafka    = "0.2.0-RC2"
+  val versionLogback         = "1.2.3"
+  val versionScalaLogging    = "3.9.0"
 
   val _scalameta = "org.scalameta" %% "scalameta" % versionScalameta
-
-  val _scalaXml = ("org.scala-lang.modules" %% "scala-xml" % versionScalaXml).exclude("org.scala-lang", "scala-library")
+  val _scalaXml  = ("org.scala-lang.modules" %% "scala-xml" % versionScalaXml).exclude("org.scala-lang", "scala-library")
 
   val _scalaJava8Compat =
     ("org.scala-lang.modules" %% "scala-java8-compat" % versionJava8Compat).exclude("org.scala-lang", "scala-library")
-
-  val _scalatest = "org.scalatest" %% "scalatest" % versionScalatest
-
+  val _scalatest         = "org.scalatest"     %% "scalatest"           % versionScalatest
   val _akkaRemote        = "com.typesafe.akka" %% "akka-remote"         % versionAkka
   val _akkaStream        = "com.typesafe.akka" %% "akka-stream"         % versionAkka
   val _akkaTestkit       = "com.typesafe.akka" %% "akka-testkit"        % versionAkka
@@ -160,13 +164,11 @@ object Dependencies {
   val _chillAkka = ("com.twitter" %% "chill-akka" % versionChillAkka)
     .exclude("com.typesafe", "config")
     .exclude("org.scala-lang", "scala-library")
-
-  val _neotypes           = "com.dimafeng" %% "neotypes"             % versionNeotypes
-  val _neotypesAkkaStream = "com.dimafeng" %% "neotypes-akka-stream" % versionNeotypes
-
-  val _config = "com.typesafe"      % "config" % versionConfig
-  val _hanlp  = "com.hankcs"        % "hanlp"  % "portable-1.7.1"
-  val _guice  = "com.google.inject" % "guice"  % versionGuice
+  val _neotypes           = "com.dimafeng"      %% "neotypes"             % versionNeotypes
+  val _neotypesAkkaStream = "com.dimafeng"      %% "neotypes-akka-stream" % versionNeotypes
+  val _config             = "com.typesafe"      % "config"                % versionConfig
+  val _hanlp              = "com.hankcs"        % "hanlp"                 % "portable-1.7.1"
+  val _guice              = "com.google.inject" % "guice"                 % versionGuice
 
   val _circes =
     Seq("io.circe" %% "circe-core", "io.circe" %% "circe-generic", "io.circe" %% "circe-parser").map(_ % versionCirce)
@@ -178,7 +180,6 @@ object Dependencies {
     "com.fasterxml.jackson.module"   %% "jackson-module-scala"          % versionJackson)
   val _aspectjweaver = "org.aspectj" % "aspectjweaver" % "1.9.2"
   val _sigarLoader   = "io.kamon"    % "sigar-loader"  % "1.6.6" //-rev002"
-
   val _kamonAkka = ("io.kamon" %% "kamon-akka-2.5" % versionKamon)
     .excludeAll("com.typesafe.akka")
     .cross(CrossVersion.binary)
@@ -211,39 +212,38 @@ object Dependencies {
   val _kamonZipkin     = "io.kamon" %% "kamon-zipkin" % "1.0.0"
   val _kamonLogback    = "io.kamon" %% "kamon-logback" % "1.0.4"
   val _kamons          = Seq(_kamonAkka, _kamonAkkaRemote, _kamonAkkaHttp, _kamonZipkin, _kamonPrometheus, _kamonSystemMetrics)
-
-  val _scopt = "com.github.scopt" %% "scopt" % "3.7.1"
-
-  val _osLib     = "com.lihaoyi" %% "os-lib"    % versionOsLib
-  val _requests  = "com.lihaoyi" %% "requests"  % versionRequests
-  val _fastparse = "com.lihaoyi" %% "fastparse" % versionFastparse
-
-  val _shapeless = "com.chuusai"   %% "shapeless" % "2.3.3"
-  val _jwt       = "com.pauldijou" %% "jwt-core"  % "2.1.0"
+  val _scopt           = "com.github.scopt" %% "scopt" % "3.7.1"
+  val _osLib           = "com.lihaoyi" %% "os-lib" % versionOsLib
+  val _requests        = "com.lihaoyi" %% "requests" % versionRequests
+  val _fastparse       = "com.lihaoyi" %% "fastparse" % versionFastparse
+  val _shapeless       = "com.chuusai" %% "shapeless" % "2.3.3"
+  val _jwt             = "com.pauldijou" %% "jwt-core" % "2.1.0"
 
   val _slicks =
     Seq("com.typesafe.slick" %% "slick" % versionSlick, "com.typesafe.slick" %% "slick-testkit" % versionSlick % Test)
+  val _slickPg = "com.github.tminglei" %% "slick-pg" % versionSlickPg
 
   val _doobies =
     Seq("org.tpolecat" %% "doobie-core" % versionDoobie, "org.tpolecat" %% "doobie-postgres" % versionDoobie)
-
   val _pois = Seq("org.apache.poi" % "poi-scratchpad" % versionPoi, "org.apache.poi" % "poi-ooxml" % versionPoi)
 
-  val _logs =
-    Seq("com.typesafe.scala-logging" %% "scala-logging" % "3.9.0", "ch.qos.logback" % "logback-classic" % "1.2.3")
-
-  val _h2                = "com.h2database"          % "h2"                   % "1.4.197"
-  val _bcprovJdk15on     = "org.bouncycastle"        % "bcprov-jdk15on"       % versionBcprovJdk15on
-  val _quartz            = "org.quartz-scheduler"    % "quartz"               % versionQuartz
-  val _mybatis           = "org.mybatis"             % "mybatis"              % "3.5.0"
-  val _postgresql        = "org.postgresql"          % "postgresql"           % versionPostgres
-  val _mysql             = "mysql"                   % "mysql-connector-java" % versionMySQL
-  val _mssql             = "com.microsoft.sqlserver" % "mssql-jdbc"           % "6.4.0.jre8"
-  val _hikariCP          = "com.zaxxer"              % "HikariCP"             % versionHikariCP
-  val _protobuf          = "com.google.protobuf"     % "protobuf-java"        % "3.6.1"
-  val _swaggerAnnotation = "io.swagger.core.v3"      % "swagger-annotations"  % "2.0.6"
-  val _commonsVfs        = "org.apache.commons"      % "commons-vfs2"         % "2.2"
-  val _jsch              = "com.jcraft"              % "jsch"                 % versionJsch
-  val _nacosClient       = "com.alibaba.nacos"       % "nacos-client"         % versionNacos
-  val _jakartaMail       = "com.sun.mail"            % "jakarta.mail"         % versionJakartaMail
+  val _logs = Seq(
+    "com.typesafe.scala-logging" %% "scala-logging"  % versionScalaLogging,
+    "ch.qos.logback"             % "logback-classic" % versionLogback)
+  val _logbackKafka      = "com.github.danielwegener" % "logback-kafka-appender" % versionLogbackKafka
+  val _bcprovJdk15on     = "org.bouncycastle"         % "bcprov-jdk15on"         % versionBcprovJdk15on
+  val _quartz            = "org.quartz-scheduler"     % "quartz"                 % versionQuartz
+  val _mybatis           = "org.mybatis"              % "mybatis"                % versionMybatis
+  val _mybatisPlus       = "com.baomidou"             % "mybatis-plus"           % versionMybatisPlus
+  val _lombok            = "org.projectlombok"        % "lombok"                 % versionLombok
+  val _postgresql        = "org.postgresql"           % "postgresql"             % versionPostgres
+  val _mysql             = "mysql"                    % "mysql-connector-java"   % versionMySQL
+  val _hikariCP          = "com.zaxxer"               % "HikariCP"               % versionHikariCP
+  val _jsch              = "com.jcraft"               % "jsch"                   % versionJsch
+  val _nacosClient       = "com.alibaba.nacos"        % "nacos-client"           % versionNacos
+  val _jakartaMail       = "com.sun.mail"             % "jakarta.mail"           % versionJakartaMail
+  val _mssql             = "com.microsoft.sqlserver"  % "mssql-jdbc"             % "6.4.0.jre8"
+  val _protobuf          = "com.google.protobuf"      % "protobuf-java"          % "3.7.1"
+  val _swaggerAnnotation = "io.swagger.core.v3"       % "swagger-annotations"    % "2.0.6"
+  val _commonsVfs        = "org.apache.commons"       % "commons-vfs2"           % "2.2"
 }

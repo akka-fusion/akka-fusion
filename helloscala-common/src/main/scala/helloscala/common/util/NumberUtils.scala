@@ -24,7 +24,9 @@ object NumberUtils {
    * @see Float
    * @see Double
    * @see BigDecimal
-   */ @SuppressWarnings(Array("unchecked")) @throws[IllegalArgumentException]
+   */
+  @SuppressWarnings(Array("unchecked"))
+  @throws[IllegalArgumentException]
   def convertNumberToTargetClass[T <: Number](number: Number, targetClass: Class[T]): T = {
     require(number ne null, "Number must not be null")
     require(targetClass ne null, "Target class must not be null")

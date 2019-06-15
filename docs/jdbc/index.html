@@ -145,6 +145,12 @@ ihongka/akka-fusion
     <li><a href="../http/getting.html" class="page">开始</a></li>
     <li><a href="../http/management.html" class="page">管理API</a></li>
   </ul></li>
+  <li><a href="../slick/index.html" class="page">Slick</a></li>
+  <li><a href="../mybatis/index.html" class="page">MyBatis</a>
+  <ul>
+    <li><a href="../mybatis/getting.html" class="page">起步</a></li>
+    <li><a href="../mybatis/configuration.html" class="page">配置</a></li>
+  </ul></li>
   <li><a href="../jdbc/index.html" class="active page">Jdbc</a></li>
   <li><a href="../data-mongodb/index.html" class="page">Data Mongodb</a></li>
   <li><a href="../data-kafka/index.html" class="page">Data Kafka</a>
@@ -162,6 +168,8 @@ ihongka/akka-fusion
     <li><a href="../configuration/core.html" class="page">Fusion Core 配置</a></li>
     <li><a href="../configuration/http.html" class="page">Fusion HTTP 配置</a></li>
     <li><a href="../configuration/jdbc.html" class="page">Fusion JDBC 配置</a></li>
+    <li><a href="../configuration/slick.html" class="page">Fusion Slick 配置</a></li>
+    <li><a href="../configuration/mybatis.html" class="page">Fusion Mybatis 配置</a></li>
     <li><a href="../configuration/mongodb.html" class="page">Fusion Mongodb 配置</a></li>
     <li><a href="../configuration/kafka.html" class="page">Fusion Kafka 配置</a></li>
   </ul></li>
@@ -180,7 +188,7 @@ ihongka/akka-fusion
 <ul style="display: none">
 <li class="md-nav__item md-version" id="project.version">
 <label class="md-nav__link" for="__version">
-<i class="md-icon" title="Version">label_outline</i> 1.0.0-alpha6
+<i class="md-icon" title="Version">label_outline</i> 1.0.0-alpha19
 </label>
 </li>
 </ul>
@@ -210,7 +218,7 @@ ihongka/akka-fusion
 <p>Akka Fusion基于Akka Extension机制提供了配置化的 <a href="https://github.com/brettwooldridge/HikariCP/blob/dev/src/main/java/com/zaxxer/hikari/HikariDataSource.java">HikariDataSource</a> 管理。 同时，提供了 <a href="../../../../../fusion-jdbc/src/main/scala/fusion/jdbc/JdbcTemplate.scala">JdbcTemplate</a> 来简化我们的JDBC编程工作。</p>
 <h2><a href="#示例" name="示例" class="anchor"><span class="anchor-link"></span></a>示例</h2>
 <p><strong><em>配置 src/main/resources/application.conf</em></strong></p>
-<pre class="prettyprint"><a class="icon go-to-source" href="https://github.com/ihongka/akka-fusion/tree/master/fusion-jdbc/src/test/resources/sample/mysql.conf" target="_blank" title="Go to snippet source"></a><code class="language-conf">fusion.jdbc {
+<pre class="prettyprint"><a class="icon go-to-source" href="https://github.com/yangbajing/akka-fusion/tree/master/fusion-jdbc/src/test/resources/sample/mysql.conf" target="_blank" title="Go to snippet source"></a><code class="language-conf">fusion.jdbc {
   default {
     poolName = &quot;hongka&quot;
     jdbcUrl = &quot;jdbc:mysql://localhost:3306/ihongka?useSSL=false&amp;autoReconnect=true&quot;
@@ -221,39 +229,64 @@ ihongka/akka-fusion
   }
 }</code></pre>
 <p><strong><em>测试代码</em></strong></p>
-<pre class="prettyprint"><a class="icon go-to-source" href="https://github.com/ihongka/akka-fusion/tree/master/fusion-jdbc/src/test/scala/fusion/jdbc/JdbcTemplateTest.scala" target="_blank" title="Go to snippet source"></a><code class="language-scala">package fusion.jdbc
+<pre class="prettyprint"><a class="icon go-to-source" href="https://github.com/yangbajing/akka-fusion/tree/master/fusion-jdbc/src/test/scala/fusion/jdbc/JdbcTemplateTest.scala" target="_blank" title="Go to snippet source"></a><code class="language-scala">package fusion.jdbc
+
+import java.time.OffsetDateTime
 
 import akka.actor.ActorSystem
 import com.zaxxer.hikari.HikariDataSource
+import fusion.jdbc.util.JdbcUtils
 import fusion.test.FusionTestFunSuite
-import helloscala.common.util.DigestUtils
 import org.scalatest.BeforeAndAfterAll
 
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
-import scala.util.Random
+
+class CFile {
+  var fileId: String                  = _
+  var fileSubject: String             = _
+  var fileType: java.lang.Integer     = _
+  var fileUrl: String                 = _
+  var fileCtime: java.lang.Long       = _
+  var tableAutoUptime: OffsetDateTime = _
+  var duration: java.lang.Integer     = _
+  var fileSize: java.lang.Integer     = _
+
+  override def toString =
+    s&quot;CFile($fileId, $fileSubject, $fileType, $fileUrl, $fileCtime, $tableAutoUptime, $duration, $fileSize)&quot;
+}
 
 class JdbcTemplateTest extends FusionTestFunSuite with BeforeAndAfterAll {
-  private val system = ActorSystem()
+  private val system                       = ActorSystem()
   private def dataSource: HikariDataSource = FusionJdbc(system).component
-  private def jdbcTemplate = JdbcTemplate(dataSource)
+  private def jdbcTemplate                 = JdbcTemplate(dataSource)
 
-  test(&quot;insertOne&quot;) {
-    val sql = &quot;&quot;&quot;insert into c_file(file_id, file_subject, file_type, file_url, file_ctime, duration, hash)
-                |values (?, ?, ?, ?, ?, ?, ?);&quot;&quot;&quot;.stripMargin
-    val hash = DigestUtils.sha256Hex(Random.nextString(12))
-    val ret =
-      jdbcTemplate.update(sql,
-                          List(hash, &quot;subject&quot;, 3, s&quot;/${hash.take(2)}/$hash&quot;, System.currentTimeMillis(), 23432, hash))
-    ret mustBe 1
-  }
-
-  test(&quot;selectAll&quot;) {
-    //中华人民共和国
-    val list = jdbcTemplate.listForMap(&quot;select * from c_file order by file_ctime desc&quot;, Nil)
-    list must not be empty
+  test(&quot;listForObject&quot;) {
+    val sql =
+      &quot;select file_id, file_subject, file_type, file_url, file_ctime, table_auto_uptime, duration, file_size from c_file where table_auto_uptime is null or file_size is null limit 50&quot;
+    val list = jdbcTemplate.listForObject(sql, Nil, JdbcUtils.resultSetToBean[CFile])
     list.foreach(println)
+    println(list.size)
+    println(&quot;---------------------&quot;)
   }
+
+//  test(&quot;insertOne&quot;) {
+//    val sql  = &quot;&quot;&quot;insert into c_file(file_id, file_subject, file_type, file_url, file_ctime, duration, hash)
+//                |values (?, ?, ?, ?, ?, ?, ?);&quot;&quot;&quot;.stripMargin
+//    val hash = DigestUtils.sha256Hex(Random.nextString(12))
+//    val ret =
+//      jdbcTemplate.update(
+//        sql,
+//        List(hash, &quot;subject&quot;, 3, s&quot;/${hash.take(2)}/$hash&quot;, System.currentTimeMillis(), 23432, hash))
+//    ret mustBe 1
+//  }
+
+//  test(&quot;selectAll&quot;) {
+//    //中华人民共和国
+//    val list = jdbcTemplate.listForMap(&quot;select * from c_file order by file_ctime desc&quot;, Nil)
+//    list must not be empty
+//    list.foreach(println)
+//  }
 
   override protected def afterAll(): Unit = {
     system.terminate()
@@ -263,13 +296,13 @@ class JdbcTemplateTest extends FusionTestFunSuite with BeforeAndAfterAll {
 }</code></pre>
 </div>
 <div>
-<a href="https://github.com/ihongka/akka-fusion/tree/master/fusion-docs/src/main/paradox/jdbc/index.md" title="Edit this page" class="md-source-file md-edit">
+<a href="https://github.com/yangbajing/akka-fusion/tree/master/fusion-docs/src/main/paradox/jdbc/index.md" title="Edit this page" class="md-source-file md-edit">
 Edit this page
 </a>
 </div>
 <div class="print-only">
 <span class="md-source-file md-version">
-1.0.0-alpha6
+1.0.0-alpha19
 </span>
 </div>
 </article>
@@ -279,7 +312,7 @@ Edit this page
 <footer class="md-footer">
 <div class="md-footer-nav">
 <nav class="md-footer-nav__inner md-grid">
-<a href="../http/management.html" title="管理API" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+<a href="../mybatis/configuration.html" title="配置" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
 <div class="md-flex__cell md-flex__cell--shrink">
 <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
 </div>
@@ -288,7 +321,7 @@ Edit this page
 <span class="md-footer-nav__direction">
 Previous
 </span>
-管理API
+配置
 </span>
 </div>
 </a>

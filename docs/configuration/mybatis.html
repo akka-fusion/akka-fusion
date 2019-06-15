@@ -20,7 +20,7 @@
 
 <meta name="description" content="fusion-docs">
 <link rel="shortcut icon" href="../assets/images/favicon.png">
-<title>Fusion Mybatis</title>
+<title>Fusion Mybatis 配置 · Akka Fusion</title>
 <link rel="stylesheet" href="../assets/stylesheets/application.451f80e5.css">
 <link rel="stylesheet" href="../assets/stylesheets/application-palette.22915126.css">
 <meta name="theme-color" content="#3f51b5" />
@@ -47,7 +47,7 @@ data-md-color-accent="red"
 <nav class="md-header-nav md-grid">
 <div class="md-flex">
 <div class="md-flex__cell md-flex__cell--shrink">
-<a href="../configuration/mybatis.html" title="Fusion Mybatis" class="md-header-nav__button md-logo">
+<a href="../index.html" title="Akka Fusion" class="md-header-nav__button md-logo">
 <i class="md-icon">local_library</i>
 </a>
 </div>
@@ -56,7 +56,12 @@ data-md-color-accent="red"
 </div>
 <div class="md-flex__cell md-flex__cell--stretch">
 <div class="md-flex__ellipsis md-header-nav__title" data-md-component="title">
-Fusion Mybatis
+<span class="md-header-nav__topic">
+Akka Fusion
+</span>
+<span class="md-header-nav__topic">
+Fusion Mybatis 配置
+</span>
 </div>
 </div>
 <div class="md-flex__cell md-flex__cell--shrink">
@@ -111,12 +116,12 @@ ihongka/akka-fusion
 <div class="md-sidebar__inner">
 <nav class="md-nav md-nav--primary" data-md-level="0" style="visibility: hidden">
 <label class="md-nav__title md-nav__title--site" for="drawer">
-<a href="../configuration/mybatis.html" title="Fusion Mybatis" class="md-nav__button md-logo">
+<a href="../index.html" title="Akka Fusion" class="md-nav__button md-logo">
 <span class="md-nav__button md-logo">
 <i class="md-icon">local_library</i>
 </a>
-<a href="../configuration/mybatis.html" title="Fusion Mybatis">
-Fusion Mybatis
+<a href="../index.html" title="Akka Fusion">
+Akka Fusion
 </a>
 </label>
 <div class="md-nav__source">
@@ -134,64 +139,86 @@ ihongka/akka-fusion
 
 </div>
 <ul>
-</ul>
-<nav class="md-nav md-nav--secondary">
-<label class="md-nav__title" for="__toc">Table of contents</label>
-<ul>
-  <li><a href="../configuration/mybatis.html#fusion-mybatis" class="header">Fusion Mybatis</a>
+  <li><a href="../intro/index.html" class="page">简介</a></li>
+  <li><a href="../http/index.html" class="page">HTTP</a>
   <ul>
-    <li><a href="../configuration/mybatis.html#配置" class="header">配置</a></li>
+    <li><a href="../http/getting.html" class="page">开始</a></li>
+    <li><a href="../http/management.html" class="page">管理API</a></li>
+  </ul></li>
+  <li><a href="../slick/index.html" class="page">Slick</a></li>
+  <li><a href="../mybatis/index.html" class="page">MyBatis</a>
+  <ul>
+    <li><a href="../mybatis/getting.html" class="page">起步</a></li>
+    <li><a href="../mybatis/configuration.html" class="page">配置</a></li>
+  </ul></li>
+  <li><a href="../jdbc/index.html" class="page">Jdbc</a></li>
+  <li><a href="../data-mongodb/index.html" class="page">Data Mongodb</a></li>
+  <li><a href="../data-kafka/index.html" class="page">Data Kafka</a>
+  <ul>
+    <li><a href="../data-kafka/getting.html" class="page">开始</a></li>
+    <li><a href="../data-kafka/producer.html" class="page">Kafka Producer</a></li>
+    <li><a href="../data-kafka/consumer.html" class="page">Kafka Consumer</a></li>
+  </ul></li>
+  <li><a href="../discovery-client/index.html" class="page">服务注册、发现（Client）</a>
+  <ul>
+    <li><a href="../discovery-client/nacos.html" class="page">连接 Nacos</a></li>
+  </ul></li>
+  <li><a href="../configuration/index.html" class="page">配置</a>
+  <ul>
+    <li><a href="../configuration/core.html" class="page">Fusion Core 配置</a></li>
+    <li><a href="../configuration/http.html" class="page">Fusion HTTP 配置</a></li>
+    <li><a href="../configuration/jdbc.html" class="page">Fusion JDBC 配置</a></li>
+    <li><a href="../configuration/slick.html" class="page">Fusion Slick 配置</a></li>
+    <li><a href="../configuration/mybatis.html" class="active page">Fusion Mybatis 配置</a></li>
+    <li><a href="../configuration/mongodb.html" class="page">Fusion Mongodb 配置</a></li>
+    <li><a href="../configuration/kafka.html" class="page">Fusion Kafka 配置</a></li>
   </ul></li>
 </ul>
+<nav class="md-nav md-nav--secondary">
 </nav>
 
 </nav>
 <ul style="display: none">
 <li class="md-nav__item md-version" id="project.version">
 <label class="md-nav__link" for="__version">
-<i class="md-icon" title="Version">label_outline</i> 1.0.0-alpha6
+<i class="md-icon" title="Version">label_outline</i> 1.0.0-alpha19
 </label>
 </li>
 </ul>
 </div>
 </div>
 </div>
-<div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
-<div class="md-sidebar__scrollwrap">
-<div class="md-sidebar__inner">
-<nav class="md-nav md-nav--secondary">
-<label class="md-nav__title" for="__toc">Table of contents</label>
-<ul>
-  <li><a href="../configuration/mybatis.html#fusion-mybatis" class="header">Fusion Mybatis</a>
-  <ul>
-    <li><a href="../configuration/mybatis.html#配置" class="header">配置</a></li>
-  </ul></li>
-</ul>
-</nav>
-
-</div>
-</div>
-</div>
 <div class="md-content">
 <article class="md-content__inner md-typeset">
 <div class="md-content__searchable">
-<h1><a href="#fusion-mybatis" name="fusion-mybatis" class="anchor"><span class="anchor-link"></span></a>Fusion Mybatis</h1>
-<h2><a href="#配置" name="配置" class="anchor"><span class="anchor-link"></span></a>配置</h2>
-<pre class="prettyprint"><a class="icon go-to-source" href="https://github.com/ihongka/akka-fusion/tree/master/fusion-mybatis/src/test/resources/application.conf#L13-L18" target="_blank" title="Go to snippet source"></a><code class="language-conf">fusion.mybatis {
+<h1><a href="#fusion-mybatis-配置" name="fusion-mybatis-配置" class="anchor"><span class="anchor-link"></span></a>Fusion Mybatis 配置</h1>
+<pre class="prettyprint"><a class="icon go-to-source" href="https://github.com/yangbajing/akka-fusion/tree/master/fusion-mybatis/src/test/resources/application.conf#L16-L21" target="_blank" title="Go to snippet source"></a><code class="language-conf">fusion.mybatis {
   default = {
-    jdbc-data-source = fusion.jdbc.default
+    fusion-jdbc-source = fusion.jdbc.default
     package-names = [&quot;fusion.mybatis.mapper&quot;]
+  }
+}</code></pre>
+<p><code>fusion-mybatis</code>依赖<code>fusion-jdbc</code>，需要通过<code>fusion-jdbc-source</code>配置来指定引用的<code>FusionJdbc</code>，配置如下：</p>
+<pre class="prettyprint"><a class="icon go-to-source" href="https://github.com/yangbajing/akka-fusion/tree/master/fusion-mybatis/src/test/resources/application.conf#L2-L12" target="_blank" title="Go to snippet source"></a><code class="language-conf">fusion.jdbc {
+  default {
+    poolName = &quot;hongka&quot;
+    jdbcUrl = &quot;jdbc:postgresql://localhost:55432/fusion_dev&quot;
+    username = &quot;devuser&quot;
+    password = &quot;devpass.2019&quot;
+    connectionTestQuery = &quot;select 1;&quot;
+    maximumPoolSize = 2
+    autoCommit = true
   }
 }</code></pre>
 </div>
 <div>
-<a href="https://github.com/ihongka/akka-fusion/tree/master/fusion-docs/src/main/paradox/configuration/mybatis.md" title="Edit this page" class="md-source-file md-edit">
+<a href="https://github.com/yangbajing/akka-fusion/tree/master/fusion-docs/src/main/paradox/configuration/mybatis.md" title="Edit this page" class="md-source-file md-edit">
 Edit this page
 </a>
 </div>
 <div class="print-only">
 <span class="md-source-file md-version">
-1.0.0-alpha6
+1.0.0-alpha19
 </span>
 </div>
 </article>
@@ -199,6 +226,36 @@ Edit this page
 </div>
 </main>
 <footer class="md-footer">
+<div class="md-footer-nav">
+<nav class="md-footer-nav__inner md-grid">
+<a href="../configuration/slick.html" title="Fusion Slick 配置" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+<div class="md-flex__cell md-flex__cell--shrink">
+<i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
+</div>
+<div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+<span class="md-flex__ellipsis">
+<span class="md-footer-nav__direction">
+Previous
+</span>
+Fusion Slick 配置
+</span>
+</div>
+</a>
+<a href="../configuration/mongodb.html" title="Fusion Mongodb 配置" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+<div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+<span class="md-flex__ellipsis">
+<span class="md-footer-nav__direction">
+Next
+</span>
+Fusion Mongodb 配置
+</span>
+</div>
+<div class="md-flex__cell md-flex__cell--shrink">
+<i class="md-icon md-icon--arrow-forward md-footer-nav__button"></i>
+</div>
+</a>
+</nav>
+</div>
 <div class="md-footer-meta md-typeset">
 <div class="md-footer-meta__inner md-grid">
 <div class="md-footer-copyright">

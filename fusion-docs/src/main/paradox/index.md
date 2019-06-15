@@ -37,6 +37,8 @@ Content-Length: 48
 
 * [intro](intro/index.md)
 * [http](http/index.md)
+* [slick](slick/index.md)
+* [mybatis](mybatis/index.md)
 * [jdbc](jdbc/index.md)
 * [data-mongodb](data-mongodb/index.md)
 * [data-kafka](data-kafka/index.md)

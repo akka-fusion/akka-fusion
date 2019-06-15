@@ -5,9 +5,8 @@ import java.io.PrintWriter
 import java.io.StringWriter
 import java.nio.file.Files
 import java.nio.file.Path
-import java.security.SecureRandom
-import java.util.{Map => JMap}
 import java.util.{HashMap => JHashMap}
+import java.util.{Map => JMap}
 
 import org.bouncycastle.util.encoders.Hex
 
@@ -16,12 +15,14 @@ import scala.collection.immutable
 import scala.compat.java8.FunctionConverters.asJavaBiConsumer
 
 object StringUtils {
-
   val BLACK_CHAR: Char                          = ' '
   val PRINTER_CHARS: immutable.IndexedSeq[Char] = ('0' to '9') ++ ('a' to 'z') ++ ('A' to 'Z')
-  private val HEX_CHARS: Array[Char]            = "0123456789abcdef".toCharArray
-  private val HEX_CHAR_SETS                     = Set[Char]() ++ ('0' to '9') ++ ('a' to 'f') ++ ('A' to 'F')
-  private val random                            = new SecureRandom()
+
+  val PRINTER_CHARS_EXT: IndexedSeq[Char] = PRINTER_CHARS ++
+    Vector('!', '#', '$', '%', '^', '&', '*', '(', ')', '-', '+', '=', '_', '.', '?', '<', '>')
+
+  private val HEX_CHARS: Array[Char] = "0123456789abcdef".toCharArray
+  private val HEX_CHAR_SETS          = Set[Char]() ++ ('0' to '9') ++ ('a' to 'f') ++ ('A' to 'F')
 
   def extractFirstName(msg: Any): Option[String] = msg match {
     case c: AnyRef =>
@@ -77,9 +78,30 @@ object StringUtils {
   @inline
   def isNoneBlank(s: CharSequence): Boolean = !isBlank(s)
 
-  def randomString(size: Int): String = {
+  def randomString(n: Int): String = {
     val len = PRINTER_CHARS.length
-    (0 until size).map(_ => PRINTER_CHARS(random.nextInt(len))).mkString
+    val sb  = new StringBuilder
+    var i   = 0
+    while (i < n) {
+      i += 1
+      val idx = Utils.random.nextInt(len)
+      val c   = PRINTER_CHARS.apply(idx)
+      sb.append(c)
+    }
+    sb.toString()
+  }
+
+  def randomExtString(n: Int): String = {
+    val len = PRINTER_CHARS_EXT.length
+    val sb  = new StringBuilder
+    var i   = 0
+    while (i < n) {
+      i += 1
+      val idx = Utils.random.nextInt(len)
+      val c   = PRINTER_CHARS_EXT.apply(idx)
+      sb.append(c)
+    }
+    sb.toString()
   }
 
   /**

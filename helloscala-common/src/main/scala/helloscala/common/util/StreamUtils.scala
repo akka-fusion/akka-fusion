@@ -1,5 +1,6 @@
 package helloscala.common.util
 
+import akka.Done
 import akka.stream.Materializer
 import akka.stream.scaladsl.Sink
 import akka.stream.scaladsl.Source
@@ -18,5 +19,14 @@ object StreamUtils {
 
   def publishToSeq[T](publisher: Publisher[T])(implicit mat: Materializer): Future[immutable.Seq[T]] =
     Source.fromPublisher(publisher).runWith(Sink.seq)
+
+  def publishToIgnore[T](publisher: Publisher[T])(implicit mat: Materializer): Future[Done] =
+    Source.fromPublisher(publisher).runWith(Sink.ignore)
+
+  def sourceToPublish[T](source: Source[T, _])(implicit mat: Materializer): Publisher[T] =
+    source.runWith(Sink.asPublisher(false))
+
+  def sourceToPublishMultiple[T](source: Source[T, _])(implicit mat: Materializer): Publisher[T] =
+    source.runWith(Sink.asPublisher(true))
 
 }

@@ -14,7 +14,7 @@ object GatewayComponent {
   val queues = new ConcurrentHashMap[Authority, HttpSourceQueue]()
 
   /**
-   * @param config 全局配置 [[Config]]
+   * @param config 全局配置 [[com.typesafe.config.Config]]
    * @param path "fusion.http.gateway.target-uri"
    * @return
    */

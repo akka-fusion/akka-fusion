@@ -6,21 +6,22 @@ import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.core.TreeNode
 import com.fasterxml.jackson.databind.node.ArrayNode
 import com.fasterxml.jackson.databind.node.ObjectNode
-import com.fasterxml.jackson.databind.ser.DefaultSerializerProvider
-import com.fasterxml.jackson.databind.ser.SerializerFactory
 import com.fasterxml.jackson.databind._
+import helloscala.common.exception.HSBadRequestException
 import helloscala.common.util.Utils
 
 import scala.reflect.ClassTag
 
 object Jackson {
-  val defaultObjectMapper: ObjectMapper = createObjectMapper
+  private lazy val _defaultObjectMapper = createObjectMapper
+
+  def defaultObjectMapper: ObjectMapper = _defaultObjectMapper
 
   def createObjectNode: ObjectNode = defaultObjectMapper.createObjectNode
 
   def createArrayNode: ArrayNode = defaultObjectMapper.createArrayNode
 
-  def readTree(jstr: String): JsonNode = defaultObjectMapper.readTree(jstr)
+  def readTree(text: String): JsonNode = defaultObjectMapper.readTree(text)
 
   def valueToTree(v: AnyRef): JsonNode = defaultObjectMapper.valueToTree(v)
 
@@ -37,7 +38,7 @@ object Jackson {
 
   @inline def extract[T](compare: Boolean, tree: TreeNode)(implicit ev1: ClassTag[T]): Either[Throwable, T] =
     if (compare) extract(tree)
-    else Left(new IllegalArgumentException(s"compare比较结果为false，需要类型：${ev1.runtimeClass.getName}"))
+    else Left(HSBadRequestException(s"compare比较结果为false，需要类型：${ev1.runtimeClass.getName}"))
 
 //  private val FILTER_ID_CLASS: Class[akka.protobuf.GeneratedMessage] = classOf[akka.protobuf.GeneratedMessage]
 
@@ -66,23 +67,23 @@ object Jackson {
     //                    .enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY)
   }
 
-  private class MassSerializerProvider(src: SerializerProvider, config: SerializationConfig, f: SerializerFactory)
-      extends DefaultSerializerProvider(src, config, f) {
-    def this() {
-      this(null, null, null)
-    }
-
-    def this(src: MassSerializerProvider) {
-      this(src, null, null)
-    }
-
-    override def copy: DefaultSerializerProvider = {
-      if (getClass ne classOf[MassSerializerProvider]) return super.copy
-      new MassSerializerProvider(this)
-    }
-
-    override def createInstance(config: SerializationConfig, jsf: SerializerFactory) =
-      new MassSerializerProvider(this, config, jsf)
-  }
+//  private class MassSerializerProvider(src: SerializerProvider, config: SerializationConfig, f: SerializerFactory)
+//      extends DefaultSerializerProvider(src, config, f) {
+//    def this() {
+//      this(null, null, null)
+//    }
+//
+//    def this(src: MassSerializerProvider) {
+//      this(src, null, null)
+//    }
+//
+//    override def copy: DefaultSerializerProvider = {
+//      if (getClass ne classOf[MassSerializerProvider]) return super.copy
+//      new MassSerializerProvider(this)
+//    }
+//
+//    override def createInstance(config: SerializationConfig, jsf: SerializerFactory) =
+//      new MassSerializerProvider(this, config, jsf)
+//  }
 
 }

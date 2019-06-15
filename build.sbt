@@ -2,7 +2,7 @@ import Commons._
 import Dependencies._
 import Environment._
 
-buildEnv in Global := {
+buildEnv in ThisBuild := {
   sys.props
     .get("build.env")
     .orElse(sys.env.get("BUILD_ENV"))
@@ -16,9 +16,11 @@ buildEnv in Global := {
     .getOrElse(BuildEnv.Developement)
 }
 
-scalaVersion in Global := Dependencies.versionScala
+scalaVersion in ThisBuild := Dependencies.versionScala
 
-scalafmtOnCompile in Global := true
+scalafmtOnCompile in ThisBuild := true
+
+sonarUseExternalConfig in ThisBuild := true
 
 lazy val root = Project(id = "akka-fusion", base = file("."))
   .aggregate(
@@ -26,7 +28,7 @@ lazy val root = Project(id = "akka-fusion", base = file("."))
     fusionJob,
     fusionDiscoveryServer,
     fusionDiscoveryClient,
-    fusionHttpApiGateway,
+    fusionHttpGateway,
     fusionActuator,
     fusionHttp,
     fusionOauth,
@@ -43,6 +45,7 @@ lazy val root = Project(id = "akka-fusion", base = file("."))
     helloscalaCommon)
   .settings(Publishing.noPublish: _*)
   .settings(Environment.settings: _*)
+  .settings(aggregate in sonarScan := false)
   .settings(
     addCommandAlias("fix", "all compile:scalafix test:scalafix"),
     addCommandAlias("fix", "all compile:scalafix test:scalafix"))
@@ -54,7 +57,7 @@ lazy val fusionDocs = _project("fusion-docs")
     fusionJob,
     fusionDiscoveryServer,
     fusionDiscoveryClient,
-    fusionHttpApiGateway,
+    fusionHttpGateway,
     fusionActuator,
     fusionHttp,
     fusionOauth,
@@ -92,7 +95,7 @@ lazy val fusionInjects = _project("fusion-injects")
   .dependsOn(fusionHttp, fusionDiscoveryClient, fusionTest % "test->test")
   .settings(libraryDependencies ++= Seq(_guice))
 
-lazy val fusionHttpApiGateway = _project("fusion-http-api-gateway")
+lazy val fusionHttpGateway = _project("fusion-http-gateway")
   .dependsOn(fusionHttp, fusionTest % "test->test", fusionCore)
   .settings(libraryDependencies ++= Seq())
   .settings(Publishing.noPublish)
@@ -135,11 +138,11 @@ lazy val fusionMongodb = _project("fusion-mongodb")
 
 lazy val fusionSlick = _project("fusion-slick")
   .dependsOn(fusionJdbc, fusionTest % "test->test", fusionCore)
-  .settings(libraryDependencies ++= Seq() ++ _slicks)
+  .settings(libraryDependencies ++= Seq(_slickPg % Provided) ++ _slicks)
 
 lazy val fusionMybatis = _project("fusion-mybatis")
   .dependsOn(fusionJdbc, fusionTest % "test->test", fusionCore)
-  .settings(libraryDependencies ++= Seq(_mybatis, _mysql % Test))
+  .settings(libraryDependencies ++= Seq(_mybatisPlus, _lombok % Provided, _postgresql % Test, _mysql % Test))
 
 lazy val fusionJdbc = _project("fusion-jdbc")
   .dependsOn(fusionTest % "test->test", fusionCore)
@@ -168,6 +171,7 @@ lazy val fusionCore =
       "org.scala-lang" % "scala-reflect" % scalaVersion.value,
       _osLib,
       _akkaHttpCore,
+      _logbackKafka % Provided,
       _scalameta.exclude("com.thesamet.scalapb", "scalapb-runtime_2.12"),
       "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion % "protobuf",
       _chillAkka) ++ _alpakkas)

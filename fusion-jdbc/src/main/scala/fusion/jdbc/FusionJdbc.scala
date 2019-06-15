@@ -12,9 +12,8 @@ import fusion.jdbc.constant.JdbcConstants
 import fusion.jdbc.util.JdbcUtils
 
 final private[jdbc] class JdbcComponents(val config: Config)
-    extends Components[HikariDataSource](s"${JdbcConstants.PATH_ROOT}.default") {
+    extends Components[HikariDataSource](JdbcConstants.PATH_DEFAULT) {
   override protected def componentClose(c: HikariDataSource): Unit = c.close()
-
   override protected def createComponent(id: String): HikariDataSource =
     JdbcUtils.createHikariDataSource(config.getConfig(id))
 }

@@ -8,6 +8,7 @@ import akka.actor.ExtensionId
 import akka.actor.ExtensionIdProvider
 import com.typesafe.scalalogging.StrictLogging
 import fusion.core.constant.ConfigKeys
+import fusion.core.constant.FusionConstants
 import helloscala.common.util.PidFile
 import helloscala.common.util.Utils
 
@@ -15,6 +16,11 @@ import scala.util.control.NonFatal
 
 final class FusionCore private (protected val _system: ExtendedActorSystem) extends FusionExtension with StrictLogging {
   writePidfile()
+  System.setProperty(
+    FusionConstants.NAME_PATH,
+    if (system.settings.config.hasPath(FusionConstants.NAME_PATH))
+      system.settings.config.getString(FusionConstants.NAME_PATH)
+    else FusionConstants.NAME)
 
   private def writePidfile(): Unit = {
     val config = system.settings.config

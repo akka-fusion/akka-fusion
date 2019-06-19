@@ -7,7 +7,7 @@ import akka.http.scaladsl.model.Uri.Authority
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import com.typesafe.config.Config
-import fusion.core.http.HttpSourceQueue
+import fusion.http.HttpSourceQueue
 import fusion.http.util.HttpUtils
 
 object GatewayComponent {
@@ -21,8 +21,7 @@ object GatewayComponent {
   def proxyRouteFromPath(config: Config, path: String = "fusion.http.gateway.target-uri"): Route =
     proxyRoute(Uri(config.getString(path)))
 
-  def proxyRoute(targetBaseUri: Uri): Route =
-    proxyRoute(targetBaseUri, identity)
+  def proxyRoute(targetBaseUri: Uri): Route = proxyRoute(targetBaseUri, identity)
 
   def proxyRoute(targetBaseUri: Uri, uriMapping: Uri => Uri): Route = {
     extractRequestContext { ctx =>

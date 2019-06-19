@@ -1,4 +1,4 @@
-package fusion.http.util;
+package fusion.http;
 
 import akka.Done;
 import akka.http.javadsl.marshalling.Marshaller;

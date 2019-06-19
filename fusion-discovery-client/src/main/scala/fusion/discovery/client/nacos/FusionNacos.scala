@@ -31,6 +31,10 @@ final class FusionNacos private (protected val _system: ExtendedActorSystem)
   val components = new NacosComponents(system)
   system.registerOnTermination { components.close() }
 
+  // XXX 将覆盖 Configration.fromDiscovery() 调用 Configuration.setServiceName() 设置的全局服务名
+  component.properties.serviceName.foreach(serviceName =>
+    System.setProperty(NacosConstants.DEFAULT_SERVER_NAME_PATH, serviceName))
+
   // XXX 重要，除了打印默认Naming服务状态外，同时还会触发服务自动注册（若配置为true的话）
   logger.info(component.namingService.getServerStatus)
 }

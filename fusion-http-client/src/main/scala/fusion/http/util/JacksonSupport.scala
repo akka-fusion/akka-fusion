@@ -8,6 +8,7 @@ import akka.util.ByteString
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
+import fusion.http.JacksonHelper
 import helloscala.common.jackson.Jackson
 
 import scala.reflect.ClassTag

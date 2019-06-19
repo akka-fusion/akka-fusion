@@ -2,6 +2,8 @@ package fusion.http
 
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
+import akka.http.scaladsl.model.HttpRequest
+import akka.http.scaladsl.model.HttpResponse
 import akka.http.scaladsl.server.Route
 import akka.management.scaladsl.AkkaManagement
 import akka.stream.ActorMaterializer
@@ -12,6 +14,9 @@ import helloscala.common.Configuration
 
 import scala.concurrent.Future
 
+/**
+ * 一个 Config id 起一个 HttpApplication
+ */
 class HttpApplication private (val system: ActorSystem, _routes: Route) extends AkkaHttpServer {
   override val materializer: ActorMaterializer = ActorMaterializer()(system)
   override val hlServerValue: String           = system.name
@@ -24,6 +29,9 @@ class HttpApplication private (val system: ActorSystem, _routes: Route) extends 
     }
     _routes
   }
+
+  override def handlerOption: Option[HttpRequest => Future[HttpResponse]] = None
+
   override def configuration: Configuration = _configuration
 
   /**

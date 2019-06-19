@@ -1,4 +1,4 @@
-package fusion.discovery.http
+package fusion.discovery.client
 
 import java.util.concurrent.ConcurrentHashMap
 
@@ -15,14 +15,16 @@ import akka.stream.QueueOfferResult
 import akka.stream.scaladsl.Keep
 import akka.stream.scaladsl.Sink
 import akka.stream.scaladsl.Source
-import fusion.core.http.HttpSourceQueue
-import fusion.discovery.client.FusionNamingService
+import com.typesafe.scalalogging.StrictLogging
+import fusion.http.HttpSourceQueue
+import fusion.http.util.HttpUtils
 import helloscala.common.exception.HSBadGatewayException
 import helloscala.common.exception.HSServiceUnavailableException
 import helloscala.common.util.Utils
 
 import scala.concurrent.Future
 import scala.concurrent.Promise
+import scala.reflect.ClassTag
 import scala.util.Failure
 import scala.util.Success
 
@@ -30,19 +32,21 @@ final class HttpClient private (
     val namingService: FusionNamingService,
     val materializer: ActorMaterializer,
     val httpSourceQueueBufferSize: Int = 512)
-    extends AutoCloseable {
+    extends AutoCloseable
+    with StrictLogging {
 
   private val httpSourceQueueMap              = new ConcurrentHashMap[Authority, HttpSourceQueue]()
   implicit private def system: ActorSystem    = materializer.system
   implicit private def mat: ActorMaterializer = materializer
 
-  /**
-   * 发送HTTP请求
-   *
-   * @param req HTTP请求 [[HttpRequest]]
-   * @return HTTP响应 [[HttpResponse]]
-   */
-  def request(req: HttpRequest): Future[HttpResponse] = hostRequest(req)
+  def hostRequestToObject[T](req: HttpRequest)(implicit ev1: ClassTag[T]): Future[T] = {
+    import fusion.http.util.JacksonSupport._
+    hostRequest(req).flatMap(response => HttpUtils.mapHttpResponse(response))(mat.executionContext)
+  }
+
+  def hostRequestToList[T](req: HttpRequest)(implicit ev1: ClassTag[T]): Future[List[T]] = {
+    hostRequest(req).flatMap(response => HttpUtils.mapHttpResponseList(response))(mat.executionContext)
+  }
 
   /**
    * 发送 Http 请求，使用 CachedHostConnectionPool。
@@ -68,6 +72,15 @@ final class HttpClient private (
       }(mat.executionContext)
   }
 
+  def singleRequestToObject[T](req: HttpRequest)(implicit ev1: ClassTag[T]): Future[T] = {
+    import fusion.http.util.JacksonSupport._
+    singleRequest(req).flatMap(response => HttpUtils.mapHttpResponse(response))(mat.executionContext)
+  }
+
+  def singleRequestToList[T](req: HttpRequest)(implicit ev1: ClassTag[T]): Future[List[T]] = {
+    singleRequest(req).flatMap(response => HttpUtils.mapHttpResponseList(response))(mat.executionContext)
+  }
+
   def singleRequest(req: HttpRequest): Future[HttpResponse] = Http().singleRequest(buildHttpRequest(req))
 
   def buildHttpRequest(req: HttpRequest): HttpRequest = req.withUri(buildUri(req.uri))
@@ -75,7 +88,9 @@ final class HttpClient private (
   def buildUri(uri: Uri): Uri = {
     val serviceName = uri.authority.host.address()
     val inst        = Utils.requireNonNull(namingService.selectOneHealthyInstance(serviceName), s"服务： $serviceName 不存在")
-    uri.withAuthority(inst.ip, inst.port)
+    val newUri      = uri.withAuthority(inst.ip, inst.port)
+    logger.debug(s"build uri: $uri to $newUri")
+    newUri
   }
 
   private def cachedHostConnectionPool(uri: Uri)(implicit system: ActorSystem, mat: Materializer): HttpSourceQueue = {

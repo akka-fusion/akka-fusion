@@ -213,8 +213,8 @@ case class Configuration(underlying: Config) {
 }
 
 object Configuration extends StrictLogging {
-  // #fromDiscovery
-  private val KEY = "fusion.discovery.enable"
+  private val KEY              = "fusion.discovery.enable"
+  private val SERVICE_NAME_KEY = "fusion.discovery.nacos.serviceName"
 
   private var _configuration: Configuration = Configuration()
   private val lock                          = new ReentrantReadWriteLock()
@@ -242,11 +242,13 @@ object Configuration extends StrictLogging {
     }
   }
 
+  // #fromDiscovery
   def fromDiscovery(): Configuration = {
     import scala.language.existentials
     ConfigFactory.invalidateCaches()
-    val c      = ConfigFactory.load()
-    val enable = if (c.hasPath(KEY)) c.getBoolean(KEY) || Option(System.getProperty(KEY)).exists(_.toBoolean) else false
+    val c = ConfigFactory.load()
+    setServiceName(c)
+    val enable = if (c.hasPath(KEY)) c.getBoolean(KEY) else false
     if (enable) {
       try {
         val clz = Option(Class.forName("fusion.discovery.DiscoveryUtils"))
@@ -276,6 +278,14 @@ object Configuration extends StrictLogging {
     }
   }
   // #fromDiscovery
+
+  private def setServiceName(c: Config): Unit = {
+    if (c.hasPath(SERVICE_NAME_KEY)) {
+      val serviceName = c.getString(SERVICE_NAME_KEY)
+      logger.info(s"设置 serviceName: $serviceName")
+      System.setProperty(SERVICE_NAME_KEY, serviceName)
+    }
+  }
 
   def apply(): Configuration = Configuration(ConfigFactory.load())
 

@@ -26,11 +26,13 @@ lazy val root = Project(id = "akka-fusion", base = file("."))
   .aggregate(
     fusionInjects,
     fusionJob,
+    fusionLog,
     fusionDiscoveryServer,
     fusionDiscoveryClient,
     fusionHttpGateway,
     fusionActuator,
     fusionHttp,
+    fusionHttpClient,
     fusionOauth,
     fusionNeo4j,
     fusionKafka,
@@ -55,11 +57,13 @@ lazy val fusionDocs = _project("fusion-docs")
   .dependsOn(
     fusionInjects,
     fusionJob,
+    fusionLog,
     fusionDiscoveryServer,
     fusionDiscoveryClient,
     fusionHttpGateway,
     fusionActuator,
     fusionHttp,
+    fusionHttpClient,
     fusionOauth,
     fusionNeo4j,
     fusionKafka,
@@ -96,7 +100,7 @@ lazy val fusionInjects = _project("fusion-injects")
   .settings(libraryDependencies ++= Seq(_guice))
 
 lazy val fusionHttpGateway = _project("fusion-http-gateway")
-  .dependsOn(fusionHttp, fusionTest % "test->test", fusionCore)
+  .dependsOn(fusionHttp, fusionDiscoveryClient, fusionTest % "test->test", fusionCore)
   .settings(libraryDependencies ++= Seq())
   .settings(Publishing.noPublish)
 
@@ -106,8 +110,8 @@ lazy val fusionDiscoveryServer = _project("fusion-discovery-server")
   .settings(Publishing.noPublish)
 
 lazy val fusionDiscoveryClient = _project("fusion-discovery-client")
-  .dependsOn(fusionTest % "test->test", fusionCore)
-  .settings(libraryDependencies ++= Seq(_nacosClient) ++ _akkaHttps)
+  .dependsOn(fusionHttpClient, fusionTest % "test->test", fusionCore)
+  .settings(libraryDependencies ++= Seq(_akkaDiscovery, _nacosClient) ++ _akkaHttps)
 
 lazy val fusionJob =
   _project("fusion-job").dependsOn(fusionTest % "test->test", fusionCore).settings(libraryDependencies ++= Seq(_quartz))
@@ -116,13 +120,25 @@ lazy val fusionActuator = _project("fusion-actuator")
   .dependsOn(fusionTest % "test->test", fusionCore)
   .settings(libraryDependencies ++= Seq(_akkaManagement) ++ _akkaHttps)
 
-lazy val fusionHttp = _project("fusion-http")
-  .dependsOn(fusionTest % "test->test", fusionCore)
-  .settings(libraryDependencies ++= Seq(_akkaManagement) ++ _akkaHttps)
-
 lazy val fusionOauth = _project("fusion-oauth")
-  .dependsOn(fusionTest % "test->test", fusionCore)
+  .dependsOn(fusionHttpClient, fusionTest % "test->test", fusionCore)
   .settings(mainClass in Compile := Some("fusion.oauth.fusion.OauthMain"), libraryDependencies ++= Seq(_jwt))
+
+lazy val fusionMongodb = _project("fusion-mongodb")
+  .dependsOn(fusionHttpClient, fusionTest % "test->test", fusionCore)
+  .settings(libraryDependencies ++= Seq() ++ _alpakkaMongodb)
+
+lazy val fusionHttp = _project("fusion-http")
+  .dependsOn(fusionHttpClient, fusionTest % "test->test", fusionCore)
+  .settings(libraryDependencies ++= Seq(_akkaManagement))
+
+lazy val fusionHttpClient = _project("fusion-http-client")
+  .dependsOn(fusionTest % "test->test", fusionCore)
+  .settings(libraryDependencies ++= _akkaHttps)
+
+lazy val fusionLog = _project("fusion-log")
+  .dependsOn(fusionTest % "test->test", fusionCore)
+  .settings(libraryDependencies ++= Seq(_kafkaClients, _logbackKafka))
 
 lazy val fusionKafka = _project("fusion-kafka")
   .dependsOn(fusionTest % "test->test", fusionCore)
@@ -131,10 +147,6 @@ lazy val fusionKafka = _project("fusion-kafka")
 lazy val fusionNeo4j = _project("fusion-neo4j")
   .dependsOn(fusionTest % "test->test", fusionCore)
   .settings(libraryDependencies ++= Seq(_neotypes))
-
-lazy val fusionMongodb = _project("fusion-mongodb")
-  .dependsOn(fusionHttp, fusionTest % "test->test", fusionCore)
-  .settings(libraryDependencies ++= Seq() ++ _alpakkaMongodb)
 
 lazy val fusionSlick = _project("fusion-slick")
   .dependsOn(fusionJdbc, fusionTest % "test->test", fusionCore)
@@ -170,8 +182,7 @@ lazy val fusionCore =
     .settings(libraryDependencies ++= Seq(
       "org.scala-lang" % "scala-reflect" % scalaVersion.value,
       _osLib,
-      _akkaHttpCore,
-      _logbackKafka % Provided,
+      _akkaHttp,
       _scalameta.exclude("com.thesamet.scalapb", "scalapb-runtime_2.12"),
       "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion % "protobuf",
       _chillAkka) ++ _alpakkas)

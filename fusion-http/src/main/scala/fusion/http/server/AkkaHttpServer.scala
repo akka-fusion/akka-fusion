@@ -11,6 +11,7 @@ import akka.http.scaladsl.model.HttpRequest
 import akka.http.scaladsl.model.HttpResponse
 import akka.http.scaladsl.server.Directives.handleExceptions
 import akka.http.scaladsl.server.Directives.handleRejections
+import akka.http.scaladsl.server.Directives
 import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.settings.ServerSettings
 import akka.http.scaladsl.ConnectionContext
@@ -45,6 +46,8 @@ trait AkkaHttpServer extends BaseExceptionPF with BaseRejectionBuilder with Stri
   def configuration: Configuration
 
   def routes: Route
+
+  def handlerOption: Option[HttpRequest => Future[HttpResponse]]
 
   def close(): Unit = {}
 
@@ -113,11 +116,8 @@ trait AkkaHttpServer extends BaseExceptionPF with BaseRejectionBuilder with Stri
     var hcc: HttpsConnectionContext = null
     try {
       val password = configuration.getString("ssl-config.password").toCharArray
-      //    val password = "abcdef".toCharArray // do not store passwords in code, read them from somewhere safe!
-
-      val ks = KeyStore.getInstance("PKCS12")
-      val keystore =
-        getClass.getClassLoader.getResourceAsStream("ssl-keys/server.p12")
+      val ks       = KeyStore.getInstance("PKCS12")
+      val keystore = getClass.getClassLoader.getResourceAsStream("ssl-keys/server.p12")
 
       require(keystore != null, "Keystore required!")
       ks.load(keystore, password)
@@ -173,11 +173,17 @@ trait AkkaHttpServer extends BaseExceptionPF with BaseRejectionBuilder with Stri
     implicit val _mat: ActorMaterializer                    = materializer
     implicit val executionContext: ExecutionContextExecutor = system.dispatcher
 
-    val flow: Flow[HttpRequest, HttpResponse, Any] =
+    val flow: Route =
       (handleRejections(rejectionHandler) &
         handleExceptions(exceptionHandler)) {
         routes
       }
+
+    val flowHandler = handlerOption match {
+      case Some(handler) => Route.asyncHandler(flow)
+      case None          => flow
+    }
+
     val handler = flow.map(handleMapResponse)
 
     bindingFuture = Http().bindAndHandle(handler, interface = host, port = port, settings = ServerSettings(system))

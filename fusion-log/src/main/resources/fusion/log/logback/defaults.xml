@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<included>
+    <conversionRule conversionWord="fusionServerIp" converterClass="fusion.log.logback.LogIpConverter"/>
+    <conversionRule conversionWord="fusionServerPort" converterClass="fusion.log.logback.LogPortConverter"/>
+    <conversionRule conversionWord="fusionServerHostName" converterClass="fusion.log.logback.LogHostNameConverter"/>
+    <conversionRule conversionWord="fusionServiceName" converterClass="fusion.log.logback.LogServiceNameConverter"/>
+
+    <logger name="org.mybatis" level="DEBUG"/>
+    <logger name="org.apache.ibatis" level="DEBUG"/>
+    <logger name="com.baomidou" level="DEBUG"/>
+    <logger name="cn.ihongka" level="TRACE"/>
+    <logger name="ch.qos" level="WARN"/>
+    <logger name="slick.jdbc.JdbcBackend.statement" level="DEBUG"/>
+    <logger name="slick.jdbc.JdbcBackend.benchmark" level="DEBUG"/>
+    <logger name="org.mongodb.driver.protocol.command" level="DEBUG"/>
+    <logger name="net.schmizz.sshj" level="WARN"/>
+    <logger name="com.zaxxer" level="WARN"/>
+    <logger name="io.getquill" level="WARN"/>
+    <logger name="hongka" level="DEBUG"/>
+    <logger name="fusion" level="DEBUG"/>
+    <logger name="helloscala" level="DEBUG"/>
+
+</included>

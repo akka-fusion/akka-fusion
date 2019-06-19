@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<included>
+    <include resource="fusion/log/logback/defaults.xml"/>
+    <include resource="fusion/log/logback/console-appender.xml"/>
+    <include resource="fusion/log/logback/file-appender.xml"/>
+</included>

@@ -5,10 +5,10 @@ import akka.stream.ActorMaterializer
 import com.typesafe.scalalogging.StrictLogging
 import fusion.discovery.client.FusionConfigService
 import fusion.discovery.client.FusionNamingService
-import fusion.discovery.http.HttpClient
+import fusion.discovery.client.HttpClient
 import fusion.discovery.model.DiscoveryInstance
 
-class NacosDiscovery(properties: NacosDiscoveryProperties, context: ActorRefFactory)
+class NacosDiscovery(val properties: NacosDiscoveryProperties, context: ActorRefFactory)
     extends AutoCloseable
     with StrictLogging {
   private var currentInstances: List[DiscoveryInstance] = Nil

@@ -8,13 +8,13 @@ import akka.http.scaladsl.Http
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.unmarshalling.FromEntityUnmarshaller
 import akka.http.scaladsl.unmarshalling.Unmarshal
+import akka.stream.scaladsl.Keep
+import akka.stream.scaladsl.Sink
+import akka.stream.scaladsl.Source
 import akka.stream.ActorMaterializer
 import akka.stream.Materializer
 import akka.stream.OverflowStrategy
 import akka.stream.QueueOfferResult
-import akka.stream.scaladsl.Keep
-import akka.stream.scaladsl.Sink
-import akka.stream.scaladsl.Source
 import akka.util.ByteString
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.ArrayNode
@@ -23,26 +23,25 @@ import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
 import com.typesafe.scalalogging.StrictLogging
 import fusion.core.constant.ConfigKeys
-import fusion.core.http.HttpSourceQueue
+import fusion.http.HttpSourceQueue
 import fusion.http.exception.HttpException
 import helloscala.common.ErrCodes
 import helloscala.common.exception.HSException
 import helloscala.common.jackson.Jackson
 import helloscala.common.util.StringUtils
 
-import scala.collection.JavaConverters._
 import scala.collection.immutable
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import scala.concurrent.Promise
-import scala.concurrent.duration._
 import scala.reflect.ClassTag
 import scala.util.Failure
 import scala.util.Success
+import scala.collection.JavaConverters._
+import scala.concurrent.duration._
 
 object HttpUtils extends StrictLogging {
-
   val AKKA_HTTP_ROUTES_DISPATCHER                            = "akka-http-routes-dispatcher"
   private[util] var customMediaTypes: Map[String, MediaType] = getDefaultMediaTypes(ConfigFactory.load())
 
@@ -334,11 +333,11 @@ object HttpUtils extends StrictLogging {
   /**
    * 发送 Http 请求
    *
-   * @param method 请求方法类型
-   * @param uri 请求地址
-   * @param params 请求URL查询参数
-   * @param data 请求数据（将备序列化成JSON）
-   * @param headers 请求头
+   * @param method   请求方法类型
+   * @param uri      请求地址
+   * @param params   请求URL查询参数
+   * @param data     请求数据（将备序列化成JSON）
+   * @param headers  请求头
    * @param protocol HTTP协议版本
    * @return HttpResponse
    */
@@ -362,7 +361,7 @@ object HttpUtils extends StrictLogging {
    * 发送 Http 请求
    *
    * @param request HttpRequest
-   * @param mat ActorMaterializer
+   * @param mat     ActorMaterializer
    * @return
    */
   def singleRequest(request: HttpRequest)(implicit mat: ActorMaterializer): Future[HttpResponse] =

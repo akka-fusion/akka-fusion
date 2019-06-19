@@ -1,5 +1,7 @@
 package fusion.http
 
+import java.util.concurrent.TimeUnit
+
 import akka.actor.ActorSystem
 import akka.http.scaladsl.model.HttpMethods
 import akka.http.scaladsl.model.StatusCodes
@@ -43,7 +45,7 @@ class HttpApplicationTest extends HttpApplicationTestSuite {
 
   override def afterAll(): Unit = {
     super.afterAll()
-//    TimeUnit.MINUTES.sleep(10)
+    TimeUnit.MINUTES.sleep(120)
   }
 
 }

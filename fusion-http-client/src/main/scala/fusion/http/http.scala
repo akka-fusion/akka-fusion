@@ -1,4 +1,4 @@
-package fusion.core
+package fusion
 
 import akka.http.scaladsl.model.HttpRequest
 import akka.http.scaladsl.model.HttpResponse

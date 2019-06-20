@@ -189,7 +189,7 @@ ihongka/akka-fusion
 <ul style="display: none">
 <li class="md-nav__item md-version" id="project.version">
 <label class="md-nav__link" for="__version">
-<i class="md-icon" title="Version">label_outline</i> 1.0.0-alpha19
+<i class="md-icon" title="Version">label_outline</i> 1.0.0-alpha21
 </label>
 </li>
 </ul>
@@ -217,12 +217,12 @@ ihongka/akka-fusion
 <article class="md-content__inner md-typeset">
 <div class="md-content__searchable">
 <h1><a href="#起步" name="起步" class="anchor"><span class="anchor-link"></span></a>起步</h1>
-<h2><a href="#依赖" name="依赖" class="anchor"><span class="anchor-link"></span></a>依赖</h2><dl class="dependency"><dt>sbt</dt><dd><pre class="prettyprint"><code class="language-scala">libraryDependencies += "com.helloscala.fusion" %% "fusion-mybatis" % "1.0.0-alpha19"</code></pre></dd><dt>Maven</dt><dd><pre class="prettyprint"><code class="language-xml">&lt;dependency&gt;
+<h2><a href="#依赖" name="依赖" class="anchor"><span class="anchor-link"></span></a>依赖</h2><dl class="dependency"><dt>sbt</dt><dd><pre class="prettyprint"><code class="language-scala">libraryDependencies += "com.helloscala.fusion" %% "fusion-mybatis" % "1.0.0-alpha21"</code></pre></dd><dt>Maven</dt><dd><pre class="prettyprint"><code class="language-xml">&lt;dependency&gt;
   &lt;groupId&gt;com.helloscala.fusion&lt;/groupId&gt;
   &lt;artifactId&gt;fusion-mybatis_2.12&lt;/artifactId&gt;
-  &lt;version&gt;1.0.0-alpha19&lt;/version&gt;
+  &lt;version&gt;1.0.0-alpha21&lt;/version&gt;
 &lt;/dependency&gt;</code></pre></dd><dt>Gradle</dt><dd><pre class="prettyprint"><code class="language-gradle">dependencies {
-  compile group: 'com.helloscala.fusion', name: 'fusion-mybatis_2.12', version: '1.0.0-alpha19'
+  compile group: 'com.helloscala.fusion', name: 'fusion-mybatis_2.12', version: '1.0.0-alpha21'
 }</code></pre></dd></dl>
 <h2><a href="#示例" name="示例" class="anchor"><span class="anchor-link"></span></a>示例</h2>
 <p><code>FusionMyBatisTest</code> 演示了一个典型的 MyBatis 数据库操作。</p>
@@ -265,7 +265,7 @@ ihongka/akka-fusion
   }
 
 }</code></pre>
-<p><code>FileMapper</code>继续了 <code>BaseMapper[T]</code> 接口，它是MyBatis-plus对MyBatis提供的增强：</p>
+<p><code>FileMapper</code>实现了 <code>BaseMapper[T]</code> 接口，它是MyBatis-plus对MyBatis提供的增强：</p>
 <pre class="prettyprint"><code class="language-scala">trait FileMapper extends BaseMapper[CFile] {
   def list(size: Int): java.util.List[CFile]
 }
@@ -305,7 +305,7 @@ Edit this page
 </div>
 <div class="print-only">
 <span class="md-source-file md-version">
-1.0.0-alpha19
+1.0.0-alpha21
 </span>
 </div>
 </article>

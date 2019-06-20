@@ -5,6 +5,7 @@ import java.nio.charset.UnsupportedCharsetException
 
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
+import akka.http.scaladsl.model.Uri.Authority
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.unmarshalling.FromEntityUnmarshaller
 import akka.http.scaladsl.unmarshalling.Unmarshal
@@ -262,7 +263,7 @@ object HttpUtils extends StrictLogging {
     }
   }
 
-  private def tupleKeyToContentType(charset: String, tupleKey: (String, String)) = {
+  private def tupleKeyToContentType(charset: String, tupleKey: (String, String)): Option[ContentType] = {
     val mediaType = MediaTypes.getForKey(tupleKey).getOrElse(MediaTypes.`application/octet-stream`)
     val httpContentType: ContentType = mediaType match {
       case woc: MediaType.WithOpenCharset =>
@@ -275,14 +276,13 @@ object HttpUtils extends StrictLogging {
     Option(httpContentType)
   }
 
-  def cachedHostConnectionPool(url: String)(implicit system: ActorSystem, mat: Materializer): HttpSourceQueue =
-    cachedHostConnectionPool(Uri(url))
-
-  def cachedHostConnectionPool(uri: Uri)(implicit system: ActorSystem, mat: Materializer): HttpSourceQueue = {
+  def cachedHostConnectionPool(uri: Uri, bufferSize: Int)(
+      implicit system: ActorSystem,
+      mat: Materializer): HttpSourceQueue = {
     uri.scheme match {
-      case "http"  => cachedHostConnectionPool(uri.authority.host.address(), uri.authority.port)
-      case "https" => cachedHostConnectionPoolHttps(uri.authority.host.address(), uri.authority.port)
-      case _       => throw new IllegalArgumentException(s"URI: $uri 不是有效的 http 或 https 协议")
+      case "http"  => cachedHostConnectionPool(uri.authority.host.address(), uri.authority.port, bufferSize)
+      case "https" => cachedHostConnectionPoolHttps(uri.authority.host.address(), uri.authority.port, bufferSize)
+      case _       => throw new IllegalArgumentException(s"URI: $uri 不是有效的 http 或 https 地址")
     }
   }
 
@@ -294,12 +294,12 @@ object HttpUtils extends StrictLogging {
    * @param mat  ActorMaterializer
    * @return
    */
-  def cachedHostConnectionPool(host: String, port: Int)(
+  def cachedHostConnectionPool(host: String, port: Int, bufferSize: Int)(
       implicit system: ActorSystem,
       mat: Materializer): HttpSourceQueue = {
     val poolClientFlow = Http().cachedHostConnectionPool[Promise[HttpResponse]](host, port)
     Source
-      .queue[(HttpRequest, Promise[HttpResponse])](512, OverflowStrategy.dropNew)
+      .queue[(HttpRequest, Promise[HttpResponse])](bufferSize, OverflowStrategy.dropNew)
       .via(poolClientFlow)
       .toMat(Sink.foreach({
         case (Success(resp), p) => p.success(resp)
@@ -316,18 +316,33 @@ object HttpUtils extends StrictLogging {
    * @param mat  ActorMaterializer
    * @return
    */
-  def cachedHostConnectionPoolHttps(host: String, port: Int = 80)(
+  def cachedHostConnectionPoolHttps(host: String, port: Int, bufferSize: Int)(
       implicit system: ActorSystem,
       mat: Materializer): HttpSourceQueue = {
     val poolClientFlow = Http().cachedHostConnectionPoolHttps[Promise[HttpResponse]](host, port)
     Source
-      .queue[(HttpRequest, Promise[HttpResponse])](512, OverflowStrategy.dropNew)
+      .queue[(HttpRequest, Promise[HttpResponse])](bufferSize, OverflowStrategy.dropNew)
       .via(poolClientFlow)
       .toMat(Sink.foreach({
         case (Success(resp), p) => p.success(resp)
         case (Failure(e), p)    => p.failure(e)
       }))(Keep.left)
       .run()
+  }
+
+  def buildRequest(
+      method: HttpMethod,
+      uri: Uri,
+      params: Seq[(String, String)] = Nil,
+      data: AnyRef = null,
+      headers: immutable.Seq[HttpHeader] = Nil,
+      protocol: HttpProtocol = HttpProtocols.`HTTP/1.1`): HttpRequest = {
+    val entity = data match {
+      case null                    => HttpEntity.Empty
+      case entity: UniversalEntity => entity
+      case _                       => HttpEntity(ContentTypes.`application/json`, Jackson.stringify(data))
+    }
+    HttpRequest(method, uri.withQuery(Uri.Query(uri.query() ++ params: _*)), headers, entity, protocol)
   }
 
   /**
@@ -348,12 +363,7 @@ object HttpUtils extends StrictLogging {
       data: AnyRef = null,
       headers: immutable.Seq[HttpHeader] = Nil,
       protocol: HttpProtocol = HttpProtocols.`HTTP/1.1`)(implicit mat: ActorMaterializer): Future[HttpResponse] = {
-    val request =
-      HttpRequest(method, uri.withQuery(Uri.Query(uri.query() ++ params: _*)), headers, entity = data match {
-        case null                    => HttpEntity.Empty
-        case entity: UniversalEntity => entity
-        case _                       => HttpEntity(ContentTypes.`application/json`, Jackson.stringify(data))
-      }, protocol = protocol)
+    val request = buildRequest(method, uri, params, data, headers, protocol)
     singleRequest(request)
   }
 

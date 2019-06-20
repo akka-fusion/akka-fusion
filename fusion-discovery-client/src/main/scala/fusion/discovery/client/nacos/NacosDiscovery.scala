@@ -5,7 +5,7 @@ import akka.stream.ActorMaterializer
 import com.typesafe.scalalogging.StrictLogging
 import fusion.discovery.client.FusionConfigService
 import fusion.discovery.client.FusionNamingService
-import fusion.discovery.client.HttpClient
+import fusion.discovery.client.NacosHttpClient
 import fusion.discovery.model.DiscoveryInstance
 
 class NacosDiscovery(val properties: NacosDiscoveryProperties, context: ActorRefFactory)
@@ -14,8 +14,7 @@ class NacosDiscovery(val properties: NacosDiscoveryProperties, context: ActorRef
   private var currentInstances: List[DiscoveryInstance] = Nil
   val configService: FusionConfigService                = NacosServiceFactory.configService(properties)
   val namingService: FusionNamingService                = NacosServiceFactory.namingService(properties)
-  val httpClient: HttpClient                            = HttpClient(namingService, ActorMaterializer()(context))
-  //    NacosServiceFactory.namingService(NacosPropertiesUtils.namingProps(DiscoveryUtils.methodConfPath))
+  val httpClient: NacosHttpClient                       = NacosHttpClient(namingService, ActorMaterializer()(context))
 
   logger.info(s"自动注册服务到Nacos: ${properties.isAutoRegisterInstance}")
   if (properties.isAutoRegisterInstance) {
@@ -24,6 +23,7 @@ class NacosDiscovery(val properties: NacosDiscoveryProperties, context: ActorRef
   }
 
   override def close(): Unit = {
+    httpClient.close()
     currentInstances.foreach(inst => namingService.deregisterInstance(inst))
   }
 

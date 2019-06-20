@@ -8,6 +8,8 @@ import org.apache.ibatis.session.SqlSession
 import org.apache.ibatis.session.SqlSessionFactory
 import org.apache.ibatis.session.TransactionIsolationLevel
 
+import scala.reflect.ClassTag
+
 final class FusionSqlSessionFactory(underlying: SqlSessionFactory) extends SqlSessionFactory {
   override def openSession(): SqlSession = underlying.openSession()
 
@@ -30,7 +32,7 @@ final class FusionSqlSessionFactory(underlying: SqlSessionFactory) extends SqlSe
 
   override def getConfiguration: Configuration = underlying.getConfiguration
 
-  def usingReadOnly[T](func: SqlSession => T): T = {
+  def session[T](func: SqlSession => T): T = {
     val session = openSession()
     try {
       func(session)
@@ -39,7 +41,16 @@ final class FusionSqlSessionFactory(underlying: SqlSessionFactory) extends SqlSe
     }
   }
 
-  def using[T](func: SqlSession => T): T = {
+  def mapperClassTransactional[M, R](mapperClass: Class[M], func: M => R): R = {
+    transactional(session => func(session.getMapper(mapperClass)))
+  }
+
+  def mapperTransactional[M, R](func: M => R)(implicit mapperClassTag: ClassTag[M]): R = {
+    val mc: Class[M] = mapperClassTag.runtimeClass.asInstanceOf[Class[M]]
+    mapperClassTransactional(mc, func)
+  }
+
+  def transactional[T](func: SqlSession => T): T = {
     val session = openSession()
     try {
       val result = func(session)
@@ -54,7 +65,7 @@ final class FusionSqlSessionFactory(underlying: SqlSessionFactory) extends SqlSe
     }
   }
 
-  def usingAutoCommit[T](func: SqlSession => T): T = {
+  def transactionalAuto[T](func: SqlSession => T): T = {
     val session = openSession(true)
     try {
       func(session)

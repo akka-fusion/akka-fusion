@@ -27,9 +27,20 @@ import scala.util.control.NonFatal
  * @param underlying 原始Config, @see https://github.com/typesafehub/config.
  */
 case class Configuration(underlying: Config) {
-
   // TODO 基于 etcd 或 consul 进行重设
   //  underlying.withFallback()
+
+  def computeIfMap[T, R](path: String, func: T => R)(implicit o: ConfigLoader[Option[T]]): Option[R] = {
+    get[Option[T]](path).map(v => func(v))
+  }
+
+  def computeIfFlatMap[T, R](path: String, func: T => Option[R])(implicit o: ConfigLoader[Option[T]]): Option[R] = {
+    get[Option[T]](path).flatMap(v => func(v))
+  }
+
+  def computeIfForeach[T](path: String, func: T => Unit)(implicit o: ConfigLoader[Option[T]]): Unit = {
+    get[Option[T]](path).foreach(v => func(v))
+  }
 
   /**
    * 合并两个HlConfiguration

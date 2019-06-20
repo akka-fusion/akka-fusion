@@ -22,7 +22,7 @@ class Routes extends AbstractRoute with StrictLogging {
 
 class HttpApplicationTest extends HttpApplicationTestSuite {
   implicit def ec             = system.dispatcher
-  implicit lazy val httpQueue = HttpUtils.cachedHostConnectionPool(s"http://$managementHost:$managementPort")
+  implicit lazy val httpQueue = HttpUtils.cachedHostConnectionPool(s"http://$managementHost:$managementPort", 512)
 
   test("hello") {
     val response = HttpUtils.singleRequest(HttpMethods.GET, s"http://$serverHost:$serverPort/hello").futureValue

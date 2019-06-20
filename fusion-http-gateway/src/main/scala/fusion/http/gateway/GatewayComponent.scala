@@ -23,12 +23,16 @@ object GatewayComponent {
 
   def proxyRoute(targetBaseUri: Uri): Route = proxyRoute(targetBaseUri, identity)
 
-  def proxyRoute(targetBaseUri: Uri, uriMapping: Uri => Uri): Route = {
+  def proxyRoute(targetBaseUri: Uri, uriMapping: Uri => Uri): Route = proxyRoute(targetBaseUri, 512, uriMapping)
+
+  def proxyRoute(targetBaseUri: Uri, bufferSize: Int, uriMapping: Uri => Uri): Route = {
     extractRequestContext { ctx =>
       extractActorSystem { implicit system =>
         import ctx.materializer
         val queue =
-          queues.computeIfAbsent(targetBaseUri.authority, _ => HttpUtils.cachedHostConnectionPool(targetBaseUri))
+          queues.computeIfAbsent(
+            targetBaseUri.authority,
+            _ => HttpUtils.cachedHostConnectionPool(targetBaseUri, bufferSize))
         val uri       = ctx.request.uri.copy(scheme = targetBaseUri.scheme, authority = targetBaseUri.authority)
         val request   = ctx.request.copy(uri = uriMapping(uri))
         val responseF = HttpUtils.hostRequest(request)(queue, ctx.materializer.executionContext)

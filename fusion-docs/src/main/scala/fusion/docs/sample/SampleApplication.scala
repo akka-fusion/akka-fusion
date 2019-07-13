@@ -2,9 +2,8 @@ package fusion.docs.sample
 
 import akka.actor.ActorSystem
 import akka.http.scaladsl.server.Route
-import fusion.http.FusionHttp
+import fusion.http.FusionHttpServer
 import fusion.http.server.AbstractRoute
-import fusion.starter.http.FusionServer
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
@@ -17,12 +16,9 @@ object SampleApplication {
     implicit val ec     = system.dispatcher
     val sampleService   = new SampleService()
     val routes          = new SampleRoute(sampleService)
-    FusionHttp(system).startAwait(routes.route)
+    FusionHttpServer(system).component.startRouteSync(routes.route)
   }
 }
-
-// Server
-class SampleServer(val routes: SampleRoute) extends FusionServer
 
 // Controller
 class SampleRoute(sampleService: SampleService) extends AbstractRoute {

@@ -9,11 +9,15 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.Objects
 import java.util.Properties
+import java.util.UUID
 
+import com.fasterxml.uuid.EthernetAddress
+import com.fasterxml.uuid.Generators
 import com.typesafe.scalalogging.StrictLogging
 import helloscala.common.exception.HSException
 import helloscala.common.exception.HSInternalErrorException
 
+import scala.annotation.tailrec
 import scala.util.Failure
 import scala.util.Success
 import scala.util.Try
@@ -21,8 +25,21 @@ import scala.util.control.NonFatal
 import scala.util.matching.Regex
 
 object Utils extends StrictLogging {
-  val REGEX_DIGIT: Regex   = """[\d,]+""".r
-  val random: SecureRandom = new SecureRandom()
+  val REGEX_DIGIT: Regex            = """[\d,]+""".r
+  val random: SecureRandom          = new SecureRandom()
+  private lazy val _timeBasedUuid   = Generators.timeBasedGenerator(EthernetAddress.fromInterface())
+  private lazy val _randomBasedUuid = Generators.randomBasedGenerator(new SecureRandom())
+
+  @tailrec
+  final def getValueFromFunctions[T](functions: Iterable[() => T], value: T, valueStopFunc: T => Boolean): T = {
+    if (valueStopFunc(value)) value
+    else if (functions.isEmpty) value
+    else getValueFromFunctions(functions.tail, functions.head(), valueStopFunc)
+  }
+
+  def timeBasedUuid(): UUID = _timeBasedUuid.generate()
+
+  def randomBasedUuid(): UUID = _randomBasedUuid.generate()
 
   def requireNonNull[T](v: T): T = requireNonNull(v, "requirement not null.")
 
@@ -171,16 +188,16 @@ object Utils extends StrictLogging {
   }
 
   def boxed(v: Any): Object = v match {
-    case i: Int      => Int.box(i)
-    case l: Long     => Long.box(l)
-    case d: Double   => Double.box(d)
-    case s: Short    => Short.box(s)
-    case f: Float    => Float.box(f)
-    case c: Char     => Float.box(c)
-    case b: Boolean  => Boolean.box(b)
-    case b: Byte     => Byte.box(b)
-    case obj: AnyRef => obj
-    case o           => o.asInstanceOf[Object]
+    case o: AnyRef  => o
+    case i: Int     => Int.box(i)
+    case l: Long    => Long.box(l)
+    case d: Double  => Double.box(d)
+    case s: Short   => Short.box(s)
+    case f: Float   => Float.box(f)
+    case c: Char    => Float.box(c)
+    case b: Boolean => Boolean.box(b)
+    case b: Byte    => Byte.box(b)
+    case o          => o.asInstanceOf[Object]
   }
 
   def sqlBoxed(v: Any): Object = v match {

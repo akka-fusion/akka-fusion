@@ -44,8 +44,14 @@ object JdbcUtils extends StrictLogging {
       } else {
         val candidates: java.util.Set[Method] = new java.util.HashSet[Method](1)
         val methods: scala.Array[Method]      = clazz.getMethods
-        for (method <- methods) { if (methodName == method.getName) { candidates.add(method) } }
-        if (candidates.size == 1) { return candidates.iterator.next }
+        for (method <- methods) {
+          if (methodName == method.getName) {
+            candidates.add(method)
+          }
+        }
+        if (candidates.size == 1) {
+          return candidates.iterator.next
+        }
         null
       }
     }
@@ -265,42 +271,50 @@ object JdbcUtils extends StrictLogging {
     new PreparedStatementActionImpl(args, func)
 
   def preparedStatementActionUseUpdate(args: Iterable[Any]): PreparedStatementAction[Int] =
-    new PreparedStatementActionImpl(args, pstmt => {
-      setStatementParameters(pstmt, args)
-      pstmt.executeUpdate()
+    new PreparedStatementActionImpl(args, new PreparedStatementAction[Int] {
+      override def apply(pstmt: PreparedStatement): Int = {
+        setStatementParameters(pstmt, args)
+        pstmt.executeUpdate()
+      }
     })
 
   def preparedStatementActionUseUpdate(
       args: Map[String, Any],
       paramIndex: Map[String, Int]): PreparedStatementAction[Int] =
-    new PreparedStatementActionImpl(args, pstmt => {
-      for ((param, index) <- paramIndex) {
-        setParameter(pstmt, index, args(param))
+    new PreparedStatementActionImpl(args, new PreparedStatementAction[Int] {
+      override def apply(pstmt: PreparedStatement): Int = {
+        for ((param, index) <- paramIndex) {
+          setParameter(pstmt, index, args(param))
+        }
+        pstmt.executeUpdate()
       }
-      pstmt.executeUpdate()
     })
 
   def preparedStatementActionUseBatchUpdate(
       argsList: Iterable[Iterable[Any]]): PreparedStatementAction[scala.Array[Int]] =
-    new PreparedStatementActionImpl(argsList, pstmt => {
-      for (args <- argsList) {
-        setStatementParameters(pstmt, args)
-        pstmt.addBatch()
+    new PreparedStatementActionImpl(argsList, new PreparedStatementAction[scala.Array[Int]] {
+      override def apply(pstmt: PreparedStatement): scala.Array[Int] = {
+        for (args <- argsList) {
+          setStatementParameters(pstmt, args)
+          pstmt.addBatch()
+        }
+        pstmt.executeBatch()
       }
-      pstmt.executeBatch()
     })
 
   def preparedStatementActionUseBatchUpdate(
       argsList: Iterable[Map[String, Any]],
       paramIndex: Map[String, Int]): PreparedStatementAction[scala.Array[Int]] =
-    new PreparedStatementActionImpl(argsList, pstmt => {
-      for (args <- argsList) {
-        for ((param, index) <- paramIndex) {
-          setParameter(pstmt, index, args(param))
+    new PreparedStatementActionImpl(argsList, new PreparedStatementAction[scala.Array[Int]] {
+      override def apply(pstmt: PreparedStatement): scala.Array[Int] = {
+        for (args <- argsList) {
+          for ((param, index) <- paramIndex) {
+            setParameter(pstmt, index, args(param))
+          }
+          pstmt.addBatch()
         }
-        pstmt.addBatch()
+        pstmt.executeBatch()
       }
-      pstmt.executeBatch()
     })
 
   def setStatementParameters(
@@ -342,7 +356,7 @@ object JdbcUtils extends StrictLogging {
       val field = fields(i)
       val anns  = field.getDeclaredAnnotations
       val isInvalid = Modifier.isStatic(field.getModifiers) ||
-      anns.exists(ann => ann.annotationType() == BeanIgnoreClass)
+          anns.exists(ann => ann.annotationType() == BeanIgnoreClass)
       if (!isInvalid) {
         field.setAccessible(true)
         result.put(field.getName, field)
@@ -432,12 +446,12 @@ object JdbcUtils extends StrictLogging {
 
   def isString(sqlType: Int): Boolean =
     Types.VARCHAR == sqlType || Types.VARCHAR == Types.CHAR || Types.VARCHAR == Types.LONGNVARCHAR ||
-    Types.VARCHAR == Types.LONGVARCHAR || Types.VARCHAR == Types.NCHAR || Types.VARCHAR == Types.NVARCHAR
+      Types.VARCHAR == Types.LONGVARCHAR || Types.VARCHAR == Types.NCHAR || Types.VARCHAR == Types.NVARCHAR
 
   def isNumeric(sqlType: Int): Boolean =
     Types.BIT == sqlType || Types.BIGINT == sqlType || Types.DECIMAL == sqlType || Types.DOUBLE == sqlType ||
-    Types.FLOAT == sqlType || Types.INTEGER == sqlType || Types.NUMERIC == sqlType || Types.REAL == sqlType ||
-    Types.SMALLINT == sqlType || Types.TINYINT == sqlType
+      Types.FLOAT == sqlType || Types.INTEGER == sqlType || Types.NUMERIC == sqlType || Types.REAL == sqlType ||
+      Types.SMALLINT == sqlType || Types.TINYINT == sqlType
 
   /**
    * 从SQL结果元数据中获取列表。将首先通过 label 获取，若 label 不存在再从 name 获取

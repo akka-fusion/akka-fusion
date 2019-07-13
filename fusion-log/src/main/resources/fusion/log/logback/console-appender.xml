@@ -2,7 +2,36 @@
 <included>
     <appender name="console_out" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <pattern>${fusion.log.logback.console-pattern:-%d [%thread] %-5level %logger{36} %line - %msg%n}</pattern>
+            <pattern>${fusion.log.logback.console-pattern:-%d [%thread] %-5level %logger{36} %line - %msg%n%exception}</pattern>
+        </encoder>
+    </appender>
+    <appender name="console_json_out" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+            <charset>UTF-8</charset>
+            <providers>
+                <mdc/>
+                <timestamp/>
+                <pattern>
+                    <pattern>
+                    {
+                        "level": "%level",
+                        "serviceName": "%fusionServiceName",
+                        "env": "%fusionEnv",
+                        "thread": "%thread",
+                        "logger": "%logger",
+                        "message": "%level [%thread] %logger %line - %message",
+                        "server": {
+                            "host": "%fusionServerHost",
+                            "port": "#asLong{%fusionServerPort}"
+                        },
+                        "exception": "%exception"
+                    }
+                    </pattern>
+                </pattern>
+                <callerData/>
+                <version/>
+                <stackTrace/>
+            </providers>
         </encoder>
     </appender>
 </included>

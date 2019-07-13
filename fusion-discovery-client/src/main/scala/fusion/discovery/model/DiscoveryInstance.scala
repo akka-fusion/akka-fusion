@@ -8,7 +8,7 @@ case class DiscoveryInstance(
     port: Int,
     serviceName: String,
     clusterName: String = Constants.DEFAULT_CLUSTER_NAME,
-    weight: Double = 1.0D,
+    weight: Double = 1.0d,
     healthy: Boolean = true,
     enable: Boolean = true,
     ephemeral: Boolean = true,

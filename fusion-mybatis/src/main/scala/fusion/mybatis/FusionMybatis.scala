@@ -7,7 +7,7 @@ import akka.actor.ExtensionIdProvider
 import fusion.core.extension.FusionExtension
 
 class FusionMybatis private (override protected val _system: ExtendedActorSystem) extends FusionExtension {
-  val components: MybatisComponents      = new MybatisComponents(system)
+  val components: MybatisComponents      = new MybatisComponents(_system)
   def component: FusionSqlSessionFactory = components.component
 }
 

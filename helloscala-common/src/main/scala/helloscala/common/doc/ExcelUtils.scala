@@ -21,7 +21,7 @@ object ExcelUtils {
           row.copy(cells = cells)
         }
         sheet.copy(rows = rows)
-    })
+      })
   }
 
   def toList(wb: Workbook): immutable.Seq[RichSheet] = {

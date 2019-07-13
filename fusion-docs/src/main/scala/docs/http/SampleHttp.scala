@@ -2,7 +2,7 @@ package docs.http
 
 import akka.actor.ActorSystem
 import akka.http.scaladsl.server.Directives
-import fusion.http.FusionHttp
+import fusion.http.FusionHttpServer
 
 // #SampleHttp
 object SampleHttp extends App with Directives {
@@ -13,6 +13,6 @@ object SampleHttp extends App with Directives {
       complete("Hello，Akka Fusion！")
     }
   }
-  FusionHttp(system).startAwait(route)
+  FusionHttpServer(system).component.startRouteSync(route)
 }
 // #SampleHttp

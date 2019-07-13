@@ -1,48 +1,53 @@
 import sbt._
 
 object Dependencies {
-  val versionScala           = "2.12.8"
-  val versionScalaLib        = "2.12"
+  val versionScala211        = "2.11.12"
+  val versionScala212        = "2.12.8"
+  val versionScala213        = "2.13.0"
   val versionScalaXml        = "1.2.0"
   val versionJava8Compat     = "0.9.0"
-  val versionScalameta       = "4.1.11"
+  val versionScalameta       = "4.1.12"
   val versionScalatest       = "3.0.7"
   val versionAkka            = "2.5.23"
   val versionAkkaManagement  = "1.0.1"
   val versionAkkaHttp        = "10.1.8"
   val versionAkkaHttpCors    = "0.4.0"
-  val versionAlpakka         = "1.0.2"
+  val versionAlpakka         = "1.1.0"
   val versionAkkaStreamKafka = "1.0.4"
+  val versionCassandra       = "3.5.1"
+  val versionNetty           = "4.0.56.Final"
   val versionCirce           = "0.11.1"
   val versionConfig          = "1.3.4"
   val versionGuice           = "4.2.2"
   val versionNeotypes        = "0.8.0"
   val versionKamon           = "1.1.3"
-  val versionJackson         = "2.9.8"
+  val versionJackson         = "2.9.9"
+  val versionUuidGenerator   = "3.2.0"
+  val versionHanlp           = "portable-1.7.1"
   val versionSlick           = "3.3.0"
   val versionSlickPg         = "0.17.3"
   val versionPoi             = "4.1.0"
   val versionDoobie          = "0.6.0"
   val versionQuartz          = "2.3.1"
-  val versionBcprovJdk15on   = "1.61"
-  val versionNacos           = "1.0.0"
+  val versionBcprovJdk15on   = "1.62"
+  val versionNacos           = "1.0.1"
   val versionJsch            = "0.1.55"
   val versionJakartaMail     = "1.6.3"
   val versionHikariCP        = "3.3.1"
-  val versionMybatis         = "3.5.1"
-  val versionMybatisPlus     = "3.1.1"
+  val versionMybatisPlus     = "3.1.2"
   val versionLombok          = "1.18.8"
   val versionMySQL           = "8.0.16"
   val versionPostgres        = "42.2.5"
-  val versionFastparse       = "2.1.2"
-  val versionRequests        = "0.1.8"
+  val versionRequests        = "0.1.9"
   val versionOsLib           = "0.2.9"
   val versionMongoScalaBson  = "2.6.0"
+  val versionBson            = "3.10.2"
   val versionChillAkka       = "0.9.3"
-  val versionLogbackKafka    = "0.2.0-RC2"
   val versionKafka           = "2.1.1"
+  val versionAlpnAgent       = "2.0.9"
   val versionLogback         = "1.2.3"
   val versionScalaLogging    = "3.9.0"
+  val versionLogstashLogback = "6.1"
 
   val _scalameta = "org.scalameta" %% "scalameta" % versionScalameta
   val _scalaXml  = ("org.scala-lang.modules" %% "scala-xml" % versionScalaXml).exclude("org.scala-lang", "scala-library")
@@ -74,11 +79,13 @@ object Dependencies {
   val _akkaManagement =
     ("com.lightbend.akka.management" %% "akka-management" % versionAkkaManagement)
       .excludeAll(ExclusionRule("com.typesafe.akka"))
+      .cross(CrossVersion.binary)
       .exclude("org.scala-lang", "scala-library")
 
   val _akkaManagementClusterHttp =
     ("com.lightbend.akka.management" %% "akka-management-cluster-http" % versionAkkaManagement)
       .excludeAll(ExclusionRule("com.typesafe.akka"))
+      .cross(CrossVersion.binary)
       .exclude("org.scala-lang", "scala-library")
 
   val _akkaHttp        = "com.typesafe.akka" %% "akka-http"         % versionAkkaHttp
@@ -87,66 +94,87 @@ object Dependencies {
 
   val _akkaHttps = Seq(_akkaHttp, _akkaHttpCors, _akkaHttpTestkit % Test).map(
     _.exclude("com.typesafe.akka", "akka-stream")
-      .withCrossVersion(CrossVersion.binary)
+      .cross(CrossVersion.binary)
       .exclude("com.typesafe.akka", "akka-stream-testkit")
-      .withCrossVersion(CrossVersion.binary))
+      .cross(CrossVersion.binary))
 
   val _alpakkaSimpleCodecs =
     ("com.lightbend.akka" %% "akka-stream-alpakka-simple-codecs" % versionAlpakka)
       .excludeAll(ExclusionRule("com.typesafe.akka"))
+      .cross(CrossVersion.binary)
 
   val _alpakkaXml =
-    ("com.lightbend.akka" %% "akka-stream-alpakka-xml" % versionAlpakka).excludeAll(ExclusionRule("com.typesafe.akka"))
+    ("com.lightbend.akka" %% "akka-stream-alpakka-xml" % versionAlpakka)
+      .excludeAll(ExclusionRule("com.typesafe.akka"))
+      .cross(CrossVersion.binary)
 
   val _alpakkaCsv =
-    ("com.lightbend.akka" %% "akka-stream-alpakka-csv" % versionAlpakka).excludeAll(ExclusionRule("com.typesafe.akka"))
+    ("com.lightbend.akka" %% "akka-stream-alpakka-csv" % versionAlpakka)
+      .excludeAll(ExclusionRule("com.typesafe.akka"))
+      .cross(CrossVersion.binary)
 
   val _alpakkaJsonStreaming =
     ("com.lightbend.akka" %% "akka-stream-alpakka-json-streaming" % versionAlpakka)
       .excludeAll(ExclusionRule("com.typesafe.akka"))
+      .cross(CrossVersion.binary)
 
   val _alpakkaFile =
-    ("com.lightbend.akka" %% "akka-stream-alpakka-file" % versionAlpakka).excludeAll(ExclusionRule("com.typesafe.akka"))
+    ("com.lightbend.akka" %% "akka-stream-alpakka-file" % versionAlpakka)
+      .excludeAll(ExclusionRule("com.typesafe.akka"))
+      .cross(CrossVersion.binary)
 
   val _alpakkaFtp =
-    ("com.lightbend.akka" %% "akka-stream-alpakka-ftp" % versionAlpakka).excludeAll(ExclusionRule("com.typesafe.akka"))
+    ("com.lightbend.akka" %% "akka-stream-alpakka-ftp" % versionAlpakka)
+      .excludeAll(ExclusionRule("com.typesafe.akka"))
+      .cross(CrossVersion.binary)
 
   val _alpakkaUnixDomainSocket =
     ("com.lightbend.akka" %% "akka-stream-alpakka-unix-domain-socket" % versionAlpakka)
       .excludeAll(ExclusionRule("com.typesafe.akka"))
+      .cross(CrossVersion.binary)
 
   val _alpakkaMongodb = Seq(
     ("com.lightbend.akka" %% "akka-stream-alpakka-mongodb" % versionAlpakka)
-      .excludeAll(ExclusionRule("com.typesafe.akka")),
+      .excludeAll(ExclusionRule("com.typesafe.akka"))
+      .cross(CrossVersion.binary),
     "org.mongodb.scala" %% "mongo-scala-bson" % versionMongoScalaBson)
 
-  val _alpakkaCassandra =
-    ("com.lightbend.akka" %% "akka-stream-alpakka-cassandra" % versionAlpakka).excludeAll(
-      ExclusionRule("com.typesafe.akka"),
-      ExclusionRule("com.datastax.cassandra"),
-      ExclusionRule("io.netty"),
-      ExclusionRule("com.google.guava"))
+  val _alpakkaCassandra = "com.lightbend.akka" %% "akka-stream-alpakka-cassandra" % versionAlpakka
+//    ("com.lightbend.akka" %% "akka-stream-alpakka-cassandra" % versionAlpakka)
+//      .excludeAll(
+//      ExclusionRule("com.typesafe.akka"),
+//      ExclusionRule("com.datastax.cassandra"),
+//      ExclusionRule("io.netty"),
+//      ExclusionRule("com.google.guava"))
+  val _cassandraExtra       = "com.datastax.cassandra" % "cassandra-driver-extras"      % versionCassandra
+  val _nettyTransportNative = "io.netty"               % "netty-transport-native-epoll" % versionNetty
 
   val _alpakkaElasticsearch =
     ("com.lightbend.akka" %% "akka-stream-alpakka-elasticsearch" % versionAlpakka)
       .excludeAll(ExclusionRule("com.typesafe.akka"))
+      .cross(CrossVersion.binary)
 
   val _alpakkaHbase =
     ("com.lightbend.akka" %% "akka-stream-alpakka-hbase" % versionAlpakka)
       .excludeAll(ExclusionRule("com.typesafe.akka"))
+      .cross(CrossVersion.binary)
 
   val _alpakksHdfs =
-    ("com.lightbend.akka" %% "akka-stream-alpakka-hdfs" % versionAlpakka).excludeAll(ExclusionRule("com.typesafe.akka"))
+    ("com.lightbend.akka" %% "akka-stream-alpakka-hdfs" % versionAlpakka)
+      .excludeAll(ExclusionRule("com.typesafe.akka"))
+      .cross(CrossVersion.binary)
 
   val _alpakkaText =
-    ("com.lightbend.akka" %% "akka-stream-alpakka-text" % versionAlpakka).excludeAll(ExclusionRule("com.typesafe.akka"))
+    ("com.lightbend.akka" %% "akka-stream-alpakka-text" % versionAlpakka)
+      .excludeAll(ExclusionRule("com.typesafe.akka"))
+      .cross(CrossVersion.binary)
 
   val _alpakkas = Seq(
     _alpakkaText,
     _alpakkaSimpleCodecs,
     _alpakkaXml,
     _alpakkaCsv,
-    _alpakkaJsonStreaming,
+//    _alpakkaJsonStreaming,
     _alpakkaFile,
     _alpakkaFtp,
     _alpakkaUnixDomainSocket)
@@ -166,11 +194,12 @@ object Dependencies {
   val _chillAkka = ("com.twitter" %% "chill-akka" % versionChillAkka)
     .exclude("com.typesafe", "config")
     .exclude("org.scala-lang", "scala-library")
-  val _neotypes           = "com.dimafeng"      %% "neotypes"             % versionNeotypes
-  val _neotypesAkkaStream = "com.dimafeng"      %% "neotypes-akka-stream" % versionNeotypes
-  val _config             = "com.typesafe"      % "config"                % versionConfig
-  val _hanlp              = "com.hankcs"        % "hanlp"                 % "portable-1.7.1"
-  val _guice              = "com.google.inject" % "guice"                 % versionGuice
+  val _neotypes           = "com.dimafeng"       %% "neotypes"             % versionNeotypes
+  val _neotypesAkkaStream = "com.dimafeng"       %% "neotypes-akka-stream" % versionNeotypes
+  val _config             = "com.typesafe"       % "config"                % versionConfig
+  val _hanlp              = "com.hankcs"         % "hanlp"                 % versionHanlp
+  val _uuidGenerator      = "com.fasterxml.uuid" % "java-uuid-generator"   % versionUuidGenerator
+  val _guice              = "com.google.inject"  % "guice"                 % versionGuice
 
   val _circes =
     Seq("io.circe" %% "circe-core", "io.circe" %% "circe-generic", "io.circe" %% "circe-parser").map(_ % versionCirce)
@@ -180,8 +209,9 @@ object Dependencies {
     "com.fasterxml.jackson.datatype" % "jackson-datatype-jsr310"        % versionJackson,
     "com.fasterxml.jackson.module"   % "jackson-module-parameter-names" % versionJackson,
     "com.fasterxml.jackson.module"   %% "jackson-module-scala"          % versionJackson)
-  val _aspectjweaver = "org.aspectj" % "aspectjweaver" % "1.9.2"
-  val _sigarLoader   = "io.kamon"    % "sigar-loader"  % "1.6.6" //-rev002"
+  val _jacksonDataformatProtobuf = "com.fasterxml.jackson.dataformat" % "jackson-dataformat-protobuf" % versionJackson
+  val _aspectjweaver             = "org.aspectj"                      % "aspectjweaver"               % "1.9.2"
+  val _sigarLoader               = "io.kamon"                         % "sigar-loader"                % "1.6.6" //-rev002"
   val _kamonAkka = ("io.kamon" %% "kamon-akka-2.5" % versionKamon)
     .excludeAll("com.typesafe.akka")
     .cross(CrossVersion.binary)
@@ -217,7 +247,6 @@ object Dependencies {
   val _scopt           = "com.github.scopt" %% "scopt" % "3.7.1"
   val _osLib           = "com.lihaoyi" %% "os-lib" % versionOsLib
   val _requests        = "com.lihaoyi" %% "requests" % versionRequests
-  val _fastparse       = "com.lihaoyi" %% "fastparse" % versionFastparse
   val _shapeless       = "com.chuusai" %% "shapeless" % "2.3.3"
   val _jwt             = "com.pauldijou" %% "jwt-core" % "2.1.0"
 
@@ -233,23 +262,23 @@ object Dependencies {
     "com.typesafe.scala-logging" %% "scala-logging"  % versionScalaLogging,
     "ch.qos.logback"             % "logback-classic" % versionLogback)
 
-  val _bcprovJdk15on     = "org.bouncycastle"        % "bcprov-jdk15on"       % versionBcprovJdk15on
-  val _quartz            = "org.quartz-scheduler"    % "quartz"               % versionQuartz
-  val _mybatis           = "org.mybatis"             % "mybatis"              % versionMybatis
-  val _mybatisPlus       = "com.baomidou"            % "mybatis-plus"         % versionMybatisPlus
-  val _lombok            = "org.projectlombok"       % "lombok"               % versionLombok
-  val _postgresql        = "org.postgresql"          % "postgresql"           % versionPostgres
-  val _mysql             = "mysql"                   % "mysql-connector-java" % versionMySQL
-  val _hikariCP          = "com.zaxxer"              % "HikariCP"             % versionHikariCP
-  val _jsch              = "com.jcraft"              % "jsch"                 % versionJsch
-  val _nacosClient       = "com.alibaba.nacos"       % "nacos-client"         % versionNacos
-  val _jakartaMail       = "com.sun.mail"            % "jakarta.mail"         % versionJakartaMail
-  val _mssql             = "com.microsoft.sqlserver" % "mssql-jdbc"           % "6.4.0.jre8"
-  val _protobuf          = "com.google.protobuf"     % "protobuf-java"        % "3.7.1"
-  val _swaggerAnnotation = "io.swagger.core.v3"      % "swagger-annotations"  % "2.0.6"
-  val _commonsVfs        = "org.apache.commons"      % "commons-vfs2"         % "2.2"
-  val _kafkaClients      = "org.apache.kafka"        % "kafka-clients"        % versionKafka
+  val _logstashLogbackEncoder = "net.logstash.logback" % "logstash-logback-encoder" % versionLogstashLogback
 
-  val _logbackKafka = ("com.github.danielwegener" % "logback-kafka-appender" % versionLogbackKafka)
-    .exclude("org.apache.kafka", "kafka-clients")
+  val _bcprovJdk15on = "org.bouncycastle" % "bcprov-jdk15on" % versionBcprovJdk15on
+  val _quartz        = ("org.quartz-scheduler" % "quartz" % versionQuartz).exclude("com.zaxxer", "HikariCP-java7")
+  val _mybatisPlus   = "com.baomidou" % "mybatis-plus" % versionMybatisPlus
+  val _lombok        = "org.projectlombok" % "lombok" % versionLombok
+  val _postgresql    = "org.postgresql" % "postgresql" % versionPostgres
+  val _mysql         = "mysql" % "mysql-connector-java" % versionMySQL
+  val _hikariCP      = "com.zaxxer" % "HikariCP" % versionHikariCP
+  val _jsch          = "com.jcraft" % "jsch" % versionJsch
+  val _nacosClient   = "com.alibaba.nacos" % "nacos-client" % versionNacos
+  val _jakartaMail   = "com.sun.mail" % "jakarta.mail" % versionJakartaMail
+  val _bson          = "org.mongodb" % "bson" % versionBson
+  val _mssql         = "com.microsoft.sqlserver" % "mssql-jdbc" % "6.4.0.jre8"
+  //val _protobuf          = "com.google.protobuf"     % "protobuf-java"        % "3.7.1"
+  val _swaggerAnnotation = "io.swagger.core.v3"     % "swagger-annotations" % "2.0.6"
+  val _commonsVfs        = "org.apache.commons"     % "commons-vfs2"        % "2.2"
+  val _kafkaClients      = "org.apache.kafka"       % "kafka-clients"       % versionKafka
+  val _alpnAgent         = "org.mortbay.jetty.alpn" % "jetty-alpn-agent"    % versionAlpnAgent
 }

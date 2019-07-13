@@ -36,6 +36,7 @@ Content-Length: 48
 @@@ index
 
 * [intro](intro/index.md)
+* [concept](concept/index.md)
 * [http](http/index.md)
 * [slick](slick/index.md)
 * [mybatis](mybatis/index.md)
@@ -44,5 +45,6 @@ Content-Length: 48
 * [data-kafka](data-kafka/index.md)
 * [discovery-client](discovery-client/index.md)
 * [configuration](configuration/index.md)
+* [reactivemanifesto](reactivemanifesto.md)
 
 @@@

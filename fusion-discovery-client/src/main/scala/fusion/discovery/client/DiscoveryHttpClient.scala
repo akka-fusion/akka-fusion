@@ -1,16 +1,25 @@
 package fusion.discovery.client
 
+import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.HttpRequest
 import akka.http.scaladsl.model.HttpResponse
 import akka.http.scaladsl.model.Uri
+import akka.stream.ActorMaterializer
 import fusion.http.HttpClient
+import helloscala.common.Configuration
 
 import scala.concurrent.Future
 import scala.reflect.ClassTag
 
-trait DiscoveryHttpClient extends HttpClient {
-  def system = materializer.system
+abstract class DiscoveryHttpClient(
+    val namingService: FusionNamingService,
+    val materializer: ActorMaterializer,
+    val clientConfiguration: Configuration)
+    extends HttpClient {
+  implicit protected def mat: ActorMaterializer = materializer
+  implicit protected def system: ActorSystem    = materializer.system
+
   def buildUri(uri: Uri): Uri
   def buildHttpRequest(req: HttpRequest): HttpRequest = req.withUri(buildUri(req.uri))
 

@@ -113,12 +113,16 @@ object AsFloat {
   }
 }
 
+/**
+ * 小数点后14位
+ */
 object AsDouble {
 
   def unapply(v: Any): Option[Double] = v match {
     case null                => None
     case d: Double           => Some(d)
     case d: java.lang.Double => Some(d)
+    case s: String           => Try(s.toDouble).toOption
     case _                   => None
   }
 }

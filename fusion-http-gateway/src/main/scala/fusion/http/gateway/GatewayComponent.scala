@@ -32,7 +32,10 @@ object GatewayComponent {
         val queue =
           queues.computeIfAbsent(
             targetBaseUri.authority,
-            _ => HttpUtils.cachedHostConnectionPool(targetBaseUri, bufferSize))
+            new java.util.function.Function[Authority, HttpSourceQueue]() {
+              override def apply(t: Authority): HttpSourceQueue =
+                HttpUtils.cachedHostConnectionPool(targetBaseUri, bufferSize)
+            })
         val uri       = ctx.request.uri.copy(scheme = targetBaseUri.scheme, authority = targetBaseUri.authority)
         val request   = ctx.request.copy(uri = uriMapping(uri))
         val responseF = HttpUtils.hostRequest(request)(queue, ctx.materializer.executionContext)

@@ -32,24 +32,24 @@ final class HealthRoute(val system: ExtendedActorSystem) extends ActuatorRoute w
     pathEndOrSingleSlash {
       complete(renderJson(Health.up(healths.mapValues(_.health))))
     } ~
-      pathPrefix(Segment) { comp =>
-        pathEndOrSingleSlash {
-          healths.get(comp) match {
-            case Some(health) => complete(renderJson(health))
-            case _            => complete(StatusCodes.NotFound)
-          }
-        } ~
-          path(Segment) { instance =>
-            val maybe = healths.get(comp) match {
-              case Some(health: HealthComponent) => health.health.details.get(instance)
-              case _                             => None
+        pathPrefix(Segment) { comp =>
+          pathEndOrSingleSlash {
+            healths.get(comp) match {
+              case Some(health) => complete(renderJson(health))
+              case _            => complete(StatusCodes.NotFound)
             }
-            maybe match {
-              case Some(v) => complete(renderJson(v))
-              case _       => complete(StatusCodes.NotFound)
+          } ~
+            path(Segment) { instance =>
+              val maybe = healths.get(comp) match {
+                case Some(health: HealthComponent) => health.health.details.get(instance)
+                case _                             => None
+              }
+              maybe match {
+                case Some(v) => complete(renderJson(v))
+                case _       => complete(StatusCodes.NotFound)
+              }
             }
-          }
-      }
+        }
 
   def renderJson(v: Any) =
     HttpEntity(ContentTypes.`application/json`, Jackson.stringify(v))

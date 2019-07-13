@@ -5,6 +5,8 @@ import akka.stream.ActorMaterializer
 import akka.stream.Materializer
 import com.google.inject.AbstractModule
 import com.typesafe.config.Config
+import fusion.core.extension.FusionCore
+import fusion.core.util.FusionUtils
 import helloscala.common.Configuration
 import javax.inject.Inject
 import javax.inject.Provider
@@ -20,9 +22,9 @@ class ConfigProvider @Inject()(configuration: Configuration) extends Provider[Co
 
 @Singleton
 class ActorSystemProvider @Inject()(configuration: Configuration) extends Provider[ActorSystem] {
-  private[this] val system = ActorSystem(configuration.getString("fusion.name"), configuration.underlying)
+  private[this] val system = FusionUtils.createActorSystem(configuration)
+  FusionCore(system)
   sys.addShutdownHook { system.terminate() }
-
   override def get(): ActorSystem = system
 }
 

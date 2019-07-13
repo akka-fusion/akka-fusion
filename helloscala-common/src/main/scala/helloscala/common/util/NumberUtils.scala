@@ -49,7 +49,9 @@ object NumberUtils {
         } else {
           if (classOf[Integer] eq targetClass) {
             val value: Long = checkedLongValue(number, targetClass)
-            if (value < Integer.MIN_VALUE || value > Integer.MAX_VALUE) { raiseOverflowException(number, targetClass) }
+            if (value < Integer.MIN_VALUE || value > Integer.MAX_VALUE) {
+              raiseOverflowException(number, targetClass)
+            }
             return Integer.valueOf(number.intValue).asInstanceOf[T]
           } else {
             if (classOf[Long] eq targetClass) {
@@ -63,7 +65,9 @@ object NumberUtils {
                   return BigInteger.valueOf(number.longValue).asInstanceOf[T]
                 }
               } else {
-                if (classOf[Float] eq targetClass) { return java.lang.Float.valueOf(number.floatValue).asInstanceOf[T] } else {
+                if (classOf[Float] eq targetClass) {
+                  return java.lang.Float.valueOf(number.floatValue).asInstanceOf[T]
+                } else {
                   if (classOf[Double] eq targetClass) {
                     return java.lang.Double.valueOf(number.doubleValue).asInstanceOf[T]
                   } else {

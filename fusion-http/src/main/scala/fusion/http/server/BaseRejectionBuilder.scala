@@ -9,7 +9,7 @@ import com.typesafe.scalalogging.StrictLogging
 /**
  * Created by yangbajing(yangbajing@gmail.com) on 2017-03-01.
  */
-trait BaseRejectionBuilder extends StrictLogging {
+object BaseRejectionBuilder extends StrictLogging {
 
   def rejectionBuilder: Builder =
     RejectionHandler

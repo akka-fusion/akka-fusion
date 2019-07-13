@@ -1,120 +1,120 @@
 package helloscala.common.exception
 
-import helloscala.common.ErrCodes
+import helloscala.common.IntStatus
 
 case class HSAcceptedWarning(
-    message: String,
+    override val msg: String,
     override val data: AnyRef = null,
-    errCode: Int = ErrCodes.ACCEPTED,
-    cause: Throwable = null)
-    extends HSException(errCode, message, cause) {
-  override val httpStatus: Int = ErrCodes.ACCEPTED
+    override val status: Int = IntStatus.ACCEPTED,
+    override val cause: Throwable = null)
+    extends HSException(status, msg, cause) {
+  override val httpStatus: Int = IntStatus.ACCEPTED
 }
 
 case class HSBadRequestException(
-    message: String,
+    override val msg: String,
     override val data: AnyRef = null,
-    errCode: Int = ErrCodes.BAD_REQUEST,
-    cause: Throwable = null)
-    extends HSException(errCode, message, cause) {
-  override val httpStatus: Int = ErrCodes.BAD_REQUEST
+    override val status: Int = IntStatus.BAD_REQUEST,
+    override val cause: Throwable = null)
+    extends HSException(status, msg, cause) {
+  override val httpStatus: Int = IntStatus.BAD_REQUEST
 }
 
 case class HSUnauthorizedException(
-    message: String,
+    override val msg: String,
     override val data: AnyRef = null,
-    errCode: Int = ErrCodes.UNAUTHORIZED,
-    cause: Throwable = null)
-    extends HSException(errCode, message, cause) {
-  override val httpStatus: Int = ErrCodes.UNAUTHORIZED
+    override val status: Int = IntStatus.UNAUTHORIZED,
+    override val cause: Throwable = null)
+    extends HSException(status, msg, cause) {
+  override val httpStatus: Int = IntStatus.UNAUTHORIZED
 }
 
 case class HSNoContentException(
-    message: String,
+    override val msg: String,
     override val data: AnyRef = null,
-    errCode: Int = ErrCodes.NO_CONTENT,
-    cause: Throwable = null)
-    extends HSException(errCode, message, cause) {
-  override val httpStatus: Int = ErrCodes.NO_CONTENT
+    override val status: Int = IntStatus.NO_CONTENT,
+    override val cause: Throwable = null)
+    extends HSException(status, msg, cause) {
+  override val httpStatus: Int = IntStatus.NO_CONTENT
 }
 
 case class HSForbiddenException(
-    message: String,
+    override val msg: String,
     override val data: AnyRef = null,
-    errCode: Int = ErrCodes.FORBIDDEN,
-    cause: Throwable = null)
-    extends HSException(errCode, message, cause) {
-  override val httpStatus: Int = ErrCodes.FORBIDDEN
+    override val status: Int = IntStatus.FORBIDDEN,
+    override val cause: Throwable = null)
+    extends HSException(status, msg, cause) {
+  override val httpStatus: Int = IntStatus.FORBIDDEN
 }
 
 case class HSNotFoundException(
-    message: String,
+    override val msg: String,
     override val data: AnyRef = null,
-    errCode: Int = ErrCodes.NOT_FOUND,
-    cause: Throwable = null)
-    extends HSException(errCode, message, cause) {
-  override val httpStatus: Int = ErrCodes.NOT_FOUND
+    override val status: Int = IntStatus.NOT_FOUND,
+    override val cause: Throwable = null)
+    extends HSException(status, msg, cause) {
+  override val httpStatus: Int = IntStatus.NOT_FOUND
 }
 
 case class HSConfigurationException(
-    message: String,
+    override val msg: String,
     override val data: AnyRef = null,
-    errCode: Int = ErrCodes.NOT_FOUND_CONFIG,
-    cause: Throwable = null)
-    extends HSException(errCode, message, cause) {
-  override val httpStatus: Int = ErrCodes.NOT_FOUND
+    override val status: Int = IntStatus.NOT_FOUND_CONFIG,
+    override val cause: Throwable = null)
+    extends HSException(status, msg, cause) {
+  override val httpStatus: Int = IntStatus.NOT_FOUND
 }
 
 case class HSConflictException(
-    message: String,
+    override val msg: String,
     override val data: AnyRef = null,
-    errCode: Int = ErrCodes.CONFLICT,
-    cause: Throwable = null)
-    extends HSException(errCode, message, cause) {
-  override val httpStatus: Int = ErrCodes.CONFLICT
+    override val status: Int = IntStatus.CONFLICT,
+    override val cause: Throwable = null)
+    extends HSException(status, msg, cause) {
+  override val httpStatus: Int = IntStatus.CONFLICT
 }
 
 case class HSNotImplementedException(
-    message: String,
+    override val msg: String,
     override val data: AnyRef = null,
-    errCode: Int = ErrCodes.NOT_IMPLEMENTED,
-    cause: Throwable = null)
-    extends HSException(errCode, message, cause) {
-  override val httpStatus: Int = ErrCodes.NOT_IMPLEMENTED
+    override val status: Int = IntStatus.NOT_IMPLEMENTED,
+    override val cause: Throwable = null)
+    extends HSException(status, msg, cause) {
+  override val httpStatus: Int = IntStatus.NOT_IMPLEMENTED
 }
 
 case class HSInternalErrorException(
-    message: String,
+    override val msg: String,
     override val data: AnyRef = null,
-    errCode: Int = ErrCodes.INTERNAL_ERROR,
-    cause: Throwable = null)
-    extends HSException(errCode, message, cause) {
-  override val httpStatus: Int = ErrCodes.INTERNAL_ERROR
+    override val status: Int = IntStatus.INTERNAL_ERROR,
+    override val cause: Throwable = null)
+    extends HSException(status, msg, cause) {
+  override val httpStatus: Int = IntStatus.INTERNAL_ERROR
 }
 
 case class HSBadGatewayException(
-    message: String,
+    override val msg: String,
     override val data: AnyRef = null,
-    errCode: Int = ErrCodes.BAD_GATEWAY,
-    cause: Throwable = null)
-    extends HSException(errCode, message, cause) {
-  override val httpStatus: Int = ErrCodes.BAD_GATEWAY
+    override val status: Int = IntStatus.BAD_GATEWAY,
+    override val cause: Throwable = null)
+    extends HSException(status, msg, cause) {
+  override val httpStatus: Int = IntStatus.BAD_GATEWAY
 }
 
 case class HSServiceUnavailableException(
-    message: String,
+    override val msg: String,
     override val data: AnyRef = null,
-    errCode: Int = ErrCodes.SERVICE_UNAVAILABLE,
-    cause: Throwable = null)
-    extends HSException(errCode, message, cause) {
-  override val httpStatus: Int = ErrCodes.SERVICE_UNAVAILABLE
+    override val status: Int = IntStatus.SERVICE_UNAVAILABLE,
+    override val cause: Throwable = null)
+    extends HSException(status, msg, cause) {
+  override val httpStatus: Int = IntStatus.SERVICE_UNAVAILABLE
 }
 
 case class HSGatewayTimeoutException(
-    message: String,
+    override val msg: String,
     override val data: AnyRef = null,
-    errCode: Int = ErrCodes.GATEWAY_TIMEOUT,
-    cause: Throwable = null)
-    extends HSException(errCode, message, cause) {
-  override val httpStatus: Int = ErrCodes.GATEWAY_TIMEOUT
+    override val status: Int = IntStatus.GATEWAY_TIMEOUT,
+    override val cause: Throwable = null)
+    extends HSException(status, msg, cause) {
+  override val httpStatus: Int = IntStatus.GATEWAY_TIMEOUT
 }

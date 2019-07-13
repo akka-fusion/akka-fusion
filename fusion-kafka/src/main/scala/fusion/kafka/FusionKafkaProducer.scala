@@ -5,8 +5,10 @@ import akka.actor.Extension
 import akka.actor.ExtensionId
 import akka.actor.ExtensionIdProvider
 import akka.kafka.ProducerSettings
+import fusion.core.extension.FusionCore
 
 final class FusionKafkaProducer private (system: ExtendedActorSystem) extends Extension {
+  FusionCore(system)
   def producer: ProducerSettings[String, String] = producers.component
   val producers                                  = new ProducerComponents(system)
 }

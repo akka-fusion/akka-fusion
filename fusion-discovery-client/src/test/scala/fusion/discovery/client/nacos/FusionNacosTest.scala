@@ -5,7 +5,7 @@ import java.util.concurrent.TimeUnit
 
 import akka.actor.ActorSystem
 import com.alibaba.nacos.api.NacosFactory
-import fusion.core.constant.PropKeys
+import fusion.common.constant.PropKeys
 import fusion.discovery.DiscoveryUtils
 import fusion.test.FusionTestFunSuite
 import helloscala.common.Configuration

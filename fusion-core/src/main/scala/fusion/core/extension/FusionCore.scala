@@ -7,20 +7,30 @@ import akka.actor.Extension
 import akka.actor.ExtensionId
 import akka.actor.ExtensionIdProvider
 import com.typesafe.scalalogging.StrictLogging
-import fusion.core.constant.ConfigKeys
-import fusion.core.constant.FusionConstants
+import fusion.common.constant.ConfigKeys
+import fusion.common.constant.FusionConstants
+import fusion.core.setting.CoreSetting
+import fusion.core.util.FusionUtils
+import helloscala.common.Configuration
 import helloscala.common.util.PidFile
 import helloscala.common.util.Utils
 
 import scala.util.control.NonFatal
 
 final class FusionCore private (protected val _system: ExtendedActorSystem) extends FusionExtension with StrictLogging {
+  FusionUtils.setupActorSystem(system)
   writePidfile()
   System.setProperty(
     FusionConstants.NAME_PATH,
     if (system.settings.config.hasPath(FusionConstants.NAME_PATH))
       system.settings.config.getString(FusionConstants.NAME_PATH)
     else FusionConstants.NAME)
+
+  private lazy val _configuration = Configuration(system.settings.config)
+
+  def configuration(): Configuration = _configuration
+  val name: String                   = system.name
+  val setting: CoreSetting           = new CoreSetting(configuration())
 
   private def writePidfile(): Unit = {
     val config = system.settings.config

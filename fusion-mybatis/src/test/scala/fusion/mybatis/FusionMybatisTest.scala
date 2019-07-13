@@ -1,6 +1,6 @@
 package fusion.mybatis
 
-import java.sql.SQLException
+import java.util.function.Consumer
 
 import akka.actor.ActorSystem
 import akka.testkit.TestKit
@@ -45,7 +45,9 @@ class FusionMybatisTest extends TestKit(ActorSystem("fusion-mybatis")) with Fusi
     sqlSessionFactory.transactional { session =>
       val fileMapper = session.getMapper(classOf[FileMapper])
       val list       = fileMapper.list(10)
-      list.forEach(println)
+      list.forEach(new Consumer[CFile] {
+        override def accept(t: CFile): Unit = println(t)
+      })
       list must not be empty
     }
   }
@@ -62,7 +64,9 @@ class FusionMybatisTest extends TestKit(ActorSystem("fusion-mybatis")) with Fusi
       fileMapper.selectPage(req, null)
     }
     result.getRecords must not be empty
-    result.getRecords.forEach(println)
+    result.getRecords.forEach(new Consumer[CFile] {
+      override def accept(t: CFile): Unit = println(t)
+    })
     println(Jackson.prettyStringify(result))
   }
 

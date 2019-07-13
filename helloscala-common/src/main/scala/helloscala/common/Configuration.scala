@@ -193,7 +193,7 @@ case class Configuration(underlying: Config) {
    * }}}
    *
    * @param path    the configuration key, related to this error
-   * @param message the error message
+   * @param message the error msg
    * @param e       the related exception
    * @return a configuration exception
    */
@@ -213,7 +213,7 @@ case class Configuration(underlying: Config) {
    * throw configuration.globalError("Missing configuration key: [yop.url]")
    * }}}
    *
-   * @param message the error message
+   * @param message the error msg
    * @param e       the related exception
    * @return a configuration exception
    */
@@ -320,16 +320,17 @@ object Configuration extends StrictLogging {
 trait ConfigLoader[A] { self =>
   def load(config: Config, path: String = ""): A
 
-  def map[B](f: A => B): ConfigLoader[B] = (config: Config, path: String) => f(self.load(config, path))
+  def map[B](f: A => B): ConfigLoader[B] = new ConfigLoader[B] {
+    override def load(config: Config, path: String): B = f(self.load(config, path))
+  }
 }
 
 object ConfigLoader {
 
-  def apply[A](f: Config => String => A): ConfigLoader[A] =
-    new ConfigLoader[A] {
-      override def load(config: Config, path: String): A =
-        f(config)(path)
-    }
+  def apply[A](f: Config => String => A): ConfigLoader[A] = new ConfigLoader[A] {
+    override def load(config: Config, path: String): A =
+      f(config)(path)
+  }
 
   implicit val stringLoader: ConfigLoader[String] = ConfigLoader(_.getString)
   implicit val seqStringLoader: ConfigLoader[Seq[String]] =
@@ -341,7 +342,16 @@ object ConfigLoader {
       arr
     }
 
-  implicit val intLoader: ConfigLoader[Int] = ConfigLoader(_.getInt)
+  implicit val intLoader: ConfigLoader[Int] = ConfigLoader(c => {
+    path: String => {
+      try {
+        c.getInt(path)
+      } catch {
+        case NonFatal(_) =>
+          c.getString(path).toInt
+      }
+    }
+  })
   implicit val seqIntLoader: ConfigLoader[Seq[Int]] =
     ConfigLoader(_.getIntList).map(_.asScala.map(_.toInt))
 

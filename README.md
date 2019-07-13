@@ -8,17 +8,22 @@ Akka Fusion可以轻松创建独立的，生产级的基于Akka的应用程序�
 ## 快速开始
 
 ```scala
-object SampleApplication extends App {
-  Injects.instance[SampleServer].start()
+object SampleApplication {
+
+  def main(args: Array[String]): Unit = {
+    implicit val system = ActorSystem()
+    implicit val ec     = system.dispatcher
+    val sampleService   = new SampleService()
+    val routes          = new SampleRoute(sampleService)
+    FusionHttp(system).startAwait(routes.route)
+  }
 }
 
 // Server
-@Singleton
-class SampleServer @Inject()(val routes: SampleRoute) extends FusionServer
+class SampleServer(val routes: SampleRoute) extends FusionServer
 
 // Controller
-@Singleton
-class SampleRoute @Inject()(sampleService: SampleService) extends AbstractRoute {
+class SampleRoute(sampleService: SampleService) extends AbstractRoute {
   override def route: Route = pathGet("hello") {
     parameters(('hello, 'year.as[Int].?(2019))).as(SampleReq) { req =>
       futureComplete(sampleService.hello(req))
@@ -31,8 +36,8 @@ case class SampleReq(hello: String, year: Int)
 case class SampleResp(hello: String, year: Int, language: String)
 
 // Service
-@Singleton
-class SampleService @Inject()(implicit ec: ExecutionContext) {
+class SampleService()(implicit ec: ExecutionContext) {
+
   def hello(req: SampleReq): Future[SampleResp] = Future {
     SampleResp(req.hello, req.year, "scala")
   }

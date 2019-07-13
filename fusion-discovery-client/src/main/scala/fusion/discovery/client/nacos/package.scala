@@ -1,6 +1,7 @@
 package fusion.discovery.client
 
 import java.util.Properties
+import java.util.function.BiConsumer
 
 import com.alibaba.nacos.api.common.Constants
 import com.alibaba.nacos.api.naming.listener.Event
@@ -8,6 +9,8 @@ import com.alibaba.nacos.api.naming.listener.NamingEvent
 import com.alibaba.nacos.api.naming.pojo.Instance
 import com.alibaba.nacos.api.naming.pojo.ListView
 import com.alibaba.nacos.api.naming.pojo.ServiceInfo
+import com.typesafe.scalalogging.StrictLogging
+import fusion.common.constant.FusionConstants
 import fusion.discovery.model._
 import helloscala.common.util.AsBoolean
 import helloscala.common.util.AsInt
@@ -17,17 +20,29 @@ import helloscala.common.util.Utils
 import scala.collection.JavaConverters._
 
 package object nacos {
-  implicit final class NacosDiscoveryProperties(underlying: Properties) extends Properties {
-    import fusion.core.constant.PropKeys._
-    underlying.forEach((key, value) => put(key, value))
+  implicit final class NacosDiscoveryProperties(underlying: Properties) extends Properties with StrictLogging {
+    import fusion.common.constant.PropKeys._
+    underlying.forEach(new BiConsumer[AnyRef, AnyRef] {
+      override def accept(t: AnyRef, u: AnyRef): Unit = put(t, u)
+    })
 
     def serviceName: Option[String] = Utils.option(getProperty(SERVICE_NAME))
     def namespace: Option[String]   = Utils.option(getProperty(NAMESPACE))
     def dataId: String              = getProperty(DATA_ID)
     def group: String               = Utils.option(getProperty(GROUP)).getOrElse(NacosConstants.DEFAULT_GROUP)
     def timeoutMs: Long             = AsLong.unapply(get(TIMEOUT_MS)).getOrElse(3000L)
-    def instanceIp: String          = getProperty(INSTANCE_IP)
-    def instancePort: Int           = AsInt.unapply(get(INSTANCE_PORT)).get
+
+    def instanceIp: String = {
+      val ip = System.getProperty(FusionConstants.SERVER_HOST_PATH)
+      Utils.option(ip).getOrElse(getProperty(INSTANCE_IP))
+    }
+
+    def instancePort: Int = {
+      AsInt
+        .unapply(Option(System.getProperty(FusionConstants.SERVER_PORT_PATH)).getOrElse(get(INSTANCE_PORT)))
+        .getOrElse(throw new ExceptionInInitializerError("instance port 未设置"))
+    }
+
     def instanceClusterName: String = Utils.option(getProperty(CLUSTER_NAME)).getOrElse(Constants.DEFAULT_CLUSTER_NAME)
     def instanceWeight: Double      = Utils.option(getProperty(INSTANCE_WEIGHT)).map(_.toDouble).getOrElse(1.0)
     def healthy: Boolean            = Utils.option(getProperty(HEALTHY)).forall(_.toBoolean)

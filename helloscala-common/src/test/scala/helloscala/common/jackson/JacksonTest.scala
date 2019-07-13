@@ -1,6 +1,5 @@
 package helloscala.common.jackson
 
-import java.io
 import java.time.Instant
 import java.time.LocalDateTime
 
@@ -26,7 +25,7 @@ class JacksonTest extends FunSuite with MustMatchers {
 
   test("scala map to json") {
     val data: mutable.Map[String, Object] = scala.collection.mutable.Map("name" -> "羊八井", "list" -> List("a", "b", "c"))
-    val tree: JsonNode                    = Jackson.defaultObjectMapper.valueToTree(data)
+    val tree: JsonNode                    = Jackson.valueToTree(data)
     println(tree)
   }
 

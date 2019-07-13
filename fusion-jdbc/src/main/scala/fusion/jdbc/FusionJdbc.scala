@@ -6,6 +6,7 @@ import akka.actor.ExtensionId
 import akka.actor.ExtensionIdProvider
 import com.typesafe.config.Config
 import com.zaxxer.hikari.HikariDataSource
+import fusion.core.extension.FusionCore
 import fusion.core.extension.FusionExtension
 import fusion.core.util.Components
 import fusion.jdbc.constant.JdbcConstants
@@ -19,6 +20,7 @@ final private[jdbc] class JdbcComponents(val config: Config)
 }
 
 class FusionJdbc private (val _system: ExtendedActorSystem) extends FusionExtension {
+  FusionCore(system)
   val components = new JdbcComponents(system.settings.config)
   system.registerOnTermination { components.close() }
   def component: HikariDataSource = components.component

@@ -10,6 +10,7 @@ import com.mongodb.ConnectionString
 import com.mongodb.MongoClientSettings
 import com.mongodb.MongoDriverInformation
 import com.typesafe.config.Config
+import fusion.core.extension.FusionCore
 import fusion.core.extension.FusionExtension
 import fusion.core.util.Components
 import fusion.data.mongodb.MongoTemplate
@@ -59,6 +60,7 @@ final private[mongodb] class MongoComponents(system: ActorSystem)
 }
 
 final class FusionMongo private (val _system: ExtendedActorSystem) extends FusionExtension {
+  FusionCore(system)
   val components = new MongoComponents(system)
   system.registerOnTermination {
     components.close()

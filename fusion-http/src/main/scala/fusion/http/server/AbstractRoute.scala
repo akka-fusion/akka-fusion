@@ -30,27 +30,13 @@ trait AbstractRoute extends Directives with HttpDirectives with FileDirectives {
       dir: java.nio.file.Path = Paths.get("/tmp"),
       prefix: String = "hongka-",
       suffix: String = ".tmp"): FileInfo => File =
-    fileInfo => Files.createTempFile(dir, prefix, suffix).toFile
+    fileInfo => Files.createTempFile(dir, fileInfo.fileName, suffix).toFile
 
   implicit class ContentTypeRich(contentType: ContentType) {
-
     def charset: Charset = contentType.charsetOption.map(_.nioCharset()).getOrElse(StandardCharsets.UTF_8)
   }
 
-  def logRequest(logger: com.typesafe.scalalogging.Logger): Directive0 =
-    mapRequest { req =>
-      def entity = req.entity match {
-        case HttpEntity.Empty => ""
-        case _                => "\n" + req.entity
-      }
-
-      logger.debug(s"""
-                      |method: ${req.method.value}
-                      |uri: ${req.uri}
-                      |search: ${req.uri.rawQueryString}
-                      |header: ${req.headers.mkString("\n        ")}$entity""".stripMargin)
-      req
-    }
+  def logRequest(logger: com.typesafe.scalalogging.Logger): Directive0 = HttpUtils.logRequest(logger)
 
   def generateHeaders: Directive1[Map[String, String]] =
     extractRequest.flatMap { request =>
@@ -86,9 +72,9 @@ trait AbstractRoute extends Directives with HttpDirectives with FileDirectives {
     mapResponseHeaders(
       h =>
         h ++
-          List(
-            headers.`Cache-Control`(CacheDirectives.`no-store`, CacheDirectives.`no-cache`),
-            headers.RawHeader("Pragma", "no-cache")))
+            List(
+              headers.`Cache-Control`(CacheDirectives.`no-store`, CacheDirectives.`no-cache`),
+              headers.RawHeader("Pragma", "no-cache")))
 
   def completeOk: Route = complete(HttpEntity.Empty)
 

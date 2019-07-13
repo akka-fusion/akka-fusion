@@ -1,18 +1,32 @@
 package helloscala.common.jackson
 
+import java.util.Objects
+
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.core.TreeNode
+import com.fasterxml.jackson.databind._
+import com.fasterxml.jackson.databind.introspect.Annotated
+import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector
 import com.fasterxml.jackson.databind.node.ArrayNode
 import com.fasterxml.jackson.databind.node.ObjectNode
-import com.fasterxml.jackson.databind._
+import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter
+import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider
+import com.fasterxml.jackson.module.scala.experimental.ScalaObjectMapper
+import com.typesafe.scalalogging.StrictLogging
 import helloscala.common.exception.HSBadRequestException
 import helloscala.common.util.Utils
 
+import scala.collection.JavaConverters._
 import scala.reflect.ClassTag
+import scala.util.control.NonFatal
 
-object Jackson {
+trait JacksonFactory {
+  def defaultObjectMapper: ObjectMapper
+}
+
+object Jackson extends JacksonFactory with StrictLogging {
   private lazy val _defaultObjectMapper = createObjectMapper
 
   def defaultObjectMapper: ObjectMapper = _defaultObjectMapper
@@ -40,16 +54,49 @@ object Jackson {
     if (compare) extract(tree)
     else Left(HSBadRequestException(s"compare比较结果为false，需要类型：${ev1.runtimeClass.getName}"))
 
-//  private val FILTER_ID_CLASS: Class[akka.protobuf.GeneratedMessage] = classOf[akka.protobuf.GeneratedMessage]
+  def jsonResponseToBO[T](data: AnyRef)(implicit ev1: ClassTag[T]): T = {
+    if (Objects.isNull(data)) {
+      null.asInstanceOf[T]
+    } else {
+      val node = Jackson.valueToTree(data)
+      Jackson.defaultObjectMapper.treeToValue(node, ev1.runtimeClass).asInstanceOf[T]
+    }
+  }
+
+  def jsonResponseToList[T](data: AnyRef)(implicit ev1: ClassTag[T]): Seq[T] = {
+    val coll: Iterable[_ <: Object] = data match {
+      case null                               => Nil
+      case list: Iterable[Object]             => list
+      case list: java.util.Collection[Object] => list.asScala
+      case arr: ArrayNode                     => arr.asScala
+      case other                              => Jackson.valueToTree(other).asInstanceOf[ArrayNode].asScala
+    }
+
+    coll.map { obj =>
+      val node = Jackson.valueToTree(obj)
+      Jackson.treeToValue(node)
+    }.toList
+  }
 
   private def createObjectMapper: ObjectMapper = {
-    new ObjectMapper()
-//      .setFilterProvider(new SimpleFilterProvider()
-//        .addFilter(FILTER_ID_CLASS.getName, SimpleBeanPropertyFilter.serializeAllExcept("allFields")))
-//      .setAnnotationIntrospector(new JacksonAnnotationIntrospector() {
-//        override def findFilterId(a: Annotated): AnyRef =
-//          if (FILTER_ID_CLASS.isAssignableFrom(a.getRawType)) FILTER_ID_CLASS.getName else super.findFilterId(a)
-//      })
+    val mapper = new ObjectMapper() with ScalaObjectMapper
+    try {
+      val FILTER_ID_CLASS = Class.forName("scalapb.GeneratedMessage")
+      mapper
+        .setFilterProvider(
+          new SimpleFilterProvider().addFilter(
+            FILTER_ID_CLASS.getName,
+            SimpleBeanPropertyFilter.serializeAllExcept("allFields", "fieldByNumber", "field")))
+        .setAnnotationIntrospector(new JacksonAnnotationIntrospector() {
+          override def findFilterId(a: Annotated): AnyRef =
+            if (FILTER_ID_CLASS.isAssignableFrom(a.getRawType)) FILTER_ID_CLASS.getName else super.findFilterId(a)
+        })
+    } catch {
+      case NonFatal(e) => // do nothing
+        logger.warn(s"create ObjectMapper: ${e.toString}", e)
+    }
+
+    mapper
       .findAndRegisterModules()
       .enable(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES)
       .enable(JsonParser.Feature.ALLOW_SINGLE_QUOTES)

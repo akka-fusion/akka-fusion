@@ -19,7 +19,7 @@ object StringUtils {
   val PRINTER_CHARS: immutable.IndexedSeq[Char] = ('0' to '9') ++ ('a' to 'z') ++ ('A' to 'Z')
 
   val PRINTER_CHARS_EXT: IndexedSeq[Char] = PRINTER_CHARS ++
-    Vector('!', '#', '$', '%', '^', '&', '*', '(', ')', '-', '+', '=', '_', '.', '?', '<', '>')
+        Vector('!', '#', '$', '%', '^', '&', '*', '(', ')', '-', '+', '=', '_', '.', '?', '<', '>')
 
   private val HEX_CHARS: Array[Char] = "0123456789abcdef".toCharArray
   private val HEX_CHAR_SETS          = Set[Char]() ++ ('0' to '9') ++ ('a' to 'f') ++ ('A' to 'F')
@@ -224,13 +224,17 @@ object StringUtils {
    * @see Character#isWhitespace
    */
   def trimAllWhitespace(str: String): String = {
-    if (!hasLength(str)) { return str }
+    if (!hasLength(str)) {
+      return str
+    }
     val len = str.length
     val sb  = new StringBuilder(str.length)
     var i   = 0
     while ({ i < len }) {
       val c = str.charAt(i)
-      if (!Character.isWhitespace(c)) { sb.append(c) }
+      if (!Character.isWhitespace(c)) {
+        sb.append(c)
+      }
 
       { i += 1; i - 1 }
     }
@@ -239,9 +243,14 @@ object StringUtils {
 
   def toHexString(arr: Array[Byte]): String = Hex.toHexString(arr)
 
-  def readLineIterator(is: InputStream): Iterator[String] =
-    Utils.using(scala.io.Source.fromInputStream(is))(_.getLines())
-
+  def readLineIterator(is: InputStream): Iterator[String] = {
+    val rs = scala.io.Source.fromInputStream(is)
+    try {
+      rs.getLines()
+    } finally {
+      rs.close()
+    }
+  }
   def toString(is: InputStream): String = readLineIterator(is).mkString
 
   def toString(e: Throwable): String = {

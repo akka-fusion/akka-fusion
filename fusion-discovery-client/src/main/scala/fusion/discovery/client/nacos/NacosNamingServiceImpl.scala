@@ -1,5 +1,7 @@
 package fusion.discovery.client.nacos
 
+import com.alibaba.nacos.api.naming.listener.Event
+import com.alibaba.nacos.api.naming.listener.EventListener
 import com.alibaba.nacos.api.naming.{NamingService => JNamingService}
 import com.alibaba.nacos.api.selector.AbstractSelector
 import com.typesafe.scalalogging.StrictLogging
@@ -40,10 +42,11 @@ class NacosNamingServiceImpl(props: NacosDiscoveryProperties, val underlying: JN
   }
 
   override def registerInstanceCurrent(): DiscoveryInstance = {
+    val serviceName = props.serviceName.getOrElse(throw HSBadRequestException("未指定服务名 [serviceName]"))
     val inst = DiscoveryInstance(
       props.instanceIp,
       props.instancePort,
-      props.serviceName.getOrElse(throw HSBadRequestException("未指定服务名 [serviceName]")),
+      serviceName,
       props.instanceClusterName,
       props.instanceWeight,
       props.healthy,
@@ -114,16 +117,24 @@ class NacosNamingServiceImpl(props: NacosDiscoveryProperties, val underlying: JN
     underlying.selectOneHealthyInstance(serviceName, clusters.asJava, subscribe).toDiscoveryInstance
 
   override def subscribe(serviceName: String, listener: DiscoveryEvent => Unit): Unit =
-    underlying.subscribe(serviceName, evt => listener(evt.toDiscoveryEvent))
+    underlying.subscribe(serviceName, new EventListener {
+      override def onEvent(event: Event): Unit = listener(event.toDiscoveryEvent)
+    })
 
   def subscribe(serviceName: String, clusters: Seq[String], listener: DiscoveryEvent => Unit): Unit =
-    underlying.subscribe(serviceName, clusters.asJava, evt => listener(evt.toDiscoveryEvent))
+    underlying.subscribe(serviceName, clusters.asJava, new EventListener {
+      override def onEvent(event: Event): Unit = listener(event.toDiscoveryEvent)
+    })
 
   def unsubscribe(serviceName: String, listener: DiscoveryEvent => Unit): Unit =
-    underlying.unsubscribe(serviceName, evt => listener(evt.toDiscoveryEvent))
+    underlying.unsubscribe(serviceName, new EventListener {
+      override def onEvent(event: Event): Unit = listener(event.toDiscoveryEvent)
+    })
 
   def unsubscribe(serviceName: String, clusters: Seq[String], listener: DiscoveryEvent => Unit): Unit =
-    underlying.unsubscribe(serviceName, clusters.asJava, evt => listener(evt.toDiscoveryEvent))
+    underlying.unsubscribe(serviceName, clusters.asJava, new EventListener {
+      override def onEvent(event: Event): Unit = listener(event.toDiscoveryEvent)
+    })
 
   def getServicesOfServer(pageNo: Int, pageSize: Int): DiscoveryList[String] =
     underlying.getServicesOfServer(pageNo, pageSize).toDiscoveryList

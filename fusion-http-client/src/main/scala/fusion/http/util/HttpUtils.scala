@@ -1,12 +1,20 @@
 package fusion.http.util
 
+import java.io.InputStream
 import java.nio.charset.Charset
 import java.nio.charset.UnsupportedCharsetException
+import java.security.KeyStore
+import java.security.SecureRandom
 
 import akka.actor.ActorSystem
+import akka.http.scaladsl.ConnectionContext
 import akka.http.scaladsl.Http
-import akka.http.scaladsl.model.Uri.Authority
+import akka.http.scaladsl.HttpsConnectionContext
+import akka.http.scaladsl.UseHttp2
 import akka.http.scaladsl.model._
+import akka.http.scaladsl.model.headers.RawHeader
+import akka.http.scaladsl.server.Directive0
+import akka.http.scaladsl.server.Directives
 import akka.http.scaladsl.unmarshalling.FromEntityUnmarshaller
 import akka.http.scaladsl.unmarshalling.Unmarshal
 import akka.stream.scaladsl.Keep
@@ -22,14 +30,22 @@ import com.fasterxml.jackson.databind.node.ArrayNode
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
+import com.typesafe.scalalogging.Logger
 import com.typesafe.scalalogging.StrictLogging
-import fusion.core.constant.ConfigKeys
+import com.typesafe.sslconfig.akka.AkkaSSLConfig
+import fusion.common.constant.ConfigKeys
+import fusion.common.constant.FusionConstants
+import fusion.core.setting.CoreSetting
+import fusion.core.util.FusionUtils
 import fusion.http.HttpSourceQueue
 import fusion.http.exception.HttpException
-import helloscala.common.ErrCodes
+import helloscala.common.IntStatus
 import helloscala.common.exception.HSException
 import helloscala.common.jackson.Jackson
 import helloscala.common.util.StringUtils
+import javax.net.ssl.KeyManagerFactory
+import javax.net.ssl.SSLContext
+import javax.net.ssl.TrustManagerFactory
 
 import scala.collection.immutable
 import scala.concurrent.Await
@@ -41,6 +57,7 @@ import scala.util.Failure
 import scala.util.Success
 import scala.collection.JavaConverters._
 import scala.concurrent.duration._
+import scala.util.control.NonFatal
 
 object HttpUtils extends StrictLogging {
   val AKKA_HTTP_ROUTES_DISPATCHER                            = "akka-http-routes-dispatcher"
@@ -80,6 +97,10 @@ object HttpUtils extends StrictLogging {
 
   def registerMediaType(mediaTypes: MediaType*): Unit = {
     customMediaTypes = customMediaTypes ++ mediaTypes.flatMap(mediaType => mediaType.fileExtensions.map(_ -> mediaType))
+  }
+
+  def generateTraceHeader(coreSetting: CoreSetting): HttpHeader = {
+    RawHeader(coreSetting.traceKey, FusionUtils.generateTraceId())
   }
 
   def dump(response: HttpResponse)(implicit mat: Materializer) {
@@ -178,8 +199,8 @@ object HttpUtils extends StrictLogging {
       Unmarshal(response.entity).to[JsonNode](JacksonSupport.unmarshaller, ec, mat).flatMap { json =>
         val errCode = Option(json.get("errCode"))
           .orElse(Option(json.get("status")))
-          .map(_.asInt(ErrCodes.INTERNAL_ERROR))
-          .getOrElse(ErrCodes.INTERNAL_ERROR)
+          .map(_.asInt(IntStatus.INTERNAL_ERROR))
+          .getOrElse(IntStatus.INTERNAL_ERROR)
         val message =
           Option(json.get("message")).orElse(Option(json.get("msg"))).map(_.asText("")).getOrElse("HTTP响应错误")
         Future.failed(HttpException(response.status.intValue(), message, data = json, errCode))
@@ -330,6 +351,38 @@ object HttpUtils extends StrictLogging {
       .run()
   }
 
+  def generateHttps(
+      keyPassword: String,
+      keystore: InputStream,
+      keyStoreType: String = "PKCS12",
+      algorithm: String = "SunX509",
+      protocol: String = "TLS",
+      http2: UseHttp2 = UseHttp2.Negotiated,
+      akkaSslConfig: Option[AkkaSSLConfig] = None)(implicit system: ActorSystem): HttpsConnectionContext = {
+    var hcc: HttpsConnectionContext = null
+    try {
+      val password = keyPassword.toCharArray
+      val ks       = KeyStore.getInstance(keyStoreType)
+      ks.load(keystore, password)
+
+      val keyManagerFactory: KeyManagerFactory = KeyManagerFactory.getInstance(algorithm)
+      keyManagerFactory.init(ks, password)
+
+      val tmf: TrustManagerFactory = TrustManagerFactory.getInstance(algorithm)
+      tmf.init(ks)
+
+      val sslContext: SSLContext = SSLContext.getInstance(protocol)
+      sslContext.init(keyManagerFactory.getKeyManagers, tmf.getTrustManagers, new SecureRandom())
+
+      hcc = ConnectionContext.https(sslContext, akkaSslConfig, http2 = http2)
+    } catch {
+      case NonFatal(e) =>
+        e.printStackTrace()
+        System.exit(-1)
+    }
+    hcc
+  }
+
   def buildRequest(
       method: HttpMethod,
       uri: Uri,
@@ -451,4 +504,38 @@ object HttpUtils extends StrictLogging {
 
   def entityJson(string: String) = HttpEntity(ContentTypes.`application/json`, string)
 
+  def logRequest(logger: com.typesafe.scalalogging.Logger): Directive0 = {
+    Directives.mapRequest { req =>
+      curlLogging(req)(logger)
+    }
+  }
+
+  def curlLogging(req: HttpRequest)(implicit _log: Logger = null): HttpRequest = {
+    val log = if (null == _log) logger else _log
+    def entity = req.entity match {
+      case HttpEntity.Empty => ""
+      case _                => "\n" + req.entity
+    }
+    log.debug(s"""HttpRequest
+                |method: ${req.method.value}
+                |uri: ${req.uri}
+                |search: ${req.uri.rawQueryString}
+                |header: ${req.headers.mkString("\n        ")}$entity""".stripMargin)
+    req
+  }
+
+  def curlLoggingResponse(req: HttpRequest, resp: HttpResponse)(implicit _log: Logger = null): HttpResponse = {
+    val log = if (null == _log) logger else _log
+    def entity = resp.entity match {
+      case HttpEntity.Empty => ""
+      case _                => "\n" + resp.entity
+    }
+    log.debug(s"""HttpResponse
+                |method: ${req.method.value}
+                |uri: ${req.uri}
+                |search: ${req.uri.rawQueryString}
+                |status: ${resp.status}
+                |header: ${resp.headers.mkString("\n        ")}$entity""".stripMargin)
+    resp
+  }
 }

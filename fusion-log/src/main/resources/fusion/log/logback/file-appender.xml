@@ -1,18 +1,40 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <included>
     <appender name="file_out" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <File>${fusion.log.logback.file:-fusion.log}</File>
+        <File>${fusion.log.logback.dir:-${user.dir}/logs}/${fusion.log.logback.file:-${spring.application.name:-fusion}}.log</File>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <FileNamePattern>logback/output.%d{yyyy-MM-dd}.log</FileNamePattern>
-            <!--只保留最近45天的日志 -->
-            <maxHistory>45</maxHistory>
-            <!--用来指定日志文件的上限大小，那么到了这个值，就会删除旧的日志 -->
-            <totalSizeCap>2GB</totalSizeCap>
+            <FileNamePattern>${fusion.log.logback.dir:-${user.dir}/logs}/${fusion.log.logback.file:-${spring.application.name:-fusion}}.%d{yyyy-MM-dd}.gz</FileNamePattern>
+            <!--只保留最近7天的日志 -->
+            <maxHistory>7</maxHistory>
+            <!--用来指定日志文件的上限大小，如果到了这个值，就会删除旧的日志 -->
+            <totalSizeCap>8GB</totalSizeCap>
         </rollingPolicy>
-        <!--日志输出编码格式化 -->
-        <encoder>
+        <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
             <charset>UTF-8</charset>
-            <pattern>${fusion.log.logback.file-pattern:-%d [%thread] %-5level %logger{36} %line - %msg%n}</pattern>
+            <providers>
+                <mdc/>
+                <timestamp/>
+                <pattern>
+                    <pattern>
+                    {
+                        "level": "%level",
+                        "serviceName": "%fusionServiceName",
+                        "env": "%fusionEnv",
+                        "thread": "%thread",
+                        "logger": "%logger",
+                        "message": "%level [%thread] %logger %line - %message",
+                        "server": {
+                            "host": "%fusionServerHost",
+                            "port": "#asLong{%fusionServerPort}"
+                        },
+                        "exception": "%exception"
+                    }
+                    </pattern>
+                </pattern>
+                <callerData/>
+                <version/>
+                <stackTrace/>
+            </providers>
         </encoder>
     </appender>
 </included>

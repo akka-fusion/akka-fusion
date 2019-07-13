@@ -8,7 +8,7 @@ import scala.concurrent.Future
 import scala.reflect.ClassTag
 
 trait HttpClient extends AutoCloseable {
-  val materializer: ActorMaterializer
+  def materializer: ActorMaterializer
   def singleRequest(req: HttpRequest): Future[HttpResponse]
   def requestToObject[T](req: HttpRequest)(implicit ev1: ClassTag[T]): Future[T]
   def requestToList[T](req: HttpRequest)(implicit ev1: ClassTag[T]): Future[List[T]]

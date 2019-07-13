@@ -6,5 +6,6 @@
 
 * [getting](getting.md)
 * [management](management.md)
+* [interceptor-chain](interceptor-chain.md)
 
 @@@

@@ -1,12 +1,12 @@
 package fusion.mybatis
 
-import akka.actor.ActorSystem
+import akka.actor.ExtendedActorSystem
 import com.baomidou.mybatisplus.annotation.FieldStrategy
 import com.baomidou.mybatisplus.annotation.IdType
-import com.baomidou.mybatisplus.core.config.GlobalConfig
-import com.baomidou.mybatisplus.core.config.GlobalConfig.DbConfig
 import com.baomidou.mybatisplus.core.MybatisConfiguration
 import com.baomidou.mybatisplus.core.MybatisSqlSessionFactoryBuilder
+import com.baomidou.mybatisplus.core.config.GlobalConfig
+import com.baomidou.mybatisplus.core.config.GlobalConfig.DbConfig
 import com.baomidou.mybatisplus.core.incrementer.IKeyGenerator
 import com.baomidou.mybatisplus.extension.incrementer.DB2KeyGenerator
 import com.baomidou.mybatisplus.extension.incrementer.H2KeyGenerator
@@ -17,7 +17,6 @@ import com.typesafe.scalalogging.StrictLogging
 import fusion.core.util.Components
 import fusion.jdbc.FusionJdbc
 import fusion.mybatis.constant.MybatisConstants
-import helloscala.common.ConfigLoader
 import helloscala.common.Configuration
 import org.apache.ibatis.`type`.TypeHandler
 import org.apache.ibatis.logging.Log
@@ -25,7 +24,10 @@ import org.apache.ibatis.mapping.Environment
 import org.apache.ibatis.plugin.Interceptor
 import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory
 
-class MybatisComponents(system: ActorSystem)
+import scala.util.Failure
+import scala.util.Success
+
+class MybatisComponents(system: ExtendedActorSystem)
     extends Components[FusionSqlSessionFactory](MybatisConstants.PATH_DEFAULT)
     with StrictLogging {
   def config: Config = system.settings.config
@@ -87,9 +89,9 @@ class MybatisComponents(system: ActorSystem)
     mapperNames.foreach(className => configuration.addMapper(Class.forName(className)))
 
     c.get[Option[String]]("configuration.default-enum-type-handler").foreach { className =>
-      Class.forName(className) match {
-        case clazz: Class[TypeHandler[_]] => configuration.setDefaultEnumTypeHandler(clazz)
-        case _                            => // do nothing
+      system.dynamicAccess.getClassFor[TypeHandler[_]](className) match {
+        case Success(value)     => configuration.setDefaultEnumTypeHandler(value)
+        case Failure(exception) => logger.error(s"$className 不是 ${classOf[Interceptor]}", exception)
       }
     }
 
@@ -99,19 +101,19 @@ class MybatisComponents(system: ActorSystem)
 
     configuration.setCallSettersOnNulls(c.getOrElse[Boolean]("configuration.call-setters-on-nulls", true))
 
-    c.get[Option[String]]("configuration.log-impl").foreach { logImplClassName =>
-      Class.forName(logImplClassName) match {
-        case l: Class[Log] => configuration.setLogImpl(l)
-        case _             => logger.error(s"$logImplClassName 不是 ${classOf[Log]}")
+    c.get[Option[String]]("configuration.log-impl").foreach { className =>
+      system.dynamicAccess.getClassFor[Log](className) match {
+        case Success(value)     => configuration.setLogImpl(value)
+        case Failure(exception) => logger.error(s"$className 不是 ${classOf[Interceptor]}", exception)
       }
     }
 
     val interceptors = c.getOrElse[Seq[String]]("configuration.plugins", Nil) ++
-      c.getOrElse[Seq[String]]("configuration.interceptors", Nil)
+          c.getOrElse[Seq[String]]("configuration.interceptors", Nil)
     interceptors.foreach { className =>
-      Class.forName(className).newInstance() match {
-        case clazz: Interceptor => configuration.addInterceptor(clazz)
-        case _                  => logger.error(s"$className 不是 ${classOf[Interceptor]}")
+      system.dynamicAccess.createInstanceFor[Interceptor](className, Nil) match {
+        case Success(value)     => configuration.addInterceptor(value)
+        case Failure(exception) => logger.error(s"$className 不是 ${classOf[Interceptor]}", exception)
       }
     }
 

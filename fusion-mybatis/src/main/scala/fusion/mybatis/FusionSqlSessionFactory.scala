@@ -65,13 +65,4 @@ final class FusionSqlSessionFactory(underlying: SqlSessionFactory) extends SqlSe
     }
   }
 
-  def transactionalAuto[T](func: SqlSession => T): T = {
-    val session = openSession(true)
-    try {
-      func(session)
-    } finally {
-      session.close()
-    }
-  }
-
 }

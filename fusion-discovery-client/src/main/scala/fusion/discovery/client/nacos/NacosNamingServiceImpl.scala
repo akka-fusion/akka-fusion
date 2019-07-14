@@ -36,8 +36,8 @@ class NacosNamingServiceImpl(props: NacosDiscoveryProperties, val underlying: JN
     registerInstance(instance.copy(serviceName = serviceName))
 
   override def registerInstance(instance: DiscoveryInstance): DiscoveryInstance = {
-    logger.info(s"注册服务实例到${props.namespace}: $instance")
     underlying.registerInstance(instance.serviceName, /*instance.groupName, */ instance.toNacosInstance)
+    logger.info(s"已注册服务实例到 ${props.namespace}: $instance")
     instance
   }
 

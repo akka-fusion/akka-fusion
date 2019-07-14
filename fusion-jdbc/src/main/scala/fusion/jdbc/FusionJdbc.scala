@@ -11,8 +11,9 @@ import fusion.core.extension.FusionExtension
 import fusion.core.util.Components
 import fusion.jdbc.constant.JdbcConstants
 import fusion.jdbc.util.JdbcUtils
+import helloscala.common.Configuration
 
-final private[jdbc] class JdbcComponents(val config: Config)
+final private[jdbc] class JdbcComponents(val config: Configuration)
     extends Components[HikariDataSource](JdbcConstants.PATH_DEFAULT) {
   override protected def componentClose(c: HikariDataSource): Unit = c.close()
   override protected def createComponent(id: String): HikariDataSource =
@@ -21,7 +22,7 @@ final private[jdbc] class JdbcComponents(val config: Config)
 
 class FusionJdbc private (val _system: ExtendedActorSystem) extends FusionExtension {
   FusionCore(system)
-  val components = new JdbcComponents(system.settings.config)
+  val components = new JdbcComponents(Configuration(system.settings.config))
   system.registerOnTermination { components.close() }
   def component: HikariDataSource = components.component
 }

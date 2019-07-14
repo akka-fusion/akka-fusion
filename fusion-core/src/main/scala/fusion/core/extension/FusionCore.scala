@@ -9,6 +9,7 @@ import akka.actor.ExtensionIdProvider
 import com.typesafe.scalalogging.StrictLogging
 import fusion.common.constant.ConfigKeys
 import fusion.common.constant.FusionConstants
+import fusion.core.event.FusionEvents
 import fusion.core.setting.CoreSetting
 import fusion.core.util.FusionUtils
 import helloscala.common.Configuration
@@ -31,6 +32,7 @@ final class FusionCore private (protected val _system: ExtendedActorSystem) exte
   def configuration(): Configuration = _configuration
   val name: String                   = system.name
   val setting: CoreSetting           = new CoreSetting(configuration())
+  val events                         = new FusionEvents()
 
   private def writePidfile(): Unit = {
     val config = system.settings.config

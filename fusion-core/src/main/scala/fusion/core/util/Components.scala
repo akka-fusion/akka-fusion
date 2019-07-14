@@ -1,13 +1,13 @@
 package fusion.core.util
 
-import com.typesafe.config.Config
+import helloscala.common.Configuration
 
 import scala.collection.mutable
 
 abstract class Components[T](DEFAULT_ID: String) extends AutoCloseable {
   protected val components = mutable.Map.empty[String, T]
 
-  def config: Config
+  def config: Configuration
 
   protected def createComponent(id: String): T
   protected def componentClose(c: T): Unit

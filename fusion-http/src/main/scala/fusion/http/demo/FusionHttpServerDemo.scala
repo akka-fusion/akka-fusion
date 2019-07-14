@@ -16,7 +16,7 @@ object FusionHttpServerDemo {
     import akka.http.scaladsl.server.Directives._
     pathPrefix("api") {
       path("hello") {
-        complete(HttpUtils.entityJson("""{"message":"Hello"}"""))
+        complete(HttpUtils.entityJson("""{"msg":"Hello"}"""))
       }
     }
   }

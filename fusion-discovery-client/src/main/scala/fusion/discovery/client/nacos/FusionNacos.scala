@@ -1,18 +1,17 @@
 package fusion.discovery.client.nacos
 
-import akka.actor.ActorSystem
 import akka.actor.ExtendedActorSystem
 import akka.actor.Extension
 import akka.actor.ExtensionId
 import akka.actor.ExtensionIdProvider
-import com.typesafe.config.Config
 import com.typesafe.scalalogging.StrictLogging
 import fusion.common.constant.FusionConstants
 import fusion.core.extension.FusionExtension
 import fusion.core.util.Components
 import fusion.discovery.DiscoveryUtils
+import helloscala.common.Configuration
 
-final private[discovery] class NacosComponents(system: ActorSystem)
+final private[discovery] class NacosComponents(system: ExtendedActorSystem)
     extends Components[NacosDiscovery](DiscoveryUtils.methodConfPath) {
 
   override protected def createComponent(id: String): NacosDiscovery =
@@ -20,7 +19,7 @@ final private[discovery] class NacosComponents(system: ActorSystem)
 
   override protected def componentClose(c: NacosDiscovery): Unit = c.close()
 
-  override def config: Config = system.settings.config
+  override def config: Configuration = Configuration(system.settings.config)
 }
 
 final class FusionNacos private (protected val _system: ExtendedActorSystem)
@@ -29,7 +28,7 @@ final class FusionNacos private (protected val _system: ExtendedActorSystem)
 
   def component: NacosDiscovery = components.component
 
-  val components = new NacosComponents(system)
+  val components = new NacosComponents(_system)
   system.registerOnTermination { components.close() }
 
   // XXX 将覆盖 Configration.fromDiscovery() 调用 Configuration.setServiceName() 设置的全局服务名

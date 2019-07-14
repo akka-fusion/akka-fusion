@@ -19,26 +19,26 @@ import helloscala.common.Configuration
 
 final private[mongodb] class MongoComponents(system: ActorSystem)
     extends Components[MongoTemplate](MongoConstants.PATH_DEFAULT) {
-  override def config: Config = system.settings.config
+  override def config: Configuration = Configuration(system.settings.config)
 
   override protected def componentClose(c: MongoTemplate): Unit = c.close()
 
-  override protected def createComponent(path: String): MongoTemplate = {
-    require(system.settings.config.hasPath(path), s"配置路径不存在，$path")
+  override protected def createComponent(id: String): MongoTemplate = {
+    require(system.settings.config.hasPath(id), s"配置路径不存在，$id")
 
-    val conf: Configuration = Configuration(system).getConfiguration(path)
-    if (conf.hasPath("uri")) {
-      val connectionString = new ConnectionString(conf.getString("uri"))
+    val c: Configuration = config.getConfiguration(id)
+    if (c.hasPath("uri")) {
+      val connectionString = new ConnectionString(c.getString("uri"))
       val settings = MongoClientSettings
         .builder()
         .applyConnectionString(connectionString)
         .codecRegistry(MongoTemplate.DEFAULT_CODEC_REGISTRY)
         .build()
       val mongoClient =
-        getMongoDriverInformation(conf).map(MongoClients.create(settings, _)).getOrElse(MongoClients.create(settings))
+        getMongoDriverInformation(c).map(MongoClients.create(settings, _)).getOrElse(MongoClients.create(settings))
       MongoTemplate(mongoClient, connectionString.getDatabase)
     } else {
-      throw new IllegalAccessException(s"配置路径内无有效参数，$path")
+      throw new IllegalAccessException(s"配置路径内无有效参数，$id")
     }
   }
 

@@ -4,15 +4,15 @@ import akka.actor.ExtendedActorSystem
 import akka.actor.Extension
 import akka.actor.ExtensionId
 import akka.actor.ExtensionIdProvider
-import com.typesafe.config.Config
 import fusion.core.extension.FusionCore
 import fusion.core.extension.FusionExtension
 import fusion.core.util.Components
 import fusion.http.constant.HttpConstants
+import helloscala.common.Configuration
 
 private[http] class HttpServerComponents(system: ExtendedActorSystem)
     extends Components[HttpServer](HttpConstants.PATH_DEFAULT) {
-  override val config: Config                                    = system.settings.config
+  override val config: Configuration                             = Configuration(system.settings.config)
   override protected def createComponent(id: String): HttpServer = new HttpServer(id, system)
   override protected def componentClose(c: HttpServer): Unit     = c.close()
 }

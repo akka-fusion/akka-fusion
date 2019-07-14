@@ -5,9 +5,10 @@ import akka.actor.Extension
 import akka.actor.ExtensionId
 import akka.actor.ExtensionIdProvider
 import fusion.core.extension.FusionExtension
+import helloscala.common.Configuration
 
-class FusionMail private (protected val _system: _root_.akka.actor.ExtendedActorSystem) extends FusionExtension {
-  val components            = new MailComponents(system.settings.config)
+class FusionMail private (protected val _system: ExtendedActorSystem) extends FusionExtension {
+  val components            = new MailComponents(Configuration(system.settings.config))
   def component: MailHelper = components.component
 }
 

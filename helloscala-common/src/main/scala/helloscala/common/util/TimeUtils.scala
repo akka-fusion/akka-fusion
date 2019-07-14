@@ -35,9 +35,6 @@ object TimeUtils extends StrictLogging {
 
   val DateKeys = List("年", "月", "-", "/", "日")
 
-  @deprecated("直接使用 LocalDateTime.now()", "1.0.1")
-  def now(): LocalDateTime = LocalDateTime.now()
-
   def nowTimestamp(): SQLTimestamp = SQLTimestamp.from(Instant.now())
 
   /**
@@ -301,19 +298,19 @@ object TimeUtils extends StrictLogging {
   /**
    * @return 一天的开始：
    */
-  def nowBegin(): LocalDateTime = LocalDate.now().atTime(0, 0, 0, 0)
+  @inline def nowBegin(): LocalDateTime = LocalDate.now().atTime(0, 0, 0, 0)
 
   /**
    * @return 一天的结尾：
    */
-  def nowEnd(): LocalDateTime =
+  @inline def nowEnd(): LocalDateTime =
     LocalTime.of(23, 59, 59, 999999999).atDate(LocalDate.now())
 
-  def toDayInt(ldt: LocalDateTime): Int = toDayInt(ldt.toLocalDate)
+  @inline def toDayInt(ldt: LocalDateTime): Int = toDayInt(ldt.toLocalDate)
 
-  def toDayInt(odt: OffsetDateTime): Int = toDayInt(odt.toLocalDate)
+  @inline def toDayInt(odt: OffsetDateTime): Int = toDayInt(odt.toLocalDate)
 
-  def toDayInt(zdt: ZonedDateTime): Int = toDayInt(zdt.toLocalDate)
+  @inline def toDayInt(zdt: ZonedDateTime): Int = toDayInt(zdt.toLocalDate)
 
   /**
    * 将 LocalDate(2017-11-21) 转换成 20171121 (Int类型)
@@ -323,6 +320,10 @@ object TimeUtils extends StrictLogging {
    */
   def toDayInt(d: LocalDate): Int =
     d.getYear * 10000 + d.getMonthValue * 100 + d.getDayOfMonth
+
+  @inline def toTimeInt(ldt: LocalDateTime): Int = toTimeInt(ldt.toLocalTime)
+
+  def toTimeInt(lt: LocalTime): Integer = lt.getHour * 10000 + lt.getMinute * 100 + lt.getSecond
 
   private[this] lazy val funcId = new java.util.concurrent.atomic.AtomicLong()
 

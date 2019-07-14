@@ -2,7 +2,7 @@ package fusion.core.model
 
 import helloscala.common.IntStatus
 
-case class ApiResult(status: Int, message: String, data: Any)
+case class ApiResult(status: Int, msg: String, data: Any)
 
 object ApiResult {
   def apply(status: Int, message: String): ApiResult = ApiResult(status, message, null)

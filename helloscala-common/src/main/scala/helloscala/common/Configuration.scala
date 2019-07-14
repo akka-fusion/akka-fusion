@@ -27,8 +27,11 @@ import scala.util.control.NonFatal
  * @param underlying 原始Config, @see https://github.com/typesafehub/config.
  */
 case class Configuration(underlying: Config) {
-  // TODO 基于 etcd 或 consul 进行重设
-  //  underlying.withFallback()
+  def discoveryEnable(): Boolean = getOrElse("fusion.discovery.enable", false)
+
+  def withFallback(config: Config): Configuration = Configuration(underlying.withFallback(config))
+
+  def withFallback(config: Configuration): Configuration = Configuration(underlying.withFallback(config.underlying))
 
   def computeIfMap[T, R](path: String, func: T => R)(implicit o: ConfigLoader[Option[T]]): Option[R] = {
     get[Option[T]](path).map(v => func(v))
@@ -78,6 +81,8 @@ case class Configuration(underlying: Config) {
   def getBytes(path: String): Long = underlying.getBytes(path)
 
   def getInt(s: String): Int = underlying.getInt(s)
+
+  def getBoolean(path: String): Boolean = underlying.getBoolean(path)
 
   def getDuration(path: String): java.time.Duration =
     underlying.getDuration(path)

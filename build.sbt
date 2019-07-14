@@ -106,7 +106,6 @@ lazy val fusionInjects = _project("fusion-injects")
 lazy val fusionHttpGateway = _project("fusion-http-gateway")
   .dependsOn(fusionHttp, fusionDiscoveryClient, fusionTest % "test->test", fusionCore)
   .settings(libraryDependencies ++= Seq())
-  .settings(Publishing.noPublish)
 
 lazy val fusionDiscoveryServer = _project("fusion-discovery-server")
   .dependsOn(fusionDiscoveryClient, fusionHttp, fusionTest % "test->test", fusionCore)

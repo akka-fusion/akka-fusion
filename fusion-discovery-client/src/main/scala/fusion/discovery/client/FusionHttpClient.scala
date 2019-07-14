@@ -15,10 +15,10 @@ import scala.util.Success
 
 private[discovery] class FusionHttpClientComponents(system: ExtendedActorSystem)
     extends Components[DiscoveryHttpClient]("fusion.discovery.http-client.default") {
-  override def config: Config = system.settings.config
+  override def config: Configuration = Configuration(system.settings.config)
 
   override protected def createComponent(id: String): DiscoveryHttpClient = {
-    val c = Configuration(config.getConfig(id))
+    val c = config.getConfiguration(id)
     val tryValue = system.dynamicAccess.createInstanceFor[DiscoveryHttpClient](
       c.getString("instance"),
       List(

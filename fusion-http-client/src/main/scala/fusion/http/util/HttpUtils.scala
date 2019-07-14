@@ -11,6 +11,7 @@ import akka.http.scaladsl.ConnectionContext
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.HttpsConnectionContext
 import akka.http.scaladsl.UseHttp2
+import akka.http.scaladsl.model.Uri.Authority
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.model.headers.RawHeader
 import akka.http.scaladsl.server.Directive0
@@ -90,6 +91,18 @@ object HttpUtils extends StrictLogging {
         .toMap
     }
   }
+
+  def copyUri(request: HttpRequest, authority: String): HttpRequest = copyUri(request, "http", authority)
+
+  def copyUri(request: HttpRequest, scheme: String, authority: String): HttpRequest =
+    copyUri(request, scheme, Authority.parse(authority))
+
+  def copyUri(request: HttpRequest, scheme: String, authority: Authority): HttpRequest =
+    request.copy(uri = copyUri(request.uri, scheme, authority))
+
+  def copyUri(uri: Uri, scheme: String, authority: String): Uri    = copyUri(uri, scheme, Authority.parse(authority))
+  def copyUri(uri: Uri, authority: String): Uri                    = copyUri(uri, "http", Authority.parse(authority))
+  def copyUri(uri: Uri, scheme: String, authority: Authority): Uri = uri.copy(scheme = scheme, authority = authority)
 
   def forExtension(ext: String): Option[MediaType] = {
     MediaTypes.forExtensionOption(ext).orElse(customMediaTypes.get(ext))
@@ -502,7 +515,9 @@ object HttpUtils extends StrictLogging {
     Await.result(f, dr)
   }
 
-  def entityJson(string: String) = HttpEntity(ContentTypes.`application/json`, string)
+  def entityJson(status: StatusCode, msg: String): HttpEntity.Strict = entityJson(status.intValue(), msg)
+  def entityJson(status: Int, msg: String): HttpEntity.Strict        = entityJson(s"""{"status":$status,"msg":"$msg"}""")
+  def entityJson(json: String): HttpEntity.Strict                    = HttpEntity(ContentTypes.`application/json`, json)
 
   def logRequest(logger: com.typesafe.scalalogging.Logger): Directive0 = {
     Directives.mapRequest { req =>

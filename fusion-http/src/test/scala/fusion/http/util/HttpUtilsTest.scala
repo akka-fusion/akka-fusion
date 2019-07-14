@@ -9,4 +9,8 @@ class HttpUtilsTest extends FusionTestFunSuite {
     HttpUtils.customMediaTypes.map(_._2.binary) must contain(true)
   }
 
+  test("copyUri") {
+//    val request = HttpUtils.copyUri(request, scheme, serviceName)
+  }
+
 }

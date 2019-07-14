@@ -17,6 +17,8 @@ import com.typesafe.config.ConfigFactory
 import com.typesafe.scalalogging.StrictLogging
 import com.typesafe.sslconfig.akka.AkkaSSLConfig
 import fusion.common.constant.FusionConstants
+import fusion.core.event.http.HttpBindingServerEvent
+import fusion.core.extension.FusionCore
 import fusion.http.server.BaseRejectionBuilder
 import fusion.http.server.FusionRejectionHandler
 import fusion.http.server.HttpThrowableFilter
@@ -32,7 +34,7 @@ import scala.concurrent.duration._
 import scala.util.Failure
 import scala.util.Success
 
-class HttpServer(id: String, system: ExtendedActorSystem) extends StrictLogging with AutoCloseable {
+case class HttpServer(id: String, system: ExtendedActorSystem) extends StrictLogging with AutoCloseable {
   implicit private def _system: ActorSystem         = system
   implicit private val mat: ActorMaterializer       = ActorMaterializer()
   implicit private def ec: ExecutionContextExecutor = mat.executionContext
@@ -226,12 +228,14 @@ class HttpServer(id: String, system: ExtendedActorSystem) extends StrictLogging 
     logger.info(s"Server online at $schema://$host:$port/")
     _saveServer(host, port)
     _isRunning = true
+    FusionCore(system).events.afterHttpListeners.foreach(_.apply(HttpBindingServerEvent(Success(binding), isSecure)))
   }
 
   private def afterHttpBindingFailure(cause: Throwable, isSecure: Boolean): Unit = {
     val schema = if (isSecure) "https" else "http"
     logger.error(s"Error starting the $schema server ${cause.getMessage}", cause)
     close()
+    FusionCore(system).events.afterHttpListeners.foreach(_.apply(HttpBindingServerEvent(Failure(cause), isSecure)))
   }
 
   /**

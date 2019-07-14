@@ -12,7 +12,6 @@ import com.baomidou.mybatisplus.extension.incrementer.DB2KeyGenerator
 import com.baomidou.mybatisplus.extension.incrementer.H2KeyGenerator
 import com.baomidou.mybatisplus.extension.incrementer.OracleKeyGenerator
 import com.baomidou.mybatisplus.extension.incrementer.PostgreKeyGenerator
-import com.typesafe.config.Config
 import com.typesafe.scalalogging.StrictLogging
 import fusion.core.util.Components
 import fusion.jdbc.FusionJdbc
@@ -30,10 +29,10 @@ import scala.util.Success
 class MybatisComponents(system: ExtendedActorSystem)
     extends Components[FusionSqlSessionFactory](MybatisConstants.PATH_DEFAULT)
     with StrictLogging {
-  def config: Config = system.settings.config
+  def config: Configuration = Configuration(system.settings.config)
 
   override protected def createComponent(id: String): FusionSqlSessionFactory = {
-    val c = Configuration(config.getConfig(id).withFallback(config.getConfig(MybatisConstants._PATH_DEFAULT)))
+    val c = config.getConfiguration(id).withFallback(config.getConfiguration(MybatisConstants._PATH_DEFAULT))
 
     val jdbcDataSourceId = c.getString(MybatisConstants.PATH_JDBC_NAME)
     val envId            = if (c.hasPath("env")) c.getString(s"env") else id
@@ -61,8 +60,14 @@ class MybatisComponents(system: ExtendedActorSystem)
     c.computeIfForeach[String]("global-config.logic-delete-value", dbConfig.setLogicDeleteValue)
     c.computeIfForeach[String]("global-config.logic-not-delete-value", dbConfig.setLogicNotDeleteValue)
     c.computeIfForeach[String](
-      "global-config.field-strategy",
-      fieldStrategy => dbConfig.setFieldStrategy(FieldStrategy.valueOf(fieldStrategy)))
+      "global-config.insert-strategy",
+      fieldStrategy => dbConfig.setInsertStrategy(FieldStrategy.valueOf(fieldStrategy)))
+    c.computeIfForeach[String](
+      "global-config.update-strategy",
+      fieldStrategy => dbConfig.setUpdateStrategy(FieldStrategy.valueOf(fieldStrategy)))
+    c.computeIfForeach[String](
+      "global-config.select-strategy",
+      fieldStrategy => dbConfig.setSelectStrategy(FieldStrategy.valueOf(fieldStrategy)))
 
     gc.setDbConfig(dbConfig)
 

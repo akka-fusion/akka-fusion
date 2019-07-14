@@ -11,7 +11,6 @@ import com.datastax.driver.core.TypeCodec
 import com.datastax.driver.extras.codecs.json.JacksonJsonCodec
 import com.fasterxml.jackson.databind.JsonNode
 import com.google.common.util.concurrent.ListenableFuture
-import com.typesafe.config.Config
 import com.typesafe.scalalogging.StrictLogging
 import fusion.core.extension.FusionExtension
 import fusion.core.util.Components
@@ -32,15 +31,14 @@ case class CassandraCluster(cluster: Cluster, keyspace: Option[String], configur
 }
 
 class FusionComponents(system: ExtendedActorSystem)
-    extends Components[CassandraCluster]("fusion.cassandra.default")
+    extends Components[CassandraCluster]("fusion.data.cassandra.default")
     with StrictLogging {
-  private val DEFAULT_HOST    = "127.0.0.1"
-  private val DEFAULT_PORT    = 9042
-  override def config: Config = system.settings.config
-  private val configuration   = Configuration(config)
+  private val DEFAULT_HOST           = "127.0.0.1"
+  private val DEFAULT_PORT           = 9042
+  override def config: Configuration = Configuration(system.settings.config)
 
   override protected def createComponent(id: String): CassandraCluster = {
-    val c = configuration.getConfiguration(id)
+    val c = config.getConfiguration(id)
 
     val builder = if (c.hasPath("contacts")) {
       Cluster.builder().addContactPoints(c.get[Seq[String]]("contacts"): _*)

@@ -5,7 +5,6 @@ import akka.actor.Extension
 import akka.actor.ExtensionId
 import akka.actor.ExtensionIdProvider
 import akka.stream.ActorMaterializer
-import com.typesafe.config.Config
 import fusion.core.extension.FusionExtension
 import fusion.core.util.Components
 import helloscala.common.Configuration

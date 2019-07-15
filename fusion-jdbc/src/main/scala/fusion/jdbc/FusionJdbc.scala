@@ -4,7 +4,6 @@ import akka.actor.ExtendedActorSystem
 import akka.actor.Extension
 import akka.actor.ExtensionId
 import akka.actor.ExtensionIdProvider
-import com.typesafe.config.Config
 import com.zaxxer.hikari.HikariDataSource
 import fusion.core.extension.FusionCore
 import fusion.core.extension.FusionExtension

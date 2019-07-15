@@ -4,7 +4,6 @@ import java.util.Properties
 
 import com.typesafe.config.ConfigFactory
 import com.typesafe.scalalogging.StrictLogging
-import fusion.common.constant.PropKeys._
 import helloscala.common.Configuration
 
 object NacosPropertiesUtils extends StrictLogging {

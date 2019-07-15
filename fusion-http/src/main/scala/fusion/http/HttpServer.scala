@@ -228,14 +228,22 @@ case class HttpServer(id: String, system: ExtendedActorSystem) extends StrictLog
     logger.info(s"Server online at $schema://$host:$port/")
     _saveServer(host, port)
     _isRunning = true
-    FusionCore(system).events.afterHttpListeners.foreach(_.apply(HttpBindingServerEvent(Success(binding), isSecure)))
+    Future {
+      val core  = FusionCore(system)
+      val event = HttpBindingServerEvent(Success(binding), isSecure)
+      core.events.http.complete(event)
+    }
   }
 
   private def afterHttpBindingFailure(cause: Throwable, isSecure: Boolean): Unit = {
     val schema = if (isSecure) "https" else "http"
     logger.error(s"Error starting the $schema server ${cause.getMessage}", cause)
     close()
-    FusionCore(system).events.afterHttpListeners.foreach(_.apply(HttpBindingServerEvent(Failure(cause), isSecure)))
+    Future {
+      val core  = FusionCore(system)
+      val event = HttpBindingServerEvent(Failure(cause), isSecure)
+      core.events.http.complete(event)
+    }
   }
 
   /**

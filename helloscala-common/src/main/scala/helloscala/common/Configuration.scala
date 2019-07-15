@@ -277,7 +277,7 @@ object Configuration extends StrictLogging {
         parseString(confStr)
       } catch {
         case e: ReflectiveOperationException =>
-          logger.info(s"服务发现组件缺失，使用本地默认配置：${e.toString}")
+          logger.info(s"服务发现组件缺失，使用本地默认配置", e)
           Configuration()
         case e: Throwable =>
           logger.error("拉取配置内容失败，使用本地默认配置", e)
@@ -310,7 +310,7 @@ object Configuration extends StrictLogging {
   def apply(props: Properties): Configuration = Configuration(ConfigurationHelper.fromProperties(props))
 
   def parseString(content: String): Configuration =
-    Configuration(ConfigFactory.parseString(content).resolve().withFallback(ConfigFactory.load()))
+    Configuration(ConfigFactory.parseString(content).withFallback(ConfigFactory.load()).resolve())
 
   def configError(message: String, origin: Option[ConfigOrigin], me: Option[Throwable]): HSException = {
     val msg = origin.map(o => s"[$o] $message").getOrElse(message)

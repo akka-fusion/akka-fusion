@@ -20,15 +20,16 @@ final private[discovery] class NacosComponents(system: ExtendedActorSystem)
   override protected def componentClose(c: NacosDiscovery): Unit = c.close()
 
   override def config: Configuration = Configuration(system.settings.config)
+
 }
 
 final class FusionNacos private (protected val _system: ExtendedActorSystem)
     extends FusionExtension
     with StrictLogging {
 
-  def component: NacosDiscovery = components.component
-
   val components = new NacosComponents(_system)
+
+  def component: NacosDiscovery = components.component
   system.registerOnTermination { components.close() }
 
   // XXX 将覆盖 Configration.fromDiscovery() 调用 Configuration.setServiceName() 设置的全局服务名

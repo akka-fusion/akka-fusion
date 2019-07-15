@@ -2,7 +2,7 @@
 <included>
     <appender name="console_out" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <pattern>${fusion.log.logback.console-pattern:-%d [%thread] %-5level %logger{36} %line - %msg%n%exception}</pattern>
+            <pattern>${fusion.log.logback.console-pattern:-%d %-5level [%thread] %logger{36} %line - %msg%n%exception}</pattern>
         </encoder>
     </appender>
     <appender name="console_json_out" class="ch.qos.logback.core.ConsoleAppender">
@@ -19,7 +19,7 @@
                         "env": "%fusionEnv",
                         "thread": "%thread",
                         "logger": "%logger",
-                        "message": "%level [%thread] %logger %line - %message",
+                        "message": "%level [%thread] %logger %line - %message%n%exception",
                         "server": {
                             "host": "%fusionServerHost",
                             "port": "#asLong{%fusionServerPort}"

@@ -1,14 +1,8 @@
 package fusion.core.event
 
+import com.typesafe.scalalogging.StrictLogging
 import fusion.core.event.http.HttpBindingServerEvent
 
-class FusionEvents {
-
-  private var _afterHttpListeners = List[HttpBindingServerEvent => Unit]()
-
-  def afterHttpListeners: List[HttpBindingServerEvent => Unit] = _afterHttpListeners
-
-  def addHttpBindingListener(func: HttpBindingServerEvent => Unit): Unit = {
-    _afterHttpListeners ::= func
-  }
+class FusionEvents extends StrictLogging {
+  val http: EventListenerRegistry[HttpBindingServerEvent] = new EventListenerRegistry[HttpBindingServerEvent]() {}
 }

@@ -104,11 +104,8 @@ final class NacosHttpClient private (
 object NacosHttpClient {
 
   def apply(namingService: FusionNamingService, materializer: ActorMaterializer): NacosHttpClient =
-    apply(namingService, materializer)
+    apply(namingService, materializer, Configuration(ConfigFactory.parseString("queue-buffer-size = 512")))
 
-  def apply(
-      namingService: FusionNamingService,
-      materializer: ActorMaterializer,
-      c: Configuration = Configuration(ConfigFactory.parseString("queue-buffer-size = 512"))): NacosHttpClient =
+  def apply(namingService: FusionNamingService, materializer: ActorMaterializer, c: Configuration): NacosHttpClient =
     new NacosHttpClient(namingService, materializer, c)
 }

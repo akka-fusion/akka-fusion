@@ -16,7 +16,7 @@ buildEnv in ThisBuild := {
     .getOrElse(BuildEnv.Developement)
 }
 
-scalaVersion in ThisBuild := versionScala211
+scalaVersion in ThisBuild := versionScala212
 
 crossScalaVersions in ThisBuild := Seq(versionScala211, versionScala212/*, versionScala213*/)
 

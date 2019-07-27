@@ -22,7 +22,7 @@ final private[jdbc] class JdbcComponents(val config: Configuration)
 class FusionJdbc private (val _system: ExtendedActorSystem) extends FusionExtension {
   FusionCore(system)
   val components = new JdbcComponents(Configuration(system.settings.config))
-  system.registerOnTermination { components.close() }
+  sys.addShutdownHook { components.close() }
   def component: HikariDataSource = components.component
 }
 

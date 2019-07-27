@@ -12,6 +12,7 @@ import com.alibaba.nacos.api.naming.pojo.ServiceInfo
 import com.typesafe.scalalogging.StrictLogging
 import fusion.common.constant.FusionConstants
 import fusion.discovery.model._
+import fusion.http.constant.HttpConstants
 import helloscala.common.util.AsBoolean
 import helloscala.common.util.AsInt
 import helloscala.common.util.AsLong
@@ -33,13 +34,13 @@ package object nacos {
     def timeoutMs: Long             = AsLong.unapply(get(TIMEOUT_MS)).getOrElse(3000L)
 
     def instanceIp: String = {
-      val ip = System.getProperty(FusionConstants.SERVER_HOST_PATH)
+      val ip = System.getProperty(HttpConstants.SERVER_HOST_PATH)
       Utils.option(ip).getOrElse(getProperty(INSTANCE_IP))
     }
 
     def instancePort: Int = {
       AsInt
-        .unapply(Option(System.getProperty(FusionConstants.SERVER_PORT_PATH)).getOrElse(get(INSTANCE_PORT)))
+        .unapply(Option(System.getProperty(HttpConstants.SERVER_PORT_PATH)).getOrElse(get(INSTANCE_PORT)))
         .getOrElse(throw new ExceptionInInitializerError("instance port 未设置"))
     }
 

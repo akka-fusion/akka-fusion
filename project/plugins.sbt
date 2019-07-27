@@ -13,6 +13,6 @@ addSbtPlugin("com.dwijnand"            % "sbt-dynver"                 % "3.3.0")
 addSbtPlugin("com.typesafe.sbt"        % "sbt-git"                    % "1.0.0")
 addSbtPlugin("io.kamon"                % "sbt-aspectj-runner"         % "1.1.1")
 addSbtPlugin("com.lightbend.sbt"       % "sbt-javaagent"              % "0.1.5") // ALPN agent
-addSbtPlugin("com.lightbend.akka.grpc" % "sbt-akka-grpc"              % "0.6.2")
+addSbtPlugin("com.lightbend.akka.grpc" % "sbt-akka-grpc"              % "0.7.0")
 addSbtPlugin("org.scalameta"           % "sbt-scalafmt"               % "2.0.1")
 addSbtPlugin("ch.epfl.scala"           % "sbt-scalafix"               % "0.9.5")

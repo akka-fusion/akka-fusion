@@ -1,8 +1,15 @@
 package fusion.http.util
 
+import akka.http.scaladsl.model.Uri.Authority
 import fusion.test.FusionTestFunSuite
 
 class HttpUtilsTest extends FusionTestFunSuite {
+  test("authority") {
+    val a = Authority.parse("hongka-server-account")
+    println(a)
+    println(a.host)
+    println(a.host.address())
+  }
 
   test("testForExtension") {
     HttpUtils.customMediaTypes must not be empty

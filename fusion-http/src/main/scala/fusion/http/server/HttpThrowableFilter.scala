@@ -2,18 +2,13 @@ package fusion.http.server
 
 import java.util.concurrent.TimeoutException
 
+import akka.http.scaladsl.model._
 import akka.http.scaladsl.model.StatusCodes.InternalServerError
 import akka.http.scaladsl.model.StatusCodes.RequestEntityTooLarge
-import akka.http.scaladsl.model.EntityStreamSizeException
-import akka.http.scaladsl.model.ExceptionWithErrorInfo
-import akka.http.scaladsl.model.HttpResponse
-import akka.http.scaladsl.model.IllegalRequestException
-import akka.http.scaladsl.model.StatusCodes
+import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.ExceptionHandler
 import akka.http.scaladsl.server.RequestContext
-import akka.http.scaladsl.server.Directives._
 import com.typesafe.scalalogging.StrictLogging
-import fusion.http.exception.HttpException
 import fusion.http.exception.HttpResponseException
 import fusion.http.server.HttpThrowableFilter.ThrowableFilter
 import helloscala.common.exception.HSException
@@ -52,7 +47,7 @@ object HttpThrowableFilter extends StrictLogging {
         val uri = ctx.request.uri
         ctx.request.discardEntityBytes(ctx.materializer)
         val response = ex match {
-          case e: HttpException =>
+          case e: HSException =>
             val msg = s"HTTP异常，URI[$uri] ${e.getLocalizedMessage}"
             val t   = e.getCause
             if (t != null) logger.warn(msg, t) else logger.warn(s"URI[$uri] ${e.toString}")

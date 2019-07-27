@@ -27,6 +27,7 @@ trait JacksonFactory {
 }
 
 object Jackson extends JacksonFactory with StrictLogging {
+
   private lazy val _defaultObjectMapper = createObjectMapper
 
   def defaultObjectMapper: ObjectMapper = _defaultObjectMapper
@@ -34,6 +35,9 @@ object Jackson extends JacksonFactory with StrictLogging {
   def createObjectNode: ObjectNode = defaultObjectMapper.createObjectNode
 
   def createArrayNode: ArrayNode = defaultObjectMapper.createArrayNode
+
+  def convertValue[T](text: String)(implicit ev1: ClassTag[T]): T =
+    defaultObjectMapper.convertValue(text, ev1.runtimeClass).asInstanceOf[T]
 
   def readTree(text: String): JsonNode = defaultObjectMapper.readTree(text)
 
@@ -93,7 +97,7 @@ object Jackson extends JacksonFactory with StrictLogging {
         })
     } catch {
       case NonFatal(e) => // do nothing
-        logger.warn(s"create ObjectMapper: ${e.toString}", e)
+        logger.warn(s"create ObjectMapper: ${e.toString}")
     }
 
     mapper

@@ -14,14 +14,16 @@ trait EventListenerRegistry[E <: AnyRef] {
   }
 
   def complete(event: E): Unit = synchronized {
-    if (Objects.nonNull(event)) {
-      throw new IllegalStateException(s"${_event} 只能被调用一次")
+    if (Objects.nonNull(_event)) {
+      throw new IllegalStateException(s"$event 只能被调用一次")
     }
     _event = event
     dispatch()
   }
 
   protected def dispatch(): Unit = {
-    _listeners.foreach(_.apply(_event))
+    new Thread(new Runnable {
+      override def run(): Unit = _listeners.foreach(_.apply(_event))
+    }).start()
   }
 }

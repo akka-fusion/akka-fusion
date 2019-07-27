@@ -8,13 +8,13 @@ import fusion.common.constant.FusionConstants
 import fusion.http.constant.HttpConstants
 import helloscala.common.Configuration
 
-class HttpSetting(configuration: Configuration, system: ActorSystem) {
-  def exceptionHandlerOption: Option[String] = configuration.get[Option[String]]("exception-handler")
-  def rejectionHandlerOption: Option[String] = configuration.get[Option[String]]("rejection-handler")
-  def defaultFilter: String                  = configuration.getString("default-filter")
-  def httpFilters: Seq[String]               = configuration.get[Seq[String]]("http-filters")
+class HttpSetting(c: Configuration, system: ActorSystem) {
+  def exceptionHandlerOption: Option[String] = c.get[Option[String]]("exception-handler")
+  def rejectionHandlerOption: Option[String] = c.get[Option[String]]("rejection-handler")
+  def defaultFilter: String                  = c.getString("default-filter")
+  def httpFilters: Seq[String]               = c.get[Seq[String]]("http-filters")
 
-  def http2: UseHttp2 = configuration.getOrElse("http2", "").toLowerCase match {
+  def http2: UseHttp2 = c.getOrElse("http2", "").toLowerCase match {
     case "never"  => UseHttp2.Never
     case "always" => UseHttp2.Always
     case _        => UseHttp2.Negotiated
@@ -24,8 +24,8 @@ class HttpSetting(configuration: Configuration, system: ActorSystem) {
     val akkaOverrides = system.settings.config.getConfig("akka.ssl-config")
     val defaults      = system.settings.config.getConfig("ssl-config")
     val mergeConfig   = akkaOverrides.withFallback(defaults)
-    val sslConfig = if (configuration.hasPath("ssl.ssl-config")) {
-      configuration.getConfig("ssl.ssl-config").withFallback(mergeConfig)
+    val sslConfig = if (c.hasPath("ssl.ssl-config")) {
+      c.getConfig("ssl.ssl-config").withFallback(mergeConfig)
     } else {
       mergeConfig
     }
@@ -35,12 +35,10 @@ class HttpSetting(configuration: Configuration, system: ActorSystem) {
   object server {
 
     def host: String =
-      configuration.getOrElse(
-        FusionConstants.SERVER_HOST_PATH,
-        system.settings.config.getString(HttpConstants.SERVER_HOST_PATH))
+      c.getOrElse(FusionConstants.SERVER_HOST_PATH, system.settings.config.getString(HttpConstants.SERVER_HOST_PATH))
 
     def port: Int = {
-      configuration.get[Option[Int]](FusionConstants.SERVER_PORT_PATH) match {
+      c.get[Option[Int]](FusionConstants.SERVER_PORT_PATH) match {
         case Some(port) => port
         case _ =>
           if (!system.settings.config.hasPath(HttpConstants.SERVER_PORT_PATH)) 0

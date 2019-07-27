@@ -83,9 +83,9 @@ object Publishing {
   lazy val publishing = Seq(
     publishTo := (if (version.value.endsWith("-SNAPSHOT")) {
                     Some("Helloscala_sbt-public_snapshot".at(
-                      "http://118.89.245.43:8081/artifactory/sbt-release;build.timestamp=" + new java.util.Date().getTime))
+                      "https://artifactory.hongkazhijia.com/artifactory/sbt-release;build.timestamp=" + new java.util.Date().getTime))
                   } else {
-                    Some("Helloscala_sbt-public_release".at("http://118.89.245.43:8081/artifactory/libs-release"))
+                    Some("Helloscala_sbt-public_release".at("https://artifactory.hongkazhijia.com/artifactory/libs-release"))
                   }),
     credentials += Credentials(Path.userHome / ".ivy2" / ".credentials_ihongka"))
 

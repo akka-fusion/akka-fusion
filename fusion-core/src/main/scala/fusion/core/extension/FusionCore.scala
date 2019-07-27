@@ -29,10 +29,11 @@ final class FusionCore private (protected val _system: ExtendedActorSystem) exte
 
   private lazy val _configuration = Configuration(system.settings.config)
 
-  def configuration(): Configuration = _configuration
-  val name: String                   = system.name
-  val setting: CoreSetting           = new CoreSetting(configuration())
-  val events                         = new FusionEvents()
+  override def configuration: Configuration = _configuration
+
+  val name: String         = system.name
+  val setting: CoreSetting = new CoreSetting(configuration)
+  val events               = new FusionEvents()
 
   private def writePidfile(): Unit = {
     val config = system.settings.config

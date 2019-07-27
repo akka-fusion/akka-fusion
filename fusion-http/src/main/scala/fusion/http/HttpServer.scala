@@ -1,5 +1,7 @@
 package fusion.http
 
+import java.net.Inet4Address
+import java.net.InetSocketAddress
 import java.util.Objects
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -16,7 +18,6 @@ import akka.stream.ActorMaterializer
 import com.typesafe.config.ConfigFactory
 import com.typesafe.scalalogging.StrictLogging
 import com.typesafe.sslconfig.akka.AkkaSSLConfig
-import fusion.common.constant.FusionConstants
 import fusion.core.event.http.HttpBindingServerEvent
 import fusion.core.extension.FusionCore
 import fusion.http.server.BaseRejectionBuilder
@@ -26,6 +27,7 @@ import fusion.http.server.HttpThrowableFilter.ThrowableFilter
 import fusion.http.util.HttpUtils
 import helloscala.common.Configuration
 import helloscala.common.exception.HSInternalErrorException
+import helloscala.common.util.NetworkUtils
 
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContextExecutor
@@ -34,17 +36,16 @@ import scala.concurrent.duration._
 import scala.util.Failure
 import scala.util.Success
 
-case class HttpServer(id: String, system: ExtendedActorSystem) extends StrictLogging with AutoCloseable {
+final class HttpServer(val id: String, val system: ExtendedActorSystem) extends StrictLogging with AutoCloseable {
   implicit private def _system: ActorSystem         = system
   implicit private val mat: ActorMaterializer       = ActorMaterializer()
   implicit private def ec: ExecutionContextExecutor = mat.executionContext
   private val _isStarted                            = new AtomicBoolean(false)
   @volatile private var _isRunning                  = false
-  private val configuration                         = Configuration(system.settings.config.getConfig(id))
-  private var _serverHost: String                   = ""
-  private var _serverPort: Int                      = 0
+  private val c                                     = Configuration(system.settings.config.getConfig(id))
+  private var _socketAddress: InetSocketAddress     = _
   private var maybeEventualBinding                  = Option.empty[Future[ServerBinding]]
-  private val httpSetting                           = new HttpSetting(configuration, system)
+  private val httpSetting                           = new HttpSetting(c, system)
 
   def startRouteSync(route: Route)(
       implicit rh: RejectionHandler = null,
@@ -193,57 +194,54 @@ case class HttpServer(id: String, system: ExtendedActorSystem) extends StrictLog
 
   private def generateConnectionContext(): ConnectionContext = {
     val http2 = httpSetting.http2
-    if (!configuration.hasPath("ssl")) {
+    if (!c.hasPath("ssl")) {
       HttpConnectionContext(http2)
     } else {
       val akkaSslConfig = new AkkaSSLConfig(system, httpSetting.createSSLConfig())
-      val keyPassword   = configuration.getString("ssl.key-store.password")
-      val keyPath       = configuration.getString("ssl.key-store.path")
+      val keyPassword   = c.getString("ssl.key-store.password")
+      val keyPath       = c.getString("ssl.key-store.path")
       val keystore =
         Objects.requireNonNull(getClass.getClassLoader.getResourceAsStream(keyPath), s"keystore不能为空，keyPath: $keyPath")
-      val keyStoreType = configuration.getOrElse("ssl.key-store.type", "PKCS12")
-      val algorithm    = configuration.getOrElse("ssl.key-store.algorithm", "SunX509")
-      val protocol     = configuration.getOrElse("ssl.protocol", akkaSslConfig.config.protocol)
+      val keyStoreType = c.getOrElse("ssl.key-store.type", "PKCS12")
+      val algorithm    = c.getOrElse("ssl.key-store.algorithm", "SunX509")
+      val protocol     = c.getOrElse("ssl.protocol", akkaSslConfig.config.protocol)
       HttpUtils.generateHttps(keyPassword, keystore, keyStoreType, algorithm, protocol, http2, Some(akkaSslConfig))
     }
   }
 
   def isStarted(): Boolean = _isStarted.get()
+
   def isRunning(): Boolean = _isRunning
 
-  private def _saveServer(host: String, port: Int): Unit = {
-    _serverHost = host
-    _serverPort = port
-    System.setProperty(id, _serverHost)
-    System.setProperty(id, _serverPort.toString)
-    System.setProperty(FusionConstants.SERVER_HOST_PATH, _serverHost)
-    System.setProperty(FusionConstants.SERVER_PORT_PATH, _serverPort.toString)
+  private def _saveServer(socketAddress: InetSocketAddress): InetSocketAddress = {
+    socketAddress.getAddress.getAddress.apply(0) == 0
+    val inetAddress = socketAddress.getAddress match {
+      case address if Objects.isNull(address) || address.getAddress.apply(0) == 0 =>
+        NetworkUtils.firstOnlineInet4Address().getOrElse(socketAddress.getAddress)
+      case address => address
+    }
+    val host = inetAddress.getHostAddress
+    val port = socketAddress.getPort
+    _socketAddress = new InetSocketAddress(inetAddress, port)
+    System.setProperty(s"$id.server.host", host)
+    System.setProperty(s"$id.server.port", port.toString)
     ConfigFactory.invalidateCaches()
+    _socketAddress
   }
 
   private def afterHttpBindingSuccess(binding: ServerBinding, isSecure: Boolean): Unit = {
-    val schema = if (isSecure) "https" else "http"
-    val host   = binding.localAddress.getAddress.getHostAddress
-    val port   = binding.localAddress.getPort
-    logger.info(s"Server online at $schema://$host:$port/")
-    _saveServer(host, port)
+    val schema        = if (isSecure) "https" else "http"
+    val socketAddress = _saveServer(binding.localAddress)
+    logger.info(s"Server online at $schema://${socketAddress.getHostString}:${socketAddress.getPort}")
     _isRunning = true
-    Future {
-      val core  = FusionCore(system)
-      val event = HttpBindingServerEvent(Success(binding), isSecure)
-      core.events.http.complete(event)
-    }
+    FusionCore(system).events.http.complete(HttpBindingServerEvent(Success(socketAddress), isSecure))
   }
 
   private def afterHttpBindingFailure(cause: Throwable, isSecure: Boolean): Unit = {
     val schema = if (isSecure) "https" else "http"
     logger.error(s"Error starting the $schema server ${cause.getMessage}", cause)
     close()
-    Future {
-      val core  = FusionCore(system)
-      val event = HttpBindingServerEvent(Failure(cause), isSecure)
-      core.events.http.complete(event)
-    }
+    FusionCore(system).events.http.complete(HttpBindingServerEvent(Failure(cause), isSecure))
   }
 
   /**
@@ -256,4 +254,6 @@ case class HttpServer(id: String, system: ExtendedActorSystem) extends StrictLog
     _isRunning = false
     mat.shutdown()
   }
+
+  def socketAddress: InetSocketAddress = _socketAddress
 }

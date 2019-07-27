@@ -18,7 +18,7 @@ buildEnv in ThisBuild := {
 
 scalaVersion in ThisBuild := versionScala212
 
-crossScalaVersions in ThisBuild := Seq(versionScala211, versionScala212/*, versionScala213*/)
+crossScalaVersions in ThisBuild := Seq(versionScala211, versionScala212 /*, versionScala213*/ )
 
 scalafmtOnCompile in ThisBuild := true
 
@@ -145,7 +145,7 @@ lazy val fusionLog = _project("fusion-log")
 
 lazy val fusionCassandra = _project("fusion-cassandra")
   .dependsOn(fusionTest % "test->test", fusionCore)
-  .settings(libraryDependencies ++= Seq(_cassandraExtra, _alpakkaCassandra))
+  .settings(libraryDependencies ++= _cassandras)
 
 lazy val fusionKafka = _project("fusion-kafka")
   .dependsOn(fusionTest % "test->test", fusionCore)
@@ -193,7 +193,11 @@ lazy val fusionCore = _project("fusion-core")
         _scalameta.exclude("com.thesamet.scalapb", "scalapb-runtime_2.12"),
 //        _jacksonDataformatProtobuf,
         "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion % "protobuf,provided",
-        _chillAkka) ++ _alpakkas)
+        _chillAkka,
+        _akkaTestkit,
+        _akkaStreamTestkit,
+        _akkaHttpTestkit,
+        _scalatest) ++ _alpakkas)
 
 lazy val fusionCommon = _project("fusion-common")
   .dependsOn(helloscalaCommon)

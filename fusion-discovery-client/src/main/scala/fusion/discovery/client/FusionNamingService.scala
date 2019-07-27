@@ -1,9 +1,16 @@
 package fusion.discovery.client
 
+import java.util.Objects
+
+import akka.http.scaladsl.model.HttpRequest
+import akka.http.scaladsl.model.Uri
+import akka.http.scaladsl.model.Uri.Authority
 import fusion.discovery.model.DiscoveryEvent
 import fusion.discovery.model.DiscoveryInstance
 import fusion.discovery.model.DiscoveryList
 import fusion.discovery.model.DiscoveryServiceInfo
+
+import scala.util.control.NonFatal
 
 trait FusionNamingService {
 
@@ -253,4 +260,44 @@ trait FusionNamingService {
    * @return is server healthy
    */
   def getServerStatus: String
+
+  def selectOneHealthUri(uri: Uri): Uri =
+    uri.copy(authority = selectOneHealthToAuthority(uri.authority))
+
+  def selectOneHealthUri(uri: Uri, serviceName: String): Uri =
+    uri.copy(authority = selectOneHealthToAuthority(serviceName))
+
+  def selectOneHealthUri(uri: Uri, authority: Authority): Uri =
+    uri.copy(authority = selectOneHealthToAuthority(authority))
+
+  def selectOneHealthHttpRequest(request: HttpRequest): HttpRequest =
+    request.copy(uri = selectOneHealthUri(request.uri, request.uri.authority))
+
+  def selectOneHealthHttpRequest(request: HttpRequest, serviceName: String): HttpRequest =
+    request.copy(uri = selectOneHealthUri(request.uri, serviceName))
+
+  def selectOneHealthToAuthority(authority: Authority): Authority = {
+    if (authority.host.isNamedHost()) {
+      try {
+        val inst = selectOneHealthyInstance(authority.host.address())
+        if (Objects.nonNull(inst)) Authority(Uri.Host(inst.ip), inst.port)
+        else authority
+      } catch {
+        case NonFatal(_) => authority
+      }
+    } else {
+      authority
+    }
+  }
+
+  def selectOneHealthToAuthority(serviceName: String): Authority = {
+    try {
+      val inst = selectOneHealthyInstance(serviceName)
+      if (Objects.nonNull(inst)) Authority(Uri.Host(inst.ip), inst.port)
+      else Authority.parse(serviceName)
+    } catch {
+      case NonFatal(_) => Authority.parse(serviceName)
+    }
+  }
+
 }

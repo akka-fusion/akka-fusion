@@ -127,6 +127,24 @@ object StringUtils {
       sb.toString()
     }
 
+  def toUnderscore(name: String, isLower: Boolean = true): String =
+    if (isBlank(name)) {
+      name
+    } else {
+      val sb = new StringBuilder
+      for (c <- name) {
+        if (Character.isUpperCase(c)) {
+          sb.append('_')
+        }
+        if ('-' == c) {
+          sb.append('_')
+        } else {
+          sb.append(if (isLower) Character.toLowerCase(c) else Character.toUpperCase(c.toUpper))
+        }
+      }
+      sb.toString()
+    }
+
   /**
    * Convert a column name with underscores to the corresponding property name using "camel case".  A name
    * like "customer_number" would match a "customerNumber" property name.
@@ -143,6 +161,14 @@ object StringUtils {
       ""
     } else {
       val arr = name.split(ch)
+      arr.head + arr.tail.map(item => item.head.toUpper + item.tail).mkString
+    }
+
+  def toProperty(name: String): String =
+    if (isBlank(name)) {
+      ""
+    } else {
+      val arr = name.split("""[_-]""")
       arr.head + arr.tail.map(item => item.head.toUpper + item.tail).mkString
     }
 

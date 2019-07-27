@@ -7,6 +7,7 @@ import akka.http.scaladsl.model.HttpRequest
 import akka.http.scaladsl.model.HttpResponse
 import akka.http.scaladsl.model.Uri
 import akka.http.scaladsl.model.Uri.Authority
+import akka.pattern.CircuitBreaker
 import akka.stream.ActorMaterializer
 import akka.stream.QueueOfferResult
 import com.typesafe.config.ConfigFactory
@@ -22,9 +23,19 @@ import helloscala.common.util.Utils
 import scala.concurrent.Future
 import scala.concurrent.Promise
 import scala.reflect.ClassTag
+import scala.concurrent.duration._
 
 /**
- * TODO fallback
+ * {
+ *   # HttpSourceQueue队列大小
+ *   queue-buffer-size = 512
+ *   # 最大连续失败次数
+ *   max-failures = 5
+ *   # 单次服务调用超时
+ *   call-timeout = 10.seconds
+ *   # 断路器开断后，再次尝试接通断路器的时间
+ *   reset-timeout = 60.seconds
+ * }
  */
 final class NacosHttpClient private (
     override val namingService: FusionNamingService,
@@ -35,6 +46,11 @@ final class NacosHttpClient private (
   private val DEFAULT_QUEUE_BUFFER_SIZE = 512
   private val httpSourceQueueMap        = new ConcurrentHashMap[Authority, HttpSourceQueue]()
   private val httpSourceQueueBufferSize = clientConfiguration.getOrElse("queue-buffer-size", DEFAULT_QUEUE_BUFFER_SIZE)
+  private val circuitBreaker = CircuitBreaker(
+    system.scheduler,
+    clientConfiguration.getOrElse("max-failures", 5),
+    clientConfiguration.getOrElse("call-timeout", 5.seconds),
+    clientConfiguration.getOrElse("reset-timeout", 30.seconds))
 
   override def hostRequestToObject[T](req: HttpRequest)(implicit ev1: ClassTag[T]): Future[T] = {
     import fusion.http.util.JacksonSupport._
@@ -59,7 +75,7 @@ final class NacosHttpClient private (
       override def apply(t: Authority): HttpSourceQueue =
         HttpUtils.cachedHostConnectionPool(uri, httpSourceQueueBufferSize)(system, materializer)
     })
-    queue
+    val responseF = queue
       .offer(request -> responsePromise)
       .flatMap {
         case QueueOfferResult.Enqueued => responsePromise.future
@@ -71,6 +87,8 @@ final class NacosHttpClient private (
           val msg = "Queue was closed (pool shut down) while running the request. Try again later."
           Future.failed(HSServiceUnavailableException(msg))
       }(materializer.executionContext)
+
+    circuitBreaker.withCircuitBreaker(responseF)
   }
 
   def singleRequestToObject[T](req: HttpRequest)(implicit ev1: ClassTag[T]): Future[T] = {

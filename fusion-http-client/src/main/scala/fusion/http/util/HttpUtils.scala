@@ -532,8 +532,7 @@ object HttpUtils extends StrictLogging {
       case _                => "\n" + req.entity
     }
     log.debug(s"""HttpRequest
-                |method: ${req.method.value}
-                |uri: ${req.uri}
+                |${req.protocol} ${req.method.value} ${req.uri}
                 |search: ${req.uri.rawQueryString}
                 |header: ${req.headers.mkString("\n        ")}$entity""".stripMargin)
     req
@@ -546,8 +545,7 @@ object HttpUtils extends StrictLogging {
       case _                => "\n" + resp.entity
     }
     log.debug(s"""HttpResponse
-                |method: ${req.method.value}
-                |uri: ${req.uri}
+                |${resp.protocol} ${req.method.value} ${req.uri}
                 |search: ${req.uri.rawQueryString}
                 |status: ${resp.status}
                 |header: ${resp.headers.mkString("\n        ")}$entity""".stripMargin)

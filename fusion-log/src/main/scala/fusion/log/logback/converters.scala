@@ -10,15 +10,9 @@ import helloscala.common.util.Utils
 
 object Converters {
 
-  val hosts = List(
-    () => System.getProperty(FusionConstants.SERVER_HOST_PATH),
-    () => System.getProperty("fusion.http.default.server.host"),
-    () => System.getProperty("server.host"))
+  val hosts = List(() => System.getProperty("fusion.http.default.server.host"), () => System.getProperty("server.host"))
 
-  val ports = List(
-    () => System.getProperty(FusionConstants.SERVER_PORT_PATH),
-    () => System.getProperty("fusion.http.default.server.port"),
-    () => System.getProperty("server.port"))
+  val ports = List(() => System.getProperty("fusion.http.default.server.port"), () => System.getProperty("server.port"))
 
   val serviceNames = List(
     () => System.getProperty(FusionConstants.SERVICE_NAME_PATH),

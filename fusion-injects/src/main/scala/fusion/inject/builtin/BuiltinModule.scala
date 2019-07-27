@@ -16,6 +16,12 @@ import scala.concurrent.ExecutionContext
 import scala.concurrent.ExecutionContextExecutor
 
 @Singleton
+class ConfigurationProvider @Inject()() extends Provider[Configuration] {
+  private[this] val configuration   = Configuration.fromDiscovery()
+  override def get(): Configuration = configuration
+}
+
+@Singleton
 class ConfigProvider @Inject()(configuration: Configuration) extends Provider[Config] {
   override def get(): Config = configuration.underlying
 }

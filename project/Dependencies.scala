@@ -10,11 +10,11 @@ object Dependencies {
   val versionScalatest       = "3.0.7"
   val versionAkka            = "2.5.23"
   val versionAkkaManagement  = "1.0.1"
-  val versionAkkaHttp        = "10.1.8"
+  val versionAkkaHttp        = "10.1.9"
   val versionAkkaHttpCors    = "0.4.0"
   val versionAlpakka         = "1.1.0"
   val versionAkkaStreamKafka = "1.0.4"
-  val versionCassandra       = "3.5.1"
+  val versionCassandra       = "4.1.0"
   val versionNetty           = "4.0.56.Final"
   val versionCirce           = "0.11.1"
   val versionConfig          = "1.3.4"
@@ -88,11 +88,12 @@ object Dependencies {
       .cross(CrossVersion.binary)
       .exclude("org.scala-lang", "scala-library")
 
-  val _akkaHttp        = "com.typesafe.akka" %% "akka-http"         % versionAkkaHttp
-  val _akkaHttpTestkit = "com.typesafe.akka" %% "akka-http-testkit" % versionAkkaHttp
-  val _akkaHttpCors    = "ch.megard"         %% "akka-http-cors"    % versionAkkaHttpCors
+  val _akkaHttp         = "com.typesafe.akka" %% "akka-http"          % versionAkkaHttp
+  val _akkaHttp2Support = "com.typesafe.akka" %% "akka-http2-support" % versionAkkaHttp
+  val _akkaHttpTestkit  = "com.typesafe.akka" %% "akka-http-testkit"  % versionAkkaHttp
+  val _akkaHttpCors     = "ch.megard"         %% "akka-http-cors"     % versionAkkaHttpCors
 
-  val _akkaHttps = Seq(_akkaHttp, _akkaHttpCors, _akkaHttpTestkit % Test).map(
+  val _akkaHttps = Seq(_akkaHttp, _akkaHttp2Support, _akkaHttpCors, _akkaHttpTestkit % Test).map(
     _.exclude("com.typesafe.akka", "akka-stream")
       .cross(CrossVersion.binary)
       .exclude("com.typesafe.akka", "akka-stream-testkit")
@@ -146,8 +147,9 @@ object Dependencies {
 //      ExclusionRule("com.datastax.cassandra"),
 //      ExclusionRule("io.netty"),
 //      ExclusionRule("com.google.guava"))
-  val _cassandraExtra       = "com.datastax.cassandra" % "cassandra-driver-extras"      % versionCassandra
-  val _nettyTransportNative = "io.netty"               % "netty-transport-native-epoll" % versionNetty
+  val _cassandras = Seq("com.datastax.oss" % "java-driver-core" % versionCassandra)
+
+  val _nettyTransportNative = "io.netty" % "netty-transport-native-epoll" % versionNetty
 
   val _alpakkaElasticsearch =
     ("com.lightbend.akka" %% "akka-stream-alpakka-elasticsearch" % versionAlpakka)

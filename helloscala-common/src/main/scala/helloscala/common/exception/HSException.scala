@@ -12,7 +12,7 @@ class HSException(
     writableStackTrace: Boolean)
     extends RuntimeException(msg, cause, enableSuppression, writableStackTrace) {
 
-  val httpStatus: Int = IntStatus.INTERNAL_ERROR
+  def httpStatus: Int = IntStatus.INTERNAL_ERROR
 
   val data: Object = null
 

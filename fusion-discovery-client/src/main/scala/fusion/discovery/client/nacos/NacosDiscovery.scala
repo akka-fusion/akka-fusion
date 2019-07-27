@@ -6,6 +6,7 @@ import akka.stream.ActorMaterializer
 import com.typesafe.scalalogging.StrictLogging
 import fusion.core.event.http.HttpBindingServerEvent
 import fusion.core.extension.FusionCore
+import fusion.discovery.client.DiscoveryHttpClient
 import fusion.discovery.client.FusionConfigService
 import fusion.discovery.client.FusionNamingService
 import fusion.discovery.model.DiscoveryInstance
@@ -19,7 +20,7 @@ class NacosDiscovery(val properties: NacosDiscoveryProperties, system: ExtendedA
   private var currentInstances: List[DiscoveryInstance] = Nil
   val configService: FusionConfigService                = NacosServiceFactory.configService(properties)
   val namingService: FusionNamingService                = NacosServiceFactory.namingService(properties)
-  val httpClient: NacosHttpClient                       = NacosHttpClient(namingService, ActorMaterializer()(system))
+  val httpClient: DiscoveryHttpClient                   = NacosHttpClient(namingService, ActorMaterializer()(system))
 
   logger.info(s"自动注册服务到Nacos: ${properties.isAutoRegisterInstance}")
   if (properties.isAutoRegisterInstance) {

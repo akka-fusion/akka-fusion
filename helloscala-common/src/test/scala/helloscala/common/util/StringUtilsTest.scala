@@ -12,4 +12,9 @@ class StringUtilsTest extends FunSuite with MustMatchers {
     println(StringUtils.randomExtString(8))
   }
 
+  test("toProperty") {
+    StringUtils.toProperty("name_value_key") mustBe "nameValueKey"
+    StringUtils.toProperty("name-value-key") mustBe "nameValueKey"
+  }
+
 }

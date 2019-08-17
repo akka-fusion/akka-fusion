@@ -1,17 +1,14 @@
 package fusion.http
 
-import java.util.concurrent.TimeUnit
-
 import akka.actor.ActorSystem
 import akka.actor.ExtendedActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.HttpRequest
-import akka.testkit.TestKit
-import fusion.test.FusionTestFunSuite
 import akka.http.scaladsl.server.Directives._
 import akka.stream.ActorMaterializer
+import akka.testkit.TestKit
 import fusion.http.util.HttpUtils
-import helloscala.common.exception.HSBadRequestException
+import fusion.test.FusionTestFunSuite
 import org.scalatest.BeforeAndAfterAll
 
 class HttpServerTest extends TestKit(ActorSystem()) with FusionTestFunSuite with BeforeAndAfterAll {
@@ -20,7 +17,6 @@ class HttpServerTest extends TestKit(ActorSystem()) with FusionTestFunSuite with
       complete("hello")
     } ~
         path("404") {
-          throw HSBadRequestException("404 test")
           complete("404")
         }
 

@@ -5,7 +5,6 @@ import java.nio.file.Paths
 import java.time.OffsetDateTime
 import java.util.Objects
 import java.util.Properties
-import java.util.concurrent.locks.ReentrantReadWriteLock
 import java.util.function.Consumer
 
 import akka.actor.ActorSystem
@@ -26,12 +25,12 @@ import scala.util.control.NonFatal
  *
  * @param underlying 原始Config, @see https://github.com/typesafehub/config.
  */
-case class Configuration(underlying: Config) {
+final case class Configuration(underlying: Config) {
   def discoveryEnable(): Boolean = getOrElse("fusion.discovery.enable", false)
 
-  def withFallback(config: Config): Configuration = Configuration(underlying.withFallback(config))
+  def withFallback(config: Config): Configuration = new Configuration(underlying.withFallback(config))
 
-  def withFallback(config: Configuration): Configuration = Configuration(underlying.withFallback(config.underlying))
+  def withFallback(config: Configuration): Configuration = new Configuration(underlying.withFallback(config.underlying))
 
   def computeIfMap[T, R](path: String, func: T => R)(implicit o: ConfigLoader[Option[T]]): Option[R] = {
     get[Option[T]](path).map(v => func(v))
@@ -49,7 +48,7 @@ case class Configuration(underlying: Config) {
    * 合并两个HlConfiguration
    */
   def ++(other: Configuration): Configuration =
-    Configuration(other.underlying.withFallback(underlying))
+    new Configuration(other.underlying.withFallback(underlying))
 
   /**
    * Reads a value from the underlying implementation.
@@ -232,32 +231,6 @@ object Configuration extends StrictLogging {
   private val KEY              = "fusion.discovery.enable"
   private val SERVICE_NAME_KEY = "fusion.discovery.nacos.serviceName"
 
-  private var _configuration: Configuration = Configuration()
-  private val lock                          = new ReentrantReadWriteLock()
-
-  def instance(): Configuration = {
-    val l = lock.readLock()
-    try {
-      l.lock()
-      _configuration
-    } finally {
-      l.unlock()
-    }
-  }
-
-  def instance(c: Config): Configuration = instance(Configuration(c))
-
-  def instance(c: Configuration): Configuration = {
-    val l = lock.writeLock()
-    try {
-      l.lock()
-      _configuration = c
-      _configuration
-    } finally {
-      l.unlock()
-    }
-  }
-
   // #fromDiscovery
   def fromDiscovery(): Configuration = {
     import scala.language.existentials
@@ -265,7 +238,7 @@ object Configuration extends StrictLogging {
     val c = ConfigFactory.load()
     setServiceName(c)
     val enable = if (c.hasPath(KEY)) c.getBoolean(KEY) else false
-    if (enable) {
+    val config = if (enable) {
       try {
         val clz = Option(Class.forName("fusion.discovery.DiscoveryUtils"))
           .getOrElse(Class.forName("fusion.discovery.DiscoveryUtils$"))
@@ -278,10 +251,10 @@ object Configuration extends StrictLogging {
       } catch {
         case e: ReflectiveOperationException =>
           logger.info(s"服务发现组件缺失，使用本地默认配置", e)
-          Configuration()
+          Configuration.load()
         case e: Throwable =>
           logger.error("拉取配置内容失败，使用本地默认配置", e)
-          Configuration()
+          Configuration.load()
       }
     } else {
       val configFrom = Option(System.getProperty("config.file"))
@@ -290,8 +263,10 @@ object Configuration extends StrictLogging {
         .orElse(Option(System.getProperty("config.url")).map(_ => "-Dconfig.url"))
         .getOrElse("Jar包内部")
       logger.info(s"使用本地配置，来自：$configFrom")
-      Configuration()
+      Configuration.load()
     }
+    logger.info(s"合并后配置内容：${config.underlying}")
+    config
   }
   // #fromDiscovery
 
@@ -303,14 +278,21 @@ object Configuration extends StrictLogging {
     }
   }
 
-  def apply(): Configuration = Configuration(ConfigFactory.load())
+  def load(config: Config): Configuration = {
+    val c = ConfigFactory.defaultOverrides().withFallback(config)
+    ConfigFactory.invalidateCaches()
+    new Configuration(c.withFallback(ConfigFactory.load()).resolve())
+  }
 
-  def apply(system: ActorSystem): Configuration = Configuration(system.settings.config)
+  def load(): Configuration = load(ConfigFactory.load())
 
-  def apply(props: Properties): Configuration = Configuration(ConfigurationHelper.fromProperties(props))
+  def load(system: ActorSystem): Configuration = load(system.settings.config)
 
-  def parseString(content: String): Configuration =
-    Configuration(ConfigFactory.parseString(content).withFallback(ConfigFactory.load()).resolve())
+  def load(props: Properties): Configuration = load(ConfigurationHelper.fromProperties(props))
+
+  def parseString(content: String): Configuration = {
+    load(ConfigFactory.parseString(content))
+  }
 
   def configError(message: String, origin: Option[ConfigOrigin], me: Option[Throwable]): HSException = {
     val msg = origin.map(o => s"[$o] $message").getOrElse(message)
@@ -401,9 +383,9 @@ object ConfigLoader {
     ConfigLoader(_.getConfigList).map(_.asScala)
 
   implicit val configurationLoader: ConfigLoader[Configuration] =
-    configLoader.map(Configuration(_))
+    configLoader.map(c => new Configuration(c))
   implicit val seqConfigurationLoader: ConfigLoader[Seq[Configuration]] =
-    seqConfigLoader.map(_.map(Configuration(_)))
+    seqConfigLoader.map(_.map(c => new Configuration(c)))
 
   /**
    * Loads a value, interpreting a null value as None and any other value as Some(value).

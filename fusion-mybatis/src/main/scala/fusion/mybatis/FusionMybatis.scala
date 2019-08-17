@@ -4,11 +4,15 @@ import akka.actor.ExtendedActorSystem
 import akka.actor.Extension
 import akka.actor.ExtensionId
 import akka.actor.ExtensionIdProvider
+import fusion.core.extension.FusionCore
 import fusion.core.extension.FusionExtension
 
 class FusionMybatis private (override protected val _system: ExtendedActorSystem) extends FusionExtension {
   val components: MybatisComponents      = new MybatisComponents(_system)
   def component: FusionSqlSessionFactory = components.component
+  FusionCore(system).shutdowns.beforeActorSystemTerminate("StopFusionMybatis") { () =>
+    components.closeAsync()(system.dispatcher)
+  }
 }
 
 object FusionMybatis extends ExtensionId[FusionMybatis] with ExtensionIdProvider {

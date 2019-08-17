@@ -1,4 +1,4 @@
-package helloscala.common.doc
+package fusion.doc
 
 import org.apache.poi.ss.usermodel.Cell
 import org.apache.poi.ss.usermodel.CellType
@@ -34,6 +34,7 @@ case class RichCell(num: Int, cell: Cell) extends ICell {
         case CellType.NUMERIC => cell.getNumericCellValue
         case CellType.STRING  => cell.getStringCellValue
         case CellType.ERROR   => cell.getErrorCellValue
+        case _                => ""
       }
     case CellType.STRING => cell.getStringCellValue
     case CellType.ERROR  => cell.getErrorCellValue
@@ -51,6 +52,7 @@ case class RichCell(num: Int, cell: Cell) extends ICell {
         case CellType.NUMERIC => cell.getNumericCellValue.toString
         case CellType.STRING  => cell.getStringCellValue
         case CellType.ERROR   => deft
+        case _                => ""
       }
     case CellType.STRING => cell.getStringCellValue
     case CellType.ERROR  => deft

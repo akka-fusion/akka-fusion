@@ -15,6 +15,7 @@ object FusionUtils {
 
   def generateTraceId(): String = ObjectId.get().toHexString()
 
+  def createFromDiscovery(): ActorSystem                                  = createActorSystem(Configuration.fromDiscovery())
   def createActorSystem(configuration: Configuration): ActorSystem        = createActorSystem(configuration.underlying)
   def createActorSystem(config: Config): ActorSystem                      = createActorSystem(getName(config), config)
   def createActorSystem(name: String, config: Configuration): ActorSystem = createActorSystem(name, config.underlying)

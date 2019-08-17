@@ -27,13 +27,14 @@ final class FusionCore private (protected val _system: ExtendedActorSystem) exte
       system.settings.config.getString(FusionConstants.NAME_PATH)
     else FusionConstants.NAME)
 
-  private lazy val _configuration = Configuration(system.settings.config)
+  private lazy val _configuration = new Configuration(system.settings.config)
 
   override def configuration: Configuration = _configuration
 
   val name: String         = system.name
   val setting: CoreSetting = new CoreSetting(configuration)
   val events               = new FusionEvents()
+  val shutdowns            = new FusionCoordinatedShutdown(system)
 
   private def writePidfile(): Unit = {
     val config = system.settings.config

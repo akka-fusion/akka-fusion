@@ -9,16 +9,18 @@ import java.net.NetworkInterface
 import scala.collection.JavaConverters._
 
 object NetworkUtils {
+  private val validNetworkNamePrefixes = List("eth", "enp", "wlp")
+  def validNetworkName(name: String)   = validNetworkNamePrefixes.exists(prefix => name.startsWith(prefix))
 
   def interfaces(): Vector[NetworkInterface] = NetworkInterface.getNetworkInterfaces.asScala.toVector
 
+  def onlineNetworkInterfaces() = {
+    interfaces().filterNot(ni =>
+      ni.isLoopback || !ni.isUp || ni.isVirtual || ni.isPointToPoint || !validNetworkName(ni.getName))
+  }
+
   def onlineInterfaceAddress(): Vector[InterfaceAddress] = {
-    interfaces().view
-      .filterNot(_.isLoopback)
-      .filterNot(_.isPointToPoint)
-      .filter(_.isUp)
-      .flatMap(i => i.getInterfaceAddresses.asScala)
-      .toVector
+    onlineNetworkInterfaces().flatMap(i => i.getInterfaceAddresses.asScala)
   }
 
   def firstOnlineInet4Address(): Option[InetAddress] = {

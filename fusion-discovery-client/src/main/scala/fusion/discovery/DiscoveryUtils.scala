@@ -7,7 +7,7 @@ import fusion.discovery.client.nacos.NacosServiceFactory
 import helloscala.common.Configuration
 
 object DiscoveryUtils {
-  lazy val METHOD: String = Configuration().getOrElse[String](DiscoveryConstants.CONF_METHOD, NacosConstants.NAME)
+  lazy val METHOD: String = Configuration.load().getOrElse[String](DiscoveryConstants.CONF_METHOD, NacosConstants.NAME)
 
   lazy val defaultConfigService: FusionConfigService =
     try {

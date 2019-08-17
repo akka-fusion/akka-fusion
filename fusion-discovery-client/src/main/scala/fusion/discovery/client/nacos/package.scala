@@ -10,7 +10,6 @@ import com.alibaba.nacos.api.naming.pojo.Instance
 import com.alibaba.nacos.api.naming.pojo.ListView
 import com.alibaba.nacos.api.naming.pojo.ServiceInfo
 import com.typesafe.scalalogging.StrictLogging
-import fusion.common.constant.FusionConstants
 import fusion.discovery.model._
 import fusion.http.constant.HttpConstants
 import helloscala.common.util.AsBoolean

@@ -7,10 +7,8 @@ import java.security.KeyStore
 import java.security.SecureRandom
 
 import akka.actor.ActorSystem
-import akka.http.scaladsl.ConnectionContext
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.HttpsConnectionContext
-import akka.http.scaladsl.UseHttp2
 import akka.http.scaladsl.model.Uri.Authority
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.model.headers.RawHeader
@@ -18,13 +16,13 @@ import akka.http.scaladsl.server.Directive0
 import akka.http.scaladsl.server.Directives
 import akka.http.scaladsl.unmarshalling.FromEntityUnmarshaller
 import akka.http.scaladsl.unmarshalling.Unmarshal
-import akka.stream.scaladsl.Keep
-import akka.stream.scaladsl.Sink
-import akka.stream.scaladsl.Source
 import akka.stream.ActorMaterializer
 import akka.stream.Materializer
 import akka.stream.OverflowStrategy
 import akka.stream.QueueOfferResult
+import akka.stream.scaladsl.Keep
+import akka.stream.scaladsl.Sink
+import akka.stream.scaladsl.Source
 import akka.util.ByteString
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.ArrayNode
@@ -35,7 +33,6 @@ import com.typesafe.scalalogging.Logger
 import com.typesafe.scalalogging.StrictLogging
 import com.typesafe.sslconfig.akka.AkkaSSLConfig
 import fusion.common.constant.ConfigKeys
-import fusion.common.constant.FusionConstants
 import fusion.core.setting.CoreSetting
 import fusion.core.util.FusionUtils
 import fusion.http.HttpSourceQueue
@@ -48,16 +45,16 @@ import javax.net.ssl.KeyManagerFactory
 import javax.net.ssl.SSLContext
 import javax.net.ssl.TrustManagerFactory
 
+import scala.collection.JavaConverters._
 import scala.collection.immutable
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import scala.concurrent.Promise
+import scala.concurrent.duration._
 import scala.reflect.ClassTag
 import scala.util.Failure
 import scala.util.Success
-import scala.collection.JavaConverters._
-import scala.concurrent.duration._
 import scala.util.control.NonFatal
 
 object HttpUtils extends StrictLogging {
@@ -343,7 +340,7 @@ object HttpUtils extends StrictLogging {
   }
 
   /**
-   * 获取 CachedHostConnectionPoolHttps，同[[cachedHostConnectionPool()]]，区别是使用HTTPs协议
+   * 获取 CachedHostConnectionPoolHttps，同 [[cachedHostConnectionPool(String, Int, Int)]]，区别是使用HTTPs协议
    *
    * @param host 默认host
    * @param port 默认port
@@ -370,8 +367,7 @@ object HttpUtils extends StrictLogging {
       keyStoreType: String = "PKCS12",
       algorithm: String = "SunX509",
       protocol: String = "TLS",
-      http2: UseHttp2 = UseHttp2.Negotiated,
-      akkaSslConfig: Option[AkkaSSLConfig] = None)(implicit system: ActorSystem): HttpsConnectionContext = {
+      akkaSslConfig: Option[AkkaSSLConfig] = None): HttpsConnectionContext = {
     var hcc: HttpsConnectionContext = null
     try {
       val password = keyPassword.toCharArray
@@ -387,7 +383,7 @@ object HttpUtils extends StrictLogging {
       val sslContext: SSLContext = SSLContext.getInstance(protocol)
       sslContext.init(keyManagerFactory.getKeyManagers, tmf.getTrustManagers, new SecureRandom())
 
-      hcc = ConnectionContext.https(sslContext, akkaSslConfig, http2 = http2)
+      hcc = new HttpsConnectionContext(sslContext, akkaSslConfig)
     } catch {
       case NonFatal(e) =>
         e.printStackTrace()

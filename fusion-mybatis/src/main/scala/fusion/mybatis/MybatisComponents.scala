@@ -1,5 +1,6 @@
 package fusion.mybatis
 
+import akka.Done
 import akka.actor.ExtendedActorSystem
 import com.baomidou.mybatisplus.annotation.FieldStrategy
 import com.baomidou.mybatisplus.annotation.IdType
@@ -13,6 +14,7 @@ import com.baomidou.mybatisplus.extension.incrementer.H2KeyGenerator
 import com.baomidou.mybatisplus.extension.incrementer.OracleKeyGenerator
 import com.baomidou.mybatisplus.extension.incrementer.PostgreKeyGenerator
 import com.typesafe.scalalogging.StrictLogging
+import fusion.core.extension.FusionCore
 import fusion.core.util.Components
 import fusion.jdbc.FusionJdbc
 import fusion.mybatis.constant.MybatisConstants
@@ -23,25 +25,27 @@ import org.apache.ibatis.mapping.Environment
 import org.apache.ibatis.plugin.Interceptor
 import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory
 
+import scala.concurrent.Future
 import scala.util.Failure
 import scala.util.Success
 
 class MybatisComponents(system: ExtendedActorSystem)
     extends Components[FusionSqlSessionFactory](MybatisConstants.PATH_DEFAULT)
     with StrictLogging {
-  def config: Configuration = Configuration(system.settings.config)
+  def configuration: Configuration = FusionCore(system).configuration
 
   override protected def createComponent(id: String): FusionSqlSessionFactory = {
-    val c = config.getConfiguration(id).withFallback(config.getConfiguration(MybatisConstants._PATH_DEFAULT))
+    val c =
+      configuration.getConfiguration(id).withFallback(configuration.getConfiguration(MybatisConstants._PATH_DEFAULT))
 
     val jdbcDataSourceId = c.getString(MybatisConstants.PATH_JDBC_NAME)
     val envId            = if (c.hasPath("env")) c.getString(s"env") else id
     val dataSource       = FusionJdbc(system).components.lookup(jdbcDataSourceId)
     val environment      = new Environment(envId, new JdbcTransactionFactory(), dataSource)
 
-    val configuration = createConfiguration(c, environment)
-    configuration.setGlobalConfig(createGlobalConfig(c))
-    new FusionSqlSessionFactory(new MybatisSqlSessionFactoryBuilder().build(configuration))
+    val mybatisConfiguration = createConfiguration(c, environment)
+    mybatisConfiguration.setGlobalConfig(createGlobalConfig(c))
+    new FusionSqlSessionFactory(new MybatisSqlSessionFactoryBuilder().build(mybatisConfiguration))
   }
 
   private def createGlobalConfig(c: Configuration): GlobalConfig = {
@@ -95,8 +99,10 @@ class MybatisComponents(system: ExtendedActorSystem)
 
     c.get[Option[String]]("configuration.default-enum-type-handler").foreach { className =>
       system.dynamicAccess.getClassFor[TypeHandler[_]](className) match {
-        case Success(value)     => configuration.setDefaultEnumTypeHandler(value)
-        case Failure(exception) => logger.error(s"$className 不是 ${classOf[Interceptor]}", exception)
+        case Success(value) => configuration.setDefaultEnumTypeHandler(value)
+        case Failure(exception) =>
+          logger
+            .error(s"configuration.default-enum-type-handler配置错误，$className 不是 ${classOf[TypeHandler[_]]}", exception)
       }
     }
 
@@ -125,5 +131,5 @@ class MybatisComponents(system: ExtendedActorSystem)
     configuration
   }
 
-  override protected def componentClose(c: FusionSqlSessionFactory): Unit = {}
+  override protected def componentClose(c: FusionSqlSessionFactory): Future[Done] = Future.successful(Done)
 }

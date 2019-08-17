@@ -6,9 +6,9 @@ import java.sql.ResultSet
 import java.util.Objects
 
 import com.typesafe.scalalogging.Logger
+import com.zaxxer.hikari.HikariDataSource
 import fusion.jdbc.util.JdbcUtils
 import helloscala.common.util.Utils
-import javax.sql.DataSource
 import org.slf4j.LoggerFactory
 
 import scala.annotation.varargs
@@ -17,7 +17,7 @@ import scala.collection.mutable
 import scala.util.control.NonFatal
 
 private[jdbc] class JdbcTemplateImpl(
-    val dataSource: DataSource,
+    val dataSource: HikariDataSource,
     _useTransaction: Boolean,
     ignoreWarnings: Boolean,
     _allowPrintLog: Boolean)

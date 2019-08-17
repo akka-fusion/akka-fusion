@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider
+import com.fasterxml.jackson.databind.ser.std.NumberSerializers
 import com.fasterxml.jackson.module.scala.experimental.ScalaObjectMapper
 import com.typesafe.scalalogging.StrictLogging
 import helloscala.common.exception.HSBadRequestException
@@ -23,14 +24,14 @@ import scala.reflect.ClassTag
 import scala.util.control.NonFatal
 
 trait JacksonFactory {
-  def defaultObjectMapper: ObjectMapper
+  def defaultObjectMapper: ObjectMapper with ScalaObjectMapper
 }
 
 object Jackson extends JacksonFactory with StrictLogging {
 
   private lazy val _defaultObjectMapper = createObjectMapper
 
-  def defaultObjectMapper: ObjectMapper = _defaultObjectMapper
+  def defaultObjectMapper: ObjectMapper with ScalaObjectMapper = _defaultObjectMapper
 
   def createObjectNode: ObjectNode = defaultObjectMapper.createObjectNode
 
@@ -82,7 +83,7 @@ object Jackson extends JacksonFactory with StrictLogging {
     }.toList
   }
 
-  private def createObjectMapper: ObjectMapper = {
+  private def createObjectMapper: ObjectMapper with ScalaObjectMapper = {
     val mapper = new ObjectMapper() with ScalaObjectMapper
     try {
       val FILTER_ID_CLASS = Class.forName("scalapb.GeneratedMessage")
@@ -100,6 +101,8 @@ object Jackson extends JacksonFactory with StrictLogging {
         logger.warn(s"create ObjectMapper: ${e.toString}")
     }
 
+    new NumberSerializers.DoubleSerializer(classOf[Double])
+
     mapper
       .findAndRegisterModules()
       .enable(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES)
@@ -116,25 +119,8 @@ object Jackson extends JacksonFactory with StrictLogging {
       .setSerializationInclusion(JsonInclude.Include.NON_NULL)
     //      .setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"))
     //                    .enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY)
-  }
 
-//  private class MassSerializerProvider(src: SerializerProvider, config: SerializationConfig, f: SerializerFactory)
-//      extends DefaultSerializerProvider(src, config, f) {
-//    def this() {
-//      this(null, null, null)
-//    }
-//
-//    def this(src: MassSerializerProvider) {
-//      this(src, null, null)
-//    }
-//
-//    override def copy: DefaultSerializerProvider = {
-//      if (getClass ne classOf[MassSerializerProvider]) return super.copy
-//      new MassSerializerProvider(this)
-//    }
-//
-//    override def createInstance(config: SerializationConfig, jsf: SerializerFactory) =
-//      new MassSerializerProvider(this, config, jsf)
-//  }
+    mapper
+  }
 
 }

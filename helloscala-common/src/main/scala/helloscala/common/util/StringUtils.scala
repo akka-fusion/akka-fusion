@@ -17,12 +17,19 @@ import scala.compat.java8.FunctionConverters.asJavaBiConsumer
 object StringUtils {
   val BLACK_CHAR: Char                          = ' '
   val PRINTER_CHARS: immutable.IndexedSeq[Char] = ('0' to '9') ++ ('a' to 'z') ++ ('A' to 'Z')
+  val REGEX_STR_BLANK                           = """[\s　]+"""
+  val CHINESE_COMMA                             = "，"
+  val CHINESE_FULL_STOP                         = "。"
 
-  val PRINTER_CHARS_EXT: IndexedSeq[Char] = PRINTER_CHARS ++
+  val PRINTER_CHARS_EXT: immutable.IndexedSeq[Char] = PRINTER_CHARS ++
         Vector('!', '#', '$', '%', '^', '&', '*', '(', ')', '-', '+', '=', '_', '.', '?', '<', '>')
 
   private val HEX_CHARS: Array[Char] = "0123456789abcdef".toCharArray
   private val HEX_CHAR_SETS          = Set[Char]() ++ ('0' to '9') ++ ('a' to 'f') ++ ('A' to 'F')
+
+  def blankToChineseComma(text: String, replacement: String): String = blankReplaceAll(text, CHINESE_COMMA)
+
+  def blankReplaceAll(text: String, replacement: String): String = text.replaceAll(REGEX_STR_BLANK, replacement)
 
   def extractFirstName(msg: Any): Option[String] = msg match {
     case c: AnyRef =>

@@ -33,7 +33,7 @@ class FusionNacosTest extends FusionTestFunSuite with BeforeAndAfterAll {
   }
 
   test("configuration") {
-    val configuration = Configuration().getConfiguration(DiscoveryUtils.methodConfPath)
+    val configuration = Configuration.load().getConfiguration(DiscoveryUtils.methodConfPath)
     configuration.getString(PropKeys.SERVER_ADDR) mustBe SERVER_ADDR
     configuration.getString(PropKeys.NAMESPACE) mustBe NAMESPACE
     configuration.getString(PropKeys.DATA_ID) mustBe DATA_ID

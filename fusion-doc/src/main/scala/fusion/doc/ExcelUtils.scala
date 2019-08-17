@@ -1,12 +1,12 @@
-package helloscala.common.doc
+package fusion.doc
 
 import helloscala.common.util.Utils
 import org.apache.poi.ss.usermodel.Row
 import org.apache.poi.ss.usermodel.Sheet
 import org.apache.poi.ss.usermodel.Workbook
 
-import scala.collection.immutable
 import scala.collection.JavaConverters._
+import scala.collection.immutable
 
 object ExcelUtils {
 

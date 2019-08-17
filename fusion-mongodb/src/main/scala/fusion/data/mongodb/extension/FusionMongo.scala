@@ -1,15 +1,15 @@
 package fusion.data.mongodb.extension
 
+import akka.Done
 import akka.actor.ActorSystem
 import akka.actor.ExtendedActorSystem
 import akka.actor.Extension
 import akka.actor.ExtensionId
 import akka.actor.ExtensionIdProvider
-import com.mongodb.reactivestreams.client.MongoClients
 import com.mongodb.ConnectionString
 import com.mongodb.MongoClientSettings
 import com.mongodb.MongoDriverInformation
-import com.typesafe.config.Config
+import com.mongodb.reactivestreams.client.MongoClients
 import fusion.core.extension.FusionCore
 import fusion.core.extension.FusionExtension
 import fusion.core.util.Components
@@ -17,16 +17,22 @@ import fusion.data.mongodb.MongoTemplate
 import fusion.data.mongodb.constant.MongoConstants
 import helloscala.common.Configuration
 
+import scala.concurrent.Future
+
 final private[mongodb] class MongoComponents(system: ActorSystem)
     extends Components[MongoTemplate](MongoConstants.PATH_DEFAULT) {
-  override def config: Configuration = Configuration(system.settings.config)
+  import system.dispatcher
+  override def configuration: Configuration = Configuration(system.settings.config)
 
-  override protected def componentClose(c: MongoTemplate): Unit = c.close()
+  override protected def componentClose(c: MongoTemplate): Future[Done] = Future {
+    c.close()
+    Done
+  }
 
   override protected def createComponent(id: String): MongoTemplate = {
     require(system.settings.config.hasPath(id), s"配置路径不存在，$id")
 
-    val c: Configuration = config.getConfiguration(id)
+    val c: Configuration = configuration.getConfiguration(id)
     if (c.hasPath("uri")) {
       val connectionString = new ConnectionString(c.getString("uri"))
       val settings = MongoClientSettings
@@ -62,8 +68,8 @@ final private[mongodb] class MongoComponents(system: ActorSystem)
 final class FusionMongo private (val _system: ExtendedActorSystem) extends FusionExtension {
   FusionCore(system)
   val components = new MongoComponents(system)
-  system.registerOnTermination {
-    components.close()
+  FusionCore(system).shutdowns.beforeActorSystemTerminate("StopFusionMongo") { () =>
+    components.closeAsync()(system.dispatcher)
   }
 
   def mongoTemplate: MongoTemplate = components.component

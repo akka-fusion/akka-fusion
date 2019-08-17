@@ -115,7 +115,6 @@ final class NacosHttpClient private (
 
   override def close(): Unit = {
     httpSourceQueueMap.clear()
-    materializer.shutdown()
   }
 }
 

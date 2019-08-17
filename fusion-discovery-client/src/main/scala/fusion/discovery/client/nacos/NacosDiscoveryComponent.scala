@@ -14,7 +14,7 @@ import fusion.discovery.model.DiscoveryInstance
 import scala.util.Failure
 import scala.util.Success
 
-class NacosDiscovery(val properties: NacosDiscoveryProperties, system: ExtendedActorSystem)
+class NacosDiscoveryComponent(val properties: NacosDiscoveryProperties, system: ExtendedActorSystem)
     extends AutoCloseable
     with StrictLogging {
   private var currentInstances: List[DiscoveryInstance] = Nil
@@ -41,8 +41,8 @@ class NacosDiscovery(val properties: NacosDiscoveryProperties, system: ExtendedA
   }
 
   override def close(): Unit = {
-    httpClient.close()
     currentInstances.foreach(inst => namingService.deregisterInstance(inst))
+    httpClient.close()
   }
 
 }

@@ -5,10 +5,8 @@ import akka.actor.Extension
 import akka.actor.ExtensionId
 import akka.actor.ExtensionIdProvider
 import akka.kafka.ConsumerSettings
-import fusion.core.extension.FusionCore
 
 final class FusionKafkaConsumer private (system: ExtendedActorSystem) extends Extension {
-  FusionCore(system)
   def consumer: ConsumerSettings[String, String] = consumers.component
   val consumers                                  = new ConsumerComponents(system)
 }

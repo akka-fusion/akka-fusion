@@ -1,10 +1,10 @@
 package fusion.http
 
-import java.net.Inet4Address
 import java.net.InetSocketAddress
 import java.util.Objects
 import java.util.concurrent.atomic.AtomicBoolean
 
+import akka.Done
 import akka.actor.ActorSystem
 import akka.actor.ExtendedActorSystem
 import akka.http.scaladsl.Http.ServerBinding
@@ -193,9 +193,8 @@ final class HttpServer(val id: String, val system: ExtendedActorSystem) extends 
   }
 
   private def generateConnectionContext(): ConnectionContext = {
-    val http2 = httpSetting.http2
     if (!c.hasPath("ssl")) {
-      HttpConnectionContext(http2)
+      HttpConnectionContext()
     } else {
       val akkaSslConfig = new AkkaSSLConfig(system, httpSetting.createSSLConfig())
       val keyPassword   = c.getString("ssl.key-store.password")
@@ -205,7 +204,7 @@ final class HttpServer(val id: String, val system: ExtendedActorSystem) extends 
       val keyStoreType = c.getOrElse("ssl.key-store.type", "PKCS12")
       val algorithm    = c.getOrElse("ssl.key-store.algorithm", "SunX509")
       val protocol     = c.getOrElse("ssl.protocol", akkaSslConfig.config.protocol)
-      HttpUtils.generateHttps(keyPassword, keystore, keyStoreType, algorithm, protocol, http2, Some(akkaSslConfig))
+      HttpUtils.generateHttps(keyPassword, keystore, keyStoreType, algorithm, protocol, Some(akkaSslConfig))
     }
   }
 
@@ -214,10 +213,16 @@ final class HttpServer(val id: String, val system: ExtendedActorSystem) extends 
   def isRunning(): Boolean = _isRunning
 
   private def _saveServer(socketAddress: InetSocketAddress): InetSocketAddress = {
-    socketAddress.getAddress.getAddress.apply(0) == 0
     val inetAddress = socketAddress.getAddress match {
       case address if Objects.isNull(address) || address.getAddress.apply(0) == 0 =>
-        NetworkUtils.firstOnlineInet4Address().getOrElse(socketAddress.getAddress)
+        logger.info(s"绑定地址为所有地址：$address，尝试查找本机第一个有效网络地址")
+        NetworkUtils
+          .firstOnlineInet4Address()
+          .map { add =>
+            logger.info(s"找到本机第一个有效网络地址：$add")
+            add
+          }
+          .getOrElse(socketAddress.getAddress)
       case address => address
     }
     val host = inetAddress.getHostAddress
@@ -248,11 +253,20 @@ final class HttpServer(val id: String, val system: ExtendedActorSystem) extends 
    * close后不能调用 [[startHandlerAsync()]]或[[startRouteAsync()]]重新启动，需要再次构造实例运行
    */
   override def close(): Unit = {
-    maybeEventualBinding.foreach(_.foreach(_.unbind()))
-    maybeEventualBinding = None
-    _isStarted.set(false)
-    _isRunning = false
-    mat.shutdown()
+    closeAsync()
+  }
+
+  def closeAsync(): Future[Done] = {
+    val future = maybeEventualBinding match {
+      case Some(binding) => binding.flatMap(_.unbind())
+      case _             => Future.successful(Done)
+    }
+    future.map { done =>
+      maybeEventualBinding = None
+      _isStarted.set(false)
+      _isRunning = false
+      done
+    }
   }
 
   def socketAddress: InetSocketAddress = _socketAddress

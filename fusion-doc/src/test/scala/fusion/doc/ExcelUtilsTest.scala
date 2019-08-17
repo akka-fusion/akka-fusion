@@ -1,4 +1,4 @@
-package helloscala.common.doc
+package fusion.doc
 
 import java.nio.file.Paths
 

@@ -1,5 +1,6 @@
 package fusion.kafka
 
+import akka.Done
 import akka.actor.ActorSystem
 import akka.kafka.ConsumerSettings
 import fusion.core.util.Components
@@ -7,9 +8,11 @@ import helloscala.common.Configuration
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.common.serialization.StringDeserializer
 
+import scala.concurrent.Future
+
 final private[kafka] class ConsumerComponents(system: ActorSystem)
     extends Components[ConsumerSettings[String, String]](s"${KafkaConstants.PATH_ROOT}.consumer") {
-  override def config: Configuration = Configuration(system.settings.config)
+  override def configuration: Configuration = Configuration(system.settings.config)
 
   override protected def createComponent(id: String): ConsumerSettings[String, String] = {
     val conf = getConfiguration(id)
@@ -21,7 +24,7 @@ final private[kafka] class ConsumerComponents(system: ActorSystem)
         conf.getOrElse[String]("kafka-clients." + ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest"))
   }
 
-  override protected def componentClose(c: ConsumerSettings[String, String]): Unit = {}
+  override protected def componentClose(c: ConsumerSettings[String, String]): Future[Done] = Future.successful(Done)
 
   private def getConfiguration(id: String) =
     Configuration(

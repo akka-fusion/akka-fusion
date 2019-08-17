@@ -1,7 +1,6 @@
 package fusion.http
 
 import akka.actor.ActorSystem
-import akka.http.scaladsl.UseHttp2
 import com.typesafe.sslconfig.ssl.SSLConfigFactory
 import com.typesafe.sslconfig.ssl.SSLConfigSettings
 import fusion.common.constant.FusionConstants
@@ -14,11 +13,11 @@ class HttpSetting(c: Configuration, system: ActorSystem) {
   def defaultFilter: String                  = c.getString("default-filter")
   def httpFilters: Seq[String]               = c.get[Seq[String]]("http-filters")
 
-  def http2: UseHttp2 = c.getOrElse("http2", "").toLowerCase match {
-    case "never"  => UseHttp2.Never
-    case "always" => UseHttp2.Always
-    case _        => UseHttp2.Negotiated
-  }
+//  def http2: UseHttp2 = c.getOrElse("http2", "").toLowerCase match {
+//    case "never"  => UseHttp2.Never
+//    case "always" => UseHttp2.Always
+//    case _        => UseHttp2.Negotiated
+//  }
 
   def createSSLConfig(): SSLConfigSettings = {
     val akkaOverrides = system.settings.config.getConfig("akka.ssl-config")

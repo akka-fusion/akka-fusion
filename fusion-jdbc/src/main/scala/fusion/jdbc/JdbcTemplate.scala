@@ -4,15 +4,15 @@ import java.sql.ResultSet
 import java.sql.SQLException
 
 import com.typesafe.config.Config
+import com.zaxxer.hikari.HikariDataSource
 import helloscala.common.Configuration
-import javax.sql.DataSource
 
 import scala.annotation.varargs
 
 trait JdbcTemplate {
 
   // 数据库源
-  val dataSource: DataSource
+  val dataSource: HikariDataSource
 
   /**
    * 使用事物来执行 function（ func 内可包含多个数据库操作函数)
@@ -163,19 +163,19 @@ object JdbcTemplate {
 
   val EmptyConnection: Connection = null
 
-  def apply(dataSource: DataSource, config: Config): JdbcTemplate = apply(dataSource, Configuration(config))
+  def apply(dataSource: HikariDataSource, config: Config): JdbcTemplate = apply(dataSource, Configuration(config))
 
-  def apply(dataSource: DataSource, configuration: Configuration): JdbcTemplate =
+  def apply(dataSource: HikariDataSource, configuration: Configuration): JdbcTemplate =
     apply(
       dataSource,
       configuration.getOrElse[Boolean]("useTransaction", true),
       configuration.getOrElse[Boolean]("ignoreWarnings", true),
       configuration.getOrElse[Boolean]("allowPrintLog", true))
 
-  def apply(dataSource: DataSource): JdbcTemplate = apply(dataSource, true, true, true)
+  def apply(dataSource: HikariDataSource): JdbcTemplate = apply(dataSource, true, true, true)
 
   def apply(
-      dataSource: DataSource,
+      dataSource: HikariDataSource,
       useTransaction: Boolean,
       ignoreWarnings: Boolean,
       allowPrintLog: Boolean): JdbcTemplate =

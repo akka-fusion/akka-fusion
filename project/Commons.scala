@@ -1,4 +1,3 @@
-import Dependencies._
 import de.heikoseeberger.sbtheader.HeaderPlugin.autoImport.HeaderLicense
 import de.heikoseeberger.sbtheader.HeaderPlugin.autoImport.headerLicense
 import sbt.Keys._
@@ -37,9 +36,9 @@ object Commons {
             "-Yrangepos",          // required by SemanticDB compiler plugin
             "-Ywarn-unused-import" // required by `RemoveUnused` rule
           )
-          if (scalaVersion.value.startsWith("2.12")) {
-            list ++= Seq("-opt:l:inline", "-opt-inline-from")
-          }
+          //if (scalaVersion.value.startsWith("2.12")) {
+          //  list ++= Seq("-opt:l:inline", "-opt-inline-from")
+          //}
           if (buildEnv.value != BuildEnv.Developement) {
             list ++= Seq("-Xelide-below", "2001")
           }
@@ -85,7 +84,9 @@ object Publishing {
                     Some("Helloscala_sbt-public_snapshot".at(
                       "https://artifactory.hongkazhijia.com/artifactory/sbt-release;build.timestamp=" + new java.util.Date().getTime))
                   } else {
-                    Some("Helloscala_sbt-public_release".at("https://artifactory.hongkazhijia.com/artifactory/libs-release"))
+                    Some(
+                      "Helloscala_sbt-public_release".at(
+                        "https://artifactory.hongkazhijia.com/artifactory/libs-release"))
                   }),
     credentials += Credentials(Path.userHome / ".ivy2" / ".credentials_ihongka"))
 

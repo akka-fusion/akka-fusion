@@ -1,25 +1,33 @@
 package fusion.discovery.client.nacos
 
+import akka.Done
 import akka.actor.ExtendedActorSystem
 import akka.actor.Extension
 import akka.actor.ExtensionId
 import akka.actor.ExtensionIdProvider
 import com.typesafe.scalalogging.StrictLogging
 import fusion.common.constant.FusionConstants
+import fusion.core.extension.FusionCore
 import fusion.core.extension.FusionExtension
 import fusion.core.util.Components
 import fusion.discovery.DiscoveryUtils
 import helloscala.common.Configuration
 
+import scala.concurrent.Future
+
 final private[discovery] class NacosComponents(system: ExtendedActorSystem)
-    extends Components[NacosDiscovery](DiscoveryUtils.methodConfPath) {
+    extends Components[NacosDiscoveryComponent](DiscoveryUtils.methodConfPath) {
+  import system.dispatcher
 
-  override protected def createComponent(id: String): NacosDiscovery =
-    new NacosDiscovery(NacosPropertiesUtils.configProps(id), system)
+  override protected def createComponent(id: String): NacosDiscoveryComponent =
+    new NacosDiscoveryComponent(NacosPropertiesUtils.configProps(id), system)
 
-  override protected def componentClose(c: NacosDiscovery): Unit = c.close()
+  override protected def componentClose(c: NacosDiscoveryComponent): Future[Done] = Future {
+    c.close()
+    Done
+  }
 
-  override def config: Configuration = Configuration(system.settings.config)
+  override def configuration: Configuration = Configuration(system.settings.config)
 
 }
 
@@ -29,8 +37,10 @@ final class FusionNacos private (protected val _system: ExtendedActorSystem)
 
   val components = new NacosComponents(_system)
 
-  def component: NacosDiscovery = components.component
-  system.registerOnTermination { components.close() }
+  def component: NacosDiscoveryComponent = components.component
+  FusionCore(system).shutdowns.serviceStop("StopFusionNacos") { () =>
+    components.closeAsync()(system.dispatcher)
+  }
 
   // XXX 将覆盖 Configration.fromDiscovery() 调用 Configuration.setServiceName() 设置的全局服务名
   component.properties.serviceName.foreach { serviceName =>

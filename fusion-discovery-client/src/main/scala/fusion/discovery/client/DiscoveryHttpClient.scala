@@ -6,7 +6,7 @@ import akka.http.scaladsl.model.HttpRequest
 import akka.http.scaladsl.model.HttpResponse
 import akka.http.scaladsl.model.Uri
 import akka.stream.ActorMaterializer
-import fusion.http.HttpClient
+import fusion.http.client.HttpClient
 import helloscala.common.Configuration
 
 import scala.concurrent.Future

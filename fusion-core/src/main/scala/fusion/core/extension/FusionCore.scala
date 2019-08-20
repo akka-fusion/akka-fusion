@@ -6,12 +6,14 @@ import akka.actor.ExtendedActorSystem
 import akka.actor.Extension
 import akka.actor.ExtensionId
 import akka.actor.ExtensionIdProvider
+import akka.http.scaladsl.model.HttpHeader
 import com.typesafe.scalalogging.StrictLogging
 import fusion.common.constant.ConfigKeys
 import fusion.common.constant.FusionConstants
 import fusion.core.event.FusionEvents
 import fusion.core.setting.CoreSetting
 import fusion.core.util.FusionUtils
+import fusion.core.http.headers.`X-Service`
 import helloscala.common.Configuration
 import helloscala.common.util.PidFile
 import helloscala.common.util.Utils
@@ -19,6 +21,10 @@ import helloscala.common.util.Utils
 import scala.util.control.NonFatal
 
 final class FusionCore private (protected val _system: ExtendedActorSystem) extends FusionExtension with StrictLogging {
+  val name: String         = system.name
+  val setting: CoreSetting = new CoreSetting(configuration)
+  val events               = new FusionEvents()
+  val shutdowns            = new FusionCoordinatedShutdown(system)
   FusionUtils.setupActorSystem(system)
   writePidfile()
   System.setProperty(
@@ -31,10 +37,10 @@ final class FusionCore private (protected val _system: ExtendedActorSystem) exte
 
   override def configuration: Configuration = _configuration
 
-  val name: String         = system.name
-  val setting: CoreSetting = new CoreSetting(configuration)
-  val events               = new FusionEvents()
-  val shutdowns            = new FusionCoordinatedShutdown(system)
+  val currentXService: HttpHeader = {
+    val serviceName = configuration.get[Option[String]]("fusion.discovery.nacos.serviceName").getOrElse(name)
+    `X-Service`(serviceName)
+  }
 
   private def writePidfile(): Unit = {
     val config = system.settings.config

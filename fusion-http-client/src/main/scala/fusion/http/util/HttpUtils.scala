@@ -11,7 +11,7 @@ import akka.http.scaladsl.Http
 import akka.http.scaladsl.HttpsConnectionContext
 import akka.http.scaladsl.model.Uri.Authority
 import akka.http.scaladsl.model._
-import akka.http.scaladsl.model.headers.RawHeader
+import akka.http.scaladsl.model.headers.`Timeout-Access`
 import akka.http.scaladsl.server.Directive0
 import akka.http.scaladsl.server.Directives
 import akka.http.scaladsl.unmarshalling.FromEntityUnmarshaller
@@ -33,7 +33,7 @@ import com.typesafe.scalalogging.Logger
 import com.typesafe.scalalogging.StrictLogging
 import com.typesafe.sslconfig.akka.AkkaSSLConfig
 import fusion.common.constant.ConfigKeys
-import fusion.core.setting.CoreSetting
+import fusion.core.http.headers.`X-Trace-Id`
 import fusion.core.util.FusionUtils
 import fusion.http.HttpSourceQueue
 import fusion.http.exception.HttpException
@@ -109,8 +109,8 @@ object HttpUtils extends StrictLogging {
     customMediaTypes = customMediaTypes ++ mediaTypes.flatMap(mediaType => mediaType.fileExtensions.map(_ -> mediaType))
   }
 
-  def generateTraceHeader(coreSetting: CoreSetting): HttpHeader = {
-    RawHeader(coreSetting.traceKey, FusionUtils.generateTraceId())
+  @inline def generateTraceHeader(): HttpHeader = {
+    `X-Trace-Id`(FusionUtils.generateTraceId().toString)
   }
 
   def dump(response: HttpResponse)(implicit mat: Materializer) {
@@ -527,10 +527,11 @@ object HttpUtils extends StrictLogging {
       case HttpEntity.Empty => ""
       case _                => "\n" + req.entity
     }
+    val headers = req.headers.filterNot(_.name() == `Timeout-Access`.name)
     log.debug(s"""HttpRequest
-                |${req.protocol} ${req.method.value} ${req.uri}
-                |search: ${req.uri.rawQueryString}
-                |header: ${req.headers.mkString("\n        ")}$entity""".stripMargin)
+                |${req.protocol.value} ${req.method.value} ${req.uri}
+                |search: ${toString(req.uri.query())}
+                |header: ${headers.mkString("\n        ")}$entity""".stripMargin)
     req
   }
 
@@ -541,10 +542,17 @@ object HttpUtils extends StrictLogging {
       case _                => "\n" + resp.entity
     }
     log.debug(s"""HttpResponse
-                |${resp.protocol} ${req.method.value} ${req.uri}
-                |search: ${req.uri.rawQueryString}
+                |${resp.protocol.value} ${req.method.value} ${req.uri}
                 |status: ${resp.status}
                 |header: ${resp.headers.mkString("\n        ")}$entity""".stripMargin)
     resp
   }
+
+  def jsonEntity(status: StatusCode, msg: String): (StatusCode, HttpEntity.Strict) =
+    status -> HttpUtils.entityJson(s"""{"status":${status.intValue()},"msg":"$msg"}""")
+
+  def jsonResponse(status: StatusCode, msg: String): HttpResponse =
+    HttpResponse(status, entity = HttpUtils.entityJson(s"""{"status":${status.intValue()},"msg":"$msg"}"""))
+
+  def toString(query: Uri.Query): String = query.map { case (name, value) => s"$name=$value" }.mkString("&")
 }

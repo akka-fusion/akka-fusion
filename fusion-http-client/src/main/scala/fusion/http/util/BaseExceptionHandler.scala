@@ -1,42 +1,19 @@
-package fusion.http.server
+package fusion.http.util
 
 import java.util.concurrent.TimeoutException
 
-import akka.http.scaladsl.model._
 import akka.http.scaladsl.model.StatusCodes.InternalServerError
 import akka.http.scaladsl.model.StatusCodes.RequestEntityTooLarge
+import akka.http.scaladsl.model._
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.ExceptionHandler
 import akka.http.scaladsl.server.RequestContext
 import com.typesafe.scalalogging.StrictLogging
 import fusion.http.exception.HttpResponseException
-import fusion.http.server.HttpThrowableFilter.ThrowableFilter
 import helloscala.common.exception.HSException
 
-import scala.concurrent.Future
-
-trait HttpThrowableFilter {
-  def throwableFilter: ThrowableFilter
-}
-
-object HttpThrowableFilter extends StrictLogging {
-  type ThrowableFilter = PartialFunction[Throwable, Future[HttpResponse]]
-
-  def createExceptionHandler(throwableHandler: PartialFunction[Throwable, Future[HttpResponse]]): ExceptionHandler = {
-    ExceptionHandler({
-      case e: Throwable if throwableHandler.isDefinedAt(e) =>
-        onSuccess(throwableHandler(e)) { response =>
-          complete(response)
-        }
-      case e: Throwable => exceptionHandlerPF(e)
-    })
-  }
-
-  def defaultThrowableFilter: PartialFunction[Throwable, Future[HttpResponse]] = {
-    case HttpResponseException(response) => Future.successful(response)
-    case e: HSException                  => Future.successful(jsonResponse(e.httpStatus, e.getMessage))
-    case e: Throwable                    => Future.successful(jsonResponse(StatusCodes.InternalServerError, e.getLocalizedMessage))
-  }
+object BaseExceptionHandler extends StrictLogging {
+  import HttpUtils._
 
   def exceptionHandlerPF: ExceptionHandler.PF = {
     case HttpResponseException(response) =>

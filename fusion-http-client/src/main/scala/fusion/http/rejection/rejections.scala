@@ -1,4 +1,4 @@
-package fusion.http.server
+package fusion.http.rejection
 
 import akka.http.scaladsl.server.RejectionWithOptionalCause
 

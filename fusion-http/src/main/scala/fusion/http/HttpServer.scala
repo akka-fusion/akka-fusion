@@ -7,23 +7,23 @@ import java.util.concurrent.atomic.AtomicBoolean
 import akka.Done
 import akka.actor.ActorSystem
 import akka.actor.ExtendedActorSystem
+import akka.http.FusionRoute
 import akka.http.scaladsl.Http.ServerBinding
 import akka.http.scaladsl.ConnectionContext
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.HttpConnectionContext
+import akka.http.scaladsl.model.HttpRequest
 import akka.http.scaladsl.server.ExceptionHandler
 import akka.http.scaladsl.server.RejectionHandler
 import akka.http.scaladsl.server.Route
 import akka.stream.ActorMaterializer
+import akka.stream.scaladsl.Flow
 import com.typesafe.config.ConfigFactory
 import com.typesafe.scalalogging.StrictLogging
 import com.typesafe.sslconfig.akka.AkkaSSLConfig
 import fusion.core.event.http.HttpBindingServerEvent
 import fusion.core.extension.FusionCore
-import fusion.http.server.BaseRejectionBuilder
-import fusion.http.server.FusionRejectionHandler
-import fusion.http.server.HttpThrowableFilter
-import fusion.http.server.HttpThrowableFilter.ThrowableFilter
+import fusion.http.interceptor.HttpInterceptor
 import fusion.http.util.HttpUtils
 import helloscala.common.Configuration
 import helloscala.common.exception.HSInternalErrorException
@@ -47,84 +47,50 @@ final class HttpServer(val id: String, val system: ExtendedActorSystem) extends 
   private var maybeEventualBinding                  = Option.empty[Future[ServerBinding]]
   private val httpSetting                           = new HttpSetting(c, system)
 
-  def startRouteSync(route: Route)(
-      implicit rh: RejectionHandler = null,
-      htf: HttpThrowableFilter = null,
-      duration: Duration = 30.seconds): ServerBinding =
-    Await.result(startRouteAsync(route), duration)
-
-  def startRouteAsync(
-      route: Route)(implicit rh: RejectionHandler = null, htf: HttpThrowableFilter = null): Future[ServerBinding] = {
-    val rejectionHandler     = createRejectionHandler(rh)
-    val maybeThrowableFilter = createThrowableFilter(htf)
-
-    val exceptionHandler = maybeThrowableFilter
-      .map(HttpThrowableFilter.createExceptionHandler)
-      .getOrElse(HttpThrowableFilter.exceptionHandlerPF)
-    val throwableFilter = maybeThrowableFilter.getOrElse(HttpThrowableFilter.defaultThrowableFilter)
-
-    val handler          = routeToHandler(route, rejectionHandler, exceptionHandler)
-    val effectiveHandler = generateHttpHandler(handler, throwableFilter)
-    startAsync(effectiveHandler, generateConnectionContext())
-  }
-
-  private def routeToHandler(route: Route, rh: RejectionHandler, eh: ExceptionHandler): HttpHandler = {
-    implicit val _rh: RejectionHandler = rh
-    implicit val _eh: ExceptionHandler = eh
-    Route.asyncHandler(route)
-  }
-
-  private def createThrowableFilter(httpExceptionHandler: HttpThrowableFilter): Option[ThrowableFilter] = {
-    Option(httpExceptionHandler).map(_.throwableFilter).orElse {
-      httpSetting.exceptionHandlerOption.map { clz =>
-        system.dynamicAccess.createInstanceFor[HttpThrowableFilter](clz, Nil) match {
-          case Success(eh) => eh.throwableFilter
-          case Failure(e) =>
-            throw new ExceptionInInitializerError(
-              s"$clz 不是有效的 fusion.http.server.FusionExceptionHandler，${e.getLocalizedMessage}")
-        }
-      }
-    }
-//      .map(HttpThrowableFilter.createExceptionHandler)
-//      .getOrElse(HttpThrowableFilter.exceptionHandlerPF)
-  }
-
-  private def createRejectionHandler(httpRejectionHandler: RejectionHandler): RejectionHandler = {
-    Option(httpRejectionHandler)
-      .orElse {
-        httpSetting.rejectionHandlerOption.map { clz =>
-          system.dynamicAccess.createInstanceFor[FusionRejectionHandler](clz, Nil) match {
-            case Success(rh) => rh.rejectionHandler
-            case Failure(e) =>
-              throw new ExceptionInInitializerError(
-                s"$clz 不是有效的 fusion.http.server.FusionRejectionHandler，${e.getLocalizedMessage}")
-          }
-        }
-      }
-      .getOrElse(BaseRejectionBuilder.rejectionHandler)
-  }
-
-  /**
-   * 阻塞调用
-   */
   @throws(classOf[Exception])
-  def startHandlerSync(
-      handler: HttpHandler)(implicit htf: HttpThrowableFilter = null, duration: Duration = 30.seconds): ServerBinding =
+  def startHandlerSync(handler: HttpHandler)(
+      implicit
+      rejectionHandler: RejectionHandler = createRejectionHandler(),
+      exceptionHandler: ExceptionHandler = createExceptionHandler(),
+      duration: Duration = 30.seconds): ServerBinding =
     Await.result(startHandlerAsync(handler), duration)
 
-  def startHandlerAsync(handler: HttpHandler)(implicit htf: HttpThrowableFilter = null): Future[ServerBinding] = {
-    val exceptionFilter = createThrowableFilter(htf).getOrElse(HttpThrowableFilter.defaultThrowableFilter)
-    startAsync(generateHttpHandler(handler, exceptionFilter), generateConnectionContext())
+  def startHandlerAsync(handler: HttpHandler)(
+      implicit rejectionHandler: RejectionHandler = createRejectionHandler(),
+      exceptionHandler: ExceptionHandler = createExceptionHandler()): Future[ServerBinding] = {
+    import akka.http.scaladsl.server.Directives._
+    val route = extractRequest { request =>
+      complete(handler(request))
+    }
+    startRouteAsync(route)
   }
 
-  private def startAsync(handler: HttpHandler, connectionContext: ConnectionContext): Future[ServerBinding] = {
+  @throws(classOf[Exception])
+  def startRouteSync(route: Route)(
+      implicit
+      rejectionHandler: RejectionHandler = createRejectionHandler(),
+      exceptionHandler: ExceptionHandler = createExceptionHandler(),
+      duration: Duration = 30.seconds): ServerBinding = {
+    Await.result(startRouteAsync(route), duration)
+  }
+
+  def startRouteAsync(_route: Route)(
+      implicit
+      rejectionHandler: RejectionHandler,
+      exceptionHandler: ExceptionHandler): Future[ServerBinding] = {
     if (!_isStarted.compareAndSet(false, true)) {
       throw HSInternalErrorException("HttpServer只允许start一次")
     }
 
-    val realHandler = getDefaultFilter().execute(handler, system)
+    val connectionContext = generateConnectionContext()
+
+    var route = Route.seal(_route)
+    route = getHttpInterceptors().reverse.foldLeft(route)((h, i) => i.interceptor(h))
+    route = getDefaultInterceptor().interceptor(route)
+    val handler = Flow[HttpRequest].mapAsync(1)(FusionRoute.asyncHandler(route))
+
     val bindingFuture =
-      Http().bindAndHandleAsync(realHandler, httpSetting.server.host, httpSetting.server.port, connectionContext)
+      Http().bindAndHandle(handler, httpSetting.server.host, httpSetting.server.port, connectionContext)
 
     maybeEventualBinding = Some(bindingFuture)
     bindingFuture.failed.foreach { cause =>
@@ -136,59 +102,51 @@ final class HttpServer(val id: String, val system: ExtendedActorSystem) extends 
     }
   }
 
-  private def generateHttpHandler(handler: HttpHandler, throwableFilter: ThrowableFilter): HttpHandler = {
-    // XXX 这里需要反转列表，因为函数调用时最外层最先调用
-    val chains = getHttpFilters().reverse
+  private def getDefaultInterceptor(): HttpInterceptor = createHttpInterceptor(httpSetting.defaultInterceptor).get
 
-//    val r: HttpHandler = (request: HttpRequest) => {
-//      val (req3, funcs) = chains.foldLeft((request, List.empty[HttpResponse => Future[HttpResponse]])) {
-//        case ((req, resps), filter) =>
-//          val (req2, func) = filter.filter(req)
-//          (req2, func :: resps)
-//      }
-//
-//      handler(req3).flatMap { resp =>
-//        val result = funcs.foldLeft(Future.successful(resp))((rF, func) => rF.flatMap(r => func(r)))
-//        result
-//      }
-//    }
-
-    val r: HttpHandler = req =>
-      try {
-        val h = chains.foldLeft(handler) { (hh, filter) =>
-          filter.execute(hh, system)
-        }
-        h(req).recoverWith(throwableFilter)
-      } catch {
-        case e: Throwable if throwableFilter.isDefinedAt(e) => throwableFilter(e)
-        case e: Throwable                                   => Future.failed(e)
-      }
-    r
+  private def getHttpInterceptors(): Seq[HttpInterceptor] = {
+    httpSetting.httpInterceptors.flatMap(className => createHttpInterceptor(className))
   }
 
-  private def getDefaultFilter(): HttpFilter = createHttpFilter(httpSetting.defaultFilter).get
-
-  private def getHttpFilters(): Seq[HttpFilter] = {
-    httpSetting.httpFilters.flatMap(className => createHttpFilter(className))
+  private def createRejectionHandler(): RejectionHandler = {
+    val clz = Class.forName(httpSetting.rejectionHandler)
+    val either = system.dynamicAccess
+      .createInstanceFor[RejectionHandler](clz, List(classOf[ExtendedActorSystem] -> system))
+      .orElse(system.dynamicAccess.createInstanceFor[RejectionHandler](clz, List(classOf[ActorSystem] -> system)))
+      .orElse(system.dynamicAccess.createInstanceFor[RejectionHandler](clz, Nil))
+    either match {
+      case Success(rejectionHandler) => rejectionHandler
+      case Failure(e) =>
+        throw new ExceptionInInitializerError(
+          s"$clz 不是有效的 akka.http.scaladsl.server.RejectionHandler，${e.getLocalizedMessage}")
+    }
   }
 
-  private def createHttpFilter(className: String): Option[HttpFilter] = {
+  private def createExceptionHandler(): ExceptionHandler = {
+    val clz = Class.forName(httpSetting.exceptionHandler)
+    val either = system.dynamicAccess
+      .createInstanceFor[ExceptionHandler.PF](clz, List(classOf[ExtendedActorSystem] -> system))
+      .orElse(system.dynamicAccess.createInstanceFor[ExceptionHandler.PF](clz, List(classOf[ActorSystem] -> system)))
+      .orElse(system.dynamicAccess.createInstanceFor[ExceptionHandler.PF](clz, Nil))
+    either match {
+      case Success(pf) => ExceptionHandler(pf)
+      case Failure(e) =>
+        throw new ExceptionInInitializerError(
+          s"$clz 不是有效的 akka.http.scaladsl.server.ExceptionHandler.PF，${e.getLocalizedMessage}")
+    }
+  }
+
+  private def createHttpInterceptor(className: String): Option[HttpInterceptor] = {
     val clz = Class.forName(className)
-    if (classOf[AbstractHttpFilter].isAssignableFrom(clz)) {
-      system.dynamicAccess
-        .createInstanceFor[AbstractHttpFilter](clz, List(classOf[ExtendedActorSystem] -> system)) match {
-        case Success(v) => Some(v)
-        case Failure(e) =>
-          logger.error(s"实例化 HttpFilter 错误：$clz 不是有效的 ${classOf[AbstractHttpFilter]}", e)
-          None
-      }
-    } else {
-      system.dynamicAccess.createInstanceFor[HttpFilter](clz, Nil) match {
-        case Success(v) => Some(v)
-        case Failure(e) =>
-          logger.error(s"实例化 HttpFilter 错误：$clz 不是有效的 ${classOf[HttpFilter]}", e)
-          None
-      }
+    val triedInterceptor = system.dynamicAccess
+      .createInstanceFor[HttpInterceptor](clz, List(classOf[ExtendedActorSystem] -> system))
+      .orElse(system.dynamicAccess.createInstanceFor[HttpInterceptor](clz, List(classOf[ActorSystem] -> system)))
+      .orElse(system.dynamicAccess.createInstanceFor[HttpInterceptor](clz, Nil))
+    triedInterceptor match {
+      case Success(v) => Some(v)
+      case Failure(e) =>
+        logger.error(s"实例化 HttpFilter 错误：$clz 不是有效的 ${classOf[HttpInterceptor]}", e)
+        None
     }
   }
 

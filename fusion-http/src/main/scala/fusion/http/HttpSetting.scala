@@ -8,10 +8,10 @@ import fusion.http.constant.HttpConstants
 import helloscala.common.Configuration
 
 class HttpSetting(c: Configuration, system: ActorSystem) {
-  def exceptionHandlerOption: Option[String] = c.get[Option[String]]("exception-handler")
-  def rejectionHandlerOption: Option[String] = c.get[Option[String]]("rejection-handler")
-  def defaultFilter: String                  = c.getString("default-filter")
-  def httpFilters: Seq[String]               = c.get[Seq[String]]("http-filters")
+  def exceptionHandler: String      = c.getString("exception-handler")
+  def rejectionHandler: String      = c.getString("rejection-handler")
+  def defaultInterceptor: String    = c.getString("default-interceptor")
+  def httpInterceptors: Seq[String] = c.get[Seq[String]]("http-interceptors")
 
 //  def http2: UseHttp2 = c.getOrElse("http2", "").toLowerCase match {
 //    case "never"  => UseHttp2.Never

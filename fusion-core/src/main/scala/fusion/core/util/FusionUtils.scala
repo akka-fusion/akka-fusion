@@ -2,18 +2,19 @@ package fusion.core.util
 
 import java.util.Objects
 import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicLong
 
 import akka.actor.ActorSystem
 import com.typesafe.config.Config
 import fusion.common.constant.FusionConstants
 import helloscala.common.Configuration
-import org.bson.types.ObjectId
 
 object FusionUtils {
   private var _system: ActorSystem = _
   private val _isSetupSystem       = new AtomicBoolean(false)
+  private val _traceIdGenerator    = new AtomicLong(0)
 
-  def generateTraceId(): String = ObjectId.get().toHexString()
+  def generateTraceId(): Long = _traceIdGenerator.incrementAndGet()
 
   def createFromDiscovery(): ActorSystem                                  = createActorSystem(Configuration.fromDiscovery())
   def createActorSystem(configuration: Configuration): ActorSystem        = createActorSystem(configuration.underlying)

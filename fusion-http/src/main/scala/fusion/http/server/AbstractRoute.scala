@@ -16,6 +16,7 @@ import akka.http.scaladsl.server.directives.FileInfo
 import akka.http.scaladsl.unmarshalling.FromRequestUnmarshaller
 import fusion.core.model.ApiResult
 import fusion.http.AkkaHttpSourceQueue
+import fusion.http.rejection.ForbiddenRejection
 import fusion.http.util.HttpUtils
 import helloscala.common.exception.HSException
 

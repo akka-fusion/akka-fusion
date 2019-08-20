@@ -1,7 +1,6 @@
 package fusion.http
 
 import akka.Done
-import akka.actor.CoordinatedShutdown
 import akka.actor.ExtendedActorSystem
 import akka.actor.Extension
 import akka.actor.ExtensionId

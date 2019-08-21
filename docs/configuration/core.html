@@ -140,18 +140,30 @@ ihongka/akka-fusion
 </div>
 <ul>
   <li><a href="../intro/index.html" class="page">简介</a></li>
+  <li><a href="../core/index.html" class="page">核心</a>
+  <ul>
+    <li><a href="../core/akka-extension.html" class="page">Akka Extension（扩展）</a></li>
+    <li><a href="../core/http-route.html" class="page">Http Route（异步处理器）</a></li>
+    <li><a href="../core/fusion-core.html" class="page">FusionCore</a></li>
+  </ul></li>
   <li><a href="../http/index.html" class="page">HTTP</a>
   <ul>
     <li><a href="../http/getting.html" class="page">开始</a></li>
     <li><a href="../http/management.html" class="page">管理API</a></li>
+    <li><a href="../http/interceptor-chain.html" class="page">Interceptor Chain（拦截器链）</a></li>
   </ul></li>
+  <li><a href="../discovery-client/index.html" class="page">服务注册、发现（Client）</a>
+  <ul>
+    <li><a href="../discovery-client/nacos.html" class="page">连接 Nacos</a></li>
+  </ul></li>
+  <li><a href="../http-gateway/index.html" class="page">HTTP网关代理</a></li>
+  <li><a href="../jdbc/index.html" class="page">Jdbc</a></li>
   <li><a href="../slick/index.html" class="page">Slick</a></li>
   <li><a href="../mybatis/index.html" class="page">MyBatis</a>
   <ul>
     <li><a href="../mybatis/getting.html" class="page">起步</a></li>
     <li><a href="../mybatis/configuration.html" class="page">配置</a></li>
   </ul></li>
-  <li><a href="../jdbc/index.html" class="page">Jdbc</a></li>
   <li><a href="../data-mongodb/index.html" class="page">Data Mongodb</a></li>
   <li><a href="../data-kafka/index.html" class="page">Data Kafka</a>
   <ul>
@@ -159,20 +171,18 @@ ihongka/akka-fusion
     <li><a href="../data-kafka/producer.html" class="page">Kafka Producer</a></li>
     <li><a href="../data-kafka/consumer.html" class="page">Kafka Consumer</a></li>
   </ul></li>
-  <li><a href="../discovery-client/index.html" class="page">服务注册、发现（Client）</a>
-  <ul>
-    <li><a href="../discovery-client/nacos.html" class="page">连接 Nacos</a></li>
-  </ul></li>
   <li><a href="../configuration/index.html" class="page">配置</a>
   <ul>
     <li><a href="../configuration/core.html" class="active page">Fusion Core 配置</a></li>
     <li><a href="../configuration/http.html" class="page">Fusion HTTP 配置</a></li>
+    <li><a href="../configuration/http-gateway.html" class="page">Fusion HTTP Gateway 配置</a></li>
     <li><a href="../configuration/jdbc.html" class="page">Fusion JDBC 配置</a></li>
     <li><a href="../configuration/slick.html" class="page">Fusion Slick 配置</a></li>
     <li><a href="../configuration/mybatis.html" class="page">Fusion Mybatis 配置</a></li>
     <li><a href="../configuration/mongodb.html" class="page">Fusion Mongodb 配置</a></li>
     <li><a href="../configuration/kafka.html" class="page">Fusion Kafka 配置</a></li>
   </ul></li>
+  <li><a href="../reactivemanifesto.html" class="page">反应式宣言 2.0</a></li>
 </ul>
 <nav class="md-nav md-nav--secondary">
 </nav>
@@ -181,7 +191,7 @@ ihongka/akka-fusion
 <ul style="display: none">
 <li class="md-nav__item md-version" id="project.version">
 <label class="md-nav__link" for="__version">
-<i class="md-icon" title="Version">label_outline</i> 1.0.0-alpha21
+<i class="md-icon" title="Version">label_outline</i> 1.0.0-beta7
 </label>
 </li>
 </ul>
@@ -192,9 +202,36 @@ ihongka/akka-fusion
 <article class="md-content__inner md-typeset">
 <div class="md-content__searchable">
 <h1><a href="#fusion-core-配置" name="fusion-core-配置" class="anchor"><span class="anchor-link"></span></a>Fusion Core 配置</h1>
-<pre class="prettyprint"><a class="icon go-to-source" href="https://github.com/yangbajing/akka-fusion/tree/master/fusion-core/src/main/resources/reference.conf" target="_blank" title="Go to snippet source"></a><code class="language-conf">fusion {
+<pre class="prettyprint"><a class="icon go-to-source" href="https://github.com/yangbajing/akka-fusion/tree/master/fusion-core/src/main/resources/reference.conf" target="_blank" title="Go to snippet source"></a><code class="language-conf">akka {
+  loglevel = INFO
+  stdout-loglevel = INFO
+  loggers = [&quot;akka.event.slf4j.Slf4jLogger&quot;]
+  logging-filter = &quot;akka.event.slf4j.Slf4jLoggingFilter&quot;
+
+  actor {
+    # Set this to on to enable serialization-bindings defined in
+    # additional-serialization-bindings. Those are by default not included
+    # for backwards compatibility reasons. They are enabled by default if
+    # akka.remote.artery.enabled=on.
+    enable-additional-serialization-bindings = on
+
+    allow-java-serialization = off
+
+    serializers {
+      //java = &quot;com.twitter.chill.akka.AkkaSerializer&quot;
+      kryo = &quot;com.twitter.chill.akka.AkkaSerializer&quot;
+      //      proto = &quot;akka.remote.serialization.ProtobufSerializer&quot;
+    }
+  }
+
+  extensions += fusion.core.extension.FusionCore
+}
+fusion {
   # Fusion系统名，同时也设置为ActorSystem的name
   name = &quot;fusion&quot;
+  core {
+    trace-key = &quot;f-trace&quot;
+  }
 }</code></pre>
 </div>
 <div>
@@ -204,7 +241,7 @@ Edit this page
 </div>
 <div class="print-only">
 <span class="md-source-file md-version">
-1.0.0-alpha21
+1.0.0-beta7
 </span>
 </div>
 </article>

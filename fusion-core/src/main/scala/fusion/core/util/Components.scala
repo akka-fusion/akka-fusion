@@ -10,6 +10,7 @@ import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import scala.concurrent.duration._
 
+// #Components
 abstract class Components[T](DEFAULT_ID: String) extends StrictLogging {
   protected val components = mutable.Map.empty[String, T]
 
@@ -29,11 +30,9 @@ abstract class Components[T](DEFAULT_ID: String) extends StrictLogging {
 
   protected def registerComponent(id: String, other: T, replaceExists: Boolean): T = {
     require(id != DEFAULT_ID, s"id不能为默认配置ID，$id == $DEFAULT_ID")
-    val beReplace =
-      if (configuration.hasPath(id + ".replace-exists")) configuration.getBoolean(id + ".replace-exists")
-      else replaceExists
+    val isReplace = configuration.getOrElse(id + ".replace-exists", replaceExists)
     components.get(id).foreach {
-      case c if beReplace =>
+      case c if isReplace =>
         try {
           Await.ready(componentClose(c), 30.seconds)
         } catch {
@@ -42,7 +41,7 @@ abstract class Components[T](DEFAULT_ID: String) extends StrictLogging {
         }
         components.remove(id)
       case _ =>
-        throw new IllegalAccessException(s"id重复，$id == $DEFAULT_ID")
+        throw new IllegalAccessException(s"id重复，$id")
     }
     components.put(id, other)
     other
@@ -53,3 +52,4 @@ abstract class Components[T](DEFAULT_ID: String) extends StrictLogging {
   }
 
 }
+// #Components

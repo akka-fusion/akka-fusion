@@ -1,4 +1,4 @@
-package docs.concept
+package docs.core
 
 import akka.actor.ActorSystem
 import akka.actor.ExtendedActorSystem
@@ -6,9 +6,11 @@ import akka.http.scaladsl.model.HttpRequest
 import akka.http.scaladsl.model.HttpResponse
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.model.headers.RawHeader
+import akka.http.scaladsl.server.Route
+import akka.http.scaladsl.server.RouteResult
 import fusion.http.HttpHandler
-import fusion.http.HttpFilter
 import fusion.http.exception.HttpResponseException
+import fusion.http.interceptor.HttpInterceptor
 import org.bson.types.ObjectId
 
 import scala.concurrent.Await
@@ -19,11 +21,11 @@ object HttpHandlerDoc {
   private val system = ActorSystem().asInstanceOf[ExtendedActorSystem]
 
   // #applyHttpInterceptorChain
-  trait HttpFilter {
+  trait HttpInterceptor {
     def filter(handler: HttpHandler): HttpHandler
   }
 
-  def applyHttpInterceptorChain(httpHandler: HttpHandler, filters: Iterable[HttpFilter]): HttpHandler = {
+  def applyHttpInterceptorChain(httpHandler: HttpHandler, filters: Iterable[HttpInterceptor]): HttpHandler = {
     val duce: HttpHandler = filters.foldLeft(httpHandler) {
       (h, filter) =>
 //      interceptor.filter(handler)
@@ -38,22 +40,22 @@ object HttpHandlerDoc {
 
   def main(args: Array[String]): Unit = {
     val httpHandler: HttpHandler = req => Future.successful(HttpResponse(StatusCodes.OK, entity = "default"))
-    val filters: Iterable[HttpFilter] = List(
-      new HttpFilter {
+    val filters: Iterable[HttpInterceptor] = List(
+      new HttpInterceptor {
         override def filter(handler: HttpHandler): HttpHandler = { req =>
           println("first interceptor")
           handler(req)
         }
       },
-      new TerminationHttpFilter,
-      new HttpFilter {
+      new TerminationHttpInterceptor,
+      new HttpInterceptor {
         override def filter(handler: HttpHandler): HttpHandler = { req =>
           println("last interceptor")
           handler(req)
         }
       })
     try {
-      val handler = List.empty[HttpFilter].foldRight(httpHandler)((inter, h) => inter.filter(h))
+      val handler = List.empty[HttpInterceptor].foldRight(httpHandler)((inter, h) => inter.filter(h))
 
       val responseF = handler(HttpRequest())
       val response  = Await.result(responseF, Duration.Inf)
@@ -63,35 +65,39 @@ object HttpHandlerDoc {
     }
   }
 
-  // #TerminationHttpFilter
-  class TerminationHttpFilter extends HttpFilter {
+  // #TerminationHttpInterceptor
+  class TerminationHttpInterceptor extends HttpInterceptor {
     override def filter(handler: HttpHandler): HttpHandler = { req =>
       //handler(req).flatMap(resp => Future.failed(HttpResponseException(resp)))
 //      handler(req).map(resp => throw HttpResponseException(resp))
       throw HttpResponseException(HttpResponse(StatusCodes.InternalServerError))
     }
   }
-  // #TerminationHttpFilter
+  // #TerminationHttpInterceptor
 
 }
 
-// #NothingHttpFilter
-class NothingHttpFilter extends HttpFilter {
-  override def execute(handler: HttpHandler, system: ExtendedActorSystem): HttpHandler = {
-    handler
+// #NothingHttpInterceptor
+class NothingHttpInterceptor extends HttpInterceptor {
+  override def interceptor(route: Route): Route = { ctx =>
+    route(ctx)
   }
 }
-// #NothingHttpFilter
+// #NothingHttpInterceptor
 
-// #TraceHttpFilter
-class TraceHttpFilter extends HttpFilter {
+// #TraceHttpInterceptor
+class TraceHttpInterceptor(system: ActorSystem) extends HttpInterceptor {
+  import system.dispatcher
 
-  override def execute(handler: HttpHandler, system: ExtendedActorSystem): HttpHandler = { (req: HttpRequest) =>
-    import system.dispatcher
+  override def interceptor(route: Route): Route = { ctx =>
+    val req         = ctx.request
     val traceHeader = RawHeader("trace-id", ObjectId.get().toHexString)
     val headers     = traceHeader +: req.headers
     val request     = req.copy(headers = headers)
-    handler(request).map(response => toTrace(response, traceHeader))
+    route(ctx.withRequest(request)).map {
+      case RouteResult.Complete(response) => RouteResult.Complete(toTrace(response, traceHeader))
+      case a @ RouteResult.Rejected(_)    => a
+    }
   }
 
   private def toTrace(response: HttpResponse, traceHeader: RawHeader): HttpResponse = {
@@ -99,4 +105,4 @@ class TraceHttpFilter extends HttpFilter {
     response.copy(headers = headers)
   }
 }
-// #TraceHttpFilter
+// #TraceHttpInterceptor

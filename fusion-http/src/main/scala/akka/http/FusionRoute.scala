@@ -21,9 +21,7 @@ object FusionRoute {
       parserSettings: ParserSettings,
       materializer: ActorMaterializer,
       routingLog: RoutingLog,
-      executionContext: ExecutionContextExecutor = null,
-      rejectionHandler: RejectionHandler = RejectionHandler.default,
-      exceptionHandler: ExceptionHandler = null): HttpRequest => Future[HttpResponse] = {
+      executionContext: ExecutionContextExecutor = null): HttpRequest => Future[HttpResponse] = {
     import akka.http.scaladsl.util.FastFuture._
     val effectiveEC = if (executionContext ne null) executionContext else materializer.executionContext
 

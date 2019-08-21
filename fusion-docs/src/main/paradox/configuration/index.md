@@ -6,6 +6,7 @@
 
 * [core](core.md)
 * [http](http.md)
+* [http-gateway](http-gateway.md)
 * [jdbc](jdbc.md)
 * [slick](slick.md)
 * [mybatis](mybatis.md)

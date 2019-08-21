@@ -16,19 +16,21 @@ import helloscala.common.Configuration
 
 import scala.concurrent.Future
 
+// #JdbcComponents
 final private[jdbc] class JdbcComponents(system: ActorSystem)
     extends Components[HikariDataSource](JdbcConstants.PATH_DEFAULT) {
-  import system.dispatcher
   override def configuration: Configuration = FusionCore(system).configuration
 
-  override protected def componentClose(c: HikariDataSource): Future[Done] = Future {
+  override protected def componentClose(c: HikariDataSource): Future[Done] = Future.successful {
     c.close()
     Done
   }
   override protected def createComponent(id: String): HikariDataSource =
     JdbcUtils.createHikariDataSource(configuration.getConfig(id))
 }
+// #JdbcComponents
 
+// #FusionJdbc
 class FusionJdbc private (val _system: ExtendedActorSystem) extends FusionExtension {
   val components = new JdbcComponents(system)
   FusionCore(system).shutdowns.beforeActorSystemTerminate("StopFusionJdbc") { () =>
@@ -41,3 +43,4 @@ object FusionJdbc extends ExtensionId[FusionJdbc] with ExtensionIdProvider {
   override def createExtension(system: ExtendedActorSystem): FusionJdbc = new FusionJdbc(system)
   override def lookup(): ExtensionId[_ <: Extension]                    = FusionJdbc
 }
+// #FusionJdbc

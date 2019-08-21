@@ -6,6 +6,7 @@ import akka.http.scaladsl.model.headers.ModeledCustomHeader
 import akka.http.scaladsl.model.headers.ModeledCustomHeaderCompanion
 import fusion.common.constant.FusionConstants
 
+import scala.concurrent.duration.FiniteDuration
 import scala.util.Try
 
 final class `X-Service`(override val value: String) extends ModeledCustomHeader[`X-Service`] {
@@ -30,7 +31,8 @@ object `X-Trace-Id` extends ModeledCustomHeaderCompanion[`X-Trace-Id`] {
   override def parse(value: String): Try[`X-Trace-Id`] = Try(new `X-Trace-Id`(value))
 }
 
-final class `X-Request-Time`(override val value: String) extends ModeledCustomHeader[`X-Request-Time`] {
+final class `X-Request-Time`(val instant: Instant) extends ModeledCustomHeader[`X-Request-Time`] {
+  override def value(): String                                           = instant.toString
   override def companion: ModeledCustomHeaderCompanion[`X-Request-Time`] = `X-Request-Time`
   override def renderInRequests(): Boolean                               = true
   override def renderInResponses(): Boolean                              = true
@@ -38,11 +40,12 @@ final class `X-Request-Time`(override val value: String) extends ModeledCustomHe
 
 object `X-Request-Time` extends ModeledCustomHeaderCompanion[`X-Request-Time`] {
   override def name: String                                = FusionConstants.X_REQUEST_TIME
-  override def parse(value: String): Try[`X-Request-Time`] = Try(new `X-Request-Time`(value))
+  override def parse(value: String): Try[`X-Request-Time`] = Try(new `X-Request-Time`(Instant.parse(value)))
   def fromInstantNow()                                     = `X-Request-Time`(Instant.now().toString)
 }
 
-final class `X-Span-Time`(override val value: String) extends ModeledCustomHeader[`X-Span-Time`] {
+final class `X-Span-Time`(val duration: java.time.Duration) extends ModeledCustomHeader[`X-Span-Time`] {
+  override def value(): String                                        = duration.toString
   override def companion: ModeledCustomHeaderCompanion[`X-Span-Time`] = `X-Span-Time`
   override def renderInRequests(): Boolean                            = true
   override def renderInResponses(): Boolean                           = true
@@ -50,7 +53,12 @@ final class `X-Span-Time`(override val value: String) extends ModeledCustomHeade
 
 object `X-Span-Time` extends ModeledCustomHeaderCompanion[`X-Span-Time`] {
   override def name: String                             = FusionConstants.X_SPAN_TIME
-  override def parse(value: String): Try[`X-Span-Time`] = Try(new `X-Span-Time`(value))
+  override def parse(value: String): Try[`X-Span-Time`] = Try(new `X-Span-Time`(java.time.Duration.parse(value)))
+
+  def apply(d: FiniteDuration): `X-Span-Time` = {
+    import scala.compat.java8.DurationConverters._
+    new `X-Span-Time`(d.toJava)
+  }
 
   def fromXRequestTime(h: `X-Request-Time`) =
     `X-Span-Time`(java.time.Duration.between(Instant.parse(h.value), Instant.now()).toString)

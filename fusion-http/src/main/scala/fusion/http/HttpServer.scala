@@ -5,6 +5,7 @@ import java.util.Objects
 import java.util.concurrent.atomic.AtomicBoolean
 
 import akka.Done
+import akka.NotUsed
 import akka.actor.ActorSystem
 import akka.actor.ExtendedActorSystem
 import akka.http.FusionRoute
@@ -13,6 +14,7 @@ import akka.http.scaladsl.ConnectionContext
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.HttpConnectionContext
 import akka.http.scaladsl.model.HttpRequest
+import akka.http.scaladsl.model.HttpResponse
 import akka.http.scaladsl.server.ExceptionHandler
 import akka.http.scaladsl.server.RejectionHandler
 import akka.http.scaladsl.server.Route
@@ -84,11 +86,7 @@ final class HttpServer(val id: String, val system: ExtendedActorSystem) extends 
 
     val connectionContext = generateConnectionContext()
 
-    var route = Route.seal(_route)
-    route = getHttpInterceptors().reverse.foldLeft(route)((h, i) => i.interceptor(h))
-    route = getDefaultInterceptor().interceptor(route)
-    val handler = Flow[HttpRequest].mapAsync(1)(FusionRoute.asyncHandler(route))
-
+    val handler = toHandler(_route)
     val bindingFuture =
       Http().bindAndHandle(handler, httpSetting.server.host, httpSetting.server.port, connectionContext)
 
@@ -100,6 +98,13 @@ final class HttpServer(val id: String, val system: ExtendedActorSystem) extends 
       afterHttpBindingSuccess(binding, connectionContext.isSecure)
       binding
     }
+  }
+
+  private def toHandler(_route: Route): Flow[HttpRequest, HttpResponse, NotUsed] = {
+    var route = Route.seal(_route)
+    route = getHttpInterceptors().reverse.foldLeft(route)((route, i) => i.interceptor(route))
+    route = getDefaultInterceptor().interceptor(route)
+    Flow[HttpRequest].mapAsync(1)(FusionRoute.asyncHandler(route))
   }
 
   private def getDefaultInterceptor(): HttpInterceptor = createHttpInterceptor(httpSetting.defaultInterceptor).get

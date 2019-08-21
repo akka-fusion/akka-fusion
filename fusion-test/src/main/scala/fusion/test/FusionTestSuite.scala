@@ -15,3 +15,5 @@ trait FusionTestSuite extends MustMatchers with OptionValues with EitherValues w
 }
 
 trait FusionTestFunSuite extends FunSuiteLike with FusionTestSuite
+
+trait FusionTestWordSpec extends WordSpecLike with FusionTestSuite

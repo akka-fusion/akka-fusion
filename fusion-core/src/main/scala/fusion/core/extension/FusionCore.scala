@@ -25,6 +25,7 @@ final class FusionCore private (protected val _system: ExtendedActorSystem) exte
   val setting: CoreSetting = new CoreSetting(configuration)
   val events               = new FusionEvents()
   val shutdowns            = new FusionCoordinatedShutdown(system)
+  val runMode              = new RunMode(configuration)
   FusionUtils.setupActorSystem(system)
   writePidfile()
   System.setProperty(

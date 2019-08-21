@@ -15,6 +15,7 @@ import fusion.http.rejection.SessionRejection
 object BaseRejectionBuilder extends StrictLogging {
   import fusion.http.util.HttpUtils._
 
+  // #rejectionBuilder
   def rejectionBuilder: Builder =
     RejectionHandler
       .newBuilder()
@@ -65,6 +66,7 @@ object BaseRejectionBuilder extends StrictLogging {
           logger.info(rejection.toString)
           complete(jsonEntity(BadRequest, rejection.toString))
       }
+  // #rejectionBuilder
 
   final val rejectionHandler: RejectionHandler = rejectionBuilder.result()
 

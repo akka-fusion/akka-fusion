@@ -15,10 +15,13 @@ trait GatewayDirective {
   def proxyOnServiceName(proxySetting: ProxySetting, discoveryHttpClient: DiscoveryHttpClient): Route =
     extractRequestContext { ctx =>
       implicit val ec = ctx.executionContext
-      val request     = GatewayDirective.copyOnAuthorityAndSchema(ctx.request, proxySetting, discoveryHttpClient)
-      val responseF   = discoveryHttpClient.hostRequest(proxySetting.requestFunc(request))
-      val f =
-        proxySetting.fallback.map(func => Future.firstCompletedOf(List(responseF, func(request)))).getOrElse(responseF)
+      val f = GatewayDirective.copyOnAuthorityAndSchema(ctx.request, proxySetting, discoveryHttpClient).flatMap {
+        request =>
+          val responseF = discoveryHttpClient.hostRequest(proxySetting.requestFunc(request))
+          proxySetting.fallback
+            .map(func => Future.firstCompletedOf(List(responseF, func(request))))
+            .getOrElse(responseF)
+      }
       onSuccess(f) { response =>
         complete(response)
       }
@@ -30,7 +33,7 @@ object GatewayDirective extends GatewayDirective {
   private def copyOnAuthorityAndSchema(
       request: HttpRequest,
       proxySetting: ProxySetting,
-      discoveryHttpClient: DiscoveryHttpClient): HttpRequest = {
+      discoveryHttpClient: DiscoveryHttpClient): Future[HttpRequest] = {
     val realRequest = HttpUtils.copyUri(request, proxySetting.scheme, proxySetting.serviceName)
     discoveryHttpClient.buildHttpRequest(realRequest)
   }

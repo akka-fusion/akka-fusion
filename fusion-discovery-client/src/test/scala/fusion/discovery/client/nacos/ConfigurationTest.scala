@@ -5,21 +5,31 @@ import helloscala.common.Configuration
 
 class ConfigurationTest extends FusionTestFunSuite {
   test("fusion.jdbc.default") {
-    val configuration = Configuration.parseString("""fusion.jdbc {
-                              |  default {
-                              |    poolName = "hongka_openapi"
-                              |    jdbcUrl = "jdbc:postgresql://10.0.0.14:5432/hongka_openapi"
-                              |    username = "devuser"
-                              |    password = "devpass.2019"
-                              |    connectionTestQuery = "select 1;"
-                              |    maximumPoolSize = 10
-                              |  }
-                              |}
-                              |""".stripMargin)
-    val c             = configuration.getConfig("fusion.jdbc.default")
+    val configuration = Configuration.parseString("""akka.http {
+  host-connection-pool {
+    max-open-requests = 64
+    max-retries = 0
+  }
+  server {
+    idle-timeout = 120.seconds
+    request-timeout = 90.seconds
+    socket-options {
+      tcp-keep-alive = on
+    }
+  }
+  client {
+    connecting-timeout = 60.seconds
+    socket-options {
+      tcp-keep-alive = on
+    }
+  }
+}
+""")
+    val c             = configuration.getConfig("akka.http.client")
     println("c is " + c)
 //    val props = c.getProperties(null)
 //    println(props)
+
   }
 
   test("configuration") {

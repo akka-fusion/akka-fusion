@@ -20,7 +20,7 @@ final private[discovery] class NacosComponents(system: ExtendedActorSystem)
   import system.dispatcher
 
   override protected def createComponent(id: String): NacosDiscoveryComponent =
-    new NacosDiscoveryComponent(NacosPropertiesUtils.configProps(id), system)
+    new NacosDiscoveryComponent(id, NacosPropertiesUtils.configProps(id), configuration.getConfiguration(id), system)
 
   override protected def componentClose(c: NacosDiscoveryComponent): Future[Done] = Future {
     c.close()

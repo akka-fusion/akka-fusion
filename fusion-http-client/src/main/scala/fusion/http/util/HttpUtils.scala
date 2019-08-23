@@ -58,7 +58,27 @@ import scala.util.Success
 import scala.util.control.NonFatal
 
 object HttpUtils extends StrictLogging {
-  val AKKA_HTTP_ROUTES_DISPATCHER                            = "akka-http-routes-dispatcher"
+  val AKKA_HTTP_ROUTES_DISPATCHER = "akka-http-routes-dispatcher"
+
+  val DEFAULT_PORTS: Map[String, Int] =
+    Map(
+      "ftp"    -> 21,
+      "ssh"    -> 22,
+      "telnet" -> 23,
+      "smtp"   -> 25,
+      "domain" -> 53,
+      "tftp"   -> 69,
+      "http"   -> 80,
+      "ws"     -> 80,
+      "pop3"   -> 110,
+      "nntp"   -> 119,
+      "imap"   -> 143,
+      "snmp"   -> 161,
+      "ldap"   -> 389,
+      "https"  -> 443,
+      "wss"    -> 443,
+      "imaps"  -> 993,
+      "nfs"    -> 2049).withDefaultValue(-1)
   private[util] var customMediaTypes: Map[String, MediaType] = getDefaultMediaTypes(ConfigFactory.load())
 
   private def getDefaultMediaTypes(config: Config): Map[String, MediaType] = {
@@ -89,23 +109,29 @@ object HttpUtils extends StrictLogging {
     }
   }
 
-  def copyUri(request: HttpRequest, authority: String): HttpRequest = copyUri(request, "http", authority)
+  @inline def copyUri(request: HttpRequest, authority: String): HttpRequest = copyUri(request, "http", authority)
 
-  def copyUri(request: HttpRequest, scheme: String, authority: String): HttpRequest =
+  @inline def copyUri(request: HttpRequest, scheme: String, authority: String): HttpRequest =
     copyUri(request, scheme, Authority.parse(authority))
 
-  def copyUri(request: HttpRequest, scheme: String, authority: Authority): HttpRequest =
+  @inline def copyUri(request: HttpRequest, scheme: String, authority: Authority): HttpRequest =
     request.copy(uri = copyUri(request.uri, scheme, authority))
 
-  def copyUri(uri: Uri, scheme: String, authority: String): Uri    = copyUri(uri, scheme, Authority.parse(authority))
-  def copyUri(uri: Uri, authority: String): Uri                    = copyUri(uri, "http", Authority.parse(authority))
-  def copyUri(uri: Uri, scheme: String, authority: Authority): Uri = uri.copy(scheme = scheme, authority = authority)
+  @inline def copyUri(uri: Uri, scheme: String, authority: String): Uri =
+    copyUri(uri, scheme, Authority.parse(authority))
+  @inline def copyUri(uri: Uri, authority: String): Uri = copyUri(uri, "http", Authority.parse(authority))
 
-  def forExtension(ext: String): Option[MediaType] = {
+  @inline def copyUri(uri: Uri, scheme: String, authority: Authority): Uri =
+    uri.copy(scheme = scheme, authority = authority)
+
+  @inline def clearAuthority(uri: Uri): Uri = uri.copy(scheme = "", authority = Authority.Empty)
+
+  @inline def clearSchemaAndAuthority(uri: Uri): Uri = clearAuthority(uri)
+
+  @inline def forExtension(ext: String): Option[MediaType] =
     MediaTypes.forExtensionOption(ext).orElse(customMediaTypes.get(ext))
-  }
 
-  def registerMediaType(mediaTypes: MediaType*): Unit = {
+  @inline def registerMediaType(mediaTypes: MediaType*): Unit = {
     customMediaTypes = customMediaTypes ++ mediaTypes.flatMap(mediaType => mediaType.fileExtensions.map(_ -> mediaType))
   }
 
@@ -311,8 +337,8 @@ object HttpUtils extends StrictLogging {
       implicit system: ActorSystem,
       mat: Materializer): HttpSourceQueue = {
     uri.scheme match {
-      case "http"  => cachedHostConnectionPool(uri.authority.host.address(), uri.authority.port, bufferSize)
-      case "https" => cachedHostConnectionPoolHttps(uri.authority.host.address(), uri.authority.port, bufferSize)
+      case "http"  => cachedHostConnectionPool(uri.authority.host.address(), uri.effectivePort, bufferSize)
+      case "https" => cachedHostConnectionPoolHttps(uri.authority.host.address(), uri.effectivePort, bufferSize)
       case _       => throw new IllegalArgumentException(s"URI: $uri 不是有效的 http 或 https 地址")
     }
   }

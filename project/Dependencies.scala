@@ -7,7 +7,7 @@ object Dependencies {
   val versionJava8Compat     = "0.9.0"
   val versionScalameta       = "4.2.1"
   val versionScalatest       = "3.0.8"
-  val versionAkka            = "2.5.24"
+  val versionAkka            = "2.5.25"
   val versionAkkaManagement  = "1.0.2"
   val versionAkkaHttp        = "10.1.9"
   val versionAkkaHttpCors    = "0.4.1"

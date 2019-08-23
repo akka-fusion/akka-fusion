@@ -1,95 +1,24 @@
 package fusion.discovery.client.nacos
 
-import java.util.concurrent.ConcurrentHashMap
-import java.util.function.{Function => JFunction}
-
+import akka.actor.ActorSystem
 import akka.http.scaladsl.model.HttpRequest
-import akka.http.scaladsl.model.HttpResponse
 import akka.http.scaladsl.model.Uri
-import akka.http.scaladsl.model.Uri.Authority
-import akka.pattern.CircuitBreaker
-import akka.stream.ActorMaterializer
-import akka.stream.QueueOfferResult
-import com.typesafe.config.ConfigFactory
 import com.typesafe.scalalogging.StrictLogging
 import fusion.discovery.client.DiscoveryHttpClient
+import fusion.discovery.client.DiscoveryHttpClientSetting
 import fusion.discovery.client.FusionNamingService
-import fusion.http.HttpSourceQueue
 import fusion.http.util.HttpUtils
-import helloscala.common.Configuration
-import helloscala.common.exception.HSServiceUnavailableException
 import helloscala.common.util.Utils
 
 import scala.concurrent.Future
-import scala.concurrent.Promise
 import scala.reflect.ClassTag
-import scala.concurrent.duration._
 
-/**
- * {
- *   # HttpSourceQueue队列大小
- *   queue-buffer-size = 512
- *   # 最大连续失败次数
- *   max-failures = 5
- *   # 单次服务调用超时
- *   call-timeout = 10.seconds
- *   # 断路器开断后，再次尝试接通断路器的时间
- *   reset-timeout = 60.seconds
- * }
- */
+@deprecated("推荐使用 DiscoveryHttpClient", "1.0.0")
 final class NacosHttpClient private (
-    override val namingService: FusionNamingService,
-    override val materializer: ActorMaterializer,
-    override val clientConfiguration: Configuration)
-    extends DiscoveryHttpClient(namingService, materializer, clientConfiguration)
+    val namingService: FusionNamingService,
+    val clientSetting: DiscoveryHttpClientSetting)(implicit val system: ActorSystem)
+    extends DiscoveryHttpClient
     with StrictLogging {
-  private val DEFAULT_QUEUE_BUFFER_SIZE = 512
-  private val httpSourceQueueMap        = new ConcurrentHashMap[Authority, HttpSourceQueue]()
-  private val httpSourceQueueBufferSize = clientConfiguration.getOrElse("queue-buffer-size", DEFAULT_QUEUE_BUFFER_SIZE)
-  private val circuitBreaker = CircuitBreaker(
-    system.scheduler,
-    clientConfiguration.getOrElse("max-failures", 5),
-    clientConfiguration.getOrElse("call-timeout", 5.seconds),
-    clientConfiguration.getOrElse("reset-timeout", 30.seconds))
-
-  override def hostRequestToObject[T](req: HttpRequest)(implicit ev1: ClassTag[T]): Future[T] = {
-    import fusion.http.util.JacksonSupport._
-    hostRequest(req).flatMap(response => HttpUtils.mapHttpResponse(response))(materializer.executionContext)
-  }
-
-  override def hostRequestToList[T](req: HttpRequest)(implicit ev1: ClassTag[T]): Future[List[T]] = {
-    hostRequest(req).flatMap(response => HttpUtils.mapHttpResponseList(response))(materializer.executionContext)
-  }
-
-  /**
-   * 发送 Http 请求，使用 CachedHostConnectionPool。
-   *
-   * @param req 发送请求，将通过Nacos替换对应服务(serviceName)为实际的访问地址
-   * @return Future[HttpResponse]
-   */
-  override def hostRequest(req: HttpRequest): Future[HttpResponse] = {
-    val request         = buildHttpRequest(req)
-    val uri             = request.uri
-    val responsePromise = Promise[HttpResponse]()
-    val queue = httpSourceQueueMap.computeIfAbsent(uri.authority, new JFunction[Authority, HttpSourceQueue] {
-      override def apply(t: Authority): HttpSourceQueue =
-        HttpUtils.cachedHostConnectionPool(uri, httpSourceQueueBufferSize)(system, materializer)
-    })
-    val responseF = queue
-      .offer(request -> responsePromise)
-      .flatMap {
-        case QueueOfferResult.Enqueued => responsePromise.future
-        case QueueOfferResult.Dropped =>
-          Future.failed(HSServiceUnavailableException("Queue overflowed. Try again later."))
-        case QueueOfferResult.Failure(ex) => Future.failed(ex)
-        case QueueOfferResult.QueueClosed =>
-          httpSourceQueueMap.remove(uri.authority)
-          val msg = "Queue was closed (pool shut down) while running the request. Try again later."
-          Future.failed(HSServiceUnavailableException(msg))
-      }(materializer.executionContext)
-
-    circuitBreaker.withCircuitBreaker(responseF)
-  }
 
   def singleRequestToObject[T](req: HttpRequest)(implicit ev1: ClassTag[T]): Future[T] = {
     import fusion.http.util.JacksonSupport._
@@ -100,7 +29,7 @@ final class NacosHttpClient private (
     singleRequest(req).flatMap(response => HttpUtils.mapHttpResponseList(response))(materializer.executionContext)
   }
 
-  override def buildUri(uri: Uri): Uri = {
+  override def buildUri(uri: Uri): Future[Uri] = Future {
     val host = uri.authority.host
     if (host.isNamedHost()) {
       val serviceName = host.address()
@@ -113,16 +42,11 @@ final class NacosHttpClient private (
     }
   }
 
-  override def close(): Unit = {
-    httpSourceQueueMap.clear()
-  }
 }
 
 object NacosHttpClient {
 
-  def apply(namingService: FusionNamingService, materializer: ActorMaterializer): NacosHttpClient =
-    apply(namingService, materializer, Configuration(ConfigFactory.parseString("queue-buffer-size = 512")))
-
-  def apply(namingService: FusionNamingService, materializer: ActorMaterializer, c: Configuration): NacosHttpClient =
-    new NacosHttpClient(namingService, materializer, c)
+  def apply(namingService: FusionNamingService, clientSetting: DiscoveryHttpClientSetting)(
+      implicit system: ActorSystem): NacosHttpClient =
+    new NacosHttpClient(namingService, clientSetting)
 }

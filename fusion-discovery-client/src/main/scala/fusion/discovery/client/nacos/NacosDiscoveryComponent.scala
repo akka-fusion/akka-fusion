@@ -2,25 +2,27 @@ package fusion.discovery.client.nacos
 
 import akka.actor.ExtendedActorSystem
 import akka.actor.ExtensionId
-import akka.stream.ActorMaterializer
 import com.typesafe.scalalogging.StrictLogging
 import fusion.core.event.http.HttpBindingServerEvent
 import fusion.core.extension.FusionCore
-import fusion.discovery.client.DiscoveryHttpClient
 import fusion.discovery.client.FusionConfigService
 import fusion.discovery.client.FusionNamingService
 import fusion.discovery.model.DiscoveryInstance
+import helloscala.common.Configuration
 
 import scala.util.Failure
 import scala.util.Success
 
-class NacosDiscoveryComponent(val properties: NacosDiscoveryProperties, system: ExtendedActorSystem)
+class NacosDiscoveryComponent(
+    id: String,
+    val properties: NacosDiscoveryProperties,
+    c: Configuration,
+    system: ExtendedActorSystem)
     extends AutoCloseable
     with StrictLogging {
   private var currentInstances: List[DiscoveryInstance] = Nil
   val configService: FusionConfigService                = NacosServiceFactory.configService(properties)
   val namingService: FusionNamingService                = NacosServiceFactory.namingService(properties)
-  val httpClient: DiscoveryHttpClient                   = NacosHttpClient(namingService, ActorMaterializer()(system))
 
   logger.info(s"自动注册服务到Nacos: ${properties.isAutoRegisterInstance}")
   if (properties.isAutoRegisterInstance) {
@@ -42,7 +44,6 @@ class NacosDiscoveryComponent(val properties: NacosDiscoveryProperties, system: 
 
   override def close(): Unit = {
     currentInstances.foreach(inst => namingService.deregisterInstance(inst))
-    httpClient.close()
   }
 
 }

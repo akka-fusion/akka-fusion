@@ -229,6 +229,9 @@ object TimeUtils extends StrictLogging {
   def toZonedDateTime(date: String, time: String, zoneId: ZoneId): ZonedDateTime =
     toLocalDateTime(date, time).atZone(zoneId)
 
+  def toZonedDateTime(epochMillis: Long): ZonedDateTime =
+    toOffsetDateTime(epochMillis).toZonedDateTime
+
   def toOffsetDateTime(epochMillis: Long): OffsetDateTime =
     Instant.ofEpochMilli(epochMillis).atOffset(ZONE_CHINA_OFFSET)
 

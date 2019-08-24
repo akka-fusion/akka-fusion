@@ -549,28 +549,38 @@ object HttpUtils extends StrictLogging {
 
   def curlLogging(req: HttpRequest)(implicit _log: Logger = null): HttpRequest = {
     val log = if (null == _log) logger else _log
-    def entity = req.entity match {
-      case HttpEntity.Empty => ""
-      case _                => "\n" + req.entity
-    }
-    val headers = req.headers.filterNot(_.name() == `Timeout-Access`.name)
-    log.debug(s"""HttpRequest
+    log.whenDebugEnabled {
+      val entity = req.entity match {
+        case HttpEntity.Empty => ""
+        case _                => "\n" + req.entity
+      }
+      val headers = req.headers.filterNot(_.name() == `Timeout-Access`.name)
+      log.debug(s"""HttpRequest
                 |${req.protocol.value} ${req.method.value} ${req.uri}
                 |search: ${toString(req.uri.query())}
                 |header: ${headers.mkString("\n        ")}$entity""".stripMargin)
+    }
     req
   }
 
-  def curlLoggingResponse(req: HttpRequest, resp: HttpResponse)(implicit _log: Logger = null): HttpResponse = {
+  def curlLoggingResponse(req: HttpRequest, resp: HttpResponse, printResponseEntity: Boolean = false)(
+      implicit _log: Logger = null): HttpResponse = {
     val log = if (null == _log) logger else _log
-    def entity = resp.entity match {
-      case HttpEntity.Empty => ""
-      case _                => "\n" + resp.entity
+    log.whenDebugEnabled {
+      val sb = new StringBuilder
+      sb.append("HttpResponse").append("\n")
+      sb.append(s"${resp.protocol.value} ${req.method.value} ${req.uri}").append("\n")
+      sb.append(s"status: ${resp.status}").append("\n")
+      sb.append("header: ")
+      resp.headers.foreach(h => sb.append(h.toString()).append("\n        "))
+      if (printResponseEntity) {
+        sb.append(resp.entity match {
+          case HttpEntity.Empty => ""
+          case _                => "\n" + resp.entity
+        })
+      }
+      log.debug(sb.toString())
     }
-    log.debug(s"""HttpResponse
-                |${resp.protocol.value} ${req.method.value} ${req.uri}
-                |status: ${resp.status}
-                |header: ${resp.headers.mkString("\n        ")}$entity""".stripMargin)
     resp
   }
 

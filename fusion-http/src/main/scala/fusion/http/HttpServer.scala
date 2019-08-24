@@ -102,12 +102,13 @@ final class HttpServer(val id: String, val system: ExtendedActorSystem) extends 
 
   private def toHandler(_route: Route): Flow[HttpRequest, HttpResponse, NotUsed] = {
     var route = Route.seal(_route)
-    route = getHttpInterceptors().reverse.foldLeft(route)((route, i) => i.interceptor(route))
-    route = getDefaultInterceptor().interceptor(route)
+    route =
+      (getDefaultInterceptor() ++ getHttpInterceptors()).reverse.foldLeft(route)((route, i) => i.interceptor(route))
     Flow[HttpRequest].mapAsync(1)(FusionRoute.asyncHandler(route))
   }
 
-  private def getDefaultInterceptor(): HttpInterceptor = createHttpInterceptor(httpSetting.defaultInterceptor).get
+  private def getDefaultInterceptor(): Seq[HttpInterceptor] =
+    httpSetting.defaultInterceptor.flatMap(createHttpInterceptor)
 
   private def getHttpInterceptors(): Seq[HttpInterceptor] = {
     httpSetting.httpInterceptors.flatMap(className => createHttpInterceptor(className))

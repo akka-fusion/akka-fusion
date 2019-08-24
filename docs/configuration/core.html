@@ -191,7 +191,7 @@ ihongka/akka-fusion
 <ul style="display: none">
 <li class="md-nav__item md-version" id="project.version">
 <label class="md-nav__link" for="__version">
-<i class="md-icon" title="Version">label_outline</i> 1.0.0-beta7
+<i class="md-icon" title="Version">label_outline</i> 1.0.0*
 </label>
 </li>
 </ul>
@@ -220,10 +220,9 @@ ihongka/akka-fusion
     serializers {
       //java = &quot;com.twitter.chill.akka.AkkaSerializer&quot;
       kryo = &quot;com.twitter.chill.akka.AkkaSerializer&quot;
-      //      proto = &quot;akka.remote.serialization.ProtobufSerializer&quot;
+      //proto = &quot;akka.remote.serialization.ProtobufSerializer&quot;
     }
   }
-
   extensions += fusion.core.extension.FusionCore
 }
 fusion {
@@ -231,6 +230,14 @@ fusion {
   name = &quot;fusion&quot;
   core {
     trace-key = &quot;f-trace&quot;
+  }
+}
+fusion.default {
+  circuit-breaker {
+    enable = true
+    max-failures = 3
+    call-timeout = 20 s
+    reset-timeout = 30 s
   }
 }</code></pre>
 </div>
@@ -241,7 +248,7 @@ Edit this page
 </div>
 <div class="print-only">
 <span class="md-source-file md-version">
-1.0.0-beta7
+1.0.0*
 </span>
 </div>
 </article>

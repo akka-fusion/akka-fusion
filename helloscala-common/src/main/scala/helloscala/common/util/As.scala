@@ -214,10 +214,23 @@ object AsLocalDateTime {
 
 object AsZonedDateTime {
 
-  def unapply(v: AnyRef): Option[ZonedDateTime] = v match {
-    case null               => None
-    case zdt: ZonedDateTime => Some(zdt)
-    case s: String          => Try(ZonedDateTime.parse(s)).toOption
-    case _                  => None
+  def unapply(v: Any): Option[ZonedDateTime] = v match {
+    case null                  => None
+    case zdt: ZonedDateTime    => Some(zdt)
+    case s: String             => Try(ZonedDateTime.parse(s)).orElse(Try(TimeUtils.toZonedDateTime(s.toLong))).toOption
+    case epochMillis: Long     => Try(TimeUtils.toZonedDateTime(epochMillis)).toOption
+    case AsOffsetDateTime(odt) => Some(odt.toZonedDateTime)
+    case _                     => None
+  }
+}
+
+object AsOffsetDateTime {
+
+  def unapply(v: Any): Option[OffsetDateTime] = v match {
+    case null                => None
+    case odt: OffsetDateTime => Some(odt)
+    case s: String           => Try(TimeUtils.toOffsetDateTime(s)).orElse(Try(TimeUtils.toOffsetDateTime(s.toLong))).toOption
+    case epochMillis: Long   => Try(TimeUtils.toOffsetDateTime(epochMillis)).toOption
+    case _                   => None
   }
 }

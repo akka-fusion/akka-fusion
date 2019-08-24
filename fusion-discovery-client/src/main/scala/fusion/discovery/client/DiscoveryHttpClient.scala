@@ -10,6 +10,7 @@ import akka.http.scaladsl.model.Uri
 import akka.pattern.CircuitBreaker
 import akka.stream.QueueOfferResult
 import com.typesafe.config.ConfigFactory
+import fusion.core.setting.CircuitBreakerSetting
 import fusion.http.HttpSourceQueue
 import fusion.http.client.HttpClient
 import fusion.http.util.HttpUtils
@@ -20,32 +21,26 @@ import helloscala.common.exception.HSServiceUnavailableException
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import scala.concurrent.Promise
-import scala.concurrent.duration._
 
 /**
  * {
  *   # HttpSourceQueue队列大小
  *   queue-buffer-size = 512
+ *   # 是否启用熔断器
+ *   circuit.enable = true
  *   # 最大连续失败次数
  *   circuit.max-failures = 5
  *   # 单次服务调用超时
  *   circuit.call-timeout = 10.seconds
  *   # 熔断器开断后，再次尝试接通断路器的时间
  *   circuit.reset-timeout = 60.seconds
- *   # 是否启用熔断器
- *   circuit.enable = true
  * }
  */
 final class DiscoveryHttpClientSetting(val c: Configuration) {
   def queueBufferSize: Int            = c.getOrElse("queue-buffer-size", 512)
   def discoveryMethod: Option[String] = c.get[Option[String]]("discovery-method")
 
-  object circuit {
-    def enable: Boolean              = c.getOrElse("circuit.enable", true)
-    def maxFailures: Int             = c.getOrElse("circuit.max-failures", 5)
-    def callTimeout: FiniteDuration  = c.getOrElse("circuit.call-timeout", 30.seconds)
-    def resetTimeout: FiniteDuration = c.getOrElse("circuit.reset-timeout", 30.seconds)
-  }
+  val circuit = CircuitBreakerSetting(c, "circuit")
 }
 
 trait DiscoveryHttpClient extends HttpClient {

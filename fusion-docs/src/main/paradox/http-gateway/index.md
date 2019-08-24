@@ -13,38 +13,47 @@ fusion-http-gateway的配置主要分两部分（参考了Nginx）：
 
 #### upstream
 
-```hocon
-upstreams {
-  # upstream服务名
-  account {
-    # 服务名，用于从服务发现机制中获取一个真实的访问地址
-    serviceName = hongka-server-account
-    # 使用Akka Discovery实现服务发现，默认使用 akka.discovery.method 指定的DiscoveryService
-    discoveryMethod = nacos
-    # 静态设置多个上游服务地址，当未指定serviceName时有效
-    //targets = ["127.0.0.1:8888", "hostname.local"]
-  }
-}
-```
+@@snip [template.conf#upstreams](../../../../../fusion-http-gateway/src/main/resources/template.conf) { #upstreams }
 
 #### location
 
-```hocon
-locations {
-  # 要代理的地址前部（从URI PATH开头部分匹配）
-  "/api/v4/platform" {
-    # upstream服务名
-    upstream = platform
-    # 代理转发地址，未设置同 /api/v4/platform
-    //proxy-to = "/api/v4/platform"
-  }
-}
-```
+@@snip [template.conf#locations](../../../../../fusion-http-gateway/src/main/resources/template.conf) { #locations }
+
+#### 完整配置
+
+详细配置见： @ref:[Fusion Http Gateway 配置](../configuration/http-gateway.md)。
 
 ## 编程实现
 
 编程实现非常简单，使用常规的Akka HTTP功能即可。对Akka HTTP不熟悉的用户可阅读一本还不错的电子书：[《Scala Web 开发——基于Akka HTTP》](https://www.yangbajing.me/scala-web-development/)。
 
-## 完整配置
+## 自定义 `HttpGatewayComponent`
 
-详细配置见： @ref:[Fusion Http Gateway 配置](../configuration/http-gateway.md)。
+akka fusion提供了 `HttpGatewayComponent` 抽象类以使用户可以完全自定义HTTP代理。只需要继承 `HttpGatewayComponent` ，并将类的完整限定名配置到 `fusion.http.<default>.gateway.class` 属性即可。akka fusion使用用户提供的类来实例化HTTP代理组件。下面是一个示例：
+
+**配置**
+```hocon
+fusion.http.default.gateway {
+  class = fusion.docs.gateway.CustomHttpGatewayComponent
+}
+```
+
+**自定义HTTP网关代理组件**
+```scala
+package fusion.docs.gateway
+
+final class CustomHttpGatewayComponent(id: String, system: ActorSystem) 
+    extends HttpGatewayComponent 
+    with SessionDirectives {
+  private val aggregate = BackendAggregate(system)
+
+  override def route: Route = {
+    validationSession(aggregate.sessionComponent) {                        // 校验session
+      logging(aggregate.sessionComponent, 
+          logMsg => aggregate.kafkaMessageService.processLogMsg(logMsg)) { // 记录日志
+        super.route  
+      }
+    }
+  }
+}
+```

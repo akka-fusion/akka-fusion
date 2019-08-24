@@ -191,7 +191,7 @@ ihongka/akka-fusion
   <ul>
     <li><a href="../http-gateway/index.html#配置实现" class="header">配置实现</a></li>
     <li><a href="../http-gateway/index.html#编程实现" class="header">编程实现</a></li>
-    <li><a href="../http-gateway/index.html#完整配置" class="header">完整配置</a></li>
+    <li><a href="../http-gateway/index.html#自定义-httpgatewaycomponent" class="header">自定义 <code>HttpGatewayComponent</code></a></li>
   </ul></li>
 </ul>
 </nav>
@@ -200,7 +200,7 @@ ihongka/akka-fusion
 <ul style="display: none">
 <li class="md-nav__item md-version" id="project.version">
 <label class="md-nav__link" for="__version">
-<i class="md-icon" title="Version">label_outline</i> 1.0.0-beta7
+<i class="md-icon" title="Version">label_outline</i> 1.0.0*
 </label>
 </li>
 </ul>
@@ -217,7 +217,7 @@ ihongka/akka-fusion
   <ul>
     <li><a href="../http-gateway/index.html#配置实现" class="header">配置实现</a></li>
     <li><a href="../http-gateway/index.html#编程实现" class="header">编程实现</a></li>
-    <li><a href="../http-gateway/index.html#完整配置" class="header">完整配置</a></li>
+    <li><a href="../http-gateway/index.html#自定义-httpgatewaycomponent" class="header">自定义 <code>HttpGatewayComponent</code></a></li>
   </ul></li>
 </ul>
 </nav>
@@ -238,33 +238,68 @@ ihongka/akka-fusion
   <li><code>locations</code>：指定需要代理的地址</li>
 </ol>
 <h4><a href="#upstream" name="upstream" class="anchor"><span class="anchor-link"></span></a>upstream</h4>
-<pre class="prettyprint"><code class="language-hocon">upstreams {
-  # upstream服务名
+<pre class="prettyprint"><a class="icon go-to-source" href="https://github.com/yangbajing/akka-fusion/tree/master/fusion-http-gateway/src/main/resources/template.conf#L26-L41" target="_blank" title="Go to snippet source"></a><code class="language-conf">// 服务上游配置
+upstreams {
+  # 上游服务名
   account {
-    # 服务名，用于从服务发现机制中获取一个真实的访问地址
+    # 动态服务发现配置
+    # 服务发现服务名字，将通过 Akka Discovery 发现服务实际地址
     serviceName = hongka-server-account
-    # 使用Akka Discovery实现服务发现，默认使用 akka.discovery.method 指定的DiscoveryService
-    discoveryMethod = nacos
-    # 静态设置多个上游服务地址，当未指定serviceName时有效
-    //targets = [&quot;127.0.0.1:8888&quot;, &quot;hostname.local&quot;]
+    # 默认使用 akka.discovery.method 指定的 DiscoveryService
+    #discoveryMethod = nacos
   }
-}
-</code></pre>
+  file-app {
+    # 静态服务发现配置
+    # 数组参数，可指定多个服务目标地址
+    targets = [&quot;10.0.0.7:8083&quot;, &quot;10.0.0.8:8083&quot;]
+  }
+}</code></pre>
 <h4><a href="#location" name="location" class="anchor"><span class="anchor-link"></span></a>location</h4>
-<pre class="prettyprint"><code class="language-hocon">locations {
-  # 要代理的地址前部（从URI PATH开头部分匹配）
-  &quot;/api/v4/platform&quot; {
-    # upstream服务名
-    upstream = platform
-    # 代理转发地址，未设置同 /api/v4/platform
-    //proxy-to = &quot;/api/v4/platform&quot;
+<pre class="prettyprint"><a class="icon go-to-source" href="https://github.com/yangbajing/akka-fusion/tree/master/fusion-http-gateway/src/main/resources/template.conf#L45-L60" target="_blank" title="Go to snippet source"></a><code class="language-conf">// 代理地址
+locations {
+  &quot;/api/v4/account&quot; {
+    # 上游服务名
+    upstream = account
+    # 代理转发地址，未设置同 /api/v4/account
+    proxy-to = &quot;/api/v4/account&quot;
   }
-}
-</code></pre>
+  &quot;/file/ihongka_files&quot; {
+    upstream = file-app
+    routing-settings {
+      # 设置上传文件不限制大小
+      size-limit = -1
+    }
+  }
+}</code></pre>
+<h4><a href="#完整配置" name="完整配置" class="anchor"><span class="anchor-link"></span></a>完整配置</h4>
+<p>详细配置见： <a href="../configuration/http-gateway.html">Fusion Http Gateway 配置</a>。</p>
 <h2><a href="#编程实现" name="编程实现" class="anchor"><span class="anchor-link"></span></a>编程实现</h2>
 <p>编程实现非常简单，使用常规的Akka HTTP功能即可。对Akka HTTP不熟悉的用户可阅读一本还不错的电子书：<a href="https://www.yangbajing.me/scala-web-development/">《Scala Web 开发——基于Akka HTTP》</a>。</p>
-<h2><a href="#完整配置" name="完整配置" class="anchor"><span class="anchor-link"></span></a>完整配置</h2>
-<p>详细配置见： <a href="../configuration/http-gateway.html">Fusion Http Gateway 配置</a>。</p>
+<h2><a href="#自定义-httpgatewaycomponent" name="自定义-httpgatewaycomponent" class="anchor"><span class="anchor-link"></span></a>自定义 <code>HttpGatewayComponent</code></h2>
+<p>akka fusion提供了 <code>HttpGatewayComponent</code> 抽象类以使用户可以完全自定义HTTP代理。只需要继承 <code>HttpGatewayComponent</code> ，并将类的完整限定名配置到 <code>fusion.http.&lt;default&gt;.gateway.class</code> 属性即可。akka fusion使用用户提供的类来实例化HTTP代理组件。下面是一个示例：</p>
+<p><strong>配置</strong></p>
+<pre class="prettyprint"><code class="language-hocon">fusion.http.default.gateway {
+  class = fusion.docs.gateway.CustomHttpGatewayComponent
+}
+</code></pre>
+<p><strong>自定义HTTP网关代理组件</strong></p>
+<pre class="prettyprint"><code class="language-scala">package fusion.docs.gateway
+
+final class CustomHttpGatewayComponent(id: String, system: ActorSystem) 
+    extends HttpGatewayComponent 
+    with SessionDirectives {
+  private val aggregate = BackendAggregate(system)
+
+  override def route: Route = {
+    validationSession(aggregate.sessionComponent) {                        // 校验session
+      logging(aggregate.sessionComponent, 
+          logMsg =&gt; aggregate.kafkaMessageService.processLogMsg(logMsg)) { // 记录日志
+        super.route  
+      }
+    }
+  }
+}
+</code></pre>
 </div>
 <div>
 <a href="https://github.com/yangbajing/akka-fusion/tree/master/fusion-docs/src/main/paradox/http-gateway/index.md" title="Edit this page" class="md-source-file md-edit">
@@ -273,7 +308,7 @@ Edit this page
 </div>
 <div class="print-only">
 <span class="md-source-file md-version">
-1.0.0-beta7
+1.0.0*
 </span>
 </div>
 </article>

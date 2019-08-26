@@ -1,3 +1,19 @@
+/*
+ * Copyright 2019 helloscala.com
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package fusion.mongodb.test
 
 import akka.Done
@@ -27,11 +43,11 @@ import scala.concurrent.duration._
 import scala.util.control.NonFatal
 
 class MongodbGeoTest extends FusionTestFunSuite with BeforeAndAfterAll {
-  private val IGNORE_KEYS     = Set("location", "id")
+  private val IGNORE_KEYS = Set("location", "id")
   implicit private val system = ActorSystem("test")
-  implicit private val mat    = ActorMaterializer()
-  private val client          = MongoClients.create("mongodb://123.206.9.104:27017")
-  private val localClient     = MongoClients.create("mongodb://localhost:27017")
+  implicit private val mat = ActorMaterializer()
+  private val client = MongoClients.create("mongodb://123.206.9.104:27017")
+  private val localClient = MongoClients.create("mongodb://localhost:27017")
   private val coll = client
     .getDatabase("hongka-resource_dev")
     .getCollection("school_3")
@@ -47,7 +63,7 @@ class MongodbGeoTest extends FusionTestFunSuite with BeforeAndAfterAll {
       .addAttributes(Attributes(SupervisionStrategy(Supervision.resumingDecider)))
       .map { doc =>
         val Array(longitude, latitude) = doc.getString("location").split(',')
-        val point                      = new Point(new Position(longitude.trim.toDouble, latitude.trim.toDouble))
+        val point = new Point(new Position(longitude.trim.toDouble, latitude.trim.toDouble))
         new Document(doc.asScala.filterKeys(key => !IGNORE_KEYS(key)).asJava)
           .append("location", point)
           .append("_id", doc.getString("id"))

@@ -1,3 +1,19 @@
+/*
+ * Copyright 2019 helloscala.com
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package fusion.mybatis
 
 import akka.Done
@@ -14,8 +30,8 @@ import com.baomidou.mybatisplus.extension.incrementer.H2KeyGenerator
 import com.baomidou.mybatisplus.extension.incrementer.OracleKeyGenerator
 import com.baomidou.mybatisplus.extension.incrementer.PostgreKeyGenerator
 import com.typesafe.scalalogging.StrictLogging
+import fusion.core.component.Components
 import fusion.core.extension.FusionCore
-import fusion.core.util.Components
 import fusion.jdbc.FusionJdbc
 import fusion.mybatis.constant.MybatisConstants
 import helloscala.common.Configuration
@@ -39,9 +55,9 @@ class MybatisComponents(system: ExtendedActorSystem)
       configuration.getConfiguration(id).withFallback(configuration.getConfiguration(MybatisConstants._PATH_DEFAULT))
 
     val jdbcDataSourceId = c.getString(MybatisConstants.PATH_JDBC_NAME)
-    val envId            = if (c.hasPath("env")) c.getString(s"env") else id
-    val dataSource       = FusionJdbc(system).components.lookup(jdbcDataSourceId)
-    val environment      = new Environment(envId, new JdbcTransactionFactory(), dataSource)
+    val envId = if (c.hasPath("env")) c.getString(s"env") else id
+    val dataSource = FusionJdbc(system).components.lookup(jdbcDataSourceId)
+    val environment = new Environment(envId, new JdbcTransactionFactory(), dataSource)
 
     val mybatisConfiguration = createConfiguration(c, environment)
     mybatisConfiguration.setGlobalConfig(createGlobalConfig(c))
@@ -91,8 +107,8 @@ class MybatisComponents(system: ExtendedActorSystem)
 
     val packagesPath = "configuration.package-names"
     val packageNames = c.getOrElse[Seq[String]](packagesPath, Nil)
-    val mappersPath  = "configuration.mapper-names"
-    val mapperNames  = c.getOrElse[Seq[String]](mappersPath, Nil)
+    val mappersPath = "configuration.mapper-names"
+    val mapperNames = c.getOrElse[Seq[String]](mappersPath, Nil)
     require(c.hasPath(packagesPath) || c.hasPath(mappersPath), s"$packagesPath 和 $mappersPath 配置不能同时为空")
     packageNames.foreach(packageName => configuration.addMappers(packageName))
     mapperNames.foreach(className => configuration.addMapper(Class.forName(className)))
@@ -120,7 +136,7 @@ class MybatisComponents(system: ExtendedActorSystem)
     }
 
     val interceptors = c.getOrElse[Seq[String]]("configuration.plugins", Nil) ++
-          c.getOrElse[Seq[String]]("configuration.interceptors", Nil)
+      c.getOrElse[Seq[String]]("configuration.interceptors", Nil)
     interceptors.foreach { className =>
       system.dynamicAccess.createInstanceFor[Interceptor](className, Nil) match {
         case Success(value)     => configuration.addInterceptor(value)

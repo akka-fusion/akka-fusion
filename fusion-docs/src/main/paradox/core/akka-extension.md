@@ -46,7 +46,7 @@ akka-fusion在提供了 `FusionExtension` 帮助trait来构建Akka Extension。
 
 `Components` 提供代码实现如下：
 
-@@snip [Components.scala](../../../../../fusion-core/src/main/scala/fusion/core/util/Components.scala) { #Components }
+@@snip [Components.scala](../../../../../fusion-core/src/main/scala/fusion/core/component/Components.scala) { #Components }
 
 ## 通过Akka Extension来管理服务（依赖）
 

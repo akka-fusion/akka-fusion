@@ -1,3 +1,19 @@
+/*
+ * Copyright 2019 helloscala.com
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package fusion.http.server
 
 import java.io.File
@@ -65,7 +81,7 @@ trait AbstractRoute extends Directives with HttpDirectives with FileDirectives {
   def rawNotPathPrefixTest[L](pm: PathMatcher[L]): Directive0 = {
     extract(ctx => pm(ctx.unmatchedPath)).flatMap {
       case Matched(v, values) ⇒ reject
-      case Unmatched          ⇒ pass
+      case Unmatched ⇒ pass
     }
   }
 
@@ -73,9 +89,9 @@ trait AbstractRoute extends Directives with HttpDirectives with FileDirectives {
     mapResponseHeaders(
       h =>
         h ++
-            List(
-              headers.`Cache-Control`(CacheDirectives.`no-store`, CacheDirectives.`no-cache`),
-              headers.RawHeader("Pragma", "no-cache")))
+        List(
+          headers.`Cache-Control`(CacheDirectives.`no-store`, CacheDirectives.`no-cache`),
+          headers.RawHeader("Pragma", "no-cache")))
 
   def completeOk: Route = complete(HttpEntity.Empty)
 
@@ -145,7 +161,7 @@ trait AbstractRoute extends Directives with HttpDirectives with FileDirectives {
         complete(status)
 
       case result =>
-        import fusion.http.util.JacksonSupport._
+        import fusion.json.jackson.http.JacksonSupport._
         val resp = if (needContainer) ApiResult.success(result) else result
         complete((successCode, resp))
     }
@@ -169,9 +185,9 @@ trait AbstractRoute extends Directives with HttpDirectives with FileDirectives {
    */
   def restApiProxy(uri: Uri)(implicit sourceQueue: AkkaHttpSourceQueue): Route =
     extractRequestContext { ctx =>
-      val req     = ctx.request
+      val req = ctx.request
       val request = req.copy(uri = uri.withQuery(req.uri.query()))
-      val future  = HttpUtils.hostRequest(request)(sourceQueue.httpSourceQueue, ctx.executionContext)
+      val future = HttpUtils.hostRequest(request)(sourceQueue.httpSourceQueue, ctx.executionContext)
       onSuccess(future) { response =>
         complete(response)
       }

@@ -1,3 +1,19 @@
+/*
+ * Copyright 2019 helloscala.com
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package helloscala.common.util
 
 import java.time.format.DateTimeFormatter
@@ -15,12 +31,12 @@ import scala.util.control.NonFatal
 object TimeUtils extends StrictLogging {
 
   val DATE_TIME_EPOCH: LocalDateTime = LocalDateTime.of(1970, 1, 1, 0, 0, 0)
-  val ZONE_CHINA_OFFSET: ZoneOffset  = ZoneOffset.ofHours(8)
+  val ZONE_CHINA_OFFSET: ZoneOffset = ZoneOffset.ofHours(8)
 
-  val formatterDateTime: DateTimeFormatter              = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+  val formatterDateTime: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
   val formatterDateTimeMillisCompact: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS")
-  val formatterMonth: DateTimeFormatter                 = DateTimeFormatter.ofPattern("yyyy-MM")
-  val formatterDate: DateTimeFormatter                  = DateTimeFormatter.ISO_LOCAL_DATE
+  val formatterMonth: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM")
+  val formatterDate: DateTimeFormatter = DateTimeFormatter.ISO_LOCAL_DATE
 
   val formatterDateHours: DateTimeFormatter =
     DateTimeFormatter.ofPattern("yyyy-MM-dd HH")
@@ -28,9 +44,9 @@ object TimeUtils extends StrictLogging {
   val formatterDateMinutes: DateTimeFormatter =
     DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
   val formatterMinutes: DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm")
-  val formatterTime: DateTimeFormatter    = DateTimeFormatter.ofPattern("HH:mm:ss")
+  val formatterTime: DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss")
 
-  val formatterYear: DateTimeFormatter      = DateTimeFormatter.ofPattern("yyyy")
+  val formatterYear: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy")
   val formatterOnlyMonth: DateTimeFormatter = DateTimeFormatter.ofPattern("MM")
 
   val DateKeys = List("年", "月", "-", "/", "日")
@@ -45,9 +61,9 @@ object TimeUtils extends StrictLogging {
    * @return (func函数返回值，函数执行时间纳秒数)
    */
   def executeNanoTime[R](func: => R): (R, Long) = {
-    val begin  = System.nanoTime()
+    val begin = System.nanoTime()
     val result = func
-    val end    = System.nanoTime()
+    val end = System.nanoTime()
     (result, end - begin)
   }
 
@@ -59,15 +75,15 @@ object TimeUtils extends StrictLogging {
    * @return (func函数返回值，函数执行时间毫秒数)
    */
   def executeMillis[R](func: => R): (R, Long) = {
-    val begin  = System.currentTimeMillis()
+    val begin = System.currentTimeMillis()
     val result = func
-    val end    = System.currentTimeMillis()
+    val end = System.currentTimeMillis()
     (result, end - begin)
   }
 
   def dumpExecuteTime[R](func: => R): R = {
-    val begin    = System.currentTimeMillis()
-    val result   = func
+    val begin = System.currentTimeMillis()
+    val result = func
     val duration = Duration.ofMillis(System.currentTimeMillis() - begin)
     logger.info(s"函数执行时间：$duration")
     result
@@ -331,13 +347,13 @@ object TimeUtils extends StrictLogging {
   private[this] lazy val funcId = new java.util.concurrent.atomic.AtomicLong()
 
   def time[R](func: => R): R = {
-    val fid   = funcId.incrementAndGet()
+    val fid = funcId.incrementAndGet()
     val start = Instant.now()
     logger.info(s"funcId: $fid start time: $start")
     try {
       func
     } finally {
-      val end  = Instant.now()
+      val end = Instant.now()
       val cost = Duration.between(start, end)
       logger.info(s"funcId: $fid end time: $end, cost: $cost")
     }

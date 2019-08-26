@@ -1,3 +1,19 @@
+/*
+ * Copyright 2019 helloscala.com
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package fusion.discovery.client.nacos
 
 import java.util.Properties
@@ -16,10 +32,10 @@ import scala.language.existentials
 class FusionNacosTest extends FusionTestFunSuite with BeforeAndAfterAll {
   private var system: ActorSystem = _
 
-  private val SERVER_ADDR  = "localhost:8848"
-  private val NAMESPACE    = "5b764784-f457-46fb-96c6-4f086d5d0ce1"
-  private val DATA_ID      = "hongka.file.app"
-  private val GROUP        = NacosConstants.DEFAULT_GROUP
+  private val SERVER_ADDR = "localhost:8848"
+  private val NAMESPACE = "5b764784-f457-46fb-96c6-4f086d5d0ce1"
+  private val DATA_ID = "hongka.file.app"
+  private val GROUP = NacosConstants.DEFAULT_GROUP
   private val SERVICE_NAME = "hongka-file-app"
 
   test("ConfigService") {
@@ -42,7 +58,7 @@ class FusionNacosTest extends FusionTestFunSuite with BeforeAndAfterAll {
   test("ddd") {
     val clz = Option(Class.forName("fusion.discovery.DiscoveryUtils"))
       .getOrElse(Class.forName("fusion.discovery.DiscoveryUtils$"))
-    val service          = clz.getMethod("defaultConfigService").invoke(null)
+    val service = clz.getMethod("defaultConfigService").invoke(null)
     val clzConfigService = Class.forName("fusion.discovery.client.FusionConfigService")
     val result = clzConfigService
       .getMethod("getConfig", classOf[String], classOf[String], classOf[Long])

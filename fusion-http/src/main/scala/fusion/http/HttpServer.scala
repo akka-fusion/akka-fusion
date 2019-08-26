@@ -1,3 +1,19 @@
+/*
+ * Copyright 2019 helloscala.com
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package fusion.http
 
 import java.net.InetSocketAddress
@@ -26,6 +42,7 @@ import com.typesafe.sslconfig.akka.AkkaSSLConfig
 import fusion.core.event.http.HttpBindingServerEvent
 import fusion.core.extension.FusionCore
 import fusion.http.interceptor.HttpInterceptor
+import fusion.http.server.AbstractRoute
 import fusion.http.util.HttpUtils
 import helloscala.common.Configuration
 import helloscala.common.exception.HSInternalErrorException
@@ -39,15 +56,15 @@ import scala.util.Failure
 import scala.util.Success
 
 final class HttpServer(val id: String, val system: ExtendedActorSystem) extends StrictLogging with AutoCloseable {
-  implicit private def _system: ActorSystem         = system
-  implicit private val mat: ActorMaterializer       = ActorMaterializer()
+  implicit private def _system: ActorSystem = system
+  implicit private val mat: ActorMaterializer = ActorMaterializer()
   implicit private def ec: ExecutionContextExecutor = mat.executionContext
-  private val _isStarted                            = new AtomicBoolean(false)
-  @volatile private var _isRunning                  = false
-  private val c                                     = Configuration(system.settings.config.getConfig(id))
-  private var _socketAddress: InetSocketAddress     = _
-  private var maybeEventualBinding                  = Option.empty[Future[ServerBinding]]
-  private val httpSetting                           = new HttpSetting(c, system)
+  private val _isStarted = new AtomicBoolean(false)
+  @volatile private var _isRunning = false
+  private val c = Configuration(system.settings.config.getConfig(id))
+  private var _socketAddress: InetSocketAddress = _
+  private var maybeEventualBinding = Option.empty[Future[ServerBinding]]
+  private val httpSetting = new HttpSetting(c, system)
 
   @throws(classOf[Exception])
   def startHandlerSync(handler: HttpHandler)(
@@ -67,6 +84,14 @@ final class HttpServer(val id: String, val system: ExtendedActorSystem) extends 
     startRouteAsync(route)
   }
 
+  def startAbstractRouteSync(route: AbstractRoute)(
+      implicit
+      rejectionHandler: RejectionHandler = createRejectionHandler(),
+      exceptionHandler: ExceptionHandler = createExceptionHandler(),
+      duration: Duration = 30.seconds): ServerBinding = {
+    Await.result(startRouteAsync(route.route), duration)
+  }
+
   @throws(classOf[Exception])
   def startRouteSync(route: Route)(
       implicit
@@ -77,16 +102,15 @@ final class HttpServer(val id: String, val system: ExtendedActorSystem) extends 
   }
 
   def startRouteAsync(_route: Route)(
-      implicit
-      rejectionHandler: RejectionHandler,
-      exceptionHandler: ExceptionHandler): Future[ServerBinding] = {
+      implicit rejectionHandler: RejectionHandler = createRejectionHandler(),
+      exceptionHandler: ExceptionHandler = createExceptionHandler()): Future[ServerBinding] = {
     if (!_isStarted.compareAndSet(false, true)) {
       throw HSInternalErrorException("HttpServer只允许start一次")
     }
 
     val connectionContext = generateConnectionContext()
 
-    val handler = toHandler(_route)
+    val handler = toHandler(Route.seal(_route))
     val bindingFuture =
       Http().bindAndHandle(handler, httpSetting.server.host, httpSetting.server.port, connectionContext)
 
@@ -101,7 +125,7 @@ final class HttpServer(val id: String, val system: ExtendedActorSystem) extends 
   }
 
   private def toHandler(_route: Route): Flow[HttpRequest, HttpResponse, NotUsed] = {
-    var route = Route.seal(_route)
+    var route = _route
     route =
       (getDefaultInterceptor() ++ getHttpInterceptors()).reverse.foldLeft(route)((route, i) => i.interceptor(route))
     Flow[HttpRequest].mapAsync(1)(FusionRoute.asyncHandler(route))
@@ -161,13 +185,13 @@ final class HttpServer(val id: String, val system: ExtendedActorSystem) extends 
       HttpConnectionContext()
     } else {
       val akkaSslConfig = new AkkaSSLConfig(system, httpSetting.createSSLConfig())
-      val keyPassword   = c.getString("ssl.key-store.password")
-      val keyPath       = c.getString("ssl.key-store.path")
+      val keyPassword = c.getString("ssl.key-store.password")
+      val keyPath = c.getString("ssl.key-store.path")
       val keystore =
         Objects.requireNonNull(getClass.getClassLoader.getResourceAsStream(keyPath), s"keystore不能为空，keyPath: $keyPath")
       val keyStoreType = c.getOrElse("ssl.key-store.type", "PKCS12")
-      val algorithm    = c.getOrElse("ssl.key-store.algorithm", "SunX509")
-      val protocol     = c.getOrElse("ssl.protocol", akkaSslConfig.config.protocol)
+      val algorithm = c.getOrElse("ssl.key-store.algorithm", "SunX509")
+      val protocol = c.getOrElse("ssl.protocol", akkaSslConfig.config.protocol)
       HttpUtils.generateHttps(keyPassword, keystore, keyStoreType, algorithm, protocol, Some(akkaSslConfig))
     }
   }
@@ -199,7 +223,7 @@ final class HttpServer(val id: String, val system: ExtendedActorSystem) extends 
   }
 
   private def afterHttpBindingSuccess(binding: ServerBinding, isSecure: Boolean): Unit = {
-    val schema        = if (isSecure) "https" else "http"
+    val schema = if (isSecure) "https" else "http"
     val socketAddress = _saveServer(binding.localAddress)
     logger.info(s"Server online at $schema://${socketAddress.getHostString}:${socketAddress.getPort}")
     _isRunning = true

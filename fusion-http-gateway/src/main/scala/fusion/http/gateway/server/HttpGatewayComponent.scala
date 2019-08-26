@@ -1,3 +1,19 @@
+/*
+ * Copyright 2019 helloscala.com
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package fusion.http.gateway.server
 
 import java.util.concurrent.ConcurrentHashMap
@@ -27,10 +43,10 @@ import scala.util.Success
 
 abstract class HttpGatewayComponent(id: String, system: ActorSystem) extends AbstractRoute with StrictLogging {
 
-  implicit protected def _system: ActorSystem            = system
+  implicit protected def _system: ActorSystem = system
   implicit protected val materializer: ActorMaterializer = ActorMaterializer()
   import system.dispatcher
-  protected val httpSourceQueueMap      = new ConcurrentHashMap[(String, Int), HttpSourceQueue]()
+  protected val httpSourceQueueMap = new ConcurrentHashMap[(String, Int), HttpSourceQueue]()
   protected val gateway: GatewaySetting = GatewaySetting.fromActorSystem(system, id)
 
   override def route: Route = {
@@ -41,7 +57,7 @@ abstract class HttpGatewayComponent(id: String, system: ActorSystem) extends Abs
   protected def proxyAutoConfiguration(): Route = {
     val routes = gateway.locations.map { location =>
       val rawPath = if (location.location.head == '/') location.location.tail else location.location
-      val path    = PathMatchers.separateOnSlashes(rawPath)
+      val path = PathMatchers.separateOnSlashes(rawPath)
       pathPrefix(path) {
         mapRequestContext(ctx => transformRequestContext(location, ctx)) {
           extractRequest { request =>
@@ -88,12 +104,12 @@ abstract class HttpGatewayComponent(id: String, system: ActorSystem) extends Abs
   protected def proxyOnUpstream(req: HttpRequest, location: GatewayLocation): Future[HttpResponse] = {
     import system.dispatcher
     try {
-      val uri      = location.proxyToUri(req.uri)
+      val uri = location.proxyToUri(req.uri)
       val requestF = findRealRequest(req, location, uri)
       requestF
         .flatMap { request =>
           val responseF = executeRequest(request)
-          val circuitF  = location.circuitBreaker.map(_.withCircuitBreaker(responseF)).getOrElse(responseF)
+          val circuitF = location.circuitBreaker.map(_.withCircuitBreaker(responseF)).getOrElse(responseF)
           circuitF.recover {
             case e: TimeoutException =>
               logger.error(s"proxy to upstream timeout：${location.upstream} $req", e)
@@ -121,7 +137,7 @@ abstract class HttpGatewayComponent(id: String, system: ActorSystem) extends Abs
   protected def findRealRequest(req: HttpRequest, location: GatewayLocation, uri: Uri): Future[HttpRequest] = {
     val upstream: GatewayUpstream = location.upstream
     val hostAndPortF = if (CollectionUtils.nonEmpty(upstream.targets)) {
-      val i      = Math.abs(location.upstream.targetsCounter.incrementAndGet() % upstream.targets.size)
+      val i = Math.abs(location.upstream.targetsCounter.incrementAndGet() % upstream.targets.size)
       val target = upstream.targets(i)
       logger.trace(s"static target: $target")
       val targetUri = uri.withAuthority(target.host, target.port.getOrElse(HttpUtils.DEFAULT_PORTS(uri.scheme)))
@@ -149,10 +165,10 @@ abstract class HttpGatewayComponent(id: String, system: ActorSystem) extends Abs
    * 发送 Http 请求，使用 CachedHostConnectionPool。
    */
   def executeRequest(request: HttpRequest): Future[HttpResponse] = {
-    val uri                = request.uri
-    val sourceQueueKey     = Tuple2(uri.authority.host.address(), uri.effectivePort)
-    val responsePromise    = Promise[HttpResponse]()
-    val queue              = httpSourceQueueMap.computeIfAbsent(sourceQueueKey, _ => HttpUtils.cachedHostConnectionPool(uri, 512))
+    val uri = request.uri
+    val sourceQueueKey = Tuple2(uri.authority.host.address(), uri.effectivePort)
+    val responsePromise = Promise[HttpResponse]()
+    val queue = httpSourceQueueMap.computeIfAbsent(sourceQueueKey, _ => HttpUtils.cachedHostConnectionPool(uri, 512))
     val noAuthorityRequest = request.copy(uri = HttpUtils.clearAuthority(uri))
     queue
       .offer(noAuthorityRequest -> responsePromise)

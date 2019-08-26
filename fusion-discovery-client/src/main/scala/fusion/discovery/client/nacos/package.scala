@@ -1,3 +1,19 @@
+/*
+ * Copyright 2019 helloscala.com
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package fusion.discovery.client
 
 import java.util.Properties
@@ -27,10 +43,10 @@ package object nacos {
     })
 
     def serviceName: Option[String] = Utils.option(getProperty(SERVICE_NAME))
-    def namespace: Option[String]   = Utils.option(getProperty(NAMESPACE))
-    def dataId: String              = getProperty(DATA_ID)
-    def group: String               = Utils.option(getProperty(GROUP)).getOrElse(NacosConstants.DEFAULT_GROUP)
-    def timeoutMs: Long             = AsLong.unapply(get(TIMEOUT_MS)).getOrElse(3000L)
+    def namespace: Option[String] = Utils.option(getProperty(NAMESPACE))
+    def dataId: String = getProperty(DATA_ID)
+    def group: String = Utils.option(getProperty(GROUP)).getOrElse(NacosConstants.DEFAULT_GROUP)
+    def timeoutMs: Long = AsLong.unapply(get(TIMEOUT_MS)).getOrElse(3000L)
 
     def instanceIp: String = {
       val ip = System.getProperty(HttpConstants.SERVER_HOST_PATH)
@@ -44,10 +60,10 @@ package object nacos {
     }
 
     def instanceClusterName: String = Utils.option(getProperty(CLUSTER_NAME)).getOrElse(Constants.DEFAULT_CLUSTER_NAME)
-    def instanceWeight: Double      = Utils.option(getProperty(INSTANCE_WEIGHT)).map(_.toDouble).getOrElse(1.0)
-    def healthy: Boolean            = Utils.option(getProperty(HEALTHY)).forall(_.toBoolean)
-    def ephemeral: Boolean          = Utils.option(getProperty(EPHEMERAL)).forall(_.toBoolean)
-    def enable: Boolean             = Utils.option(getProperty(ENABLE)).forall(_.toBoolean)
+    def instanceWeight: Double = Utils.option(getProperty(INSTANCE_WEIGHT)).map(_.toDouble).getOrElse(1.0)
+    def healthy: Boolean = Utils.option(getProperty(HEALTHY)).forall(_.toBoolean)
+    def ephemeral: Boolean = Utils.option(getProperty(EPHEMERAL)).forall(_.toBoolean)
+    def enable: Boolean = Utils.option(getProperty(ENABLE)).forall(_.toBoolean)
 
     def isAutoRegisterInstance: Boolean =
       Option(get(AUTO_REGISTER_INSTANCE))

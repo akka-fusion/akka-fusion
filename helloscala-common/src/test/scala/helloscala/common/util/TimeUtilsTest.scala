@@ -1,3 +1,19 @@
+/*
+ * Copyright 2019 helloscala.com
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package helloscala.common.util
 
 import java.time.Instant
@@ -36,7 +52,7 @@ class TimeUtilsTest extends FunSuite with MustMatchers {
 
   test("testToLocalDateTime") {
     val instant = Instant.now()
-    val ldt     = LocalDateTime.ofInstant(instant, TimeUtils.ZONE_CHINA_OFFSET /*ZoneId.systemDefault()*/ )
+    val ldt = LocalDateTime.ofInstant(instant, TimeUtils.ZONE_CHINA_OFFSET /*ZoneId.systemDefault()*/ )
     TimeUtils.toLocalDateTime(java.util.Date.from(instant)) mustBe ldt
     TimeUtils.toLocalDateTime(instant.toEpochMilli) mustBe ldt
     TimeUtils.toLocalDateTime("2019-4-9 12:9:9") mustBe LocalDateTime.of(2019, 4, 9, 12, 9, 9)
@@ -57,17 +73,17 @@ class TimeUtilsTest extends FunSuite with MustMatchers {
 
   test("testToOffsetDateTime") {
     TimeUtils.toOffsetDateTime("2019-4-9", "11:22:33") mustBe
-      OffsetDateTime.of(2019, 4, 9, 11, 22, 33, 0, TimeUtils.ZONE_CHINA_OFFSET)
+    OffsetDateTime.of(2019, 4, 9, 11, 22, 33, 0, TimeUtils.ZONE_CHINA_OFFSET)
 
     val ts = System.currentTimeMillis()
     TimeUtils.toOffsetDateTime(ts) mustBe
-      OffsetDateTime.ofInstant(Instant.ofEpochMilli(ts), TimeUtils.ZONE_CHINA_OFFSET)
+    OffsetDateTime.ofInstant(Instant.ofEpochMilli(ts), TimeUtils.ZONE_CHINA_OFFSET)
 
     TimeUtils.toOffsetDateTime("2019-4-9", "11:22:33", ZoneOffset.UTC) mustBe
-      OffsetDateTime.of(2019, 4, 9, 11, 22, 33, 0, ZoneOffset.UTC)
+    OffsetDateTime.of(2019, 4, 9, 11, 22, 33, 0, ZoneOffset.UTC)
 
     TimeUtils.toOffsetDateTime("2019-4-9 11:22:33+1230") mustBe
-      OffsetDateTime.of(2019, 4, 9, 11, 22, 33, 0, ZoneOffset.of("+1230"))
+    OffsetDateTime.of(2019, 4, 9, 11, 22, 33, 0, ZoneOffset.of("+1230"))
   }
 
   test("testToZonedDateTime") {
@@ -76,7 +92,7 @@ class TimeUtilsTest extends FunSuite with MustMatchers {
     TimeUtils.toZonedDateTime("2019-4-9T11:07:22+08[Asia/Shanghai]") mustBe zdt
     TimeUtils.toZonedDateTime("2019-4-9 11:7:22+08[Asia/Shanghai]") mustBe zdt
     TimeUtils.toZonedDateTime("2019-4-9 11:7:22.333+08[Asia/Shanghai]") mustBe
-      zdt.plusNanos(TimeUnit.MILLISECONDS.toNanos(333))
+    zdt.plusNanos(TimeUnit.MILLISECONDS.toNanos(333))
   }
 
   test("testToDate") {
@@ -88,9 +104,9 @@ class TimeUtilsTest extends FunSuite with MustMatchers {
     val ldt = LocalDateTime.of(2019, 4, 9, 16, 18, 4)
     TimeUtils.toEpochMilli(ldt) mustBe ldt.toInstant(TimeUtils.ZONE_CHINA_OFFSET).toEpochMilli
     TimeUtils.toEpochMilli(ldt.atOffset(TimeUtils.ZONE_CHINA_OFFSET)) mustBe
-      ldt.toInstant(TimeUtils.ZONE_CHINA_OFFSET).toEpochMilli
+    ldt.toInstant(TimeUtils.ZONE_CHINA_OFFSET).toEpochMilli
     TimeUtils.toEpochMilli(ldt.atZone(TimeUtils.ZONE_CHINA_OFFSET)) mustBe
-      ldt.toInstant(TimeUtils.ZONE_CHINA_OFFSET).toEpochMilli
+    ldt.toInstant(TimeUtils.ZONE_CHINA_OFFSET).toEpochMilli
   }
 
   test("testToLocalDate") {
@@ -101,7 +117,7 @@ class TimeUtilsTest extends FunSuite with MustMatchers {
   }
 
   test("testToSqlTime") {
-    val sqlTime  = TimeUtils.toSqlTime(LocalTime.of(7, 21, 59))
+    val sqlTime = TimeUtils.toSqlTime(LocalTime.of(7, 21, 59))
     val sqlTime1 = TimeUtils.toSqlTime("07:21:59")
     val sqlTime2 = TimeUtils.toSqlTime("7:21:59")
     sqlTime.toLocalTime mustBe sqlTime1.toLocalTime

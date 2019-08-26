@@ -1,3 +1,19 @@
+/*
+ * Copyright 2019 helloscala.com
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package fusion.jdbc.stream
 
 import java.nio.charset.Charset
@@ -18,7 +34,7 @@ object JdbcFlow {
   def flowToText(valueSeparator: Char = ','): Flow[immutable.IndexedSeq[AnyRef], String, NotUsed] =
     Flow[immutable.IndexedSeq[AnyRef]].map { values =>
       val builder = new java.lang.StringBuilder()
-      var i       = 0
+      var i = 0
       while (i < values.length) {
         builder.append(values(i).toString)
         i += 1
@@ -46,7 +62,7 @@ object JdbcFlow {
       charset: Charset = StandardCharsets.UTF_8): Flow[immutable.IndexedSeq[AnyRef], ByteString, NotUsed] =
     Flow[immutable.IndexedSeq[AnyRef]].map { values =>
       val builder = ByteString.newBuilder
-      var i       = 0
+      var i = 0
       while (i < values.length) {
         builder.putBytes(values(i).toString.getBytes(charset))
         i += 1

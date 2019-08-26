@@ -1,3 +1,19 @@
+/*
+ * Copyright 2019 helloscala.com
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package fusion.http.gateway.server
 
 import java.util.concurrent.atomic.AtomicInteger
@@ -20,14 +36,14 @@ import scala.collection.immutable
 import scala.concurrent.duration._
 
 final class GatewayRoutingSettings(c: Configuration) {
-  def verboseErrorMessages: Option[Boolean]  = c.get[Option[Boolean]]("verbose-error-messages")
-  def fileGetConditional: Option[Boolean]    = c.get[Option[Boolean]]("file-get-conditional")
-  def renderVanityFooter: Option[Boolean]    = c.get[Option[Boolean]]("render-vanity-footer")
-  def rangeCountLimit: Option[Int]           = c.get[Option[Int]]("range-count-limit")
+  def verboseErrorMessages: Option[Boolean] = c.get[Option[Boolean]]("verbose-error-messages")
+  def fileGetConditional: Option[Boolean] = c.get[Option[Boolean]]("file-get-conditional")
+  def renderVanityFooter: Option[Boolean] = c.get[Option[Boolean]]("render-vanity-footer")
+  def rangeCountLimit: Option[Int] = c.get[Option[Int]]("range-count-limit")
   def rangeCoalescingThreshold: Option[Long] = c.get[Option[Long]]("range-coalescing-threshold")
-  def decodeMaxBytesPerChunk: Option[Int]    = c.get[Option[Int]]("decode-max-bytes-per-chunk")
-  def decodeMaxSize: Option[Long]            = c.get[Option[ConfigMemorySize]]("decode-max-size").map(_.toBytes)
-  def sizeLimit: Option[Long]                = c.get[Option[ConfigMemorySize]]("size-limit").map(_.toBytes)
+  def decodeMaxBytesPerChunk: Option[Int] = c.get[Option[Int]]("decode-max-bytes-per-chunk")
+  def decodeMaxSize: Option[Long] = c.get[Option[ConfigMemorySize]]("decode-max-size").map(_.toBytes)
+  def sizeLimit: Option[Long] = c.get[Option[ConfigMemorySize]]("size-limit").map(_.toBytes)
 }
 
 final case class GatewayUpstream(
@@ -59,24 +75,26 @@ final case class GatewayLocation(
 
 final class GatewaySetting(system: ActorSystem, prefix: String) {
 
-  private val configuration                              = FusionCore(system).configuration
+  private val configuration = FusionCore(system).configuration
   private var _upstreams: immutable.Seq[GatewayUpstream] = _
   private var _locations: immutable.Seq[GatewayLocation] = _
-  private var _defaultTimeout: FiniteDuration            = _
-  private val c                                          = configuration.getConfiguration(prefix)
+  private var _defaultTimeout: FiniteDuration = _
+  private val c = configuration.getConfiguration(prefix)
 
   init()
 
-  def notProxyHeaders: Set[String]              = c.getOrElse("not-proxy-headers", Seq(`Timeout-Access`.lowercaseName)).toSet
+  def notProxyHeaders: Set[String] = c.getOrElse("not-proxy-headers", Seq(`Timeout-Access`.lowercaseName)).toSet
   def upstreams: immutable.Seq[GatewayUpstream] = _upstreams
   def locations: immutable.Seq[GatewayLocation] = _locations
-  def defaultTimeout: FiniteDuration            = _defaultTimeout
+  def defaultTimeout: FiniteDuration = _defaultTimeout
   private def init(): Unit = {
     val upstreamsConfig = c.getConfiguration("upstreams")
     _defaultTimeout = c.get[FiniteDuration]("timeout")
     val defaultCircuitBreaker = {
       val circuitBreakerSetting = CircuitBreakerSetting(
-        c.getConfiguration("default-circuit-breaker").withFallback(deftCircuitBreakerConf))
+        if (c.hasPath("default-circuit-breaker"))
+          c.getConfiguration("default-circuit-breaker").withFallback(deftCircuitBreakerConf)
+        else deftCircuitBreakerConf)
       if (circuitBreakerSetting.enable)
         Some(
           CircuitBreaker(
@@ -109,17 +127,17 @@ final class GatewaySetting(system: ActorSystem, prefix: String) {
       defaultTimeout: FiniteDuration,
       defaultCircuitBreaker: Option[CircuitBreaker]): Vector[GatewayLocation] = {
     locationsConfig.subKeys.map { locationName =>
-      val c            = locationsConfig.getConfiguration(locationName)
+      val c = locationsConfig.getConfiguration(locationName)
       val upstreamName = c.getString("upstream")
       val proxyUpstream = upstreams
         .find(pu => pu.name == upstreamName)
         .getOrElse(throw new ExceptionInInitializerError(s"upstream不存在, $upstreamName"))
       val timeout = c.getOrElse("timeout", defaultTimeout)
-      val schema  = c.getOrElse("schema", "http")
+      val schema = c.getOrElse("schema", "http")
       val proxyTo = c.get[Option[String]]("proxy-to")
 
       val circuitBreaker = defaultCircuitBreaker.orElse(
-        CircuitBreakerSetting.getCircuitBreaker(system, s"$prefix.locations.$locationName"))
+        CircuitBreakerSetting.getCircuitBreaker(system, s"$prefix.locations.$locationName.circuit-breaker"))
 
       val notProxyHeaders = c.getOrElse("not-proxy-headers", Seq[String]()).toSet
       val routingSettings =

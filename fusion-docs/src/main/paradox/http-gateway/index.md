@@ -1,8 +1,19 @@
-# HTTP网关代理
+# HTTP 代理网关
 
 **fusion-http-gateway**
 
 fusion-http-gateway基于 Akka HTTP 实现了一个强大的API网关代理功能，可通过 Lightbend Config 进行配置或编码实现。fusion-http-gateway支持对HTTP 1.0、1.1和2.0请求进行代理，同时还支持GRPC（使用HTTP 2实现）。
+
+## 特性
+
+- 支持HTTP 1.0、1.1、2.0
+- 支持GRPC
+- 支持服务发现（通过 Akka Discovery）
+- 支持自定义代理策略（如：修改上传body大小限制、请求超时等）
+- 支持HTTP拦截器
+- 支持熔断（通过 Akka CircuitBreaker 对某一地址设置熔断策略）
+
+最后，若你想要更大的可控性，可以继承 `HttpGatewayComponent` 实现你自己的HTTP代理组件。
 
 ## 配置实现
 
@@ -57,3 +68,5 @@ final class CustomHttpGatewayComponent(id: String, system: ActorSystem)
   }
 }
 ```
+
+这里我们使用 `validationSession` Directive来校验请求是否包含了有效的用户登录会话信息，`logging`指定记录HttpRequest、HttpResponse日志；可以看到，这里将请求、响应日志发送到了 Kafka 中，再由其它服务从 Kafka 里消费日志以对其进行进一步处理。

@@ -1,7 +1,23 @@
+/*
+ * Copyright 2019 helloscala.com
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package fusion.discovery.client
 
 import java.util.concurrent.ConcurrentHashMap
-
+import scala.concurrent.duration._
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.HttpRequest
@@ -37,9 +53,9 @@ import scala.concurrent.Promise
  * }
  */
 final class DiscoveryHttpClientSetting(val c: Configuration) {
-  def queueBufferSize: Int            = c.getOrElse("queue-buffer-size", 512)
+  def queueBufferSize: Int = c.getOrElse("queue-buffer-size", 512)
   def discoveryMethod: Option[String] = c.get[Option[String]]("discovery-method")
-
+  def discoveryTimeout: FiniteDuration = c.getOrElse("discovery-timeout", 10.seconds)
   val circuit = CircuitBreakerSetting(c, "circuit")
 }
 
@@ -74,10 +90,10 @@ trait DiscoveryHttpClient extends HttpClient {
    */
   def hostRequest(req: HttpRequest): Future[HttpResponse] = {
     buildHttpRequest(req).flatMap { request =>
-      val uri                = request.uri
-      val sourceQueueKey     = Tuple2(uri.authority.host.address(), uri.effectivePort)
-      val responsePromise    = Promise[HttpResponse]()
-      val queue              = generateQueue(uri, sourceQueueKey)
+      val uri = request.uri
+      val sourceQueueKey = Tuple2(uri.authority.host.address(), uri.effectivePort)
+      val responsePromise = Promise[HttpResponse]()
+      val queue = generateQueue(uri, sourceQueueKey)
       val noAuthorityRequest = request.copy(uri = HttpUtils.clearAuthority(uri))
       val responseF = queue
         .offer(noAuthorityRequest -> responsePromise)
@@ -131,9 +147,9 @@ trait DiscoveryHttpClient extends HttpClient {
 
 object DiscoveryHttpClient {
 
-  def apply(clientSetting: DiscoveryHttpClientSetting)(implicit system: ActorSystem): DiscoveryHttpClient =
-    new AkkaDiscoveryHttpClient(clientSetting)
+  def apply(system: ActorSystem, clientSetting: DiscoveryHttpClientSetting): DiscoveryHttpClient =
+    new AkkaDiscoveryHttpClient(clientSetting)(system)
 
-  def apply()(implicit system: ActorSystem): DiscoveryHttpClient =
-    apply(new DiscoveryHttpClientSetting(Configuration(ConfigFactory.parseString("{}"))))
+  def apply(system: ActorSystem): DiscoveryHttpClient =
+    apply(system, new DiscoveryHttpClientSetting(Configuration(ConfigFactory.parseString("{}"))))
 }

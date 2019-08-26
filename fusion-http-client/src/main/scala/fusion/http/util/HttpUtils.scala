@@ -1,3 +1,19 @@
+/*
+ * Copyright 2019 helloscala.com
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package fusion.http.util
 
 import java.io.InputStream
@@ -14,7 +30,6 @@ import akka.http.scaladsl.model._
 import akka.http.scaladsl.model.headers.`Timeout-Access`
 import akka.http.scaladsl.server.Directive0
 import akka.http.scaladsl.server.Directives
-import akka.http.scaladsl.unmarshalling.FromEntityUnmarshaller
 import akka.http.scaladsl.unmarshalling.Unmarshal
 import akka.stream.ActorMaterializer
 import akka.stream.Materializer
@@ -24,9 +39,6 @@ import akka.stream.scaladsl.Keep
 import akka.stream.scaladsl.Sink
 import akka.stream.scaladsl.Source
 import akka.util.ByteString
-import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.node.ArrayNode
-import com.fasterxml.jackson.databind.node.ObjectNode
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
 import com.typesafe.scalalogging.Logger
@@ -36,10 +48,7 @@ import fusion.common.constant.ConfigKeys
 import fusion.core.http.headers.`X-Trace-Id`
 import fusion.core.util.FusionUtils
 import fusion.http.HttpSourceQueue
-import fusion.http.exception.HttpException
-import helloscala.common.IntStatus
-import helloscala.common.exception.HSException
-import helloscala.common.jackson.Jackson
+import fusion.json.jackson.Jackson
 import helloscala.common.util.StringUtils
 import javax.net.ssl.KeyManagerFactory
 import javax.net.ssl.SSLContext
@@ -52,7 +61,6 @@ import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import scala.concurrent.Promise
 import scala.concurrent.duration._
-import scala.reflect.ClassTag
 import scala.util.Failure
 import scala.util.Success
 import scala.util.control.NonFatal
@@ -62,30 +70,30 @@ object HttpUtils extends StrictLogging {
 
   val DEFAULT_PORTS: Map[String, Int] =
     Map(
-      "ftp"    -> 21,
-      "ssh"    -> 22,
+      "ftp" -> 21,
+      "ssh" -> 22,
       "telnet" -> 23,
-      "smtp"   -> 25,
+      "smtp" -> 25,
       "domain" -> 53,
-      "tftp"   -> 69,
-      "http"   -> 80,
-      "ws"     -> 80,
-      "pop3"   -> 110,
-      "nntp"   -> 119,
-      "imap"   -> 143,
-      "snmp"   -> 161,
-      "ldap"   -> 389,
-      "https"  -> 443,
-      "wss"    -> 443,
-      "imaps"  -> 993,
-      "nfs"    -> 2049).withDefaultValue(-1)
+      "tftp" -> 69,
+      "http" -> 80,
+      "ws" -> 80,
+      "pop3" -> 110,
+      "nntp" -> 119,
+      "imap" -> 143,
+      "snmp" -> 161,
+      "ldap" -> 389,
+      "https" -> 443,
+      "wss" -> 443,
+      "imaps" -> 993,
+      "nfs" -> 2049).withDefaultValue(-1)
   private[util] var customMediaTypes: Map[String, MediaType] = getDefaultMediaTypes(ConfigFactory.load())
 
   private def getDefaultMediaTypes(config: Config): Map[String, MediaType] = {
     val compressibles = Map(
-      "compressible"    -> MediaType.Compressible,
+      "compressible" -> MediaType.Compressible,
       "notcompressible" -> MediaType.NotCompressible,
-      "gzipped"         -> MediaType.Gzipped).withDefaultValue(MediaType.NotCompressible)
+      "gzipped" -> MediaType.Gzipped).withDefaultValue(MediaType.NotCompressible)
     if (!config.hasPath(ConfigKeys.HTTP.CUSTOM_MEDIA_TYPES)) {
       Map()
     } else {
@@ -141,7 +149,7 @@ object HttpUtils extends StrictLogging {
 
   def dump(response: HttpResponse)(implicit mat: Materializer) {
     val future = Unmarshal(response.entity).to[String]
-    val value  = Await.result(future, 10.seconds)
+    val value = Await.result(future, 10.seconds)
     println(s"[$response]\n\t\t$value\n")
   }
 
@@ -156,105 +164,6 @@ object HttpUtils extends StrictLogging {
 
   @inline
   def is2xx(status: Int): Boolean = status >= 200 && status < 300
-
-  def mapObjectNode(response: HttpResponse)(
-      implicit mat: Materializer,
-      um: FromEntityUnmarshaller[ObjectNode]): Future[ObjectNode] = {
-    if (HttpUtils.is2xx(response.status)) {
-      mapObjectNode(response.entity)
-    } else {
-      mapHttpResponseError(response)
-    }
-  }
-
-  def mapObjectNode(entity: ResponseEntity)(
-      implicit mat: Materializer,
-      um: FromEntityUnmarshaller[ObjectNode]): Future[ObjectNode] = {
-    Unmarshal(entity).to[ObjectNode]
-  }
-
-  def mapArrayNode(
-      response: HttpResponse)(implicit mat: Materializer, um: FromEntityUnmarshaller[ArrayNode]): Future[ArrayNode] = {
-    if (HttpUtils.is2xx(response.status)) {
-      mapArrayNode(response.entity)
-    } else {
-      mapHttpResponseError(response)
-    }
-  }
-
-  def mapArrayNode(
-      entity: ResponseEntity)(implicit mat: Materializer, um: FromEntityUnmarshaller[ArrayNode]): Future[ArrayNode] = {
-    Unmarshal(entity).to[ArrayNode]
-  }
-
-  def mapHttpResponse[R: ClassTag](
-      response: HttpResponse)(implicit mat: Materializer, um: FromEntityUnmarshaller[R]): Future[R] = {
-    implicit val ec: ExecutionContext = mat.executionContext
-    if (HttpUtils.is2xx(response.status)) {
-      Unmarshal(response.entity).to[R]
-    } else {
-      mapHttpResponseError(response)
-    }
-  }
-
-  def mapHttpResponseEither[R: ClassTag](response: HttpResponse)(
-      implicit mat: Materializer,
-      um: FromEntityUnmarshaller[R]): Future[Either[HSException, R]] = {
-    implicit val ec: ExecutionContext = mat.executionContext
-    mapHttpResponse(response).map(Right(_)).recoverWith {
-      case e: HSException => Future.successful(Left(e))
-    }
-  }
-
-  def mapHttpResponseList[R](response: HttpResponse)(implicit ev1: ClassTag[R], mat: Materializer): Future[List[R]] = {
-    implicit val ec: ExecutionContext = mat.executionContext
-    if (HttpUtils.is2xx(response.status)) {
-      Unmarshal(response.entity)
-        .to[ArrayNode](JacksonSupport.unmarshaller, ec, mat)
-        .map { array =>
-          array.asScala
-            .map(node => Jackson.defaultObjectMapper.treeToValue(node, ev1.runtimeClass).asInstanceOf[R])
-            .toList
-        }(if (ec eq null) mat.executionContext else ec)
-    } else {
-      mapHttpResponseError[List[R]](response)
-    }
-  }
-
-  def mapHttpResponseListEither[R](
-      response: HttpResponse)(implicit ev1: ClassTag[R], mat: Materializer): Future[Either[HSException, List[R]]] = {
-    implicit val ec: ExecutionContext = mat.executionContext
-    mapHttpResponseList(response).map(Right(_)).recoverWith {
-      case e: HSException => Future.successful(Left(e))
-    }
-  }
-
-  def mapHttpResponseError[R](response: HttpResponse)(implicit mat: Materializer): Future[R] = {
-    implicit val ec: ExecutionContext = mat.executionContext
-    if (response.entity.contentType.mediaType == MediaTypes.`application/json`) {
-      Unmarshal(response.entity).to[JsonNode](JacksonSupport.unmarshaller, ec, mat).flatMap { json =>
-        val errCode = Option(json.get("errCode"))
-          .orElse(Option(json.get("status")))
-          .map(_.asInt(IntStatus.INTERNAL_ERROR))
-          .getOrElse(IntStatus.INTERNAL_ERROR)
-        val message =
-          Option(json.get("message")).orElse(Option(json.get("msg"))).map(_.asText("")).getOrElse("HTTP响应错误")
-        Future.failed(HttpException(response.status.intValue(), message, data = json, errCode))
-      }
-    } else {
-      Unmarshal(response.entity)
-        .to[String]
-        .flatMap(errMsg => Future.failed(HttpException(response.status.intValue(), errMsg)))
-    }
-  }
-
-  def mapHttpResponseErrorEither[R](response: HttpResponse)(
-      implicit mat: Materializer): Future[Either[HSException, R]] = {
-    implicit val ec: ExecutionContext = mat.executionContext
-    mapHttpResponseError(response).recoverWith {
-      case e: HSException => Future.successful(Left(e))
-    }
-  }
 
   def queryToMap(request: HttpRequest): Map[String, String] =
     queryToMap(request.uri.query())
@@ -271,7 +180,7 @@ object HttpUtils extends StrictLogging {
     try {
       if (StringUtils.isNoneBlank(ct) && ct.contains("=")) {
         val arr = ct.split('=')
-        val cs  = Charset.forName(arr.last)
+        val cs = Charset.forName(arr.last)
         Option(cs)
       } else {
         None
@@ -291,7 +200,7 @@ object HttpUtils extends StrictLogging {
     // TODO akka-http 的ContentType/MediaType覆盖不够怎么办？
 
     var contentType = value
-    var charset     = ""
+    var charset = ""
     if (StringUtils.isNoneBlank(contentType)) {
       val arr = contentType.split(';')
       contentType = arr(0)
@@ -397,7 +306,7 @@ object HttpUtils extends StrictLogging {
     var hcc: HttpsConnectionContext = null
     try {
       val password = keyPassword.toCharArray
-      val ks       = KeyStore.getInstance(keyStoreType)
+      val ks = KeyStore.getInstance(keyStoreType)
       ks.load(keystore, password)
 
       val keyManagerFactory: KeyManagerFactory = KeyManagerFactory.getInstance(algorithm)
@@ -533,13 +442,13 @@ object HttpUtils extends StrictLogging {
   def toStrictEntity(responseEntity: ResponseEntity)(implicit mat: Materializer): HttpEntity.Strict = {
     import scala.concurrent.duration._
     val dr = 10.seconds
-    val f  = responseEntity.toStrict(dr)
+    val f = responseEntity.toStrict(dr)
     Await.result(f, dr)
   }
 
   def entityJson(status: StatusCode, msg: String): HttpEntity.Strict = entityJson(status.intValue(), msg)
-  def entityJson(status: Int, msg: String): HttpEntity.Strict        = entityJson(s"""{"status":$status,"msg":"$msg"}""")
-  def entityJson(json: String): HttpEntity.Strict                    = HttpEntity(ContentTypes.`application/json`, json)
+  def entityJson(status: Int, msg: String): HttpEntity.Strict = entityJson(s"""{"status":$status,"msg":"$msg"}""")
+  def entityJson(json: String): HttpEntity.Strict = HttpEntity(ContentTypes.`application/json`, json)
 
   def logRequest(logger: com.typesafe.scalalogging.Logger): Directive0 = {
     Directives.mapRequest { req =>

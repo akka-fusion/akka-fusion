@@ -1,3 +1,19 @@
+/*
+ * Copyright 2019 helloscala.com
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package fusion.jdbc.util
 
 import java.lang.reflect.Method
@@ -30,7 +46,7 @@ object PropertyElf extends StrictLogging {
    * @return a set of property names
    */
   def getPropertyNames(targetClass: Class[_]): java.util.Set[String] = {
-    val set              = new java.util.HashSet[String]
+    val set = new java.util.HashSet[String]
     val matcher: Matcher = GETTER_PATTERN.matcher("")
     for (method <- targetClass.getMethods) {
       var name: String = method.getName
@@ -51,13 +67,13 @@ object PropertyElf extends StrictLogging {
   def getProperty(propName: String, target: Any): Any =
     try { // use the english locale to avoid the infamous turkish locale bug
       val capitalized: String = "get" + propName.substring(0, 1).toUpperCase(Locale.ENGLISH) + propName.substring(1)
-      val method: Method      = target.getClass.getMethod(capitalized)
+      val method: Method = target.getClass.getMethod(capitalized)
       method.invoke(target)
     } catch {
       case e: Exception =>
         try {
           val capitalized: String = "is" + propName.substring(0, 1).toUpperCase(Locale.ENGLISH) + propName.substring(1)
-          val method: Method      = target.getClass.getMethod(capitalized)
+          val method: Method = target.getClass.getMethod(capitalized)
           method.invoke(target)
         } catch {
           case e2: Exception =>

@@ -1,3 +1,19 @@
+/*
+ * Copyright 2019 helloscala.com
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package docs.extension.customservice
 
 import akka.actor.ExtendedActorSystem
@@ -35,12 +51,12 @@ class FileService private (val _system: ExtendedActorSystem) extends FusionExten
 
 object FileService extends ExtensionId[FileService] with ExtensionIdProvider {
   override def createExtension(system: ExtendedActorSystem): FileService = new FileService(system)
-  override def lookup(): ExtensionId[_ <: Extension]                     = FileService
+  override def lookup(): ExtensionId[_ <: Extension] = FileService
 }
 
 class UserService private (val _system: ExtendedActorSystem) extends FusionExtension {
   import system.dispatcher
-  private val fileService    = FileService(system)
+  private val fileService = FileService(system)
   private val userRepository = new UserRepository()
 
   def findBOById(id: String): Future[UserBO] = {
@@ -58,7 +74,7 @@ class UserService private (val _system: ExtendedActorSystem) extends FusionExten
 
 object UserService extends ExtensionId[UserService] with ExtensionIdProvider {
   override def createExtension(system: ExtendedActorSystem): UserService = new UserService(system)
-  override def lookup(): ExtensionId[_ <: Extension]                     = UserService
+  override def lookup(): ExtensionId[_ <: Extension] = UserService
 }
 
 class LoginService private (val _system: ExtendedActorSystem) extends FusionExtension {
@@ -77,6 +93,6 @@ class LoginService private (val _system: ExtendedActorSystem) extends FusionExte
 
 object LoginService extends ExtensionId[LoginService] with ExtensionIdProvider {
   override def createExtension(system: ExtendedActorSystem): LoginService = new LoginService(system)
-  override def lookup(): ExtensionId[_ <: Extension]                      = LoginService
+  override def lookup(): ExtensionId[_ <: Extension] = LoginService
 }
 // #CustomService

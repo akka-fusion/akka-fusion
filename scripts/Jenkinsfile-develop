@@ -1,0 +1,46 @@
+pipeline {
+    agent any
+    options {
+        timeout(time: 2, unit: 'HOURS')
+    }
+    stages  {
+        //stage('Test') {
+        //    steps {
+        //        sh './sbt test'
+        //    }
+        //    post {
+        //        always {
+        //            junit '**/target/test-reports/*.xml'
+        //        }
+        //    }
+        //}
+        stage('Package') {
+            steps {
+                sh './sbt clean test:compile sonarScan'
+            }
+        }
+        stage('Publish') {
+            steps {
+                sh './sbt publish'
+            }
+        }
+    }
+    post {
+        always {
+            echo 'This will always run'
+        }
+        success {
+            archiveArtifacts artifacts: '**/target/scala-2.12/*.jar', fingerprint: true
+        }
+        failure {
+            echo 'This will run only if failed'
+        }
+        unstable {
+            echo 'This will run only if the run was marked as unstable'
+        }
+        changed {
+            echo 'This will run only if the state of the Pipeline has changed'
+            echo 'For example, if the Pipeline was previously failing but is now successful'
+        }
+    }
+}

@@ -1,3 +1,19 @@
+/*
+ * Copyright 2019 helloscala.com
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package fusion.job
 
 import java.util
@@ -5,8 +21,8 @@ import java.util
 import akka.Done
 import akka.actor.ExtendedActorSystem
 import com.typesafe.scalalogging.StrictLogging
+import fusion.core.component.Components
 import fusion.core.extension.FusionCore
-import fusion.core.util.Components
 import fusion.jdbc.FusionJdbc
 import fusion.job.impl.FactoryHelper
 import fusion.job.impl.FusionJdbcConnectionProvider
@@ -49,21 +65,21 @@ class FusionJobComponents(system: ExtendedActorSystem)
     }(system.dispatcher)
 
   private def create(schedulerName: String, c: Configuration): Scheduler = {
-    val helper              = new FactoryHelper(c.getProperties(""))
+    val helper = new FactoryHelper(c.getProperties(""))
     val schedulerInstanceId = c.getString(StdSchedulerFactory.PROP_SCHED_INSTANCE_ID)
 
-    val threadPool             = createThreadPool(helper, c)
-    val threadExecutor         = createThreadExecutor(helper, c)
-    val jobStore               = createJobStore(helper, c)
-    val schedulerPluginMap     = Map[String, SchedulerPlugin]()
-    val rmiRegistryHost        = null
-    val rmiRegistryPort        = 0
-    val idleWaitTime           = helper.cfg.getLongProperty(StdSchedulerFactory.PROP_SCHED_IDLE_WAIT_TIME)
+    val threadPool = createThreadPool(helper, c)
+    val threadExecutor = createThreadExecutor(helper, c)
+    val jobStore = createJobStore(helper, c)
+    val schedulerPluginMap = Map[String, SchedulerPlugin]()
+    val rmiRegistryHost = null
+    val rmiRegistryPort = 0
+    val idleWaitTime = helper.cfg.getLongProperty(StdSchedulerFactory.PROP_SCHED_IDLE_WAIT_TIME)
     val dbFailureRetryInterval = helper.cfg.getLongProperty(StdSchedulerFactory.PROP_SCHED_DB_FAILURE_RETRY_INTERVAL)
-    val jmxExport              = helper.cfg.getBooleanProperty(StdSchedulerFactory.PROP_SCHED_JMX_EXPORT)
-    val jmxObjectName          = c.getOrElse(StdSchedulerFactory.PROP_SCHED_JMX_OBJECT_NAME, "")
-    val maxBatchSize           = 1
-    val batchTimeWindow        = 0L
+    val jmxExport = helper.cfg.getBooleanProperty(StdSchedulerFactory.PROP_SCHED_JMX_EXPORT)
+    val jmxObjectName = c.getOrElse(StdSchedulerFactory.PROP_SCHED_JMX_OBJECT_NAME, "")
+    val maxBatchSize = 1
+    val batchTimeWindow = 0L
     factory.createScheduler(
       schedulerName,
       schedulerInstanceId,
@@ -79,7 +95,7 @@ class FusionJobComponents(system: ExtendedActorSystem)
       jmxObjectName,
       maxBatchSize,
       batchTimeWindow)
-    val scheduler       = getScheduler(schedulerName)
+    val scheduler = getScheduler(schedulerName)
     val listenerManager = scheduler.getListenerManager
     configureListeners(helper, listenerManager)
     scheduler
@@ -119,8 +135,8 @@ class FusionJobComponents(system: ExtendedActorSystem)
 
     if (jobStore.isInstanceOf[JobStoreSupport]) {
       val fusionJdbcId = c.getString("org.quartz.jobStore.dataSource")
-      val dataSource   = FusionJdbc(system).components.lookup(fusionJdbcId)
-      val cp           = new FusionJdbcConnectionProvider(dataSource)
+      val dataSource = FusionJdbc(system).components.lookup(fusionJdbcId)
+      val cp = new FusionJdbcConnectionProvider(dataSource)
       DBConnectionManager.getInstance().addConnectionProvider(fusionJdbcId, cp)
     }
 
@@ -152,8 +168,8 @@ class FusionJobComponents(system: ExtendedActorSystem)
     }
   }
 
-  override def getScheduler(): Scheduler                      = factory.getScheduler
-  override def getScheduler(schedName: String): Scheduler     = factory.getScheduler(schedName)
+  override def getScheduler(): Scheduler = factory.getScheduler
+  override def getScheduler(schedName: String): Scheduler = factory.getScheduler(schedName)
   override def getAllSchedulers(): util.Collection[Scheduler] = factory.getAllSchedulers
-  def allSchedulers(): Vector[Scheduler]                      = factory.getAllSchedulers.asScala.toVector
+  def allSchedulers(): Vector[Scheduler] = factory.getAllSchedulers.asScala.toVector
 }

@@ -1,3 +1,19 @@
+/*
+ * Copyright 2019 helloscala.com
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package fusion.data.mongodb.extension
 
 import akka.Done
@@ -10,9 +26,9 @@ import com.mongodb.ConnectionString
 import com.mongodb.MongoClientSettings
 import com.mongodb.MongoDriverInformation
 import com.mongodb.reactivestreams.client.MongoClients
+import fusion.core.component.Components
 import fusion.core.extension.FusionCore
 import fusion.core.extension.FusionExtension
-import fusion.core.util.Components
 import fusion.data.mongodb.MongoTemplate
 import fusion.data.mongodb.constant.MongoConstants
 import helloscala.common.Configuration
@@ -49,8 +65,8 @@ final private[mongodb] class MongoComponents(system: ActorSystem)
   }
 
   private def getMongoDriverInformation(conf: Configuration): Option[MongoDriverInformation] = {
-    val maybeDriverName     = conf.get[Option[String]]("driverName")
-    val maybeDriverVersion  = conf.get[Option[String]]("driverVersion")
+    val maybeDriverName = conf.get[Option[String]]("driverName")
+    val maybeDriverVersion = conf.get[Option[String]]("driverVersion")
     val maybeDriverPlatform = conf.get[Option[String]]("driverPlatform")
     if (maybeDriverName.isDefined || maybeDriverVersion.isDefined || maybeDriverPlatform.isDefined) {
       val builder = MongoDriverInformation.builder()
@@ -77,5 +93,5 @@ final class FusionMongo private (val _system: ExtendedActorSystem) extends Fusio
 
 object FusionMongo extends ExtensionId[FusionMongo] with ExtensionIdProvider {
   override def createExtension(system: ExtendedActorSystem): FusionMongo = new FusionMongo(system)
-  override def lookup(): ExtensionId[_ <: Extension]                     = FusionMongo
+  override def lookup(): ExtensionId[_ <: Extension] = FusionMongo
 }

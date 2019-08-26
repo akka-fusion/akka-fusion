@@ -1,3 +1,19 @@
+/*
+ * Copyright 2019 helloscala.com
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package docs.core
 
 import akka.actor.ActorSystem
@@ -58,7 +74,7 @@ object HttpHandlerDoc {
       val handler = List.empty[HttpInterceptor].foldRight(httpHandler)((inter, h) => inter.filter(h))
 
       val responseF = handler(HttpRequest())
-      val response  = Await.result(responseF, Duration.Inf)
+      val response = Await.result(responseF, Duration.Inf)
       println("response: " + response)
     } finally {
       system.terminate()
@@ -90,10 +106,10 @@ class TraceHttpInterceptor(system: ActorSystem) extends HttpInterceptor {
   import system.dispatcher
 
   override def interceptor(route: Route): Route = { ctx =>
-    val req         = ctx.request
+    val req = ctx.request
     val traceHeader = RawHeader("trace-id", ObjectId.get().toHexString)
-    val headers     = traceHeader +: req.headers
-    val request     = req.copy(headers = headers)
+    val headers = traceHeader +: req.headers
+    val request = req.copy(headers = headers)
     route(ctx.withRequest(request)).map {
       case RouteResult.Complete(response) => RouteResult.Complete(toTrace(response, traceHeader))
       case a @ RouteResult.Rejected(_)    => a

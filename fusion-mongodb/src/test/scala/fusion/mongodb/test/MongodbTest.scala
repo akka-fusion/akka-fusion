@@ -1,3 +1,19 @@
+/*
+ * Copyright 2019 helloscala.com
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package fusion.mongodb.test
 
 import akka.actor.ActorSystem
@@ -30,7 +46,7 @@ class MongodbTest extends FusionTestFunSuite with BeforeAndAfterAll {
   implicit override def patienceConfig: PatienceConfig =
     PatienceConfig(scaled(Span(10000, Millis)), scaled(Span(15, Millis)))
 
-  implicit val system       = ActorSystem()
+  implicit val system = ActorSystem()
   implicit val materializer = ActorMaterializer()
 
   val mongoClientSettings = MongoClientSettings
@@ -69,7 +85,7 @@ class MongodbTest extends FusionTestFunSuite with BeforeAndAfterAll {
     docs.foreach(println)
   }
 
-  private val client   = MongoClients.create()
+  private val client = MongoClients.create()
   private val testColl = client.getDatabase("test").getCollection("test")
 
   test("insert duplicate") {

@@ -1,3 +1,19 @@
+/*
+ * Copyright 2019 helloscala.com
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package fusion.http
 
 import akka.actor.ActorSystem
@@ -8,10 +24,10 @@ import fusion.http.constant.HttpConstants
 import helloscala.common.Configuration
 
 class HttpSetting(c: Configuration, system: ActorSystem) {
-  def exceptionHandler: String        = c.getString("exception-handler")
-  def rejectionHandler: String        = c.getString("rejection-handler")
+  def exceptionHandler: String = c.getString("exception-handler")
+  def rejectionHandler: String = c.getString("rejection-handler")
   def defaultInterceptor: Seq[String] = c.get[Seq[String]]("default-interceptor")
-  def httpInterceptors: Seq[String]   = c.get[Seq[String]]("http-interceptors")
+  def httpInterceptors: Seq[String] = c.get[Seq[String]]("http-interceptors")
 
 //  def http2: UseHttp2 = c.getOrElse("http2", "").toLowerCase match {
 //    case "never"  => UseHttp2.Never
@@ -21,8 +37,8 @@ class HttpSetting(c: Configuration, system: ActorSystem) {
 
   def createSSLConfig(): SSLConfigSettings = {
     val akkaOverrides = system.settings.config.getConfig("akka.ssl-config")
-    val defaults      = system.settings.config.getConfig("ssl-config")
-    val mergeConfig   = akkaOverrides.withFallback(defaults)
+    val defaults = system.settings.config.getConfig("ssl-config")
+    val mergeConfig = akkaOverrides.withFallback(defaults)
     val sslConfig = if (c.hasPath("ssl.ssl-config")) {
       c.getConfig("ssl.ssl-config").withFallback(mergeConfig)
     } else {

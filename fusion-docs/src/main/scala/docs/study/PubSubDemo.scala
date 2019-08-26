@@ -1,3 +1,19 @@
+/*
+ * Copyright 2019 helloscala.com
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package docs.study
 
 trait Sub {
@@ -6,7 +22,7 @@ trait Sub {
 }
 
 object PubSubs {
-  private var _topics                       = Map[String, Set[Sub]]()
+  private var _topics = Map[String, Set[Sub]]()
   private def topics: Map[String, Set[Sub]] = synchronized(_topics)
   private def topics_=(v: Map[String, Set[Sub]]): Unit = synchronized {
     _topics = v
@@ -43,11 +59,11 @@ object PubSubs {
 object PubSubDemo extends App {
   case class Subscribe(name: String) extends Sub {
     override def onMessage(topic: String, message: Object): Unit = println(s"$name 收到 $topic 消息：$message")
-    override def onUnsubscribe(topic: String): Unit              = println(s"$name 被 tickOff 主题：$topic")
+    override def onUnsubscribe(topic: String): Unit = println(s"$name 被 tickOff 主题：$topic")
   }
 
-  val sub1   = Subscribe("张三")
-  val sub2   = Subscribe("李四")
+  val sub1 = Subscribe("张三")
+  val sub2 = Subscribe("李四")
   val topic1 = "topic1"
   val topic2 = "topic2"
   PubSubs.subscribe(topic1, sub1)

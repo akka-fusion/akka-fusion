@@ -1,3 +1,19 @@
+/*
+ * Copyright 2019 helloscala.com
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package fusion.core.extension
 
 import java.nio.file.Paths
@@ -21,11 +37,11 @@ import helloscala.common.util.Utils
 import scala.util.control.NonFatal
 
 final class FusionCore private (protected val _system: ExtendedActorSystem) extends FusionExtension with StrictLogging {
-  val name: String         = system.name
+  val name: String = system.name
   val setting: CoreSetting = new CoreSetting(configuration)
-  val events               = new FusionEvents()
-  val shutdowns            = new FusionCoordinatedShutdown(system)
-  val runMode              = new RunMode(configuration)
+  val events = new FusionEvents()
+  val shutdowns = new FusionCoordinatedShutdown(system)
+  val runMode = new RunMode(configuration)
   FusionUtils.setupActorSystem(system)
   writePidfile()
   System.setProperty(
@@ -66,6 +82,6 @@ final class FusionCore private (protected val _system: ExtendedActorSystem) exte
 }
 
 object FusionCore extends ExtensionId[FusionCore] with ExtensionIdProvider {
-  override def lookup(): ExtensionId[_ <: Extension]                    = FusionCore
+  override def lookup(): ExtensionId[_ <: Extension] = FusionCore
   override def createExtension(system: ExtendedActorSystem): FusionCore = new FusionCore(system)
 }

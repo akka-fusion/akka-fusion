@@ -1,3 +1,19 @@
+/*
+ * Copyright 2019 helloscala.com
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package helloscala.common.util
 
 import java.io.InputStream
@@ -8,24 +24,22 @@ import java.nio.file.Path
 import java.util.{HashMap => JHashMap}
 import java.util.{Map => JMap}
 
-import org.bouncycastle.util.encoders.Hex
-
 import scala.annotation.tailrec
 import scala.collection.immutable
 import scala.compat.java8.FunctionConverters.asJavaBiConsumer
 
 object StringUtils {
-  val BLACK_CHAR: Char                          = ' '
+  val BLACK_CHAR: Char = ' '
   val PRINTER_CHARS: immutable.IndexedSeq[Char] = ('0' to '9') ++ ('a' to 'z') ++ ('A' to 'Z')
-  val REGEX_STR_BLANK                           = """[\s　]+"""
-  val CHINESE_COMMA                             = "，"
-  val CHINESE_FULL_STOP                         = "。"
+  val REGEX_STR_BLANK = """[\s　]+"""
+  val CHINESE_COMMA = "，"
+  val CHINESE_FULL_STOP = "。"
 
   val PRINTER_CHARS_EXT: immutable.IndexedSeq[Char] = PRINTER_CHARS ++
-        Vector('!', '#', '$', '%', '^', '&', '*', '(', ')', '-', '+', '=', '_', '.', '?', '<', '>')
+    Vector('!', '#', '$', '%', '^', '&', '*', '(', ')', '-', '+', '=', '_', '.', '?', '<', '>')
 
   private val HEX_CHARS: Array[Char] = "0123456789abcdef".toCharArray
-  private val HEX_CHAR_SETS          = Set[Char]() ++ ('0' to '9') ++ ('a' to 'f') ++ ('A' to 'F')
+  private val HEX_CHAR_SETS = Set[Char]() ++ ('0' to '9') ++ ('a' to 'f') ++ ('A' to 'F')
 
   def blankToChineseComma(text: String, replacement: String): String = blankReplaceAll(text, CHINESE_COMMA)
 
@@ -47,7 +61,7 @@ object StringUtils {
   /** Turns an array of Byte into a String representation in hexadecimal. */
   def hex2Str(bytes: Array[Byte]): String = {
     val hex = new Array[Char](2 * bytes.length)
-    var i   = 0
+    var i = 0
     while (i < bytes.length) {
       hex(2 * i) = HEX_CHARS((bytes(i) & 0xF0) >>> 4)
       hex(2 * i + 1) = HEX_CHARS(bytes(i) & 0x0F)
@@ -59,7 +73,7 @@ object StringUtils {
   /** Turns a hexadecimal String into an array of Byte. */
   def str2Hex(str: String): Array[Byte] = {
     val bytes = new Array[Byte](str.length / 2)
-    var i     = 0
+    var i = 0
     while (i < bytes.length) {
       bytes(i) = Integer.parseInt(str.substring(2 * i, 2 * i + 2), 16).toByte
       i += 1
@@ -87,12 +101,12 @@ object StringUtils {
 
   def randomString(n: Int): String = {
     val len = PRINTER_CHARS.length
-    val sb  = new StringBuilder
-    var i   = 0
+    val sb = new StringBuilder
+    var i = 0
     while (i < n) {
       i += 1
       val idx = Utils.random.nextInt(len)
-      val c   = PRINTER_CHARS.apply(idx)
+      val c = PRINTER_CHARS.apply(idx)
       sb.append(c)
     }
     sb.toString()
@@ -100,12 +114,12 @@ object StringUtils {
 
   def randomExtString(n: Int): String = {
     val len = PRINTER_CHARS_EXT.length
-    val sb  = new StringBuilder
-    var i   = 0
+    val sb = new StringBuilder
+    var i = 0
     while (i < n) {
       i += 1
       val idx = Utils.random.nextInt(len)
-      val c   = PRINTER_CHARS_EXT.apply(idx)
+      val c = PRINTER_CHARS_EXT.apply(idx)
       sb.append(c)
     }
     sb.toString()
@@ -183,14 +197,14 @@ object StringUtils {
     obj.map { case (key, value) => convertUnderscoreNameToPropertyName(key) -> value }
 
   def convertUnderscoreNameToPropertyName(obj: JMap[String, Object]): JMap[String, Object] = {
-    val result                         = new JHashMap[String, Object]()
+    val result = new JHashMap[String, Object]()
     val func: (String, Object) => Unit = (key, value) => result.put(convertUnderscoreNameToPropertyName(key), value)
     obj.forEach(asJavaBiConsumer(func))
     result
   }
 
   def convertUnderscoreNameToPropertyName(name: String): String = {
-    val result      = new StringBuilder
+    val result = new StringBuilder
     var nextIsUpper = false
     if (name != null && name.length > 0) {
       if (name.length > 1 && name.substring(1, 2) == "_") {
@@ -199,7 +213,7 @@ object StringUtils {
         result.append(name.substring(0, 1).toLowerCase)
       }
 
-      var i   = 1
+      var i = 1
       val len = name.length
       while (i < len) {
         val s = name.substring(i, i + 1)
@@ -261,8 +275,8 @@ object StringUtils {
       return str
     }
     val len = str.length
-    val sb  = new StringBuilder(str.length)
-    var i   = 0
+    val sb = new StringBuilder(str.length)
+    var i = 0
     while ({ i < len }) {
       val c = str.charAt(i)
       if (!Character.isWhitespace(c)) {
@@ -274,7 +288,31 @@ object StringUtils {
     sb.toString
   }
 
-  def toHexString(arr: Array[Byte]): String = Hex.toHexString(arr)
+  def bytesToHex(bytes: Array[Byte]): Array[Char] = {
+    val hexChars = new Array[Char](bytes.length * 2)
+    var j = 0
+    while (j < bytes.length) {
+      val v = bytes(j) & 0xFF
+      hexChars(j * 2) = HEX_CHARS(v >>> 4)
+      hexChars(j * 2 + 1) = HEX_CHARS(v & 0x0F)
+      j += 1
+    }
+    hexChars
+  }
+
+  @inline def toHexString(arr: Array[Byte]): String = new String(bytesToHex(arr))
+
+  def fromByteArray(bytes: Array[Byte]) = new String(asCharArray(bytes))
+
+  def asCharArray(bytes: Array[Byte]): Array[Char] = {
+    val chars = new Array[Char](bytes.length)
+    var i = 0
+    while (i != chars.length) {
+      chars(i) = (bytes(i) & 0xff).toChar
+      i += 1
+    }
+    chars
+  }
 
   def readLineIterator(is: InputStream): Iterator[String] = {
     val rs = scala.io.Source.fromInputStream(is)
@@ -304,8 +342,8 @@ object StringUtils {
    */
   def readAllLinesFromPath(dir: Path): java.util.stream.Stream[String] = {
     import scala.compat.java8.FunctionConverters._
-    val filterNoneBlank: String => Boolean             = s => StringUtils.isNoneBlank(s)
-    val trim: String => String                         = s => s.trim
+    val filterNoneBlank: String => Boolean = s => StringUtils.isNoneBlank(s)
+    val trim: String => String = s => s.trim
     val trans: Path => java.util.stream.Stream[String] = path => Files.readAllLines(path).stream()
     Files.list(dir).flatMap(trans.asJava).map[String](trim.asJava).filter(filterNoneBlank.asJava)
   }

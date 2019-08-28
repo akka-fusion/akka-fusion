@@ -22,6 +22,8 @@ import akka.actor.ActorSystem
 import akka.discovery.Discovery
 import akka.discovery.ServiceDiscovery
 import akka.discovery.ServiceDiscovery.ResolvedTarget
+import akka.http.scaladsl.model.HttpProtocol
+import akka.http.scaladsl.model.HttpProtocols
 import akka.http.scaladsl.model.Uri
 import akka.http.scaladsl.model.headers.`Timeout-Access`
 import akka.pattern.CircuitBreaker
@@ -63,7 +65,8 @@ final case class GatewayLocation(
     circuitBreaker: Option[CircuitBreaker],
     notProxyHeaders: Set[String],
     routingSettings: GatewayRoutingSettings,
-    gateway: Option[immutable.Seq[GatewayLocation]]) {
+    gateway: Option[immutable.Seq[GatewayLocation]],
+    protocol: HttpProtocol) {
 
   def proxyToUri(uri: Uri): Uri = {
     proxyTo
@@ -146,6 +149,10 @@ final class GatewaySetting(system: ActorSystem, prefix: String) {
       //        if (c.hasPath("locations"))
       //          Some(getLocations(upstreams, c.getConfiguration("locations"), defaultTimeout))
       //        else None
+      val protocol = c
+        .get[Option[String]]("protocol")
+        .flatMap(HttpProtocols.getForKeyCaseInsensitive)
+        .getOrElse(HttpProtocols.`HTTP/1.1`)
       GatewayLocation(
         locationName,
         proxyUpstream,
@@ -155,7 +162,8 @@ final class GatewaySetting(system: ActorSystem, prefix: String) {
         circuitBreaker,
         notProxyHeaders,
         routingSettings,
-        None /*gateway*/ )
+        None /*gateway*/,
+        protocol)
     }.toVector
   }
 

@@ -20,6 +20,7 @@ import java.time.Instant
 
 import akka.http.scaladsl.model.headers.ModeledCustomHeader
 import akka.http.scaladsl.model.headers.ModeledCustomHeaderCompanion
+import com.typesafe.scalalogging.StrictLogging
 import fusion.common.constant.FusionConstants
 
 import scala.concurrent.duration.FiniteDuration
@@ -67,7 +68,7 @@ final class `X-Span-Time`(val duration: java.time.Duration) extends ModeledCusto
   override def renderInResponses(): Boolean = true
 }
 
-object `X-Span-Time` extends ModeledCustomHeaderCompanion[`X-Span-Time`] {
+object `X-Span-Time` extends ModeledCustomHeaderCompanion[`X-Span-Time`] with StrictLogging {
   override def name: String = FusionConstants.X_SPAN_TIME
   override def parse(value: String): Try[`X-Span-Time`] = Try(new `X-Span-Time`(java.time.Duration.parse(value)))
 
@@ -76,6 +77,12 @@ object `X-Span-Time` extends ModeledCustomHeaderCompanion[`X-Span-Time`] {
     new `X-Span-Time`(d.toJava)
   }
 
-  def fromXRequestTime(h: `X-Request-Time`) =
-    `X-Span-Time`(java.time.Duration.between(Instant.parse(h.value), Instant.now()).toString)
+  def fromXRequestTime(h: `X-Request-Time`): Option[`X-Span-Time`] =
+    try {
+      Some(`X-Span-Time`(java.time.Duration.between(Instant.parse(h.value()), Instant.now()).toString))
+    } catch {
+      case e: Throwable =>
+        logger.warn(s"fromXRequestTime($h) error: ${e.toString}", e)
+        None
+    }
 }

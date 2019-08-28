@@ -19,6 +19,7 @@ package fusion.http.gateway.server
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeoutException
 
+import akka.Done
 import akka.actor.ActorSystem
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.server.PathMatchers
@@ -139,23 +140,23 @@ abstract class HttpGatewayComponent(id: String, system: ActorSystem) extends Abs
     val hostAndPortF = if (CollectionUtils.nonEmpty(upstream.targets)) {
       val i = Math.abs(location.upstream.targetsCounter.incrementAndGet() % upstream.targets.size)
       val target = upstream.targets(i)
-      logger.trace(s"static target: $target")
+      logger.trace(s"static target: ${upstream.serviceName} $target")
       val targetUri = uri.withAuthority(target.host, target.port.getOrElse(HttpUtils.DEFAULT_PORTS(uri.scheme)))
-      Future.successful(req.withUri(targetUri))
+      Future.successful(req.copy(uri = targetUri, protocol = location.protocol))
     } else {
       val serviceName =
-        upstream.serviceName.getOrElse(throw HSBadGatewayException(s"upstream.serviceName未指定：${upstream}"))
+        upstream.serviceName.getOrElse(throw HSBadGatewayException(s"upstream.serviceName未指定：$upstream"))
       upstream.discovery
-        .getOrElse(throw HSBadGatewayException(s"upstream.serviceName未指定：${upstream}"))
+        .getOrElse(throw HSBadGatewayException(s"upstream.serviceName未指定：$upstream"))
         .lookup(serviceName, 10.seconds)
         .map { resolved =>
           val target = resolved.addresses.headOption.getOrElse(throw HSBadGatewayException(s"后端服务不可用：$serviceName"))
-          logger.trace(s"discovery health target: $target")
+          logger.trace(s"discovery health target: ${upstream.serviceName} $target")
           val targetUri = uri.withAuthority(
             target.host,
             target.port.getOrElse(
               throw HSBadGatewayException(s"服务未指定端口号：$serviceName；[${target.host}:${target.port}]")))
-          req.withUri(targetUri)
+          req.copy(uri = targetUri, protocol = location.protocol)
         }
     }
     hostAndPortF
@@ -190,6 +191,17 @@ abstract class HttpGatewayComponent(id: String, system: ActorSystem) extends Abs
       .transform(
         identity,
         e => HSServiceUnavailableException(s"代理请求错误：${request.method.value} ${request.uri}。${e.toString}", cause = e))
+  }
+
+  def closeAsync(): Future[Done] = {
+    import akka.http.scaladsl.util.FastFuture._
+    import system.dispatcher
+    var queues = List.empty[Future[Done]]
+    httpSourceQueueMap.forEachValue(4, queue => {
+      queue.complete()
+      queues ::= queue.watchCompletion()
+    })
+    Future.sequence(queues).fast.map(_ => Done).fast.recover { case _ => Done }
   }
 
 }

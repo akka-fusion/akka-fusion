@@ -42,14 +42,13 @@ final class DefaultHttpInterceptor(system: ExtendedActorSystem) extends HttpInte
       if (req.headers.exists(header => header.name() == FusionConstants.X_TRACE_NAME)) None
       else Some(HttpUtils.generateTraceHeader())).flatten
     val request = req.copy(headers = extHeaders ++ req.headers)
-
     HttpUtils.curlLogging(request)(logger)
-
-    inner(ctx.withRequest(request)).map {
+    val resultF = inner(ctx.withRequest(request))
+    resultF.map {
       case RouteResult.Complete(response) =>
         val headers = extHeaders
             .find(_.name() == `X-Request-Time`.name)
-            .map(h => `X-Span-Time`.fromXRequestTime(h.asInstanceOf[`X-Request-Time`]))
+            .flatMap(h => `X-Span-Time`.fromXRequestTime(h.asInstanceOf[`X-Request-Time`]))
             .toList ::: extHeaders ++ response.headers
         RouteResult.Complete(processResponse(request, response.copy(headers = headers)))
       case RouteResult.Rejected(_) => throw HSInternalErrorException("error")
@@ -63,6 +62,6 @@ final class DefaultHttpInterceptor(system: ExtendedActorSystem) extends HttpInte
     }
     val headers = core.currentXService +: resp.headers
     val response = resp.copy(headers = headers)
-    HttpUtils.curlLoggingResponse(request, response)(logger)
+    HttpUtils.curlLoggingResponse(request, response, true)(logger)
   }
 }

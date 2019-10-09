@@ -21,7 +21,6 @@ import java.util.Objects
 import java.util.concurrent.atomic.AtomicBoolean
 
 import akka.Done
-import akka.NotUsed
 import akka.actor.ActorSystem
 import akka.actor.ExtendedActorSystem
 import akka.http.FusionRoute
@@ -31,16 +30,17 @@ import akka.http.scaladsl.Http
 import akka.http.scaladsl.HttpConnectionContext
 import akka.http.scaladsl.model.HttpRequest
 import akka.http.scaladsl.model.HttpResponse
+import akka.http.scaladsl.model.Uri
 import akka.http.scaladsl.server.ExceptionHandler
 import akka.http.scaladsl.server.RejectionHandler
 import akka.http.scaladsl.server.Route
 import akka.stream.ActorMaterializer
-import akka.stream.scaladsl.Flow
 import com.typesafe.config.ConfigFactory
 import com.typesafe.scalalogging.StrictLogging
 import com.typesafe.sslconfig.akka.AkkaSSLConfig
 import fusion.core.event.http.HttpBindingServerEvent
 import fusion.core.extension.FusionCore
+import fusion.http.constant.HttpConstants
 import fusion.http.interceptor.HttpInterceptor
 import fusion.http.server.AbstractRoute
 import fusion.http.util.HttpUtils
@@ -61,10 +61,13 @@ final class HttpServer(val id: String, val system: ExtendedActorSystem) extends 
   implicit private def ec: ExecutionContextExecutor = mat.executionContext
   private val _isStarted = new AtomicBoolean(false)
   @volatile private var _isRunning = false
-  private val c = Configuration(system.settings.config.getConfig(id))
+  private val c = Configuration(
+    system.settings.config.getConfig(id).withFallback(system.settings.config.getConfig("fusion.default.http")))
+  private var _schema: String = _
   private var _socketAddress: InetSocketAddress = _
   private var maybeEventualBinding = Option.empty[Future[ServerBinding]]
-  private val httpSetting = new HttpSetting(c, system)
+  private val httpSetting = HttpSetting(c, system)
+  logger.debug("httpSetting: " + httpSetting)
 
   @throws(classOf[Exception])
   def startHandlerSync(handler: HttpHandler)(
@@ -112,8 +115,7 @@ final class HttpServer(val id: String, val system: ExtendedActorSystem) extends 
 
     val handler = toHandler(Route.seal(_route))
     val bindingFuture =
-      Http().bindAndHandle(handler, httpSetting.server.host, httpSetting.server.port, connectionContext)
-
+      Http().bindAndHandleAsync(handler, httpSetting.server.host, httpSetting.server.port, connectionContext)
     maybeEventualBinding = Some(bindingFuture)
     bindingFuture.failed.foreach { cause =>
       afterHttpBindingFailure(cause, connectionContext.isSecure)
@@ -124,11 +126,10 @@ final class HttpServer(val id: String, val system: ExtendedActorSystem) extends 
     }
   }
 
-  private def toHandler(_route: Route): Flow[HttpRequest, HttpResponse, NotUsed] = {
-    var route = _route
-    route =
-      (getDefaultInterceptor() ++ getHttpInterceptors()).reverse.foldLeft(route)((route, i) => i.interceptor(route))
-    Flow[HttpRequest].mapAsync(1)(FusionRoute.asyncHandler(route))
+  private def toHandler(_route: Route): HttpRequest => Future[HttpResponse] = {
+    val route =
+      (getDefaultInterceptor() ++ getHttpInterceptors()).reverse.foldLeft(_route)((r, i) => i.interceptor(r))
+    FusionRoute.asyncHandler(route)
   }
 
   private def getDefaultInterceptor(): Seq[HttpInterceptor] =
@@ -223,18 +224,22 @@ final class HttpServer(val id: String, val system: ExtendedActorSystem) extends 
   }
 
   private def afterHttpBindingSuccess(binding: ServerBinding, isSecure: Boolean): Unit = {
-    val schema = if (isSecure) "https" else "http"
+    _schema = if (isSecure) "https" else "http"
     val socketAddress = _saveServer(binding.localAddress)
     logger.info(s"Server online at $schema://${socketAddress.getHostString}:${socketAddress.getPort}")
     _isRunning = true
-    FusionCore(system).events.http.complete(HttpBindingServerEvent(Success(socketAddress), isSecure))
+    if (id == HttpConstants.PATH_DEFAULT) {
+      FusionCore(system).events.http.complete(HttpBindingServerEvent(Success(socketAddress), isSecure))
+    }
   }
 
   private def afterHttpBindingFailure(cause: Throwable, isSecure: Boolean): Unit = {
     val schema = if (isSecure) "https" else "http"
     logger.error(s"Error starting the $schema server ${cause.getMessage}", cause)
     close()
-    FusionCore(system).events.http.complete(HttpBindingServerEvent(Failure(cause), isSecure))
+    if (id == HttpConstants.PATH_DEFAULT) {
+      FusionCore(system).events.http.complete(HttpBindingServerEvent(Failure(cause), isSecure))
+    }
   }
 
   /**
@@ -258,4 +263,13 @@ final class HttpServer(val id: String, val system: ExtendedActorSystem) extends 
   }
 
   def socketAddress: InetSocketAddress = _socketAddress
+
+  def schema: String = _schema
+
+  @inline def buildUri(path: String): Uri = buildUri(Uri.Path(path), Uri.Query())
+
+  def buildUri(path: Uri.Path, query: Uri.Query = Uri.Query()): Uri = {
+    val sa = socketAddress
+    Uri(schema, authority = Uri.Authority(Uri.Host(sa.getAddress.getHostAddress), sa.getPort), path).withQuery(query)
+  }
 }

@@ -31,6 +31,7 @@ import akka.http.scaladsl.model.headers.`Timeout-Access`
 import akka.http.scaladsl.server.Directive0
 import akka.http.scaladsl.server.Directives
 import akka.http.scaladsl.unmarshalling.Unmarshal
+import akka.http.scaladsl.unmarshalling.Unmarshaller
 import akka.stream.ActorMaterializer
 import akka.stream.Materializer
 import akka.stream.OverflowStrategy
@@ -485,7 +486,7 @@ object HttpUtils extends StrictLogging {
       if (printResponseEntity) {
         sb.append(resp.entity match {
           case HttpEntity.Empty => ""
-          case _                => "\n" + resp.entity
+          case _                => resp.entity
         })
       }
       log.debug(sb.toString())
@@ -500,4 +501,5 @@ object HttpUtils extends StrictLogging {
     HttpResponse(status, entity = HttpUtils.entityJson(s"""{"status":${status.intValue()},"msg":"$msg"}"""))
 
   def toString(query: Uri.Query): String = query.map { case (name, value) => s"$name=$value" }.mkString("&")
+
 }

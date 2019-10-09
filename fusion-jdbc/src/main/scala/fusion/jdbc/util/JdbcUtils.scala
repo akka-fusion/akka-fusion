@@ -258,7 +258,7 @@ object JdbcUtils extends StrictLogging {
    */
   def namedParameterToQuestionMarked(sql: String, TAG: Char = '?'): (String, Map[String, Int]) = {
     val sqlBuf = new java.lang.StringBuilder()
-    var paramBuf = new java.lang.StringBuilder()
+    var paramBuf = new StringBuilder()
     val params = mutable.Map.empty[String, Int]
     var idx = 0
     var isName = false
@@ -270,12 +270,16 @@ object JdbcUtils extends StrictLogging {
         sqlBuf.append(c)
         idx += 1
         params += (paramBuf.toString.trim -> idx)
-        paramBuf = new java.lang.StringBuilder()
+        paramBuf = new StringBuilder()
         isName = false
       case c if isName =>
         paramBuf.append(c)
       case c =>
         sqlBuf.append(c)
+    }
+    if (paramBuf.nonEmpty) {
+      idx += 1
+      params += (paramBuf.toString.trim -> idx)
     }
     (sqlBuf.toString, params.toMap)
   }

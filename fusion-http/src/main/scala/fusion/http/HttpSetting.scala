@@ -19,21 +19,14 @@ package fusion.http
 import akka.actor.ActorSystem
 import com.typesafe.sslconfig.ssl.SSLConfigFactory
 import com.typesafe.sslconfig.ssl.SSLConfigSettings
-import fusion.common.constant.FusionConstants
 import fusion.http.constant.HttpConstants
 import helloscala.common.Configuration
 
-class HttpSetting(c: Configuration, system: ActorSystem) {
+final class HttpSetting private (c: Configuration, system: ActorSystem) {
   def exceptionHandler: String = c.getString("exception-handler")
   def rejectionHandler: String = c.getString("rejection-handler")
   def defaultInterceptor: Seq[String] = c.get[Seq[String]]("default-interceptor")
   def httpInterceptors: Seq[String] = c.get[Seq[String]]("http-interceptors")
-
-//  def http2: UseHttp2 = c.getOrElse("http2", "").toLowerCase match {
-//    case "never"  => UseHttp2.Never
-//    case "always" => UseHttp2.Always
-//    case _        => UseHttp2.Negotiated
-//  }
 
   def createSSLConfig(): SSLConfigSettings = {
     val akkaOverrides = system.settings.config.getConfig("akka.ssl-config")
@@ -50,10 +43,10 @@ class HttpSetting(c: Configuration, system: ActorSystem) {
   object server {
 
     def host: String =
-      c.getOrElse(FusionConstants.SERVER_HOST_PATH, system.settings.config.getString(HttpConstants.SERVER_HOST_PATH))
+      c.getOrElse("server.host", system.settings.config.getString(HttpConstants.SERVER_HOST_PATH))
 
     def port: Int = {
-      c.get[Option[Int]](FusionConstants.SERVER_PORT_PATH) match {
+      c.get[Option[Int]]("server.port") match {
         case Some(port) => port
         case _ =>
           if (!system.settings.config.hasPath(HttpConstants.SERVER_PORT_PATH)) 0
@@ -61,4 +54,10 @@ class HttpSetting(c: Configuration, system: ActorSystem) {
       }
     }
   }
+
+  override def toString = s"HttpSetting(${c.underlying.root()})"
+}
+
+object HttpSetting {
+  def apply(c: Configuration, system: ActorSystem): HttpSetting = new HttpSetting(c, system)
 }

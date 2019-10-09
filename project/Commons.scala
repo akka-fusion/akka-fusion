@@ -29,12 +29,12 @@ object Commons {
           "-feature",
           "-deprecation",
           "-unchecked",
-          "-Xlint",
-          "-Yno-adapted-args", //akka-http heavily depends on adapted args and => Unit implicits break otherwise
-          "-Ypartial-unification",
+          //"-Yno-adapted-args", //akka-http heavily depends on adapted args and => Unit implicits break otherwise
+          //"-Ypartial-unification",
           "-Ywarn-dead-code",
-          "-Yrangepos", // required by SemanticDB compiler plugin
-          "-Ywarn-unused-import" // required by `RemoveUnused` rule
+          //"-Yrangepos", // required by SemanticDB compiler plugin
+          //"-Ywarn-unused-import", // required by `RemoveUnused` rule
+          "-Xlint"
         )
         //if (scalaVersion.value.startsWith("2.12")) {
         //  list ++= Seq("-opt:l:inline", "-opt-inline-from")

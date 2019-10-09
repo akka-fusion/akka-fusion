@@ -27,9 +27,9 @@ import com.typesafe.scalalogging.StrictLogging
 import fusion.common.constant.ConfigKeys
 import fusion.common.constant.FusionConstants
 import fusion.core.event.FusionEvents
+import fusion.core.http.headers.`X-Service`
 import fusion.core.setting.CoreSetting
 import fusion.core.util.FusionUtils
-import fusion.core.http.headers.`X-Service`
 import helloscala.common.Configuration
 import helloscala.common.util.PidFile
 import helloscala.common.util.Utils
@@ -41,7 +41,6 @@ final class FusionCore private (protected val _system: ExtendedActorSystem) exte
   val setting: CoreSetting = new CoreSetting(configuration)
   val events = new FusionEvents()
   val shutdowns = new FusionCoordinatedShutdown(system)
-  val runMode = new RunMode(configuration)
   FusionUtils.setupActorSystem(system)
   writePidfile()
   System.setProperty(

@@ -38,8 +38,6 @@ trait EventListenerRegistry[E <: AnyRef] {
   }
 
   protected def dispatch(): Unit = {
-    new Thread(new Runnable {
-      override def run(): Unit = _listeners.foreach(_.apply(_event))
-    }).start()
+    new Thread(() => _listeners.foreach(_.apply(_event))).start()
   }
 }

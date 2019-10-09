@@ -54,7 +54,7 @@ class FusionJobComponents(system: ExtendedActorSystem)
   override def configuration: Configuration = FusionCore(system).configuration
 
   override protected def createComponent(id: String): FusionScheduler = {
-    val c = configuration.getConfiguration(id).withFallback(configuration.getConfiguration("fusion.job._default_"))
+    val c = configuration.getConfiguration(id).withFallback(configuration.getConfiguration("fusion.default.job"))
     FusionScheduler(create(id, c), system)
   }
 

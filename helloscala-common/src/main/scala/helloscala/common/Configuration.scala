@@ -323,21 +323,16 @@ object Configuration extends StrictLogging {
 trait ConfigLoader[A] { self =>
   def load(config: Config, path: String = ""): A
 
-  def map[B](f: A => B): ConfigLoader[B] = new ConfigLoader[B] {
-    override def load(config: Config, path: String): B = f(self.load(config, path))
-  }
+  def map[B](f: A => B): ConfigLoader[B] = (config: Config, path: String) => f(self.load(config, path))
 }
 
 object ConfigLoader {
 
-  def apply[A](f: Config => String => A): ConfigLoader[A] = new ConfigLoader[A] {
-    override def load(config: Config, path: String): A =
-      f(config)(path)
-  }
+  def apply[A](f: Config => String => A): ConfigLoader[A] = (config: Config, path: String) => f(config)(path)
 
   implicit val stringLoader: ConfigLoader[String] = ConfigLoader(_.getString)
   implicit val seqStringLoader: ConfigLoader[Seq[String]] =
-    ConfigLoader(_.getStringList).map(_.asScala)
+    ConfigLoader(_.getStringList).map(_.asScala.toVector)
   implicit val arrayStringLoader: ConfigLoader[Array[String]] =
     ConfigLoader(_.getStringList).map { list =>
       val arr = new Array[String](list.size())
@@ -360,7 +355,7 @@ object ConfigLoader {
 
   implicit val booleanLoader: ConfigLoader[Boolean] = ConfigLoader(_.getBoolean)
   implicit val seqBooleanLoader: ConfigLoader[Seq[Boolean]] =
-    ConfigLoader(_.getBooleanList).map(_.asScala.map(_.booleanValue))
+    ConfigLoader(_.getBooleanList).map(_.asScala.map(_.booleanValue).toVector)
 
   implicit val durationLoader: ConfigLoader[Duration] = ConfigLoader { config => path =>
     if (!config.getIsNull(path)) config.getDuration(path).toNanos.nanos
@@ -407,35 +402,30 @@ object ConfigLoader {
    * Loads a value, interpreting a null value as None and any other value as Some(value).
    */
   implicit def optionLoader[A](implicit valueLoader: ConfigLoader[A]): ConfigLoader[Option[A]] =
-    new ConfigLoader[Option[A]] {
-      override def load(config: Config, path: String): Option[A] =
-        if (!config.hasPath(path) || config.getIsNull(path)) None
-        else {
-          val value = valueLoader.load(config, path)
-          Some(value)
-        }
+    (config: Config, path: String) => {
+      if (!config.hasPath(path) || config.getIsNull(path)) None
+      else {
+        val value = valueLoader.load(config, path)
+        Some(value)
+      }
     }
 
   implicit val propertiesLoader: ConfigLoader[Properties] =
     new ConfigLoader[Properties] {
 
       def make(props: Properties, parentKeys: String, obj: ConfigObject): Unit =
-        obj
-          .keySet()
-          .forEach(new Consumer[String] {
-            override def accept(key: String): Unit = {
-              val value = obj.get(key)
-              val propKey =
-                if (StringUtils.isNoneBlank(parentKeys)) parentKeys + "." + key
-                else key
-              value.valueType() match {
-                case ConfigValueType.OBJECT =>
-                  make(props, propKey, value.asInstanceOf[ConfigObject])
-                case _ =>
-                  props.put(propKey, value.unwrapped())
-              }
-            }
-          })
+        obj.keySet().forEach { key =>
+          val value = obj.get(key)
+          val propKey =
+            if (StringUtils.isNoneBlank(parentKeys)) parentKeys + "." + key
+            else key
+          value.valueType() match {
+            case ConfigValueType.OBJECT =>
+              make(props, propKey, value.asInstanceOf[ConfigObject])
+            case _ =>
+              props.put(propKey, value.unwrapped())
+          }
+        }
 
       override def load(config: Config, path: String): Properties = {
         val obj =
@@ -451,22 +441,18 @@ object ConfigLoader {
     new ConfigLoader[Map[String, String]] {
 
       def make(props: mutable.Map[String, String], parentKeys: String, obj: ConfigObject): Unit =
-        obj
-          .keySet()
-          .forEach(new Consumer[String] {
-            override def accept(key: String): Unit = {
-              val value = obj.get(key)
-              val propKey =
-                if (StringUtils.isNoneBlank(parentKeys)) parentKeys + "." + key
-                else key
-              value.valueType() match {
-                case ConfigValueType.OBJECT =>
-                  make(props, propKey, value.asInstanceOf[ConfigObject])
-                case _ =>
-                  props.put(propKey, value.unwrapped().toString)
-              }
-            }
-          })
+        obj.keySet().forEach { key: String =>
+          val value = obj.get(key)
+          val propKey =
+            if (StringUtils.isNoneBlank(parentKeys)) parentKeys + "." + key
+            else key
+          value.valueType() match {
+            case ConfigValueType.OBJECT =>
+              make(props, propKey, value.asInstanceOf[ConfigObject])
+            case _ =>
+              props.put(propKey, value.unwrapped().toString)
+          }
+        }
 
       override def load(config: Config, path: String): Map[String, String] = {
         val obj =

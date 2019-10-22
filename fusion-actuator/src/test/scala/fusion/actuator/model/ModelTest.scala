@@ -19,8 +19,9 @@ package fusion.actuator.model
 import fusion.core.model.Health
 import fusion.json.jackson.Jackson
 import fusion.test.FusionTestWordSpec
+import org.scalatest.MustMatchers
 
-class ModelTest extends FusionTestWordSpec {
+class ModelTest extends FusionTestWordSpec with MustMatchers {
   "model" must {
     "health" in {
       val health = Health(

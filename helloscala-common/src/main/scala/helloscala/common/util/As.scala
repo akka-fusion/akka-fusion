@@ -109,7 +109,7 @@ object AsLong {
     case null              => None
     case l: Long           => Some(l)
     case l: java.lang.Long => Some(l)
-    case bi: BigInt        => Some(bi.longValue())
+    case bi: BigInt        => Some(bi.longValue)
     case s: CharSequence   => toLong(s)
     case _                 => None
   }

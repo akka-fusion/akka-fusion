@@ -17,23 +17,21 @@
 package fusion.discovery.client.nacos
 
 import akka.Done
-import akka.actor.ExtendedActorSystem
-import akka.actor.Extension
-import akka.actor.ExtensionId
-import akka.actor.ExtensionIdProvider
+import akka.actor.typed.ActorSystem
 import com.typesafe.scalalogging.StrictLogging
 import fusion.common.constant.FusionConstants
 import fusion.core.component.Components
 import fusion.core.extension.FusionCore
 import fusion.core.extension.FusionExtension
+import fusion.core.extension.FusionExtensionId
 import fusion.discovery.DiscoveryUtils
 import helloscala.common.Configuration
 
 import scala.concurrent.Future
 
-final private[discovery] class NacosComponents(system: ExtendedActorSystem)
+final private[discovery] class NacosComponents(system: ActorSystem[_])
     extends Components[NacosDiscoveryComponent](DiscoveryUtils.methodConfPath) {
-  import system.dispatcher
+  import system.executionContext
 
   override protected def createComponent(id: String): NacosDiscoveryComponent =
     new NacosDiscoveryComponent(id, NacosPropertiesUtils.configProps(id), configuration.getConfiguration(id), system)
@@ -47,15 +45,13 @@ final private[discovery] class NacosComponents(system: ExtendedActorSystem)
 
 }
 
-final class FusionNacos private (protected val _system: ExtendedActorSystem)
-    extends FusionExtension
-    with StrictLogging {
+final class FusionNacos private (override val system: ActorSystem[_]) extends FusionExtension with StrictLogging {
 
-  val components = new NacosComponents(_system)
+  val components = new NacosComponents(system)
 
   def component: NacosDiscoveryComponent = components.component
   FusionCore(system).shutdowns.serviceStop("StopFusionNacos") { () =>
-    components.closeAsync()(system.dispatcher)
+    components.closeAsync()(system.executionContext)
   }
 
   // XXX 将覆盖 Configration.fromDiscovery() 调用 Configuration.setServiceName() 设置的全局服务名
@@ -68,7 +64,6 @@ final class FusionNacos private (protected val _system: ExtendedActorSystem)
   logger.info(component.namingService.getServerStatus)
 }
 
-object FusionNacos extends ExtensionId[FusionNacos] with ExtensionIdProvider {
-  override def createExtension(system: ExtendedActorSystem): FusionNacos = new FusionNacos(system)
-  override def lookup(): ExtensionId[_ <: Extension] = FusionNacos
+object FusionNacos extends FusionExtensionId[FusionNacos] {
+  override def createExtension(system: ActorSystem[_]): FusionNacos = new FusionNacos(system)
 }

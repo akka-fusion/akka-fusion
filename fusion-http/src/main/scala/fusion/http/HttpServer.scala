@@ -20,9 +20,9 @@ import java.net.InetSocketAddress
 import java.util.Objects
 import java.util.concurrent.atomic.AtomicBoolean
 
-import akka.Done
-import akka.actor.ActorSystem
 import akka.actor.ExtendedActorSystem
+import akka.actor.typed.ActorSystem
+import akka.actor.typed.scaladsl.adapter._
 import akka.http.FusionRoute
 import akka.http.scaladsl.Http.ServerBinding
 import akka.http.scaladsl.ConnectionContext
@@ -34,10 +34,11 @@ import akka.http.scaladsl.model.Uri
 import akka.http.scaladsl.server.ExceptionHandler
 import akka.http.scaladsl.server.RejectionHandler
 import akka.http.scaladsl.server.Route
-import akka.stream.ActorMaterializer
+import akka.stream.Materializer
+import akka.Done
+import akka.{actor => classic}
 import com.typesafe.config.ConfigFactory
 import com.typesafe.scalalogging.StrictLogging
-import com.typesafe.sslconfig.akka.AkkaSSLConfig
 import fusion.core.event.http.HttpBindingServerEvent
 import fusion.core.extension.FusionCore
 import fusion.http.constant.HttpConstants
@@ -55,14 +56,18 @@ import scala.concurrent.duration._
 import scala.util.Failure
 import scala.util.Success
 
-final class HttpServer(val id: String, val system: ExtendedActorSystem) extends StrictLogging with AutoCloseable {
-  implicit private def _system: ActorSystem = system
-  implicit private val mat: ActorMaterializer = ActorMaterializer()
+final class HttpServer(val id: String, val system: ActorSystem[_]) extends StrictLogging with AutoCloseable {
+  implicit private def classicSystem: ExtendedActorSystem = system.toClassic.asInstanceOf[ExtendedActorSystem]
+  implicit private val mat: Materializer = Materializer(classicSystem)
   implicit private def ec: ExecutionContextExecutor = mat.executionContext
   private val _isStarted = new AtomicBoolean(false)
   @volatile private var _isRunning = false
+  private def dynamicAccess = system.dynamicAccess
+
   private val c = Configuration(
-    system.settings.config.getConfig(id).withFallback(system.settings.config.getConfig("fusion.default.http")))
+    classicSystem.settings.config
+      .getConfig(id)
+      .withFallback(classicSystem.settings.config.getConfig("fusion.default.http")))
   private var _schema: String = _
   private var _socketAddress: InetSocketAddress = _
   private var maybeEventualBinding = Option.empty[Future[ServerBinding]]
@@ -141,10 +146,13 @@ final class HttpServer(val id: String, val system: ExtendedActorSystem) extends 
 
   private def createRejectionHandler(): RejectionHandler = {
     val clz = Class.forName(httpSetting.rejectionHandler)
-    val either = system.dynamicAccess
-      .createInstanceFor[RejectionHandler](clz, List(classOf[ExtendedActorSystem] -> system))
-      .orElse(system.dynamicAccess.createInstanceFor[RejectionHandler](clz, List(classOf[ActorSystem] -> system)))
-      .orElse(system.dynamicAccess.createInstanceFor[RejectionHandler](clz, Nil))
+    val either = dynamicAccess
+      .createInstanceFor[RejectionHandler](clz, List(classOf[ActorSystem[_]] -> system))
+      .orElse(
+        dynamicAccess.createInstanceFor[RejectionHandler](clz, List(classOf[ExtendedActorSystem] -> classicSystem)))
+      .orElse(
+        dynamicAccess.createInstanceFor[RejectionHandler](clz, List(classOf[classic.ActorSystem] -> classicSystem)))
+      .orElse(classicSystem.dynamicAccess.createInstanceFor[RejectionHandler](clz, Nil))
     either match {
       case Success(rejectionHandler) => rejectionHandler
       case Failure(e) =>
@@ -155,10 +163,13 @@ final class HttpServer(val id: String, val system: ExtendedActorSystem) extends 
 
   private def createExceptionHandler(): ExceptionHandler = {
     val clz = Class.forName(httpSetting.exceptionHandler)
-    val either = system.dynamicAccess
-      .createInstanceFor[ExceptionHandler.PF](clz, List(classOf[ExtendedActorSystem] -> system))
-      .orElse(system.dynamicAccess.createInstanceFor[ExceptionHandler.PF](clz, List(classOf[ActorSystem] -> system)))
-      .orElse(system.dynamicAccess.createInstanceFor[ExceptionHandler.PF](clz, Nil))
+    val either = dynamicAccess
+      .createInstanceFor[ExceptionHandler.PF](clz, List(classOf[ActorSystem[_]] -> system))
+      .orElse(
+        dynamicAccess.createInstanceFor[ExceptionHandler.PF](clz, List(classOf[ExtendedActorSystem] -> classicSystem)))
+      .orElse(
+        dynamicAccess.createInstanceFor[ExceptionHandler.PF](clz, List(classOf[classic.ActorSystem] -> classicSystem)))
+      .orElse(classicSystem.dynamicAccess.createInstanceFor[ExceptionHandler.PF](clz, Nil))
     either match {
       case Success(pf) => ExceptionHandler(pf)
       case Failure(e) =>
@@ -169,10 +180,13 @@ final class HttpServer(val id: String, val system: ExtendedActorSystem) extends 
 
   private def createHttpInterceptor(className: String): Option[HttpInterceptor] = {
     val clz = Class.forName(className)
-    val triedInterceptor = system.dynamicAccess
-      .createInstanceFor[HttpInterceptor](clz, List(classOf[ExtendedActorSystem] -> system))
-      .orElse(system.dynamicAccess.createInstanceFor[HttpInterceptor](clz, List(classOf[ActorSystem] -> system)))
-      .orElse(system.dynamicAccess.createInstanceFor[HttpInterceptor](clz, Nil))
+    val triedInterceptor = dynamicAccess
+      .createInstanceFor[HttpInterceptor](clz, List(classOf[ActorSystem[_]] -> system))
+      .orElse(
+        dynamicAccess.createInstanceFor[HttpInterceptor](clz, List(classOf[ExtendedActorSystem] -> classicSystem)))
+      .orElse(
+        dynamicAccess.createInstanceFor[HttpInterceptor](clz, List(classOf[classic.ActorSystem] -> classicSystem)))
+      .orElse(dynamicAccess.createInstanceFor[HttpInterceptor](clz, Nil))
     triedInterceptor match {
       case Success(v) => Some(v)
       case Failure(e) =>
@@ -185,21 +199,23 @@ final class HttpServer(val id: String, val system: ExtendedActorSystem) extends 
     if (!c.hasPath("ssl")) {
       HttpConnectionContext()
     } else {
-      val akkaSslConfig = new AkkaSSLConfig(system, httpSetting.createSSLConfig())
+      val akkaSslConfig = httpSetting.createSSLConfig()
       val keyPassword = c.getString("ssl.key-store.password")
       val keyPath = c.getString("ssl.key-store.path")
       val keystore =
         Objects.requireNonNull(getClass.getClassLoader.getResourceAsStream(keyPath), s"keystore不能为空，keyPath: $keyPath")
       val keyStoreType = c.getOrElse("ssl.key-store.type", "PKCS12")
       val algorithm = c.getOrElse("ssl.key-store.algorithm", "SunX509")
-      val protocol = c.getOrElse("ssl.protocol", akkaSslConfig.config.protocol)
-      HttpUtils.generateHttps(keyPassword, keystore, keyStoreType, algorithm, protocol, Some(akkaSslConfig))
+      val protocol = c.getOrElse("ssl.protocol", akkaSslConfig.protocol)
+      HttpUtils.generateHttps(keyPassword, keystore, keyStoreType, algorithm, protocol)
     }
   }
 
-  def isStarted(): Boolean = _isStarted.get()
+  def isStarted: Boolean = _isStarted.get()
 
-  def isRunning(): Boolean = _isRunning
+  def isRunning: Boolean = _isRunning
+
+  def whenBinding: Option[Future[ServerBinding]] = maybeEventualBinding
 
   private def _saveServer(socketAddress: InetSocketAddress): InetSocketAddress = {
     val inetAddress = socketAddress.getAddress match {

@@ -24,6 +24,7 @@ trait Sub {
 object PubSubs {
   private var _topics = Map[String, Set[Sub]]()
   private def topics: Map[String, Set[Sub]] = synchronized(_topics)
+
   private def topics_=(v: Map[String, Set[Sub]]): Unit = synchronized {
     _topics = v
   }
@@ -57,6 +58,7 @@ object PubSubs {
 }
 
 object PubSubDemo extends App {
+
   case class Subscribe(name: String) extends Sub {
     override def onMessage(topic: String, message: Object): Unit = println(s"$name 收到 $topic 消息：$message")
     override def onUnsubscribe(topic: String): Unit = println(s"$name 被 tickOff 主题：$topic")

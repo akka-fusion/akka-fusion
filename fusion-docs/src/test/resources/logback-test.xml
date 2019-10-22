@@ -6,7 +6,7 @@
         </encoder>
     </appender>
 
-    <logger name="cn.ihongka" level="DEBUG"/>
+    <logger name="cn.akka-fusion" level="DEBUG"/>
     <logger name="ch.qos" level="WARN"/>
     <logger name="slick.jdbc.JdbcBackend.statement" level="DEBUG"/>
     <logger name="slick.jdbc.JdbcBackend.benchmark" level="DEBUG"/>

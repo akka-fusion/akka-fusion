@@ -18,14 +18,13 @@ package fusion.slick.pg
 
 import java.time.LocalDateTime
 
-import akka.actor.ActorSystem
+import akka.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
 import fusion.jdbc.FusionJdbc
-import akka.testkit.TestKit
 import fusion.jdbc.util.JdbcUtils
 import fusion.json.jackson.Jackson
+import fusion.slick.FusionPostgresProfile.api._
 import fusion.test.FusionTestFunSuite
 import helloscala.common.util.Utils
-import fusion.slick.FusionPostgresProfile.api._
 
 case class Test(id: Int, name: String, sex: Option[Int], createdAt: LocalDateTime)
 
@@ -37,7 +36,7 @@ class TableTest(tag: Tag) extends Table[Test](tag, "t_test") {
   override def * = (id, name, sex, createdAt).mapTo[Test]
 }
 
-class FusionPostgresProfileTest extends TestKit(ActorSystem()) with FusionTestFunSuite {
+class FusionPostgresProfileTest extends ScalaTestWithActorTestKit with FusionTestFunSuite {
 
   test("init jdbc") {
     val dataSource = FusionJdbc(system).component

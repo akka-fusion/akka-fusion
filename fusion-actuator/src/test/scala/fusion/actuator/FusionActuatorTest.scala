@@ -16,14 +16,16 @@
 
 package fusion.actuator
 
+import akka.actor.typed.scaladsl.adapter._
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.testkit.ScalatestRouteTest
 import fusion.json.jackson.Jackson
 import fusion.test.FusionTestFunSuite
+import org.scalatest.MustMatchers
 
-class FusionActuatorTest extends FusionTestFunSuite with ScalatestRouteTest {
+class FusionActuatorTest extends FusionTestFunSuite with ScalatestRouteTest with MustMatchers {
   test("route") {
-    val fusion = FusionActuator(system)
+    val fusion = FusionActuator(system.toTyped)
     val route = fusion.route
     val contextPath = fusion.actuatorSetting.contextPath
     Get(s"/$contextPath/health") ~> route ~> check {
@@ -37,7 +39,7 @@ class FusionActuatorTest extends FusionTestFunSuite with ScalatestRouteTest {
 
   override protected def beforeAll(): Unit = {
     super.beforeAll()
-    FusionActuator(system)
+    FusionActuator(system.toTyped)
   }
 
 }

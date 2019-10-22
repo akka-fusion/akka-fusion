@@ -16,8 +16,8 @@
 
 package fusion.discovery.client.nacos
 
-import akka.actor.ExtendedActorSystem
 import akka.actor.ExtensionId
+import akka.actor.typed.ActorSystem
 import com.typesafe.scalalogging.StrictLogging
 import fusion.core.event.http.HttpBindingServerEvent
 import fusion.core.extension.FusionCore
@@ -33,7 +33,7 @@ class NacosDiscoveryComponent(
     id: String,
     val properties: NacosDiscoveryProperties,
     c: Configuration,
-    system: ExtendedActorSystem)
+    system: ActorSystem[_])
     extends AutoCloseable
     with StrictLogging {
   private var currentInstances: List[DiscoveryInstance] = Nil

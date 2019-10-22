@@ -16,7 +16,7 @@
 
 package fusion.discovery.client
 
-import akka.actor.ActorSystem
+import akka.{actor => classic}
 import akka.discovery.Discovery
 import akka.http.scaladsl.model.Uri
 import com.typesafe.scalalogging.StrictLogging
@@ -25,11 +25,16 @@ import helloscala.common.exception.HSBadGatewayException
 import scala.concurrent.Future
 import scala.util.Random
 
-private class AkkaDiscoveryHttpClient(val clientSetting: DiscoveryHttpClientSetting)(implicit val system: ActorSystem)
+private class AkkaDiscoveryHttpClient(val clientSetting: DiscoveryHttpClientSetting)(
+    implicit val classicSystem: classic.ActorSystem)
     extends DiscoveryHttpClient
     with StrictLogging {
+
   private val discovery =
-    clientSetting.discoveryMethod.map(Discovery(system).loadServiceDiscovery).getOrElse(Discovery(system).discovery)
+    clientSetting.discoveryMethod
+      .map(Discovery(classicSystem).loadServiceDiscovery)
+      .getOrElse(Discovery(classicSystem).discovery)
+
   override def buildUri(uri: Uri): Future[Uri] = {
     if (uri.authority.host.isNamedHost()) {
       discovery.lookup(uri.authority.host.address(), clientSetting.discoveryTimeout).map { resolved =>

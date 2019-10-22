@@ -16,71 +16,31 @@
 
 package fusion.core.extension
 
-import java.nio.file.Paths
-
-import akka.actor.ExtendedActorSystem
-import akka.actor.Extension
-import akka.actor.ExtensionId
-import akka.actor.ExtensionIdProvider
+import akka.actor.typed.ActorRef
+import akka.actor.typed.ActorSystem
+import akka.actor.typed.Behavior
+import akka.actor.typed.Props
 import akka.http.scaladsl.model.HttpHeader
 import com.typesafe.scalalogging.StrictLogging
-import fusion.common.constant.ConfigKeys
-import fusion.common.constant.FusionConstants
 import fusion.core.event.FusionEvents
-import fusion.core.http.headers.`X-Service`
+import fusion.core.extension.impl.FusionCoreImpl
 import fusion.core.setting.CoreSetting
-import fusion.core.util.FusionUtils
-import helloscala.common.Configuration
-import helloscala.common.util.PidFile
-import helloscala.common.util.Utils
 
-import scala.util.control.NonFatal
+import scala.concurrent.Future
 
-final class FusionCore private (protected val _system: ExtendedActorSystem) extends FusionExtension with StrictLogging {
-  val name: String = system.name
-  val setting: CoreSetting = new CoreSetting(configuration)
-  val events = new FusionEvents()
-  val shutdowns = new FusionCoordinatedShutdown(system)
-  FusionUtils.setupActorSystem(system)
-  writePidfile()
-  System.setProperty(
-    FusionConstants.NAME_PATH,
-    if (system.settings.config.hasPath(FusionConstants.NAME_PATH))
-      system.settings.config.getString(FusionConstants.NAME_PATH)
-    else FusionConstants.NAME)
+abstract class FusionCore extends FusionExtension with StrictLogging {
+  def name: String
+  val setting: CoreSetting
+  val events: FusionEvents
+  val shutdowns: FusionCoordinatedShutdown
+  val currentXService: HttpHeader
 
-  private lazy val _configuration = new Configuration(system.settings.config)
+  def spawnUserActor[REF](behavior: Behavior[REF], name: String, props: Props): Future[ActorRef[REF]]
 
-  override def configuration: Configuration = _configuration
-
-  val currentXService: HttpHeader = {
-    val serviceName = configuration.get[Option[String]]("fusion.discovery.nacos.serviceName").getOrElse(name)
-    `X-Service`(serviceName)
-  }
-
-  private def writePidfile(): Unit = {
-    val config = system.settings.config
-    val maybePidfile =
-      if (config.hasPath(ConfigKeys.FUSION.PIDFILE)) Utils.option(config.getString(ConfigKeys.FUSION.PIDFILE)) else None
-
-    maybePidfile match {
-      case Some(pidfile) =>
-        try {
-          PidFile(Utils.getPid).create(Paths.get(pidfile), deleteOnExit = true)
-        } catch {
-          case NonFatal(e) =>
-            logger.error(s"将进程ID写入文件：$pidfile 失败", e)
-            System.exit(-1)
-        }
-      case _ =>
-        logger.warn(s"-D${ConfigKeys.FUSION.PIDFILE} 未设置，将不写入 .pid 文件。")
-    }
-
-  }
-
+  def spawnUserActor[REF](behavior: Behavior[REF], name: String): Future[ActorRef[REF]] =
+    spawnUserActor(behavior, name, Props.empty)
 }
 
-object FusionCore extends ExtensionId[FusionCore] with ExtensionIdProvider {
-  override def lookup(): ExtensionId[_ <: Extension] = FusionCore
-  override def createExtension(system: ExtendedActorSystem): FusionCore = new FusionCore(system)
+object FusionCore extends FusionExtensionId[FusionCore] {
+  override def createExtension(system: ActorSystem[_]): FusionCore = new FusionCoreImpl(system)
 }

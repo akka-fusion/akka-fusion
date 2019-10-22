@@ -79,7 +79,7 @@ class SeqCodec[ElementT](cqlType: DataType, elementCodec: TypeCodec[ElementT]) e
       idx = n
       idx = ParseUtils.skipSpaces(value, idx)
       if (value.charAt(idx) == ']') {
-        return list
+        return list.toSeq
       }
       if (value.charAt({ idx += 1; idx - 1 }) != ',')
         throw new IllegalArgumentException(

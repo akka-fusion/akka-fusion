@@ -20,37 +20,54 @@ import java.util.Objects
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicLong
 
-import akka.actor.ActorSystem
+import akka.actor.typed.ActorSystem
+import akka.actor.typed.scaladsl.Behaviors
 import com.typesafe.config.Config
 import fusion.common.constant.FusionConstants
+import fusion.core.FusionProtocol
+import fusion.protobuf.internal.ActorSystemUtils
 import helloscala.common.Configuration
 
 object FusionUtils {
-  private var _system: ActorSystem = _
+  private var _system: ActorSystem[_] = _
   private val _isSetupSystem = new AtomicBoolean(false)
   private val _traceIdGenerator = new AtomicLong(0)
 
   def generateTraceId(): Long = _traceIdGenerator.incrementAndGet()
 
-  def createFromDiscovery(): ActorSystem = createActorSystem(Configuration.fromDiscovery())
-  def createActorSystem(configuration: Configuration): ActorSystem = createActorSystem(configuration.underlying)
-  def createActorSystem(config: Config): ActorSystem = createActorSystem(getName(config), config)
-  def createActorSystem(name: String, config: Configuration): ActorSystem = createActorSystem(name, config.underlying)
-  def createActorSystem(name: String, config: Config): ActorSystem = ActorSystem(name, config)
+  def createFromDiscovery(): ActorSystem[FusionProtocol.Command] = createActorSystem(Configuration.fromDiscovery())
 
-  def actorSystem(): ActorSystem = {
+  def createActorSystem(configuration: Configuration): ActorSystem[FusionProtocol.Command] =
+    createActorSystem(configuration.underlying)
+
+  def createActorSystem(config: Config): ActorSystem[FusionProtocol.Command] =
+    createActorSystem(getName(config), config)
+
+  def createActorSystem(name: String, config: Configuration): ActorSystem[FusionProtocol.Command] =
+    createActorSystem(name, config.underlying)
+
+  def createActorSystem(name: String, config: Config): ActorSystem[FusionProtocol.Command] = {
+    val behavior = Behaviors.setup[FusionProtocol.Command] { ctx =>
+      FusionProtocol.behavior
+    }
+    ActorSystem(behavior, getName(config), config)
+  }
+
+  def actorSystem(): ActorSystem[_] = {
     if (_isSetupSystem.get()) Objects.requireNonNull(_system)
     else throw new NullPointerException("请调用 FusionCore(system) 设置全局 ActorSystem")
   }
 
-  private[core] def setupActorSystem(system: ActorSystem): Unit = {
+  private[core] def setupActorSystem(system: ActorSystem[_]): Unit = {
     if (_isSetupSystem.compareAndSet(false, true)) {
       _system = system
+      ActorSystemUtils.system = system
     } else {
       throw new IllegalStateException("setupActorSystem(system: ActorSystem) 函数只允许调用一次")
     }
   }
-  private def getName(config: Config): String =
-    if (config.hasPath("akka.name")) config.getString("akka.name") else config.getString(FusionConstants.NAME_PATH)
+
+  @inline def getName(config: Config): String =
+    if (config.hasPath(FusionConstants.NAME_PATH)) config.getString(FusionConstants.NAME_PATH) else FusionConstants.NAME
 
 }

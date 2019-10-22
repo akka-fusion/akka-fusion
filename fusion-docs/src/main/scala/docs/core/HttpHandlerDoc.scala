@@ -16,7 +16,7 @@
 
 package docs.core
 
-import akka.actor.ActorSystem
+import akka.{actor => classic}
 import akka.actor.ExtendedActorSystem
 import akka.http.scaladsl.model.HttpRequest
 import akka.http.scaladsl.model.HttpResponse
@@ -34,7 +34,7 @@ import scala.concurrent.Future
 import scala.concurrent.duration.Duration
 
 object HttpHandlerDoc {
-  private val system = ActorSystem().asInstanceOf[ExtendedActorSystem]
+  private val system = classic.ActorSystem().asInstanceOf[ExtendedActorSystem]
 
   // #applyHttpInterceptorChain
   trait HttpInterceptor {
@@ -83,6 +83,7 @@ object HttpHandlerDoc {
 
   // #TerminationHttpInterceptor
   class TerminationHttpInterceptor extends HttpInterceptor {
+
     override def filter(handler: HttpHandler): HttpHandler = { req =>
       //handler(req).flatMap(resp => Future.failed(HttpResponseException(resp)))
 //      handler(req).map(resp => throw HttpResponseException(resp))
@@ -95,6 +96,7 @@ object HttpHandlerDoc {
 
 // #NothingHttpInterceptor
 class NothingHttpInterceptor extends HttpInterceptor {
+
   override def interceptor(route: Route): Route = { ctx =>
     route(ctx)
   }
@@ -102,7 +104,7 @@ class NothingHttpInterceptor extends HttpInterceptor {
 // #NothingHttpInterceptor
 
 // #TraceHttpInterceptor
-class TraceHttpInterceptor(system: ActorSystem) extends HttpInterceptor {
+class TraceHttpInterceptor(system: classic.ActorSystem) extends HttpInterceptor {
   import system.dispatcher
 
   override def interceptor(route: Route): Route = { ctx =>

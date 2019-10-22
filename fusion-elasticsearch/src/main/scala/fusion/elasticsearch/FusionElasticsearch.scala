@@ -17,16 +17,14 @@
 package fusion.elasticsearch
 
 import akka.Done
-import akka.actor.ExtendedActorSystem
-import akka.actor.Extension
-import akka.actor.ExtensionId
-import akka.actor.ExtensionIdProvider
+import akka.actor.typed.ActorSystem
 import com.sksamuel.elastic4s.http.ElasticClient
 import com.sksamuel.elastic4s.http.ElasticProperties
 import com.sksamuel.elastic4s.http.HttpClient
 import fusion.core.component.Components
 import fusion.core.extension.FusionCore
 import fusion.core.extension.FusionExtension
+import fusion.core.extension.FusionExtensionId
 import helloscala.common.Configuration
 import org.apache.http.client.config.RequestConfig
 import org.apache.http.impl.nio.client.HttpAsyncClientBuilder
@@ -41,7 +39,7 @@ class FusionESClient(val underlying: ElasticClient, val config: Configuration) e
   override def close(): Unit = underlying.close()
 }
 
-class ElasticsearchComponents(system: ExtendedActorSystem)
+class ElasticsearchComponents(system: ActorSystem[_])
     extends Components[FusionESClient]("fusion.elasticsearch.default") {
   override def configuration: Configuration = FusionCore(system).configuration
 
@@ -78,18 +76,17 @@ class ElasticsearchComponents(system: ExtendedActorSystem)
     Future {
       c.close()
       Done
-    }(system.dispatcher)
+    }(system.executionContext)
 }
 
-class FusionElasticsearch private (override protected val _system: ExtendedActorSystem) extends FusionExtension {
-  val components = new ElasticsearchComponents(_system)
+class FusionElasticsearch private (override val system: ActorSystem[_]) extends FusionExtension {
+  val components = new ElasticsearchComponents(system)
   FusionCore(system).shutdowns.beforeActorSystemTerminate("StopFusionElasticsearch") { () =>
-    components.closeAsync()(system.dispatcher)
+    components.closeAsync()(system.executionContext)
   }
   def component: FusionESClient = components.component
 }
 
-object FusionElasticsearch extends ExtensionId[FusionElasticsearch] with ExtensionIdProvider {
-  override def createExtension(system: ExtendedActorSystem): FusionElasticsearch = new FusionElasticsearch(system)
-  override def lookup(): ExtensionId[_ <: Extension] = FusionElasticsearch
+object FusionElasticsearch extends FusionExtensionId[FusionElasticsearch] {
+  override def createExtension(system: ActorSystem[_]): FusionElasticsearch = new FusionElasticsearch(system)
 }

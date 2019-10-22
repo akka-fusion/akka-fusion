@@ -33,9 +33,10 @@ import helloscala.common.util.AsInt
 import helloscala.common.util.AsLong
 import helloscala.common.util.Utils
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 package object nacos {
+
   implicit final class NacosDiscoveryProperties(underlying: Properties) extends Properties with StrictLogging {
     import fusion.common.constant.PropKeys._
     underlying.forEach(new BiConsumer[AnyRef, AnyRef] {
@@ -72,7 +73,7 @@ package object nacos {
   }
 
   implicit final class ToDiscoveryList[T](v: ListView[T]) {
-    def toDiscoveryList: DiscoveryList[T] = DiscoveryList[T](v.getData.asScala, v.getCount)
+    def toDiscoveryList: DiscoveryList[T] = DiscoveryList[T](v.getData.asScala.toSeq, v.getCount)
   }
 
   implicit final class ToDiscoveryInstance(instance: Instance) {
@@ -119,7 +120,7 @@ package object nacos {
         v.getGroupName,
         v.getClusters,
         v.getCacheMillis,
-        v.getHosts.asScala.map(_.toDiscoveryInstance),
+        v.getHosts.asScala.map(_.toDiscoveryInstance).toSeq,
         v.getLastRefTime,
         v.getChecksum,
         v.isAllIPs)
@@ -129,7 +130,7 @@ package object nacos {
 
     def toDiscoveryEvent: DiscoveryEvent = v match {
       case evt: NamingEvent =>
-        DiscoveryNamingEvent(evt.getServiceName, evt.getInstances.asScala.map(_.toDiscoveryInstance))
+        DiscoveryNamingEvent(evt.getServiceName, evt.getInstances.asScala.map(_.toDiscoveryInstance).toSeq)
       case other => throw new IllegalArgumentException(s"Unknown Event: $other")
     }
   }

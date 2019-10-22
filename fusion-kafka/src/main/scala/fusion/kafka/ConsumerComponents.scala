@@ -17,7 +17,7 @@
 package fusion.kafka
 
 import akka.Done
-import akka.actor.ActorSystem
+import akka.actor.typed.ActorSystem
 import akka.kafka.ConsumerSettings
 import fusion.core.component.Components
 import helloscala.common.Configuration
@@ -26,7 +26,7 @@ import org.apache.kafka.common.serialization.StringDeserializer
 
 import scala.concurrent.Future
 
-final private[kafka] class ConsumerComponents(system: ActorSystem)
+final private[kafka] class ConsumerComponents(val system: ActorSystem[_])
     extends Components[ConsumerSettings[String, String]](s"${KafkaConstants.PATH_ROOT}.consumer") {
   override def configuration: Configuration = Configuration(system.settings.config)
 

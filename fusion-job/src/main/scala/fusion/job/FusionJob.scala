@@ -17,21 +17,18 @@
 package fusion.job
 
 import akka.actor.CoordinatedShutdown
-import akka.actor.ExtendedActorSystem
-import akka.actor.Extension
-import akka.actor.ExtensionId
-import akka.actor.ExtensionIdProvider
+import akka.actor.typed.ActorSystem
 import fusion.core.extension.FusionExtension
+import fusion.core.extension.FusionExtensionId
 
-class FusionJob private (protected val _system: ExtendedActorSystem) extends FusionExtension {
-  val components = new FusionJobComponents(_system)
-  CoordinatedShutdown(system).addTask(CoordinatedShutdown.PhaseServiceRequestsDone, "FusionJob") { () =>
-    components.closeAsync()(system.dispatcher)
+class FusionJob private (override val system: ActorSystem[_]) extends FusionExtension {
+  val components = new FusionJobComponents(system)
+  CoordinatedShutdown(classicSystem).addTask(CoordinatedShutdown.PhaseServiceRequestsDone, "FusionJob") { () =>
+    components.closeAsync()(system.executionContext)
   }
   def component: FusionScheduler = components.component
 }
 
-object FusionJob extends ExtensionId[FusionJob] with ExtensionIdProvider {
-  override def createExtension(system: ExtendedActorSystem): FusionJob = new FusionJob(system)
-  override def lookup(): ExtensionId[_ <: Extension] = FusionJob
+object FusionJob extends FusionExtensionId[FusionJob] {
+  override def createExtension(system: ActorSystem[_]): FusionJob = new FusionJob(system)
 }

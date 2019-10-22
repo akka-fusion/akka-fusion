@@ -18,11 +18,10 @@ package fusion.jdbc
 
 import java.time.OffsetDateTime
 
-import akka.actor.ActorSystem
+import akka.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
 import com.zaxxer.hikari.HikariDataSource
 import fusion.jdbc.util.JdbcUtils
 import fusion.test.FusionTestFunSuite
-import org.scalatest.BeforeAndAfterAll
 
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
@@ -42,8 +41,7 @@ class CFile {
 }
 
 // #JdbcTemplateTest
-class JdbcTemplateTest extends FusionTestFunSuite with BeforeAndAfterAll {
-  private val system = ActorSystem()
+class JdbcTemplateTest extends ScalaTestWithActorTestKit with FusionTestFunSuite {
   private def dataSource: HikariDataSource = FusionJdbc(system).component
   private def jdbcTemplate = JdbcTemplate(dataSource)
 

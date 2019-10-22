@@ -18,19 +18,21 @@ package helloscala.common.util
 
 import java.nio.file.Paths
 
-import akka.actor.ActorSystem
-import akka.stream.ActorMaterializer
+import akka.testkit.TestKit
+import akka.{actor => classic}
 import org.scalatest.BeforeAndAfterAll
-import org.scalatest.FunSuite
+import org.scalatest.FunSuiteLike
 import org.scalatest.MustMatchers
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
 
-class DigestUtilsTest extends FunSuite with BeforeAndAfterAll with MustMatchers {
+class DigestUtilsTest
+    extends TestKit(classic.ActorSystem())
+    with FunSuiteLike
+    with BeforeAndAfterAll
+    with MustMatchers {
 
-  implicit val system = ActorSystem()
-  implicit val mat = ActorMaterializer()
   import system.dispatcher
 
   val PROJECT_BASE = sys.props("user.dir")

@@ -35,6 +35,7 @@ object Timestamps {
   val NANOS_PER_MICROSECOND = 1000
 
   private val timestampFormat: ThreadLocal[SimpleDateFormat] = new ThreadLocal[SimpleDateFormat] {
+
     override def initialValue(): SimpleDateFormat = {
       val sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss")
       val calendar = new GregorianCalendar(TimeZone.getTimeZone("UTC"))

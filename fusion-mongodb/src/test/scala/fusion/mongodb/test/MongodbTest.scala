@@ -16,38 +16,32 @@
 
 package fusion.mongodb.test
 
-import akka.actor.ActorSystem
-import akka.stream.ActorMaterializer
-import akka.stream.alpakka.mongodb.scaladsl.MongoSource
+import akka.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
+import akka.actor.typed.scaladsl.adapter._
+import akka.stream.Materializer
 import akka.stream.scaladsl.Sink
 import akka.stream.scaladsl.Source
+import com.mongodb.ConnectionString
+import com.mongodb.MongoClientSettings
 import com.mongodb.client.model.Filters
 import com.mongodb.client.model.ReplaceOptions
 import com.mongodb.reactivestreams.client.MongoClients
 import com.mongodb.reactivestreams.client.MongoCollection
-import com.mongodb.ConnectionString
-import com.mongodb.MongoClientSettings
 import fusion.data.mongodb.MongoTemplate
-import fusion.test.FusionTestFunSuite
 import org.bson.Document
 import org.bson.types.ObjectId
-import org.scalatest.BeforeAndAfterAll
-import org.scalatest.time.Millis
-import org.scalatest.time.Span
+import org.mongodb.scala.bson.codecs.Macros._
+import org.scalatest.FunSuiteLike
 
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
-import org.mongodb.scala.bson.codecs.Macros._
 
 case class FileEntity(_id: String, fileName: String, size: Long, localPath: String, hash: String)
 
-class MongodbTest extends FusionTestFunSuite with BeforeAndAfterAll {
+class MongodbTest extends ScalaTestWithActorTestKit with FunSuiteLike {
 
-  implicit override def patienceConfig: PatienceConfig =
-    PatienceConfig(scaled(Span(10000, Millis)), scaled(Span(15, Millis)))
-
-  implicit val system = ActorSystem()
-  implicit val materializer = ActorMaterializer()
+  implicit val classicSystem = system.toClassic
+  implicit val materializer = Materializer(classicSystem)
 
   val mongoClientSettings = MongoClientSettings
     .builder()
@@ -80,8 +74,8 @@ class MongodbTest extends FusionTestFunSuite with BeforeAndAfterAll {
   }
 
   test("find") {
-    val docs = MongoSource[FileEntity](fileCollection.find()).runWith(Sink.seq).futureValue
-    docs must not be empty
+    val docs = Source.fromPublisher(fileCollection.find()).runWith(Sink.seq).futureValue
+    docs should not be empty
     docs.foreach(println)
   }
 

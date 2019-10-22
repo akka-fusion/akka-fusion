@@ -18,7 +18,8 @@ package fusion.discovery.client
 
 import java.util.concurrent.ConcurrentHashMap
 import scala.concurrent.duration._
-import akka.actor.ActorSystem
+import akka.{actor => classic}
+import akka.actor.typed.ActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.HttpRequest
 import akka.http.scaladsl.model.HttpResponse
@@ -60,15 +61,16 @@ final class DiscoveryHttpClientSetting(val c: Configuration) {
 }
 
 trait DiscoveryHttpClient extends HttpClient {
-  implicit val system: ActorSystem
+  implicit val classicSystem: classic.ActorSystem
   implicit protected def ec: ExecutionContext = materializer.executionContext
   val clientSetting: DiscoveryHttpClientSetting
   private val httpSourceQueueMap = new ConcurrentHashMap[(String, Int), HttpSourceQueue]()
+
   private val circuitBreaker = {
     if (clientSetting.circuit.enable) {
       Some(
         CircuitBreaker(
-          system.scheduler,
+          classicSystem.scheduler,
           clientSetting.circuit.maxFailures,
           clientSetting.circuit.callTimeout,
           clientSetting.circuit.resetTimeout))
@@ -146,10 +148,17 @@ trait DiscoveryHttpClient extends HttpClient {
 }
 
 object DiscoveryHttpClient {
+  import akka.actor.typed.scaladsl.adapter._
 
-  def apply(system: ActorSystem, clientSetting: DiscoveryHttpClientSetting): DiscoveryHttpClient =
+  def apply(system: ActorSystem[_], clientSetting: DiscoveryHttpClientSetting): DiscoveryHttpClient =
+    apply(system.toClassic, clientSetting)
+
+  def apply(system: ActorSystem[_]): DiscoveryHttpClient = apply(system.toClassic)
+
+  def apply(system: classic.ActorSystem): DiscoveryHttpClient =
+    apply(system, new DiscoveryHttpClientSetting(Configuration(ConfigFactory.parseString("{}"))))
+
+  def apply(system: classic.ActorSystem, clientSetting: DiscoveryHttpClientSetting): DiscoveryHttpClient =
     new AkkaDiscoveryHttpClient(clientSetting)(system)
 
-  def apply(system: ActorSystem): DiscoveryHttpClient =
-    apply(system, new DiscoveryHttpClientSetting(Configuration(ConfigFactory.parseString("{}"))))
 }

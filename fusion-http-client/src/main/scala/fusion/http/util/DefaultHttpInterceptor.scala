@@ -16,22 +16,22 @@
 
 package fusion.http.util
 
-import akka.actor.ExtendedActorSystem
+import akka.actor.typed.ActorSystem
 import akka.http.scaladsl.model.HttpRequest
 import akka.http.scaladsl.model.HttpResponse
 import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.server.RouteResult
+import com.typesafe.scalalogging.StrictLogging
 import fusion.common.constant.FusionConstants
 import fusion.core.extension.FusionCore
 import fusion.core.http.headers.`X-Request-Time`
-import fusion.core.http.headers.`X-Span-Time`
 import fusion.core.http.headers.`X-Service`
+import fusion.core.http.headers.`X-Span-Time`
 import fusion.http.interceptor.HttpInterceptor
 import helloscala.common.exception.HSInternalErrorException
-import com.typesafe.scalalogging.StrictLogging
 
-final class DefaultHttpInterceptor(system: ExtendedActorSystem) extends HttpInterceptor with StrictLogging {
-  import system.dispatcher
+final class DefaultHttpInterceptor(system: ActorSystem[_]) extends HttpInterceptor with StrictLogging {
+  import system.executionContext
   private val core = FusionCore(system)
 
   override def interceptor(inner: Route): Route = { ctx =>

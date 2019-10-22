@@ -31,6 +31,7 @@ import scala.reflect.runtime.universe._
  * JSON marshalling/unmarshalling using an in-scope Jackson's ObjectMapper
  */
 trait JacksonSupport {
+
   private def typeReference[T: TypeTag] = {
     val t = typeTag[T]
     val mirror = t.mirror

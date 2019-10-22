@@ -17,15 +17,14 @@
 package fusion.http.gateway.server
 
 import akka.Done
-import akka.actor.ActorSystem
-import akka.actor.ExtendedActorSystem
+import akka.actor.typed.ActorSystem
 import fusion.core.component.Components
 import fusion.core.extension.FusionCore
 import helloscala.common.Configuration
 
 import scala.concurrent.Future
 
-class HttpGatewayComponents(system: ExtendedActorSystem)
+class HttpGatewayComponents(system: ActorSystem[_])
     extends Components[HttpGatewayComponent]("fusion.http.default.gateway") {
   override def configuration: Configuration = FusionCore(system).configuration
 
@@ -33,7 +32,7 @@ class HttpGatewayComponents(system: ExtendedActorSystem)
     val comp = configuration.get[Option[String]](s"$id.class") match {
       case Some(fqcn) =>
         system.dynamicAccess
-          .createInstanceFor[HttpGatewayComponent](fqcn, List(classOf[String] -> id, classOf[ActorSystem] -> system))
+          .createInstanceFor[HttpGatewayComponent](fqcn, List(classOf[String] -> id, classOf[ActorSystem[_]] -> system))
           .getOrElse(throw new ExceptionInInitializerError(s"创建 HttpGatewayComponent 组件失败，fqdn: $fqcn"))
       case _ => new HttpGatewayComponent(id, system) {}
     }

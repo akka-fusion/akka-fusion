@@ -16,17 +16,14 @@
 
 package fusion.discovery.client
 
+import akka.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
 import akka.discovery.Discovery
-import akka.testkit.TestKit
-import fusion.core.util.FusionUtils
 import fusion.test.FusionTestFunSuite
-import helloscala.common.Configuration
+import akka.actor.typed.scaladsl.adapter._
 
-class DiscoveryHttpClientTest
-    extends TestKit(FusionUtils.createActorSystem(Configuration.fromDiscovery()))
-    with FusionTestFunSuite {
+class DiscoveryHttpClientTest extends ScalaTestWithActorTestKit with FusionTestFunSuite {
   test("http client") {
-    val discovery = Discovery(system).discovery
+    val discovery = Discovery(system.toClassic).discovery
     println(discovery)
   }
 

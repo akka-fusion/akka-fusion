@@ -18,19 +18,18 @@ package fusion.mail
 
 import java.util.concurrent.TimeUnit
 
-import akka.actor.ActorSystem
-import akka.testkit.TestKit
+import akka.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
 import fusion.test.FusionTestFunSuite
 import javax.mail.Message.RecipientType
 import org.scalatest.BeforeAndAfterAll
 
-class FusionMailTest extends TestKit(ActorSystem("mail-test")) with FusionTestFunSuite with BeforeAndAfterAll {
+class FusionMailTest extends ScalaTestWithActorTestKit with FusionTestFunSuite with BeforeAndAfterAll {
 
   test("init") {
     val mailHelper = FusionMail(system).components.lookup("fusion.mail.wangyi")
 
     val msg = mailHelper.createMimeMessage
-    msg.setFrom("devops@ihongka.cn")
+    msg.setFrom("devops@akka-fusion.com")
     msg.addRecipients(RecipientType.TO, "yang.xunjing@qq.com")
     msg.setSubject("测试邮件哈哈哈")
     msg.setText("测试邮件内容——羊八井")

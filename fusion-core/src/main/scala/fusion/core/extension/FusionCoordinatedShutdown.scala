@@ -16,15 +16,15 @@
 
 package fusion.core.extension
 
-import akka.Done
-import akka.actor.CoordinatedShutdown.UnknownReason
-import akka.actor.ActorSystem
 import akka.actor.Cancellable
 import akka.actor.CoordinatedShutdown
+import akka.actor.CoordinatedShutdown.UnknownReason
+import akka.Done
+import akka.{actor => classic}
 
 import scala.concurrent.Future
 
-class FusionCoordinatedShutdown(system: ActorSystem) {
+class FusionCoordinatedShutdown(system: classic.ActorSystem) {
   def run(): Future[Done] = CoordinatedShutdown(system).run(UnknownReason)
 
   def addJvmShutdownHook[T](hook: => T): Cancellable =

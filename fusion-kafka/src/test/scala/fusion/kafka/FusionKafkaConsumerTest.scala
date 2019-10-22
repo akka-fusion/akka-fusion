@@ -19,23 +19,24 @@ package fusion.kafka
 import java.time.LocalTime
 import java.util.concurrent.TimeUnit
 
-import akka.actor.ActorSystem
+import akka.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
+import akka.actor.typed.scaladsl.adapter._
 import akka.kafka.Subscriptions
 import akka.kafka.scaladsl.Consumer
 import akka.kafka.scaladsl.Consumer.DrainingControl
-import akka.stream.ActorMaterializer
+import akka.stream.Materializer
 import akka.stream.scaladsl.Keep
 import akka.stream.scaladsl.Sink
-import akka.testkit.TestKit
 import fusion.test.FusionTestFunSuite
 import org.apache.kafka.clients.producer.ProducerRecord
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
 
-class FusionKafkaConsumerTest extends TestKit(ActorSystem()) with FusionTestFunSuite {
-  import system.dispatcher
-  implicit private val mat = ActorMaterializer()
+class FusionKafkaConsumerTest extends ScalaTestWithActorTestKit with FusionTestFunSuite {
+  implicit private def ec = system.executionContext
+  implicit private val classicSystem = system.toClassic
+  implicit private val mat = Materializer(classicSystem)
 
   test("FusionKafkaConsumer") {
     val control = Consumer

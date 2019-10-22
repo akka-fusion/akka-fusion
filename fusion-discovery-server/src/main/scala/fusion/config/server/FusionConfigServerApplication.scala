@@ -16,12 +16,13 @@
 
 package fusion.config.server
 
-import akka.actor.ActorSystem
+import com.typesafe.config.ConfigFactory
 import fusion.config.server.controller.Routes
+import fusion.core.util.FusionUtils
 import fusion.http.FusionHttpServer
 
 object FusionConfigServerApplication extends App {
-  implicit val system = ActorSystem()
+  implicit val system = FusionUtils.createActorSystem(ConfigFactory.load())
   val route = new Routes().route
   FusionHttpServer(system).component.startRouteSync(route)
 }

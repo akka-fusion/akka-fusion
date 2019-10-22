@@ -80,8 +80,8 @@ trait AbstractRoute extends Directives with HttpDirectives with FileDirectives {
 
   def rawNotPathPrefixTest[L](pm: PathMatcher[L]): Directive0 = {
     extract(ctx => pm(ctx.unmatchedPath)).flatMap {
-      case Matched(v, values) ⇒ reject
-      case Unmatched ⇒ pass
+      case Matched(v, values) => reject
+      case Unmatched          => pass
     }
   }
 

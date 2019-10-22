@@ -16,13 +16,8 @@
 
 package fusion.cassandra
 
-import java.util.function.Supplier
-
 import akka.Done
-import akka.actor.ExtendedActorSystem
-import akka.actor.Extension
-import akka.actor.ExtensionId
-import akka.actor.ExtensionIdProvider
+import akka.actor.typed.ActorSystem
 import com.datastax.oss.driver.api.core.CqlSession
 import com.datastax.oss.driver.internal.core.config.typesafe.DefaultDriverConfigLoader
 import com.typesafe.config.Config
@@ -30,20 +25,19 @@ import com.typesafe.scalalogging.StrictLogging
 import fusion.core.component.Components
 import fusion.core.extension.FusionCore
 import fusion.core.extension.FusionExtension
+import fusion.core.extension.FusionExtensionId
 import helloscala.common.Configuration
 
 import scala.concurrent.Future
 
-class FusionComponents(system: ExtendedActorSystem)
+class CassandraComponents(system: ActorSystem[_])
     extends Components[CassandraSession]("fusion.data.cassandra.default")
     with StrictLogging {
   override def configuration: Configuration = Configuration(system.settings.config)
 
   override protected def createComponent(id: String): CassandraSession = {
     val c = loadConfig(id)
-    val configLoader = new DefaultDriverConfigLoader(new Supplier[Config] {
-      override def get(): Config = c
-    })
+    val configLoader = new DefaultDriverConfigLoader(() => c)
     val builder = CqlSession.builder()
     if (c.hasPath("keyspace")) {
       builder.withKeyspace(c.getString("keyspace"))
@@ -53,7 +47,7 @@ class FusionComponents(system: ExtendedActorSystem)
   }
 
   override protected def componentClose(c: CassandraSession): Future[Done] = {
-    import system.dispatcher
+    import system.executionContext
     c.closeAsync().map(_ => Done)
   }
 
@@ -67,16 +61,15 @@ class FusionComponents(system: ExtendedActorSystem)
   }
 }
 
-class FusionCassandra private (protected val _system: ExtendedActorSystem) extends FusionExtension {
-  val components = new FusionComponents(_system)
+class FusionCassandra private (override val system: ActorSystem[_]) extends FusionExtension {
+  val components = new CassandraComponents(system)
   FusionCore(system).shutdowns.beforeActorSystemTerminate("StopFusionCassandra") { () =>
-    components.closeAsync()(system.dispatcher)
+    components.closeAsync()(system.executionContext)
   }
 
   def component: CassandraSession = components.component
 }
 
-object FusionCassandra extends ExtensionId[FusionCassandra] with ExtensionIdProvider {
-  override def createExtension(system: ExtendedActorSystem): FusionCassandra = new FusionCassandra(system)
-  override def lookup(): ExtensionId[_ <: Extension] = FusionCassandra
+object FusionCassandra extends FusionExtensionId[FusionCassandra] {
+  override def createExtension(system: ActorSystem[_]): FusionCassandra = new FusionCassandra(system)
 }

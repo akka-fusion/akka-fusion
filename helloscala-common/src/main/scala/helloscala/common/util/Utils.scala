@@ -245,12 +245,12 @@ object Utils extends StrictLogging {
   def some[T](v: T): Option[T] = Option(v)
 
   def propertiesToMap(props: Properties): Map[String, String] = {
-    import scala.collection.JavaConverters._
+    import scala.jdk.CollectionConverters._
     props.stringPropertyNames().asScala.map(name => name -> props.getProperty(name)).toMap
   }
 
   def propertiesToMapObject(props: Properties): Map[String, Object] = {
-    import scala.collection.JavaConverters._
+    import scala.jdk.CollectionConverters._
     props.stringPropertyNames().asScala.map(name => name -> props.get(name)).toMap
   }
 

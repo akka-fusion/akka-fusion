@@ -20,13 +20,14 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeoutException
 
 import akka.Done
-import akka.actor.ActorSystem
+import akka.actor.typed.ActorSystem
+import akka.actor.typed.scaladsl.adapter._
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.server.PathMatchers
 import akka.http.scaladsl.server.RequestContext
 import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.settings.RoutingSettings
-import akka.stream.ActorMaterializer
+import akka.stream.Materializer
 import akka.stream.QueueOfferResult
 import com.typesafe.scalalogging.StrictLogging
 import fusion.http.HttpSourceQueue
@@ -42,11 +43,11 @@ import scala.concurrent.duration._
 import scala.util.Failure
 import scala.util.Success
 
-abstract class HttpGatewayComponent(id: String, system: ActorSystem) extends AbstractRoute with StrictLogging {
+abstract class HttpGatewayComponent(id: String, system: ActorSystem[_]) extends AbstractRoute with StrictLogging {
 
-  implicit protected def _system: ActorSystem = system
-  implicit protected val materializer: ActorMaterializer = ActorMaterializer()
-  import system.dispatcher
+  implicit protected def classicSystem = system.toClassic
+  implicit protected val materializer: Materializer = Materializer(classicSystem)
+  import system.executionContext
   protected val httpSourceQueueMap = new ConcurrentHashMap[(String, Int), HttpSourceQueue]()
   protected val gateway: GatewaySetting = GatewaySetting.fromActorSystem(system, id)
 
@@ -103,7 +104,7 @@ abstract class HttpGatewayComponent(id: String, system: ActorSystem) extends Abs
   }
 
   protected def proxyOnUpstream(req: HttpRequest, location: GatewayLocation): Future[HttpResponse] = {
-    import system.dispatcher
+    import system.executionContext
     try {
       val uri = location.proxyToUri(req.uri)
       val requestF = findRealRequest(req, location, uri)
@@ -195,7 +196,7 @@ abstract class HttpGatewayComponent(id: String, system: ActorSystem) extends Abs
 
   def closeAsync(): Future[Done] = {
     import akka.http.scaladsl.util.FastFuture._
-    import system.dispatcher
+    import system.executionContext
     var queues = List.empty[Future[Done]]
     httpSourceQueueMap.forEachValue(4, queue => {
       queue.complete()

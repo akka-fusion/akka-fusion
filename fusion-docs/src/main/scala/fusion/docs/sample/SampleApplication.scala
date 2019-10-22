@@ -16,8 +16,9 @@
 
 package fusion.docs.sample
 
-import akka.actor.ActorSystem
+import akka.actor.typed.ActorSystem
 import akka.http.scaladsl.server.Route
+import akka.{actor => classic}
 import fusion.http.FusionHttpServer
 import fusion.http.server.AbstractRoute
 
@@ -28,8 +29,9 @@ import scala.concurrent.Future
 object SampleApplication {
 
   def main(args: Array[String]): Unit = {
-    implicit val system = ActorSystem()
-    implicit val ec = system.dispatcher
+    implicit val classicSystem = classic.ActorSystem()
+    val system = ActorSystem.wrap(classicSystem)
+    implicit val ec = system.executionContext
     val sampleService = new SampleService()
     val routes = new SampleRoute(sampleService)
     FusionHttpServer(system).component.startRouteSync(routes.route)
@@ -38,8 +40,10 @@ object SampleApplication {
 
 // Controller
 class SampleRoute(sampleService: SampleService) extends AbstractRoute {
+
   override def route: Route = pathGet("hello") {
-    parameters(('hello, 'year.as[Int].?(2019))).as(SampleReq) { req =>
+    val pdm = (Symbol("hello"), Symbol("year").as[Int].?(2019))
+    parameters(pdm).as(SampleReq) { req =>
       futureComplete(sampleService.hello(req))
     }
   }

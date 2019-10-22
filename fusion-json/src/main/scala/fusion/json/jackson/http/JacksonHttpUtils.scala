@@ -28,7 +28,7 @@ import helloscala.common.IntStatus
 import helloscala.common.exception.HSException
 import helloscala.common.exception.HSHttpStatusException
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import scala.reflect.ClassTag

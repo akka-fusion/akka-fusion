@@ -16,8 +16,8 @@
 
 package fusion.core.setting
 
-import akka.actor.ActorSystem
 import akka.pattern.CircuitBreaker
+import akka.{actor => classic}
 import com.typesafe.config.ConfigFactory
 import helloscala.common.Configuration
 
@@ -37,7 +37,7 @@ object CircuitBreakerSetting {
   def apply(configuration: Configuration, prefix: String): CircuitBreakerSetting =
     apply(configuration.getOrElse(prefix, Configuration(ConfigFactory.parseString("{}"))))
 
-  def getCircuitBreaker(system: ActorSystem, prefix: String): Option[CircuitBreaker] = {
+  def getCircuitBreaker(system: classic.ActorSystem, prefix: String): Option[CircuitBreaker] = {
     val configuration = Configuration(system.settings.config)
     val deftCircuitBreakerConf = configuration.getConfiguration("fusion.default.circuit-breaker")
     val c = configuration.getOrElse(prefix, Configuration(ConfigFactory.parseString("{}")))

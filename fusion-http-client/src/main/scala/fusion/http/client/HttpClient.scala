@@ -16,16 +16,16 @@
 
 package fusion.http.client
 
-import akka.actor.ActorSystem
 import akka.http.scaladsl.model.HttpRequest
 import akka.http.scaladsl.model.HttpResponse
-import akka.stream.ActorMaterializer
+import akka.stream.Materializer
+import akka.{actor => classic}
 
 import scala.concurrent.Future
 
 trait HttpClient extends AutoCloseable {
-  implicit def system: ActorSystem
-  implicit def materializer: ActorMaterializer = ActorMaterializer()
+  implicit def classicSystem: classic.ActorSystem
+  implicit def materializer: Materializer = Materializer(classicSystem)
   def singleRequest(req: HttpRequest): Future[HttpResponse]
 
   def request(req: HttpRequest): Future[HttpResponse] = {

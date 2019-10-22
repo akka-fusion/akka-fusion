@@ -18,8 +18,7 @@ package fusion.mybatis
 
 import java.util.function.Consumer
 
-import akka.actor.ActorSystem
-import akka.testkit.TestKit
+import akka.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
 import com.baomidou.mybatisplus.core.metadata.IPage
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page
 import fusion.mybatis.mapper.FileMapper
@@ -27,16 +26,16 @@ import fusion.mybatis.model.CFile
 import fusion.test.FusionTestFunSuite
 
 // #FusionMybatisTest
-class FusionMybatisTest extends TestKit(ActorSystem("fusion-mybatis")) with FusionTestFunSuite {
+class FusionMybatisTest extends ScalaTestWithActorTestKit with FusionTestFunSuite {
 
   test("testSqlSession") {
     val sqlSessionFactory = FusionMybatis(system).component
-    sqlSessionFactory must not be null
+    sqlSessionFactory should not be null
 
     // auto commit is false
     val session = sqlSessionFactory.openSession()
     try {
-      session must not be null
+      session should not be null
     } finally {
       session.close()
     }
@@ -63,7 +62,7 @@ class FusionMybatisTest extends TestKit(ActorSystem("fusion-mybatis")) with Fusi
       list.forEach(new Consumer[CFile] {
         override def accept(t: CFile): Unit = println(t)
       })
-      list must not be empty
+      list should not be empty
     }
   }
 
@@ -78,7 +77,7 @@ class FusionMybatisTest extends TestKit(ActorSystem("fusion-mybatis")) with Fusi
       val req = new Page[CFile](0, 10)
       fileMapper.selectPage(req, null)
     }
-    result.getRecords must not be empty
+    result.getRecords should not be empty
     result.getRecords.forEach(new Consumer[CFile] {
       override def accept(t: CFile): Unit = println(t)
     })

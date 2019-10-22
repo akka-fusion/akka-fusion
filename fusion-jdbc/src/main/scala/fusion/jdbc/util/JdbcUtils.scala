@@ -292,6 +292,7 @@ object JdbcUtils extends StrictLogging {
 
   def preparedStatementActionUseUpdate(args: Iterable[Any]): PreparedStatementAction[Int] =
     new PreparedStatementActionImpl(args, new PreparedStatementAction[Int] {
+
       override def apply(pstmt: PreparedStatement): Int = {
         setStatementParameters(pstmt, args)
         pstmt.executeUpdate()
@@ -302,6 +303,7 @@ object JdbcUtils extends StrictLogging {
       args: Map[String, Any],
       paramIndex: Map[String, Int]): PreparedStatementAction[Int] =
     new PreparedStatementActionImpl(args, new PreparedStatementAction[Int] {
+
       override def apply(pstmt: PreparedStatement): Int = {
         for ((param, index) <- paramIndex) {
           setParameter(pstmt, index, args(param))
@@ -313,6 +315,7 @@ object JdbcUtils extends StrictLogging {
   def preparedStatementActionUseBatchUpdate(
       argsList: Iterable[Iterable[Any]]): PreparedStatementAction[scala.Array[Int]] =
     new PreparedStatementActionImpl(argsList, new PreparedStatementAction[scala.Array[Int]] {
+
       override def apply(pstmt: PreparedStatement): scala.Array[Int] = {
         for (args <- argsList) {
           setStatementParameters(pstmt, args)
@@ -326,6 +329,7 @@ object JdbcUtils extends StrictLogging {
       argsList: Iterable[Map[String, Any]],
       paramIndex: Map[String, Int]): PreparedStatementAction[scala.Array[Int]] =
     new PreparedStatementActionImpl(argsList, new PreparedStatementAction[scala.Array[Int]] {
+
       override def apply(pstmt: PreparedStatement): scala.Array[Int] = {
         for (args <- argsList) {
           for ((param, index) <- paramIndex) {

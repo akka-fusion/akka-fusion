@@ -16,20 +16,17 @@
 
 package fusion.http
 
-import java.util.concurrent.TimeUnit
-
-import akka.actor.ActorSystem
+import akka.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
+import akka.actor.typed.scaladsl.adapter._
 import akka.http.scaladsl.model.HttpRequest
 import akka.http.scaladsl.model.Uri
 import akka.http.scaladsl.server.Directives._
-import akka.stream.ActorMaterializer
-import akka.testkit.TestKit
 import fusion.http.util.HttpUtils
 import fusion.test.FusionTestFunSuite
-import org.scalatest.BeforeAndAfterAll
 
-class HttpServerTest extends TestKit(ActorSystem()) with FusionTestFunSuite with BeforeAndAfterAll {
-  implicit private val mat = ActorMaterializer()
+class HttpServerTest extends ScalaTestWithActorTestKit with FusionTestFunSuite {
+  implicit private val classicSystem = system.toClassic
+
   private val route = path("hello") {
       complete("hello")
     } ~
@@ -52,10 +49,6 @@ class HttpServerTest extends TestKit(ActorSystem()) with FusionTestFunSuite with
   override protected def beforeAll(): Unit = {
     super.beforeAll()
     FusionHttpServer(system).component.startRouteSync(route)
-  }
-
-  override protected def afterAll(): Unit = {
-    super.afterAll()
   }
 
 }

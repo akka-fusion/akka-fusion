@@ -16,13 +16,11 @@
 
 package fusion.core.extension
 
-import akka.actor.ActorSystem
+import akka.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
 import org.scalatest.BeforeAndAfterAll
-import org.scalatest.FunSuite
-import org.scalatest.MustMatchers
+import org.scalatest.FunSuiteLike
 
-class FusionCoreTest extends FunSuite with MustMatchers with BeforeAndAfterAll {
-  val system = ActorSystem()
+class FusionCoreTest extends ScalaTestWithActorTestKit with FunSuiteLike with BeforeAndAfterAll {
   test("core") {
     val core = FusionCore(system)
     println(core.configuration)

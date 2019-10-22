@@ -18,9 +18,10 @@ package fusion.docs.example
 
 import java.util.concurrent.TimeUnit
 
-import akka.Done
-import akka.actor.ActorSystem
 import akka.actor.CoordinatedShutdown
+import akka.testkit.TestKit
+import akka.Done
+import akka.{actor => classic}
 import com.typesafe.scalalogging.StrictLogging
 import fusion.test.FusionTestFunSuite
 import org.scalatest.BeforeAndAfterAll
@@ -29,8 +30,11 @@ import scala.concurrent.Await
 import scala.concurrent.Future
 import scala.concurrent.duration.Duration
 
-class TerminateTest extends FusionTestFunSuite with BeforeAndAfterAll with StrictLogging {
-  private val system = ActorSystem()
+class TerminateTest
+    extends TestKit(classic.ActorSystem())
+    with FusionTestFunSuite
+    with BeforeAndAfterAll
+    with StrictLogging {
   import system.dispatcher
 
   test("init") {

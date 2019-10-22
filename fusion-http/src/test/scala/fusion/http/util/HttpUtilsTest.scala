@@ -18,14 +18,16 @@ package fusion.http.util
 
 import java.util.concurrent.ConcurrentHashMap
 
-import akka.actor.ActorSystem
+import akka.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
+import akka.actor.typed.scaladsl.adapter._
 import akka.http.scaladsl.model.Uri.Authority
-import akka.stream.ActorMaterializer
-import akka.testkit.TestKit
+import akka.stream.Materializer
 import fusion.http.HttpSourceQueue
 import fusion.test.FusionTestFunSuite
 
-class HttpUtilsTest extends TestKit(ActorSystem()) with FusionTestFunSuite {
+class HttpUtilsTest extends ScalaTestWithActorTestKit with FusionTestFunSuite {
+  implicit private def classicSystem = system.toClassic
+
   test("authority") {
     val a = Authority.parse("hongka-server-account")
     println(a)
@@ -34,12 +36,12 @@ class HttpUtilsTest extends TestKit(ActorSystem()) with FusionTestFunSuite {
   }
 
   test("testForExtension") {
-    HttpUtils.customMediaTypes must not be empty
-    HttpUtils.customMediaTypes.map(_._2.binary) must contain(true)
+    HttpUtils.customMediaTypes should not be empty
+    HttpUtils.customMediaTypes.map(_._2.binary) should contain(true)
   }
 
   test("copyUri") {
-    implicit val mat = ActorMaterializer()
+    implicit val mat = Materializer(classicSystem)
     val httpSourceQueueMap = new ConcurrentHashMap[Authority, HttpSourceQueue]()
     httpSourceQueueMap.computeIfAbsent(Authority.parse("10.0.0.9:8888"), _ => {
       val q = HttpUtils.cachedHostConnectionPool("10.0.0.9", 8888, 512)

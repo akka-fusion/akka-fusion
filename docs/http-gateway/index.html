@@ -90,7 +90,7 @@ Type to start searching
 </div>
 <div class="md-flex__cell md-flex__cell--shrink">
 <div class="md-header-nav__source">
-<a href="https://github.com/ihongka/akka-fusion"
+<a href="https://github.com/akka-fusion/akka-fusion"
 title="Go to repository"
 class="md-source"
 data-md-source="github">
@@ -98,7 +98,7 @@ data-md-source="github">
 <i class="fa fa-github"></i>
 </div>
 <div class="md-source__repository">
-ihongka/akka-fusion
+akka-fusion/akka-fusion
 </div>
 </a>
 
@@ -125,7 +125,7 @@ Akka Fusion
 </a>
 </label>
 <div class="md-nav__source">
-<a href="https://github.com/ihongka/akka-fusion"
+<a href="https://github.com/akka-fusion/akka-fusion"
 title="Go to repository"
 class="md-source"
 data-md-source="github">
@@ -133,7 +133,7 @@ data-md-source="github">
 <i class="fa fa-github"></i>
 </div>
 <div class="md-source__repository">
-ihongka/akka-fusion
+akka-fusion/akka-fusion
 </div>
 </a>
 
@@ -263,7 +263,7 @@ locations {
     # 代理转发地址，未设置同 /api/v4/account
     proxy-to = &quot;/api/v4/account&quot;
   }
-  &quot;/file/ihongka_files&quot; {
+  &quot;/file/akka-fusion_files&quot; {
     upstream = file-app
     routing-settings {
       # 设置上传文件不限制大小
@@ -285,16 +285,16 @@ locations {
 <p><strong>自定义HTTP网关代理组件</strong></p>
 <pre class="prettyprint"><code class="language-scala">package fusion.docs.gateway
 
-final class CustomHttpGatewayComponent(id: String, system: ActorSystem) 
-    extends HttpGatewayComponent 
+final class CustomHttpGatewayComponent(id: String, system: ActorSystem)
+    extends HttpGatewayComponent
     with SessionDirectives {
   private val aggregate = BackendAggregate(system)
 
   override def route: Route = {
     validationSession(aggregate.sessionComponent) {                        // 校验session
-      logging(aggregate.sessionComponent, 
+      logging(aggregate.sessionComponent,
           logMsg =&gt; aggregate.kafkaMessageService.processLogMsg(logMsg)) { // 记录日志
-        super.route  
+        super.route
       }
     }
   }
@@ -356,7 +356,7 @@ and
 
 </div>
 <div class="md-footer-social">
-<a href="http://ihongka.github.io/akka-fusion/" class="md-footer-social__link fa fa-globe"></a><a href="https://github.com/ihongka" class="md-footer-social__link fa fa-github"></a><a href="https://weibo.com/yangbajing" class="md-footer-social__link fa fa-globe"></a>
+<a href="http://akka-fusion.github.io/akka-fusion/" class="md-footer-social__link fa fa-globe"></a><a href="https://github.com/akka-fusion" class="md-footer-social__link fa fa-github"></a><a href="https://weibo.com/yangbajing" class="md-footer-social__link fa fa-globe"></a>
 </div>
 
 </div>

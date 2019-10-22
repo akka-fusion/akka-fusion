@@ -4,7 +4,7 @@ Akka Fusion可以轻松创建独立的，生产级的基于Akka的应用程序�
 
 大多数Akka Fusion应用程序只需要很少的 @ref[配置](configuration/index.md)。
 
-官网：[https://ihongka.github.io/akka-fusion/](https://ihongka.github.io/akka-fusion/)。
+官网：[https://akka-fusion.github.io/akka-fusion/](https://akka-fusion.github.io/akka-fusion/)。
 
 Akka Fusion以Akka工具库为基础，为用户提供开箱及用的微服务、云应用框架。Akka Fusion集成了Scala/Akka社区各种优秀的开源组件，
 让你可以快速开始你的微服务开发，就像Spring Boot、Spring Cloud一样。但Akka Fusion更加强大、易用、安全，

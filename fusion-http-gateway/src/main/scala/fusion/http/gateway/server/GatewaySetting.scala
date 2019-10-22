@@ -18,7 +18,7 @@ package fusion.http.gateway.server
 
 import java.util.concurrent.atomic.AtomicInteger
 
-import akka.actor.ActorSystem
+import akka.actor.typed.ActorSystem
 import akka.discovery.Discovery
 import akka.discovery.ServiceDiscovery
 import akka.discovery.ServiceDiscovery.ResolvedTarget
@@ -76,13 +76,15 @@ final case class GatewayLocation(
   }
 }
 
-final class GatewaySetting(system: ActorSystem, prefix: String) {
+final class GatewaySetting(system: ActorSystem[_], prefix: String) {
+  import akka.actor.typed.scaladsl.adapter._
 
   private val configuration = FusionCore(system).configuration
   private var _upstreams: immutable.Seq[GatewayUpstream] = _
   private var _locations: immutable.Seq[GatewayLocation] = _
   private var _defaultTimeout: FiniteDuration = _
   private val c = configuration.getConfiguration(prefix)
+  private val classicSystem = system.toClassic
 
   init()
 
@@ -90,6 +92,7 @@ final class GatewaySetting(system: ActorSystem, prefix: String) {
   def upstreams: immutable.Seq[GatewayUpstream] = _upstreams
   def locations: immutable.Seq[GatewayLocation] = _locations
   def defaultTimeout: FiniteDuration = _defaultTimeout
+
   private def init(): Unit = {
     val upstreamsConfig = c.getConfiguration("upstreams")
     _defaultTimeout = c.get[FiniteDuration]("timeout")
@@ -101,7 +104,7 @@ final class GatewaySetting(system: ActorSystem, prefix: String) {
       if (circuitBreakerSetting.enable)
         Some(
           CircuitBreaker(
-            system.scheduler,
+            system.toClassic.scheduler,
             circuitBreakerSetting.maxFailures,
             circuitBreakerSetting.callTimeout,
             circuitBreakerSetting.resetTimeout))
@@ -115,8 +118,8 @@ final class GatewaySetting(system: ActorSystem, prefix: String) {
       val discovery = upstreamsConfig
         .get[Option[String]](s"$upstreamName.discovery-method")
         .orElse(upstreamsConfig.get[Option[String]](s"$upstreamName.discoveryMethod"))
-        .map(method => Discovery(system).loadServiceDiscovery(method))
-        .orElse(serviceName.map(_ => Discovery(system).discovery))
+        .map(method => Discovery(classicSystem).loadServiceDiscovery(method))
+        .orElse(serviceName.map(_ => Discovery(classicSystem).discovery))
       val targets = upstreamsConfig.getOrElse[Seq[String]](s"$upstreamName.targets", Nil).map(toResolvedTarget).toVector
       GatewayUpstream(upstreamName, serviceName, discovery, targets)
     }.toVector
@@ -140,7 +143,7 @@ final class GatewaySetting(system: ActorSystem, prefix: String) {
       val proxyTo = c.get[Option[String]]("proxy-to")
 
       val circuitBreaker = defaultCircuitBreaker.orElse(
-        CircuitBreakerSetting.getCircuitBreaker(system, s"$prefix.locations.$locationName.circuit-breaker"))
+        CircuitBreakerSetting.getCircuitBreaker(classicSystem, s"$prefix.locations.$locationName.circuit-breaker"))
 
       val notProxyHeaders = c.getOrElse("not-proxy-headers", Seq[String]()).toSet
       val routingSettings =
@@ -181,6 +184,6 @@ final class GatewaySetting(system: ActorSystem, prefix: String) {
 
 object GatewaySetting {
 
-  def fromActorSystem(system: ActorSystem, prefix: String): GatewaySetting = new GatewaySetting(system, prefix)
+  def fromActorSystem(system: ActorSystem[_], prefix: String): GatewaySetting = new GatewaySetting(system, prefix)
 
 }

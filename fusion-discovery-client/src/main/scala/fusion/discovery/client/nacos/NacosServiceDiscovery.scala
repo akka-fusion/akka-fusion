@@ -16,22 +16,22 @@
 
 package fusion.discovery.client.nacos
 
-import akka.actor.ExtendedActorSystem
-import akka.discovery.ServiceDiscovery.Resolved
-import akka.discovery.ServiceDiscovery.ResolvedTarget
+import akka.actor.typed.ActorSystem
 import akka.discovery.Lookup
 import akka.discovery.ServiceDiscovery
+import akka.discovery.ServiceDiscovery.Resolved
+import akka.discovery.ServiceDiscovery.ResolvedTarget
 import com.typesafe.scalalogging.StrictLogging
 import fusion.core.extension.FusionCore
 import helloscala.common.exception.HSBadGatewayException
 
-import scala.concurrent.duration.FiniteDuration
 import scala.concurrent.Future
 import scala.concurrent.Promise
+import scala.concurrent.duration.FiniteDuration
 import scala.util.Success
 
-class NacosServiceDiscovery(system: ExtendedActorSystem) extends ServiceDiscovery with StrictLogging {
-  import system.dispatcher
+class NacosServiceDiscovery(system: ActorSystem[_]) extends ServiceDiscovery with StrictLogging {
+  import system.executionContext
   private val namingService = FusionNacos(system).component.namingService
   private val c = FusionCore(system).configuration.getConfiguration("akka.discovery.nacos")
   private def oneHealth = c.getBoolean("one-health")
@@ -57,9 +57,9 @@ class NacosServiceDiscovery(system: ExtendedActorSystem) extends ServiceDiscover
       resolveTimeout: FiniteDuration,
       f: Future[Resolved]): Future[Resolved] = {
     val promise = Promise[Resolved]()
-    val cancellable = system.scheduler.scheduleOnce(resolveTimeout) {
-      promise.failure(HSBadGatewayException(s"${lookup.serviceName} resolve timeout，$resolveTimeout"))
-    }
+    val cancellable = system.scheduler.scheduleOnce(
+      resolveTimeout,
+      () => promise.failure(HSBadGatewayException(s"${lookup.serviceName} resolve timeout，$resolveTimeout")))
     Future.firstCompletedOf(List(f, promise.future)).andThen {
       case Success(_) if !cancellable.isCancelled => cancellable.cancel()
     }

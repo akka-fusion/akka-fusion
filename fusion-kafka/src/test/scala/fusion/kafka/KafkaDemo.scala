@@ -16,35 +16,36 @@
 
 package fusion.kafka
 
-import akka.actor.ActorSystem
+import akka.actor.typed.scaladsl.adapter._
 import akka.kafka.ProducerMessage
 import akka.kafka.Subscriptions
 import akka.kafka.scaladsl.Consumer
 import akka.kafka.scaladsl.Producer
-import akka.stream.ActorMaterializer
+import akka.stream.Materializer
 import akka.stream.OverflowStrategy
 import akka.stream.scaladsl.Keep
 import akka.stream.scaladsl.Sink
 import akka.stream.scaladsl.Source
+import akka.{actor => classic}
 
 import scala.concurrent.Await
-import scala.io.StdIn
 import scala.concurrent.duration._
+import scala.io.StdIn
 
 object KafkaDemo extends App {
-  implicit val system = ActorSystem()
-  implicit val mat = ActorMaterializer()
+  implicit val system = classic.ActorSystem()
+  implicit val mat = Materializer(system)
   import system.dispatcher
 
   val (producerQueue, _) = Source
     .queue[String](128, OverflowStrategy.dropNew)
     .map(str => ProducerMessage.single(KafkaUtils.stringProduceRecord("test", str)))
-    .via(Producer.flexiFlow(FusionKafkaProducer(system).producer))
+    .via(Producer.flexiFlow(FusionKafkaProducer(system.toTyped).producer))
     .toMat(Sink.foreach(result => println(result)))(Keep.both)
     .run()
 
   val (consumerControl, _) = Consumer
-    .plainSource(FusionKafkaConsumer(system).consumer, Subscriptions.topics("test"))
+    .plainSource(FusionKafkaConsumer(system.toTyped).consumer, Subscriptions.topics("test"))
     .toMat(Sink.foreach(record => println(record)))(Keep.both)
     .run()
 

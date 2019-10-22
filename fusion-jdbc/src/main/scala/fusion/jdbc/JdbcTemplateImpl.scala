@@ -28,7 +28,7 @@ import helloscala.common.util.Utils
 import org.slf4j.LoggerFactory
 
 import scala.annotation.varargs
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.collection.mutable
 import scala.util.control.NonFatal
 
@@ -90,6 +90,7 @@ private[jdbc] class JdbcTemplateImpl(
       connection,
       JdbcUtils.preparedStatementCreator(sql),
       JdbcUtils.preparedStatementAction(args, new PreparedStatementAction[Long] {
+
         override def apply(pstmt: PreparedStatement): Long = {
           JdbcUtils.setStatementParameters(pstmt, args)
           val rs = pstmt.executeQuery()
@@ -108,6 +109,7 @@ private[jdbc] class JdbcTemplateImpl(
       connection,
       JdbcUtils.preparedStatementCreator(sql),
       JdbcUtils.preparedStatementAction(args, new PreparedStatementAction[List[R]] {
+
         override def apply(stmt: PreparedStatement): List[R] = {
           JdbcUtils.setStatementParameters(stmt, args)
           val rs = stmt.executeQuery()
@@ -130,6 +132,7 @@ private[jdbc] class JdbcTemplateImpl(
       connection,
       JdbcUtils.preparedStatementCreator(sql),
       JdbcUtils.preparedStatementAction(args, new PreparedStatementAction[Option[R]] {
+
         override def apply(stmt: PreparedStatement): Option[R] = {
           JdbcUtils.setStatementParameters(stmt, args)
           val rs = stmt.executeQuery()

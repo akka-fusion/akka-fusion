@@ -31,6 +31,7 @@ import scala.concurrent.Await
 import scala.concurrent.duration._
 
 class FusionManagementRoutes(system: ExtendedActorSystem) extends ManagementRouteProvider {
+
   override def routes(settings: ManagementRouteProviderSettings): Route = pathPrefix("fusion") {
     shutdownRoute ~
     healthRoute

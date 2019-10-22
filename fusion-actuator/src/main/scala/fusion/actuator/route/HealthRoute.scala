@@ -25,15 +25,15 @@ import fusion.core.model.HealthComponent
 import fusion.json.jackson.http.JacksonHttpUtils
 import helloscala.common.util.Utils
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 final class HealthRoute(val system: ExtendedActorSystem) extends ActuatorRoute with StrictLogging {
   override val name = "health"
 
-  private val healths = system.settings.config
+  private val healths: Map[String, HealthComponent] = system.settings.config
     .getStringList("fusion.actuator.health.components")
-    .iterator()
     .asScala
+    .view
     .flatMap { fqcn =>
       Utils.try2option(
         system.dynamicAccess.getObjectFor[HealthComponent](fqcn),
@@ -44,7 +44,7 @@ final class HealthRoute(val system: ExtendedActorSystem) extends ActuatorRoute w
 
   def route: Route =
     pathEndOrSingleSlash {
-      complete(JacksonHttpUtils.httpEntity(Health.up(healths.mapValues(_.health))))
+      complete(JacksonHttpUtils.httpEntity(Health.up(healths.map { case (k, v) => k -> v.health }.toMap)))
     } ~
     pathPrefix(Segment) { comp =>
       pathEndOrSingleSlash {

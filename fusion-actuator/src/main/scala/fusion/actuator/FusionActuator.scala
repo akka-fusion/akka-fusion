@@ -16,25 +16,20 @@
 
 package fusion.actuator
 
-import akka.actor.ExtendedActorSystem
-import akka.actor.Extension
-import akka.actor.ExtensionId
-import akka.actor.ExtensionIdProvider
+import akka.actor.typed.ActorSystem
 import akka.http.scaladsl.server.Route
 import com.typesafe.scalalogging.StrictLogging
 import fusion.actuator.route.FusionActuatorRoute
 import fusion.actuator.setting.ActuatorSetting
 import fusion.core.extension.FusionExtension
+import fusion.core.extension.FusionExtensionId
 import helloscala.common.Configuration
 
-final class FusionActuator private (override protected val _system: ExtendedActorSystem)
-    extends FusionExtension
-    with StrictLogging {
+final class FusionActuator private (override val system: ActorSystem[_]) extends FusionExtension with StrictLogging {
   val actuatorSetting = ActuatorSetting(Configuration(system.settings.config))
-  def route: Route = new FusionActuatorRoute(_system, actuatorSetting).route
+  def route: Route = new FusionActuatorRoute(system, actuatorSetting).route
 }
 
-object FusionActuator extends ExtensionId[FusionActuator] with ExtensionIdProvider {
-  override def createExtension(system: ExtendedActorSystem): FusionActuator = new FusionActuator(system)
-  override def lookup(): ExtensionId[_ <: Extension] = FusionActuator
+object FusionActuator extends FusionExtensionId[FusionActuator] {
+  override def createExtension(system: ActorSystem[_]): FusionActuator = new FusionActuator(system)
 }

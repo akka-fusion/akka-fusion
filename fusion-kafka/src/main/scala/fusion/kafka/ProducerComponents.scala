@@ -17,7 +17,7 @@
 package fusion.kafka
 
 import akka.Done
-import akka.actor.ActorSystem
+import akka.actor.typed.ActorSystem
 import akka.kafka.ProducerSettings
 import fusion.core.component.Components
 import helloscala.common.Configuration
@@ -25,7 +25,7 @@ import org.apache.kafka.common.serialization.StringSerializer
 
 import scala.concurrent.Future
 
-final private[kafka] class ProducerComponents(system: ActorSystem)
+final private[kafka] class ProducerComponents(system: ActorSystem[_])
     extends Components[ProducerSettings[String, String]](s"${KafkaConstants.PATH_ROOT}.producer") {
   override def configuration: Configuration = Configuration(system.settings.config)
 

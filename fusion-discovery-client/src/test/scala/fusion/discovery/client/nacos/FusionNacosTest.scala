@@ -19,18 +19,20 @@ package fusion.discovery.client.nacos
 import java.util.Properties
 import java.util.concurrent.TimeUnit
 
-import akka.actor.ActorSystem
+import akka.{actor => classic}
+import akka.actor.typed.scaladsl.adapter._
 import com.alibaba.nacos.api.NacosFactory
 import fusion.common.constant.PropKeys
 import fusion.discovery.DiscoveryUtils
 import fusion.test.FusionTestFunSuite
 import helloscala.common.Configuration
 import org.scalatest.BeforeAndAfterAll
+import org.scalatest.Matchers
 
 import scala.language.existentials
 
-class FusionNacosTest extends FusionTestFunSuite with BeforeAndAfterAll {
-  private var system: ActorSystem = _
+class FusionNacosTest extends FusionTestFunSuite with Matchers with BeforeAndAfterAll {
+  private var system: classic.ActorSystem = _
 
   private val SERVER_ADDR = "localhost:8848"
   private val NAMESPACE = "5b764784-f457-46fb-96c6-4f086d5d0ce1"
@@ -45,14 +47,14 @@ class FusionNacosTest extends FusionTestFunSuite with BeforeAndAfterAll {
     val configService = NacosFactory.createConfigService(props)
 //    val configService = DiscoveryUtils.defaultConfigService
     val confStr = configService.getConfig(DATA_ID, GROUP, 3000)
-    confStr must not be null
+    confStr should not be null
   }
 
   test("configuration") {
     val configuration = Configuration.load().getConfiguration(DiscoveryUtils.methodConfPath)
-    configuration.getString(PropKeys.SERVER_ADDR) mustBe SERVER_ADDR
-    configuration.getString(PropKeys.NAMESPACE) mustBe NAMESPACE
-    configuration.getString(PropKeys.DATA_ID) mustBe DATA_ID
+    configuration.getString(PropKeys.SERVER_ADDR) shouldBe SERVER_ADDR
+    configuration.getString(PropKeys.NAMESPACE) shouldBe NAMESPACE
+    configuration.getString(PropKeys.DATA_ID) shouldBe DATA_ID
   }
 
   test("ddd") {
@@ -67,15 +69,15 @@ class FusionNacosTest extends FusionTestFunSuite with BeforeAndAfterAll {
   }
 
   test("FusionNacos") {
-    val confStr = FusionNacos(system).component.configService.getConfig
+    val confStr = FusionNacos(system.toTyped).component.configService.getConfig
     println(confStr)
 
-    confStr must not be null
+    confStr should not be null
     val configuration =
       Configuration.parseString(confStr).getConfiguration(DiscoveryUtils.methodConfPath)
-    configuration.getString(PropKeys.SERVER_ADDR) mustBe SERVER_ADDR
-    configuration.getString(PropKeys.NAMESPACE) mustBe NAMESPACE
-    configuration.getString(PropKeys.DATA_ID) mustBe DATA_ID
+    configuration.getString(PropKeys.SERVER_ADDR) shouldBe SERVER_ADDR
+    configuration.getString(PropKeys.NAMESPACE) shouldBe NAMESPACE
+    configuration.getString(PropKeys.DATA_ID) shouldBe DATA_ID
   }
 
   override protected def beforeAll(): Unit = {
@@ -86,7 +88,7 @@ class FusionNacosTest extends FusionTestFunSuite with BeforeAndAfterAll {
     System.setProperty("fusion.discovery.nacos." + PropKeys.TIMEOUT_MS, "3000")
     System.setProperty("fusion.name", DATA_ID)
     val configuration = Configuration.fromDiscovery()
-    system = ActorSystem("test", configuration.underlying)
+    system = classic.ActorSystem("test", configuration.underlying)
   }
 
   override protected def afterAll(): Unit = {

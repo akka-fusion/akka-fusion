@@ -16,18 +16,15 @@
 
 package fusion.http.gateway.server
 
-import akka.actor.ExtendedActorSystem
-import akka.actor.Extension
-import akka.actor.ExtensionId
-import akka.actor.ExtensionIdProvider
+import akka.actor.typed.ActorSystem
 import fusion.core.extension.FusionExtension
+import fusion.core.extension.FusionExtensionId
 
-class FusionHttpGateway private (protected val _system: ExtendedActorSystem) extends FusionExtension {
-  val components = new HttpGatewayComponents(_system)
+class FusionHttpGateway private (override val system: ActorSystem[_]) extends FusionExtension {
+  val components = new HttpGatewayComponents(system)
   def component: HttpGatewayComponent = components.component
 }
 
-object FusionHttpGateway extends ExtensionId[FusionHttpGateway] with ExtensionIdProvider {
-  override def createExtension(system: ExtendedActorSystem): FusionHttpGateway = new FusionHttpGateway(system)
-  override def lookup(): ExtensionId[_ <: Extension] = FusionHttpGateway
+object FusionHttpGateway extends FusionExtensionId[FusionHttpGateway] {
+  override def createExtension(system: ActorSystem[_]): FusionHttpGateway = new FusionHttpGateway(system)
 }

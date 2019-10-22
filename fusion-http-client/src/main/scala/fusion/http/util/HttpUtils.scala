@@ -22,7 +22,6 @@ import java.nio.charset.UnsupportedCharsetException
 import java.security.KeyStore
 import java.security.SecureRandom
 
-import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.HttpsConnectionContext
 import akka.http.scaladsl.model.Uri.Authority
@@ -31,8 +30,6 @@ import akka.http.scaladsl.model.headers.`Timeout-Access`
 import akka.http.scaladsl.server.Directive0
 import akka.http.scaladsl.server.Directives
 import akka.http.scaladsl.unmarshalling.Unmarshal
-import akka.http.scaladsl.unmarshalling.Unmarshaller
-import akka.stream.ActorMaterializer
 import akka.stream.Materializer
 import akka.stream.OverflowStrategy
 import akka.stream.QueueOfferResult
@@ -40,11 +37,11 @@ import akka.stream.scaladsl.Keep
 import akka.stream.scaladsl.Sink
 import akka.stream.scaladsl.Source
 import akka.util.ByteString
+import akka.{actor => classic}
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
 import com.typesafe.scalalogging.Logger
 import com.typesafe.scalalogging.StrictLogging
-import com.typesafe.sslconfig.akka.AkkaSSLConfig
 import fusion.common.constant.ConfigKeys
 import fusion.core.http.headers.`X-Trace-Id`
 import fusion.core.util.FusionUtils
@@ -55,13 +52,13 @@ import javax.net.ssl.KeyManagerFactory
 import javax.net.ssl.SSLContext
 import javax.net.ssl.TrustManagerFactory
 
-import scala.collection.JavaConverters._
 import scala.collection.immutable
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import scala.concurrent.Promise
 import scala.concurrent.duration._
+import scala.jdk.CollectionConverters._
 import scala.util.Failure
 import scala.util.Success
 import scala.util.control.NonFatal
@@ -148,7 +145,7 @@ object HttpUtils extends StrictLogging {
     `X-Trace-Id`(FusionUtils.generateTraceId().toString)
   }
 
-  def dump(response: HttpResponse)(implicit mat: Materializer) {
+  def dump(response: HttpResponse)(implicit mat: Materializer): Unit = {
     val future = Unmarshal(response.entity).to[String]
     val value = Await.result(future, 10.seconds)
     println(s"[$response]\n\t\t$value\n")
@@ -244,7 +241,7 @@ object HttpUtils extends StrictLogging {
   }
 
   def cachedHostConnectionPool(uri: Uri, bufferSize: Int)(
-      implicit system: ActorSystem,
+      implicit system: classic.ActorSystem,
       mat: Materializer): HttpSourceQueue = {
     uri.scheme match {
       case "http"  => cachedHostConnectionPool(uri.authority.host.address(), uri.effectivePort, bufferSize)
@@ -258,11 +255,11 @@ object HttpUtils extends StrictLogging {
    *
    * @param host 默认host
    * @param port 默认port
-   * @param mat  ActorMaterializer
+   * @param mat  Materializer
    * @return
    */
   def cachedHostConnectionPool(host: String, port: Int, bufferSize: Int)(
-      implicit system: ActorSystem,
+      implicit system: classic.ActorSystem,
       mat: Materializer): HttpSourceQueue = {
     val poolClientFlow = Http().cachedHostConnectionPool[Promise[HttpResponse]](host, port)
     Source
@@ -280,11 +277,11 @@ object HttpUtils extends StrictLogging {
    *
    * @param host 默认host
    * @param port 默认port
-   * @param mat  ActorMaterializer
+   * @param mat  Materializer
    * @return
    */
   def cachedHostConnectionPoolHttps(host: String, port: Int, bufferSize: Int)(
-      implicit system: ActorSystem,
+      implicit system: classic.ActorSystem,
       mat: Materializer): HttpSourceQueue = {
     val poolClientFlow = Http().cachedHostConnectionPoolHttps[Promise[HttpResponse]](host, port)
     Source
@@ -302,8 +299,7 @@ object HttpUtils extends StrictLogging {
       keystore: InputStream,
       keyStoreType: String = "PKCS12",
       algorithm: String = "SunX509",
-      protocol: String = "TLS",
-      akkaSslConfig: Option[AkkaSSLConfig] = None): HttpsConnectionContext = {
+      protocol: String = "TLS"): HttpsConnectionContext = {
     var hcc: HttpsConnectionContext = null
     try {
       val password = keyPassword.toCharArray
@@ -319,7 +315,7 @@ object HttpUtils extends StrictLogging {
       val sslContext: SSLContext = SSLContext.getInstance(protocol)
       sslContext.init(keyManagerFactory.getKeyManagers, tmf.getTrustManagers, new SecureRandom())
 
-      hcc = new HttpsConnectionContext(sslContext, akkaSslConfig)
+      hcc = new HttpsConnectionContext(sslContext)
     } catch {
       case NonFatal(e) =>
         e.printStackTrace()
@@ -360,7 +356,7 @@ object HttpUtils extends StrictLogging {
       params: Seq[(String, String)] = Nil,
       data: AnyRef = null,
       headers: immutable.Seq[HttpHeader] = Nil,
-      protocol: HttpProtocol = HttpProtocols.`HTTP/1.1`)(implicit mat: ActorMaterializer): Future[HttpResponse] = {
+      protocol: HttpProtocol = HttpProtocols.`HTTP/1.1`)(implicit system: classic.ActorSystem): Future[HttpResponse] = {
     val request = buildRequest(method, uri, params, data, headers, protocol)
     singleRequest(request)
   }
@@ -369,11 +365,10 @@ object HttpUtils extends StrictLogging {
    * 发送 Http 请求
    *
    * @param request HttpRequest
-   * @param mat     ActorMaterializer
    * @return
    */
-  def singleRequest(request: HttpRequest)(implicit mat: ActorMaterializer): Future[HttpResponse] =
-    Http()(mat.system).singleRequest(request)
+  def singleRequest(request: HttpRequest)(implicit system: classic.ActorSystem): Future[HttpResponse] =
+    Http().singleRequest(request)
 
   /**
    * 发送 Http 请求，使用 CachedHostConnectionPool。见：[[cachedHostConnectionPool()]]
@@ -437,7 +432,7 @@ object HttpUtils extends StrictLogging {
   def toStrictEntity(response: HttpResponse)(implicit mat: Materializer): HttpEntity.Strict =
     toStrictEntity(response.entity)
 
-  def toByteString(response: HttpResponse)(implicit mat: ActorMaterializer): Future[ByteString] =
+  def toByteString(response: HttpResponse)(implicit mat: Materializer): Future[ByteString] =
     Unmarshal(response.entity).to[ByteString]
 
   def toStrictEntity(responseEntity: ResponseEntity)(implicit mat: Materializer): HttpEntity.Strict = {

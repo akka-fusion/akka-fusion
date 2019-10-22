@@ -119,6 +119,7 @@ object TypeRegistry {
 }
 
 object Printer {
+
   final private case class PrinterConfig(
       isIncludingDefaultValueFields: Boolean,
       isPreservingProtoFieldNames: Boolean,
@@ -266,6 +267,7 @@ class Printer private (config: Printer.PrinterConfig) {
     serializeSingleValue(fd, JsonFormat.defaultValue(fd), config.isFormattingLongAsNumber)
 
   private def unsignedInt(n: Int): Long = n & 0x00000000FFFFFFFFL
+
   private def unsignedLong(n: Long): BigInt =
     if (n < 0) BigInt(n & 0x7FFFFFFFFFFFFFFFL).setBit(63) else BigInt(n)
 
@@ -294,6 +296,7 @@ class Printer private (config: Printer.PrinterConfig) {
 }
 
 object Parser {
+
   final private case class ParserConfig(
       isIgnoringUnknownFields: Boolean,
       formatRegistry: FormatRegistry,

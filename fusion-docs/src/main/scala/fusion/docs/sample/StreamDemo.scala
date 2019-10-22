@@ -18,21 +18,21 @@ package fusion.docs.sample
 
 import java.util.concurrent.TimeUnit
 
-import akka.actor.ActorSystem
-import akka.stream.ActorMaterializer
+import akka.stream.Materializer
 import akka.stream.OverflowStrategy
 import akka.stream.scaladsl.Keep
 import akka.stream.scaladsl.Sink
 import akka.stream.scaladsl.Source
+import akka.{actor => classic}
 
 import scala.concurrent.Await
-import scala.io.StdIn
 import scala.concurrent.duration._
+import scala.io.StdIn
 
 object StreamDemo extends App {
-  implicit val system = ActorSystem()
-  implicit val mat = ActorMaterializer()
-  import system.dispatcher
+  implicit val system = classic.ActorSystem()
+  implicit val mat = Materializer(system)
+  import mat.executionContext
 
   val (queue, resultF) = Source
     .queue[String](1024, OverflowStrategy.dropNew)

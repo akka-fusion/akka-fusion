@@ -17,6 +17,7 @@
 package fusion.actuator.route
 
 import akka.actor.ExtendedActorSystem
+import akka.actor.typed.ActorSystem
 import akka.http.scaladsl.model.ContentTypes
 import akka.http.scaladsl.model.HttpEntity
 import akka.http.scaladsl.model.HttpRequest
@@ -28,17 +29,24 @@ import fusion.actuator.setting.ActuatorSetting
 import fusion.json.jackson.Jackson
 import helloscala.common.util.Utils
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 case class Item(href: String, templated: Boolean)
 
-class FusionActuatorRoute(system: ExtendedActorSystem, actuatorSetting: ActuatorSetting) extends StrictLogging {
-  private val components = system.settings.config.getStringList("fusion.actuator.routes").asScala.flatMap { fqcn =>
-    Utils.try2option(
-      system.dynamicAccess.createInstanceFor[ActuatorRoute](fqcn, List(classOf[ExtendedActorSystem] -> system)),
-      e => logger.error(s"创建实例失败，fqcn: $fqcn", e))
-  }
-  private val routes = components.map(_.aroundRoute)
+class FusionActuatorRoute(system: ActorSystem[_], actuatorSetting: ActuatorSetting) extends StrictLogging {
+
+  private val components: Seq[ActuatorRoute] = system.settings.config
+    .getStringList("fusion.actuator.routes")
+    .asScala
+    .flatMap { fqcn =>
+      Utils.try2option(
+        system.dynamicAccess.createInstanceFor[ActuatorRoute](fqcn, List(classOf[ExtendedActorSystem] -> system)),
+        e => logger.error(s"创建实例失败，fqcn: $fqcn", e))
+    }
+    .toSeq
+
+  private val routes: Seq[Route] = components.map(_.aroundRoute)
+
   private def links(request: HttpRequest): Map[String, Item] =
     components.map { comp =>
       val href = request.uri

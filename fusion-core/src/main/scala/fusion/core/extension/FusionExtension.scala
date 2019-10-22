@@ -16,15 +16,29 @@
 
 package fusion.core.extension
 
-import akka.actor.ActorSystem
 import akka.actor.ExtendedActorSystem
-import akka.actor.Extension
+import akka.actor.typed.ActorSystem
+import akka.actor.typed.Extension
+import akka.actor.typed.ExtensionId
+import akka.actor.typed.scaladsl.adapter._
+import fusion.core.FusionProtocol
 import helloscala.common.Configuration
 
 // #FusionExtension
 trait FusionExtension extends Extension {
-  protected val _system: ExtendedActorSystem
-  implicit val system: ActorSystem = _system
-  def configuration: Configuration = FusionCore(system).configuration
+  val system: ActorSystem[_] // = _system
+
+  def fusionSystem: ActorSystem[FusionProtocol.Command] = system.asInstanceOf[ActorSystem[FusionProtocol.Command]]
+
+  def classicSystem: ExtendedActorSystem = system.toClassic match {
+    case v: ExtendedActorSystem => v
+    case _                      => throw new IllegalStateException("Need ExtendedActorSystem instance.")
+  }
+
+  def configuration: Configuration = Configuration(system.settings.config)
 }
 // #FusionExtension
+
+trait FusionExtensionId[T <: FusionExtension] extends ExtensionId[T] {
+  def get(system: ActorSystem[_]): T = apply(system)
+}

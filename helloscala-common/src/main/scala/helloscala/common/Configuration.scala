@@ -21,9 +21,9 @@ import java.nio.file.Paths
 import java.time.OffsetDateTime
 import java.util.Objects
 import java.util.Properties
-import java.util.function.Consumer
 
-import akka.actor.ActorSystem
+import akka.actor.typed.ActorSystem
+import akka.{actor => classic}
 import com.typesafe.config._
 import com.typesafe.config.impl.ConfigurationHelper
 import com.typesafe.scalalogging.StrictLogging
@@ -31,9 +31,9 @@ import helloscala.common.exception.HSException
 import helloscala.common.util.StringUtils
 import helloscala.common.util.TimeUtils
 
-import scala.collection.JavaConverters._
 import scala.collection.mutable
 import scala.concurrent.duration._
+import scala.jdk.CollectionConverters._
 import scala.util.control.NonFatal
 
 /**
@@ -269,7 +269,7 @@ object Configuration extends StrictLogging {
           logger.info(s"服务发现组件缺失，使用本地默认配置", e)
           Configuration.load()
         case e: Throwable =>
-          logger.error("拉取配置内容失败，使用本地默认配置", e)
+          logger.warn("拉取配置内容失败，使用本地默认配置", e)
           Configuration.load()
       }
     } else {
@@ -299,11 +299,9 @@ object Configuration extends StrictLogging {
     ConfigFactory.invalidateCaches()
     new Configuration(c.withFallback(ConfigFactory.load()).resolve())
   }
-
   def load(): Configuration = load(ConfigFactory.load())
-
-  def load(system: ActorSystem): Configuration = load(system.settings.config)
-
+  def load(system: classic.ActorSystem): Configuration = load(system.settings.config)
+  def load(system: ActorSystem[_]): Configuration = load(system.settings.config)
   def load(props: Properties): Configuration = load(ConfigurationHelper.fromProperties(props))
 
   def parseString(content: String): Configuration = {
@@ -331,8 +329,10 @@ object ConfigLoader {
   def apply[A](f: Config => String => A): ConfigLoader[A] = (config: Config, path: String) => f(config)(path)
 
   implicit val stringLoader: ConfigLoader[String] = ConfigLoader(_.getString)
+
   implicit val seqStringLoader: ConfigLoader[Seq[String]] =
     ConfigLoader(_.getStringList).map(_.asScala.toVector)
+
   implicit val arrayStringLoader: ConfigLoader[Array[String]] =
     ConfigLoader(_.getStringList).map { list =>
       val arr = new Array[String](list.size())
@@ -350,10 +350,12 @@ object ConfigLoader {
       }
     }
   })
+
   implicit val seqIntLoader: ConfigLoader[Seq[Int]] =
-    ConfigLoader(_.getIntList).map(_.asScala.map(_.toInt))
+    ConfigLoader(_.getIntList).map(_.asScala.map(_.toInt).toVector)
 
   implicit val booleanLoader: ConfigLoader[Boolean] = ConfigLoader(_.getBoolean)
+
   implicit val seqBooleanLoader: ConfigLoader[Seq[Boolean]] =
     ConfigLoader(_.getBooleanList).map(_.asScala.map(_.booleanValue).toVector)
 
@@ -364,37 +366,44 @@ object ConfigLoader {
 
   // Note: this does not support null values but it added for convenience
   implicit val seqDurationLoader: ConfigLoader[Seq[Duration]] =
-    ConfigLoader(_.getDurationList).map(_.asScala.map(_.toNanos.nanos))
+    ConfigLoader(_.getDurationList).map(_.asScala.map(_.toNanos.nanos).toVector)
 
   implicit val finiteDurationLoader: ConfigLoader[FiniteDuration] =
     ConfigLoader(_.getDuration).map(_.toNanos.nanos)
+
   implicit val seqFiniteDurationLoader: ConfigLoader[Seq[FiniteDuration]] =
-    ConfigLoader(_.getDurationList).map(_.asScala.map(_.toNanos.nanos))
+    ConfigLoader(_.getDurationList).map(_.asScala.map(_.toNanos.nanos).toVector)
 
   implicit val doubleLoader: ConfigLoader[Double] = ConfigLoader(_.getDouble)
+
   implicit val seqDoubleLoader: ConfigLoader[Seq[Double]] =
-    ConfigLoader(_.getDoubleList).map(_.asScala.map(_.doubleValue))
+    ConfigLoader(_.getDoubleList).map(_.asScala.map(_.doubleValue).toVector)
 
   implicit val numberLoader: ConfigLoader[Number] = ConfigLoader(_.getNumber)
+
   implicit val seqNumberLoader: ConfigLoader[Seq[Number]] =
-    ConfigLoader(_.getNumberList).map(_.asScala)
+    ConfigLoader(_.getNumberList).map(_.asScala.toVector)
 
   implicit val longLoader: ConfigLoader[Long] = ConfigLoader(_.getLong)
+
   implicit val seqLongLoader: ConfigLoader[Seq[Long]] =
-    ConfigLoader(_.getDoubleList).map(_.asScala.map(_.longValue))
+    ConfigLoader(_.getDoubleList).map(_.asScala.map(_.longValue).toVector)
 
   implicit val bytesLoader: ConfigLoader[ConfigMemorySize] = ConfigLoader(_.getMemorySize)
+
   implicit val seqBytesLoader: ConfigLoader[Seq[ConfigMemorySize]] =
-    ConfigLoader(_.getMemorySizeList).map(_.asScala)
+    ConfigLoader(_.getMemorySizeList).map(_.asScala.toVector)
 
   implicit val configLoader: ConfigLoader[Config] = ConfigLoader(_.getConfig)
   implicit val configListLoader: ConfigLoader[ConfigList] = ConfigLoader(_.getList)
   implicit val configObjectLoader: ConfigLoader[ConfigObject] = ConfigLoader(_.getObject)
+
   implicit val seqConfigLoader: ConfigLoader[Seq[Config]] =
-    ConfigLoader(_.getConfigList).map(_.asScala)
+    ConfigLoader(_.getConfigList).map(_.asScala.toVector)
 
   implicit val configurationLoader: ConfigLoader[Configuration] =
     configLoader.map(c => new Configuration(c))
+
   implicit val seqConfigurationLoader: ConfigLoader[Seq[Configuration]] =
     seqConfigLoader.map(_.map(c => new Configuration(c)))
 

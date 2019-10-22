@@ -18,26 +18,19 @@ package fusion.http.client
 
 import java.util.Objects
 
-import akka.actor.ActorSystem
+import akka.actor.typed.ActorSystem
+import akka.{actor => classic}
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.marshalling.Marshal
 import akka.http.scaladsl.marshalling.Marshaller
-import akka.http.scaladsl.model.HttpEntity
-import akka.http.scaladsl.model.HttpHeader
-import akka.http.scaladsl.model.HttpMethod
-import akka.http.scaladsl.model.HttpProtocol
-import akka.http.scaladsl.model.HttpProtocols
-import akka.http.scaladsl.model.HttpRequest
-import akka.http.scaladsl.model.HttpResponse
-import akka.http.scaladsl.model.RequestEntity
-import akka.http.scaladsl.model.Uri
-import akka.stream.ActorMaterializer
+import akka.http.scaladsl.model._
+import akka.stream.Materializer
 
 import scala.collection.immutable
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
-class DefaultHttpClient private ()(implicit val system: ActorSystem) extends HttpClient {
+class DefaultHttpClient private ()(implicit val classicSystem: classic.ActorSystem) extends HttpClient {
 
   /**
    * 发送 Http 请求
@@ -59,7 +52,7 @@ class DefaultHttpClient private ()(implicit val system: ActorSystem) extends Htt
       protocol: HttpProtocol = HttpProtocols.`HTTP/1.1`)(
       implicit
       m: Marshaller[T, RequestEntity],
-      mat: ActorMaterializer,
+      mat: Materializer,
       ec: ExecutionContext = null): Future[HttpResponse] = {
     val eec = if (Objects.isNull(ec)) mat.executionContext else ec
     Marshal(entity)
@@ -73,5 +66,7 @@ class DefaultHttpClient private ()(implicit val system: ActorSystem) extends Htt
 }
 
 object DefaultHttpClient {
-  def apply(system: ActorSystem) = new DefaultHttpClient()(system)
+  import akka.actor.typed.scaladsl.adapter._
+  def apply(system: ActorSystem[_]): DefaultHttpClient = apply(system.toClassic)
+  def apply(system: classic.ActorSystem): DefaultHttpClient = new DefaultHttpClient()(system)
 }

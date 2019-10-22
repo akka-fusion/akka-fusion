@@ -24,21 +24,23 @@ import com.typesafe.config.ConfigFactory
 import helloscala.common.util.StringUtils
 import javax.inject.Named
 
-import scala.collection.JavaConverters._
-import scala.collection.mutable
+import scala.jdk.CollectionConverters._
+import scala.collection.immutable
 import scala.reflect.ClassTag
 
 object Injects {
   lazy val injector: Injector = Guice.createInjector(generateModules(): _*)
 
-  private def generateModules(): mutable.Seq[Module] =
+  private def generateModules(): immutable.Seq[Module] =
     ConfigFactory
       .load()
       .getStringList("fusion.module")
       .asScala
+      .view
       .distinct
       .filter(s => StringUtils.isNoneBlank(s))
       .map(t => Class.forName(t).newInstance().asInstanceOf[Module])
+      .toVector
 
   /**
    * 根据类型获类实例

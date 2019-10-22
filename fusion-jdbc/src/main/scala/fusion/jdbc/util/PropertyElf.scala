@@ -53,7 +53,7 @@ object PropertyElf extends StrictLogging {
       if (method.getParameterTypes.length == 0 && matcher.reset(name).matches) {
         name = name.replaceFirst("(get|is)", "")
         try if (targetClass.getMethod("set" + name, method.getReturnType) != null) {
-          name = Character.toLowerCase(name.charAt(0)) + name.substring(1)
+          name = String.valueOf(Character.toLowerCase(name.charAt(0))) + name.substring(1)
           set.add(name)
         } catch {
           case e: Exception =>

@@ -4,15 +4,16 @@ object Dependencies {
   val versionScala212 = "2.12.10"
   val versionScala213 = "2.13.1"
   val versionScalaXml = "1.2.0"
+  val versionScalaCollectionCompat = "2.1.2"
   val versionJava8Compat = "0.9.0"
   val versionScalameta = "4.2.3"
   val versionScalatest = "3.0.8"
-  val versionAkka = "2.5.25"
+  val versionAkka = "2.6.0-RC1"
   val versionAkkaManagement = "1.0.3"
   val versionAkkaHttp = "10.1.10"
   val versionAkkaHttpCors = "0.4.1"
-  val versionAlpakka = "1.1.1"
-  val versionAlpakkaKafka = "1.0.5"
+  val versionAlpakka = "1.1.2"
+  val versionAlpakkaKafka = "1.1.0"
   val versionCassandra = "4.2.1"
   val versionElastic4s = "6.7.3"
   val versionConfig = "1.3.4"
@@ -40,6 +41,7 @@ object Dependencies {
   val versionFastparse = "2.1.3"
   val versionOsLib = "0.3.0"
   val versionMongoScalaBson = "2.7.0"
+  val versionMongoDriverReactivestreams = "1.12.0"
   val versionBson = "3.11.0"
   val versionKafka = "2.1.1"
   val versionAlpnAgent = "2.0.9"
@@ -52,26 +54,27 @@ object Dependencies {
 
   val _scalaJava8Compat =
     ("org.scala-lang.modules" %% "scala-java8-compat" % versionJava8Compat).exclude("org.scala-lang", "scala-library")
+  val _scalaCollectionCompat = "org.scala-lang.modules" %% "scala-collection-compat" % versionScalaCollectionCompat
+
   val _scalatest = "org.scalatest" %% "scalatest" % versionScalatest
-  val _akkaRemote = "com.typesafe.akka" %% "akka-remote" % versionAkka
+  val _akkaActor = "com.typesafe.akka" %% "akka-actor" % versionAkka
+  val _akkaActorTyped = "com.typesafe.akka" %% "akka-actor-typed" % versionAkka
   val _akkaStream = "com.typesafe.akka" %% "akka-stream" % versionAkka
+  val _akkaStreamTyped = "com.typesafe.akka" %% "akka-stream-typed" % versionAkka
   val _akkaDiscovery = "com.typesafe.akka" %% "akka-discovery" % versionAkka
-  val _akkaTestkit = "com.typesafe.akka" %% "akka-testkit" % versionAkka
+  val _akkaSerializationJackson = "com.typesafe.akka" %% "akka-serialization-jackson" % versionAkka
+  val _akkaTypedTestkit = "com.typesafe.akka" %% "akka-actor-testkit-typed" % versionAkka
   val _akkaStreamTestkit = "com.typesafe.akka" %% "akka-stream-testkit" % versionAkka
 
   val _akkas =
-    Seq("com.typesafe.akka" %% "akka-slf4j" % versionAkka, _akkaStream, _akkaTestkit % Test, _akkaStreamTestkit % Test)
+    Seq("com.typesafe.akka" %% "akka-slf4j" % versionAkka, _akkaActorTyped, _akkaStreamTyped)
       .map(_.exclude("org.scala-lang.modules", "scala-java8-compat").cross(CrossVersion.binary))
-  val _akkaPersistence = "com.typesafe.akka" %% "akka-persistence-query" % versionAkka
   val _akkaMultiNodeTestkit = "com.typesafe.akka" %% "akka-multi-node-testkit" % versionAkka
 
   val _akkaClusters = Seq(
-    "com.typesafe.akka" %% "akka-cluster" % versionAkka,
-    //"com.typesafe.akka" %% "akka-cluster-typed"          % versionAkka,
-    "com.typesafe.akka" %% "akka-cluster-tools" % versionAkka,
-    "com.typesafe.akka" %% "akka-cluster-metrics" % versionAkka,
-    "com.typesafe.akka" %% "akka-cluster-sharding" % versionAkka,
-    //"com.typesafe.akka" %% "akka-cluster-sharding-typed" % versionAkka,
+    "com.typesafe.akka" %% "akka-cluster-typed" % versionAkka,
+    //"com.typesafe.akka" %% "akka-cluster-metrics" % versionAkka,
+    "com.typesafe.akka" %% "akka-cluster-sharding-typed" % versionAkka,
     _akkaMultiNodeTestkit % Test)
 
   val _akkaManagement =
@@ -86,19 +89,33 @@ object Dependencies {
       .cross(CrossVersion.binary)
       .exclude("org.scala-lang", "scala-library")
 
-  val _akkaHttpCore = "com.typesafe.akka" %% "akka-http-core" % versionAkkaHttp
-  val _akkaHttp = "com.typesafe.akka" %% "akka-http" % versionAkkaHttp
-  val _akkaHttp2Support = "com.typesafe.akka" %% "akka-http2-support" % versionAkkaHttp
-  val _akkaHttpTestkit = "com.typesafe.akka" %% "akka-http-testkit" % versionAkkaHttp
+  val _akkaHttp = ("com.typesafe.akka" %% "akka-http" % versionAkkaHttp)
+    .exclude("com.typesafe.akka", "akka-stream")
+    .cross(CrossVersion.binary)
 
-  val _akkaHttpCors =
-    ("ch.megard" %% "akka-http-cors" % versionAkkaHttpCors).excludeAll(ExclusionRule("com.typesafe.akka"))
+  val _akkaHttpTestkit = ("com.typesafe.akka" %% "akka-http-testkit" % versionAkkaHttp)
+    .excludeAll(ExclusionRule("com.typesafe.akka"))
+    .cross(CrossVersion.binary)
 
-  val _akkaHttps = Seq(_akkaHttp, _akkaHttp2Support, _akkaHttpCors, _akkaHttpTestkit % Test).map(
-    _.exclude("com.typesafe.akka", "akka-stream")
+  val _akkaHttps = Seq(
+    _akkaHttp,
+    "com.typesafe.akka" %% "akka-http2-support" % versionAkkaHttp,
+    "ch.megard" %% "akka-http-cors" % versionAkkaHttpCors,
+    _akkaHttpTestkit % Test).map(
+    _.exclude("com.typesafe.akka", "akka-actor")
+      .cross(CrossVersion.binary)
+      .exclude("com.typesafe.akka", "akka-stream")
       .cross(CrossVersion.binary)
       .exclude("com.typesafe.akka", "akka-stream-testkit")
       .cross(CrossVersion.binary))
+
+  val _akkaGrpcRuntime = ("com.lightbend.akka.grpc" %% "akka-grpc-runtime" % "0.7.2")
+    .exclude("com.typesafe.akka", "akka-actor")
+    .cross(CrossVersion.binary)
+    .exclude("com.typesafe.akka", "akka-stream")
+    .cross(CrossVersion.binary)
+    .exclude("com.typesafe.akka", "akka-discovery")
+    .cross(CrossVersion.binary)
 
   val _alpakkaSimpleCodecs =
     ("com.lightbend.akka" %% "akka-stream-alpakka-simple-codecs" % versionAlpakka)
@@ -135,11 +152,9 @@ object Dependencies {
       .excludeAll(ExclusionRule("com.typesafe.akka"))
       .cross(CrossVersion.binary)
 
-  val _alpakkaMongodb = Seq(
-    ("com.lightbend.akka" %% "akka-stream-alpakka-mongodb" % versionAlpakka)
-      .excludeAll(ExclusionRule("com.typesafe.akka"))
-      .cross(CrossVersion.binary),
-    "org.mongodb.scala" %% "mongo-scala-bson" % versionMongoScalaBson)
+  val _mongodbs = Seq(
+    "org.mongodb.scala" %% "mongo-scala-bson" % versionMongoScalaBson,
+    "org.mongodb" % "mongodb-driver-reactivestreams" % versionMongoDriverReactivestreams)
 
   val _cassandras = Seq("com.datastax.oss" % "java-driver-core" % versionCassandra)
 
@@ -154,32 +169,22 @@ object Dependencies {
       .excludeAll(ExclusionRule("com.typesafe.akka"))
       .cross(CrossVersion.binary)
 
-  val _alpakkaHbase =
-    ("com.lightbend.akka" %% "akka-stream-alpakka-hbase" % versionAlpakka)
-      .excludeAll(ExclusionRule("com.typesafe.akka"))
-      .cross(CrossVersion.binary)
-
-  val _alpakksHdfs =
-    ("com.lightbend.akka" %% "akka-stream-alpakka-hdfs" % versionAlpakka)
-      .excludeAll(ExclusionRule("com.typesafe.akka"))
-      .cross(CrossVersion.binary)
-
   val _alpakkaText =
     ("com.lightbend.akka" %% "akka-stream-alpakka-text" % versionAlpakka)
       .excludeAll(ExclusionRule("com.typesafe.akka"))
       .cross(CrossVersion.binary)
 
-  val _alpakkas = Seq(
-    _alpakkaText,
-    _alpakkaSimpleCodecs,
-    _alpakkaXml,
-    _alpakkaCsv,
-    //_alpakkaJsonStreaming,
-    _alpakkaFile)
+//  val _alpakkas = Seq(
+//    _alpakkaText,
+//    _alpakkaSimpleCodecs,
+//    _alpakkaXml,
+//    _alpakkaCsv,
+//    //_alpakkaJsonStreaming,
+//    _alpakkaFile)
 
   val _akkaStreamKafkas = Seq(
     ("com.typesafe.akka" %% "akka-stream-kafka" % versionAlpakkaKafka)
-      .exclude("com.typesafe.akka", "akka-slf4j")
+      .exclude("com.typesafe.akka", "akka-stream")
       .cross(CrossVersion.binary))
 
   val _neotypes = "com.dimafeng" %% "neotypes" % versionNeotypes
@@ -192,15 +197,13 @@ object Dependencies {
   val _jacksonAnnotations = "com.fasterxml.jackson.core" % "jackson-annotations" % versionJackson
   val _jacksonDatabind = "com.fasterxml.jackson.core" % "jackson-databind" % versionJackson
 
-  val _jacksons = Seq(
-    "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % versionJackson,
-    "com.fasterxml.jackson.datatype" % "jackson-datatype-jsr310" % versionJackson,
-    "com.fasterxml.jackson.module" % "jackson-module-parameter-names" % versionJackson,
-    "com.fasterxml.jackson.module" %% "jackson-module-scala" % versionJackson)
-
   val _jacksonDataformatProtobuf = "com.fasterxml.jackson.dataformat" % "jackson-dataformat-protobuf" % versionJackson
 
   val _json4s = "org.json4s" %% "json4s-jackson" % "3.6.7"
+
+  val _circeGeneric = "io.circe" %% "circe-generic" % "0.12.2"
+
+  val _scalapbCirce = "io.github.scalapb-json" %% "scalapb-circe" % "0.5.1"
 
   val _kanelaAgent = "io.kamon" % "kanela-agent" % versionKanela % Provided
 

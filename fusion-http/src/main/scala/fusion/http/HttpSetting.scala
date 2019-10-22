@@ -16,13 +16,13 @@
 
 package fusion.http
 
-import akka.actor.ActorSystem
+import akka.actor.typed.ActorSystem
 import com.typesafe.sslconfig.ssl.SSLConfigFactory
 import com.typesafe.sslconfig.ssl.SSLConfigSettings
 import fusion.http.constant.HttpConstants
 import helloscala.common.Configuration
 
-final class HttpSetting private (c: Configuration, system: ActorSystem) {
+final class HttpSetting private (c: Configuration, system: ActorSystem[_]) {
   def exceptionHandler: String = c.getString("exception-handler")
   def rejectionHandler: String = c.getString("rejection-handler")
   def defaultInterceptor: Seq[String] = c.get[Seq[String]]("default-interceptor")
@@ -59,5 +59,5 @@ final class HttpSetting private (c: Configuration, system: ActorSystem) {
 }
 
 object HttpSetting {
-  def apply(c: Configuration, system: ActorSystem): HttpSetting = new HttpSetting(c, system)
+  def apply(c: Configuration, system: ActorSystem[_]): HttpSetting = new HttpSetting(c, system)
 }

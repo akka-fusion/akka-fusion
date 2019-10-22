@@ -19,7 +19,7 @@ package fusion.job
 import java.util
 
 import akka.Done
-import akka.actor.ExtendedActorSystem
+import akka.actor.typed.ActorSystem
 import com.typesafe.scalalogging.StrictLogging
 import fusion.core.component.Components
 import fusion.core.extension.FusionCore
@@ -39,12 +39,12 @@ import org.quartz.spi.ThreadExecutor
 import org.quartz.spi.ThreadPool
 import org.quartz.utils.DBConnectionManager
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.concurrent.Future
 import scala.util.Failure
 import scala.util.Success
 
-class FusionJobComponents(system: ExtendedActorSystem)
+class FusionJobComponents(system: ActorSystem[_])
     extends Components[FusionScheduler]("fusion.job.default")
     with SchedulerFactory
     with StrictLogging {
@@ -62,7 +62,7 @@ class FusionJobComponents(system: ExtendedActorSystem)
     Future {
       c.close()
       Done
-    }(system.dispatcher)
+    }(system.executionContext)
 
   private def create(schedulerName: String, c: Configuration): Scheduler = {
     val helper = new FactoryHelper(c.getProperties(""))

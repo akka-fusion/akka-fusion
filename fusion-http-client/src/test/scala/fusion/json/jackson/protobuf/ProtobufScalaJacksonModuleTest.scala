@@ -40,7 +40,6 @@ class ProtobufScalaJacksonModuleTest extends FusionTestFunSuite {
   }
 
   test("ResultBO") {
-    import JsonUtils.defaultFormats
     val bo = ResultBO()
     val text = JsonUtils.protobuf.toJsonString(bo)
     println(text)

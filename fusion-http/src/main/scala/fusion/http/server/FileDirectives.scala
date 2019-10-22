@@ -39,8 +39,8 @@ trait FileDirectives {
 
   def uploadedMultiFile(tmpDirectory: Path): Directive1[immutable.Seq[(FileInfo, Path)]] =
     entity(as[Multipart.FormData])
-      .flatMap { formData ⇒
-        extractRequestContext.flatMap { ctx ⇒
+      .flatMap { formData =>
+        extractRequestContext.flatMap { ctx =>
           import ctx.executionContext
           import ctx.materializer
 
@@ -65,8 +65,8 @@ trait FileDirectives {
       }
 
   def uploadedOneFile: Directive1[(FileInfo, Source[ByteString, Any])] = entity(as[Multipart.FormData]).flatMap {
-    formData ⇒
-      Directive[Tuple1[(FileInfo, Source[ByteString, Any])]] { inner ⇒ ctx ⇒
+    formData =>
+      Directive[Tuple1[(FileInfo, Source[ByteString, Any])]] { inner => ctx =>
         import ctx.executionContext
         import ctx.materializer
 
@@ -77,11 +77,11 @@ trait FileDirectives {
         // Fortunately, continuation passing style of routing allows adding pre- and post-processing quite naturally.
         formData.parts
           .runFoldAsync(Option.empty[RouteResult]) {
-            case (None, part) if part.filename.isDefined ⇒
+            case (None, part) if part.filename.isDefined =>
               val data = (FileInfo(part.name, part.filename.get, part.entity.contentType), part.entity.dataBytes)
               inner(Tuple1(data))(ctx).map(Some(_))
 
-            case (res, part) ⇒
+            case (res, part) =>
               part.entity.discardBytes()
               Future.successful(res)
           }
@@ -90,7 +90,7 @@ trait FileDirectives {
   }
 
   def uploadedShaFile(tmpDirectory: Path): Directive[(FileInfo, FileTemp)] =
-    extractRequestContext.flatMap { ctx ⇒
+    extractRequestContext.flatMap { ctx =>
       import ctx.executionContext
       import ctx.materializer
       uploadedOneFile.flatMap {
@@ -104,11 +104,11 @@ trait FileDirectives {
             }
             .runWith(FileIO.toPath(tmpPath))
             .map {
-              case result if result.wasSuccessful =>
+              case result if result.count > 0L =>
                 val hash = StringUtils.toHexString(sha.digest())
                 (fileInfo, FileTemp(hash, result.count, tmpPath))
               case _ =>
-                throw new IOException("文件写入失败")
+                throw new IOException(s"未写入任何数据到文件：$tmpPath")
             }
             .recoverWith {
               case e =>
@@ -128,7 +128,8 @@ trait FileDirectives {
           case (fileInfo, path) =>
             DigestUtils.reactiveSha256Hex(path).map(hash => fileInfo -> FileTemp(hash, Files.size(path), path))
         }
-        onSuccess(Future.sequence(futures))
+        val seqF = Future.sequence(futures)
+        onSuccess(seqF)
       }
     }
 

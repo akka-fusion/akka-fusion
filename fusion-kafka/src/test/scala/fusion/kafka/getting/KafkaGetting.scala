@@ -16,17 +16,17 @@
 
 package fusion.kafka.getting
 
-import akka.actor.ActorSystem
-import akka.kafka.scaladsl.Consumer
-import akka.kafka.scaladsl.Producer
 import akka.kafka.ConsumerSettings
 import akka.kafka.ProducerSettings
 import akka.kafka.Subscriptions
+import akka.kafka.scaladsl.Consumer
+import akka.kafka.scaladsl.Producer
+import akka.stream.Materializer
+import akka.stream.OverflowStrategy
 import akka.stream.scaladsl.Keep
 import akka.stream.scaladsl.Sink
 import akka.stream.scaladsl.Source
-import akka.stream.ActorMaterializer
-import akka.stream.OverflowStrategy
+import akka.{actor => classic}
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.serialization.StringDeserializer
 import org.apache.kafka.common.serialization.StringSerializer
@@ -36,8 +36,8 @@ import scala.concurrent.duration._
 import scala.io.StdIn
 
 object KafkaGetting extends App {
-  implicit val system = ActorSystem()
-  implicit val mat = ActorMaterializer()
+  implicit val system = classic.ActorSystem()
+  implicit val mat = Materializer(system)
   import system.dispatcher
   val config = system.settings.config
 

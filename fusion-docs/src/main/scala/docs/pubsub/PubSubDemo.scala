@@ -28,6 +28,7 @@ object PubSubs {
   private val ins = new PubSubs(new AtomicLong(0L))
 
   case class PubSubMessage(id: Long, topic: String, message: Any)
+
   final class Cancellable(val id: Long, instance: PubSubs) {
     def unsubscribe(): Unit = instance.subscribies -= id
   }

@@ -46,6 +46,7 @@ object Converters {
 }
 
 class LogHostNameConverter extends ClassicConverter {
+
   override def convert(event: ILoggingEvent): String =
     try {
       InetAddress.getLocalHost.getCanonicalHostName

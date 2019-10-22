@@ -49,6 +49,7 @@ trait PgJacksonJsonSupport extends PgJsonExtensions with PgCommonJdbcTypes {
   trait JsonImplicits extends JacksonImplicits
 
   trait JacksonImplicits extends JacksonCodeGenSupport {
+
     implicit val jacksonJsonTypeMapper: JdbcType[JsonNode] = new GenericJdbcType[JsonNode](
       pgjson,
       v => Try(Jackson.defaultObjectMapper.readTree(v)).getOrElse(NullNode.instance),

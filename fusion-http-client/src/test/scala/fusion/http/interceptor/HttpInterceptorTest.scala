@@ -16,7 +16,7 @@
 
 //package fusion.http.interceptor
 //
-//import akka.actor.ActorSystem
+//import akka.{actor => classic}
 //import akka.http.scaladsl.model.HttpRequest
 //import akka.http.scaladsl.model.HttpResponse
 //import akka.http.scaladsl.model.headers.RawHeader

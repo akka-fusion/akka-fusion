@@ -21,7 +21,7 @@ import akka.http.scaladsl.model.HttpResponse
 import akka.http.scaladsl.server._
 import akka.http.scaladsl.settings.ParserSettings
 import akka.http.scaladsl.settings.RoutingSettings
-import akka.stream.ActorMaterializer
+import akka.stream.Materializer
 
 import scala.concurrent.ExecutionContextExecutor
 import scala.concurrent.Future
@@ -35,7 +35,7 @@ object FusionRoute {
       implicit
       routingSettings: RoutingSettings,
       parserSettings: ParserSettings,
-      materializer: ActorMaterializer,
+      materializer: Materializer,
       routingLog: RoutingLog,
       executionContext: ExecutionContextExecutor = null): HttpRequest => Future[HttpResponse] = {
     import akka.http.scaladsl.util.FastFuture._

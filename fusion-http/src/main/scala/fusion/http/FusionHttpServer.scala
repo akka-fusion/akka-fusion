@@ -17,34 +17,31 @@
 package fusion.http
 
 import akka.Done
-import akka.actor.ExtendedActorSystem
-import akka.actor.Extension
-import akka.actor.ExtensionId
-import akka.actor.ExtensionIdProvider
+import akka.actor.typed.ActorSystem
 import fusion.core.component.Components
 import fusion.core.extension.FusionCore
 import fusion.core.extension.FusionExtension
+import fusion.core.extension.FusionExtensionId
 import fusion.http.constant.HttpConstants
 import helloscala.common.Configuration
 
 import scala.concurrent.Future
 
-private[http] class HttpServerComponents(system: ExtendedActorSystem)
+private[http] class HttpServerComponents(system: ActorSystem[_])
     extends Components[HttpServer](HttpConstants.PATH_DEFAULT) {
   override val configuration: Configuration = Configuration(system.settings.config)
   override protected def createComponent(id: String): HttpServer = new HttpServer(id, system)
   override protected def componentClose(c: HttpServer): Future[Done] = c.closeAsync()
 }
 
-class FusionHttpServer private (protected val _system: ExtendedActorSystem) extends FusionExtension {
-  val components = new HttpServerComponents(_system)
+class FusionHttpServer private (override val system: ActorSystem[_]) extends FusionExtension {
+  val components = new HttpServerComponents(system)
   def component: HttpServer = components.component
   FusionCore(system).shutdowns.serviceUnbind("StopFusionHttpServer") { () =>
-    components.closeAsync()(system.dispatcher)
+    components.closeAsync()(system.executionContext)
   }
 }
 
-object FusionHttpServer extends ExtensionId[FusionHttpServer] with ExtensionIdProvider {
-  override def createExtension(system: ExtendedActorSystem): FusionHttpServer = new FusionHttpServer(system)
-  override def lookup(): ExtensionId[_ <: Extension] = FusionHttpServer
+object FusionHttpServer extends FusionExtensionId[FusionHttpServer] {
+  override def createExtension(system: ActorSystem[_]): FusionHttpServer = new FusionHttpServer(system)
 }

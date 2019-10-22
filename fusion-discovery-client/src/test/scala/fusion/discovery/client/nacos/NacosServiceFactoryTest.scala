@@ -21,8 +21,9 @@ import java.util.Properties
 import com.typesafe.config.ConfigFactory
 import fusion.test.FusionTestFunSuite
 import helloscala.common.Configuration
+import org.scalatest.MustMatchers
 
-class NacosServiceFactoryTest extends FusionTestFunSuite {
+class NacosServiceFactoryTest extends FusionTestFunSuite with MustMatchers {
 
   // #NacosServiceFactoryTest
   test("通过serverAddr地址和namespace直接访问") {

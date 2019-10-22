@@ -28,7 +28,7 @@ import fusion.discovery.model.DiscoveryList
 import fusion.discovery.model.DiscoveryServiceInfo
 import helloscala.common.exception.HSBadRequestException
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 class NacosNamingServiceImpl(props: NacosDiscoveryProperties, val underlying: JNamingService)
     extends FusionNamingService
@@ -93,32 +93,36 @@ class NacosNamingServiceImpl(props: NacosDiscoveryProperties, val underlying: JN
       props.instanceClusterName)
 
   override def getAllInstances(serviceName: String): Seq[DiscoveryInstance] =
-    underlying.getAllInstances(serviceName).asScala.map(_.toDiscoveryInstance)
+    underlying.getAllInstances(serviceName).asScala.map(_.toDiscoveryInstance).toVector
 
   override def getAllInstances(serviceName: String, subscribe: Boolean): Seq[DiscoveryInstance] =
-    underlying.getAllInstances(serviceName, subscribe).asScala.map(_.toDiscoveryInstance)
+    underlying.getAllInstances(serviceName, subscribe).asScala.map(_.toDiscoveryInstance).toVector
 
   def getAllInstances(serviceName: String, clusters: Seq[String]): Seq[DiscoveryInstance] =
-    underlying.getAllInstances(serviceName, clusters.asJava).asScala.map(_.toDiscoveryInstance)
+    underlying.getAllInstances(serviceName, clusters.asJava).asScala.map(_.toDiscoveryInstance).toVector
 
   def getAllInstances(serviceName: String, clusters: Seq[String], subscribe: Boolean): Seq[DiscoveryInstance] =
-    underlying.getAllInstances(serviceName, clusters.asJava, subscribe).asScala.map(_.toDiscoveryInstance)
+    underlying.getAllInstances(serviceName, clusters.asJava, subscribe).asScala.map(_.toDiscoveryInstance).toVector
 
   override def selectInstances(serviceName: String, healthy: Boolean): Seq[DiscoveryInstance] =
-    underlying.selectInstances(serviceName, healthy).asScala.map(_.toDiscoveryInstance)
+    underlying.selectInstances(serviceName, healthy).asScala.map(_.toDiscoveryInstance).toVector
 
   override def selectInstances(serviceName: String, healthy: Boolean, subscribe: Boolean): Seq[DiscoveryInstance] =
-    underlying.selectInstances(serviceName, healthy, subscribe).asScala.map(_.toDiscoveryInstance)
+    underlying.selectInstances(serviceName, healthy, subscribe).asScala.map(_.toDiscoveryInstance).toVector
 
   def selectInstances(serviceName: String, clusters: Seq[String], healthy: Boolean): Seq[DiscoveryInstance] =
-    underlying.selectInstances(serviceName, clusters.asJava, healthy).asScala.map(_.toDiscoveryInstance)
+    underlying.selectInstances(serviceName, clusters.asJava, healthy).asScala.map(_.toDiscoveryInstance).toVector
 
   def selectInstances(
       serviceName: String,
       clusters: Seq[String],
       healthy: Boolean,
       subscribe: Boolean): Seq[DiscoveryInstance] =
-    underlying.selectInstances(serviceName, clusters.asJava, healthy, subscribe).asScala.map(_.toDiscoveryInstance)
+    underlying
+      .selectInstances(serviceName, clusters.asJava, healthy, subscribe)
+      .asScala
+      .map(_.toDiscoveryInstance)
+      .toVector
 
   override def selectOneHealthyInstance(serviceName: String): DiscoveryInstance =
     underlying.selectOneHealthyInstance(serviceName).toDiscoveryInstance
@@ -133,9 +137,7 @@ class NacosNamingServiceImpl(props: NacosDiscoveryProperties, val underlying: JN
     underlying.selectOneHealthyInstance(serviceName, clusters.asJava, subscribe).toDiscoveryInstance
 
   override def subscribe(serviceName: String, listener: DiscoveryEvent => Unit): Unit =
-    underlying.subscribe(serviceName, new EventListener {
-      override def onEvent(event: Event): Unit = listener(event.toDiscoveryEvent)
-    })
+    underlying.subscribe(serviceName, (event: Event) => listener(event.toDiscoveryEvent))
 
   def subscribe(serviceName: String, clusters: Seq[String], listener: DiscoveryEvent => Unit): Unit =
     underlying.subscribe(serviceName, clusters.asJava, new EventListener {
@@ -143,9 +145,7 @@ class NacosNamingServiceImpl(props: NacosDiscoveryProperties, val underlying: JN
     })
 
   def unsubscribe(serviceName: String, listener: DiscoveryEvent => Unit): Unit =
-    underlying.unsubscribe(serviceName, new EventListener {
-      override def onEvent(event: Event): Unit = listener(event.toDiscoveryEvent)
-    })
+    underlying.unsubscribe(serviceName, event => listener(event.toDiscoveryEvent))
 
   def unsubscribe(serviceName: String, clusters: Seq[String], listener: DiscoveryEvent => Unit): Unit =
     underlying.unsubscribe(serviceName, clusters.asJava, new EventListener {
@@ -159,7 +159,7 @@ class NacosNamingServiceImpl(props: NacosDiscoveryProperties, val underlying: JN
     underlying.getServicesOfServer(pageNo, pageSize, selector).toDiscoveryList
 
   def getSubscribeServices: Seq[DiscoveryServiceInfo] =
-    underlying.getSubscribeServices.asScala.map(_.toDiscoveryServiceInfo)
+    underlying.getSubscribeServices.asScala.map(_.toDiscoveryServiceInfo).toVector
 
   def getServerStatus: String = underlying.getServerStatus
 }

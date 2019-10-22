@@ -19,11 +19,10 @@ package fusion.cassandra
 import java.time.Instant
 import java.time.LocalDate
 
-import akka.actor.ActorSystem
-import akka.testkit.TestKit
+import akka.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
 import fusion.test.FusionTestFunSuite
 
-class FusionCassandraTest extends TestKit(ActorSystem("cassandra-test")) with FusionTestFunSuite {
+class FusionCassandraTest extends ScalaTestWithActorTestKit with FusionTestFunSuite {
   test("FusionCassandra") {
     val session = FusionCassandra(system).component
     val pstmt = session.prepare("insert into l_basic(imei, day, i, o, p, s, u) values(:imei, :day, :i, :o, :p, :s, :u)")

@@ -29,6 +29,7 @@ import akka.http.scaladsl.unmarshalling.Unmarshaller
 import helloscala.common.util.TimeUtils
 
 trait HttpDirectives {
+
   implicit def localDateFromStringUnmarshaller: FromStringUnmarshaller[LocalDate] =
     HttpDirectives._localDateFromStringUnmarshaller
 
@@ -73,7 +74,7 @@ object HttpDirectives extends HttpDirectives {
 //    PathMatcher("""[\da-fA-F]{24}""".r) flatMap { string =>
 //      try ObjectId.parse(string).toOption
 //      catch {
-//        case _: IllegalArgumentException ⇒ None
+//        case _: IllegalArgumentException => None
 //      }
 //    }
 

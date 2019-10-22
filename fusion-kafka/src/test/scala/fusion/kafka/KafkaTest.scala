@@ -18,36 +18,29 @@ package fusion.kafka
 
 import java.util.concurrent.TimeUnit
 
-import akka.actor.ActorSystem
+import akka.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
+import akka.actor.typed.scaladsl.adapter._
 import akka.kafka.ProducerMessage.PassThroughResult
 import akka.kafka.ProducerMessage
 import akka.kafka.Subscriptions
 import akka.kafka.scaladsl.Consumer.DrainingControl
 import akka.kafka.scaladsl.Consumer
 import akka.kafka.scaladsl.Producer
-import akka.stream.ActorMaterializer
+import akka.stream.Materializer
 import akka.stream.scaladsl.Keep
 import akka.stream.scaladsl.Sink
 import akka.stream.scaladsl.Source
 import fusion.json.jackson.Jackson
-import fusion.test.FusionTestFunSuite
 import org.apache.kafka.clients.producer.ProducerRecord
-import org.scalatest.BeforeAndAfterAll
-
-import scala.concurrent.duration._
-
+import org.scalatest.FunSuiteLike
 case class FileEntity(_id: String, hash: String, suffix: String, localPath: String)
 
-class KafkaTest extends FusionTestFunSuite with BeforeAndAfterAll {
-  override def patienceTimeout: FiniteDuration = 10.seconds
-  implicit val system = ActorSystem()
-  implicit val mat = ActorMaterializer()
+class KafkaTest extends ScalaTestWithActorTestKit with FunSuiteLike {
+  implicit val classicSystem = system.toClassic
+  implicit val mat = Materializer(classicSystem)
   val bootstrapServers = "192.168.31.98:9092"
-
   val topic = "uploaded-file"
-
   val producerSettings = FusionKafkaProducer(system).producer
-
   val consumerSettings = FusionKafkaConsumer(system).consumer
 
   test("producer") {
@@ -62,7 +55,6 @@ class KafkaTest extends FusionTestFunSuite with BeforeAndAfterAll {
     Source(List(FileEntity("jingyang", "hash", "suffix", "localPath")))
       .map(entity => ProducerMessage.single(KafkaUtils.stringProduceRecord(topic, entity), PassThroughResult))
       .via(Producer.flexiFlow(producerSettings))
-
   }
 
   test("consumer") {
@@ -78,7 +70,4 @@ class KafkaTest extends FusionTestFunSuite with BeforeAndAfterAll {
     TimeUnit.SECONDS.sleep(10)
   }
 
-  override protected def afterAll(): Unit = {
-    system.terminate()
-  }
 }

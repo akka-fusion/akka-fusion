@@ -16,18 +16,16 @@
 
 package fusion.kafka
 
-import akka.actor.ExtendedActorSystem
-import akka.actor.Extension
-import akka.actor.ExtensionId
-import akka.actor.ExtensionIdProvider
+import akka.actor.typed.ActorSystem
 import akka.kafka.ProducerSettings
+import fusion.core.extension.FusionExtension
+import fusion.core.extension.FusionExtensionId
 
-final class FusionKafkaProducer private (system: ExtendedActorSystem) extends Extension {
+final class FusionKafkaProducer private (val system: ActorSystem[_]) extends FusionExtension {
   def producer: ProducerSettings[String, String] = producers.component
   val producers = new ProducerComponents(system)
 }
 
-object FusionKafkaProducer extends ExtensionId[FusionKafkaProducer] with ExtensionIdProvider {
-  override def createExtension(system: ExtendedActorSystem): FusionKafkaProducer = new FusionKafkaProducer(system)
-  override def lookup(): ExtensionId[_ <: Extension] = FusionKafkaProducer
+object FusionKafkaProducer extends FusionExtensionId[FusionKafkaProducer] {
+  override def createExtension(system: ActorSystem[_]): FusionKafkaProducer = new FusionKafkaProducer(system)
 }

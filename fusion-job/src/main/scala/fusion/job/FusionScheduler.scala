@@ -19,8 +19,8 @@ package fusion.job
 import java.time.Instant
 import java.util.Date
 
-import scala.collection.JavaConverters._
-import akka.actor.ActorSystem
+import scala.jdk.CollectionConverters._
+import akka.actor.typed.ActorSystem
 import org.quartz.impl.matchers.GroupMatcher
 import org.quartz.Calendar
 import org.quartz.JobDataMap
@@ -35,10 +35,10 @@ import org.quartz.Trigger
 import org.quartz.TriggerKey
 
 object FusionScheduler {
-  def apply(scheduler: Scheduler, system: ActorSystem): FusionScheduler = new FusionScheduler(scheduler, system)
+  def apply(scheduler: Scheduler, system: ActorSystem[_]): FusionScheduler = new FusionScheduler(scheduler, system)
 }
 
-final class FusionScheduler private (val scheduler: Scheduler, system: ActorSystem) extends AutoCloseable {
+final class FusionScheduler private (val scheduler: Scheduler, system: ActorSystem[_]) extends AutoCloseable {
   scheduler.start()
 
   def getSchedulerName: String = scheduler.getSchedulerName
@@ -60,10 +60,10 @@ final class FusionScheduler private (val scheduler: Scheduler, system: ActorSyst
   def scheduleJob(trigger: Trigger): Instant = scheduler.scheduleJob(trigger).toInstant
 
   def scheduleJobs(triggersAndJobs: Map[JobDetail, Set[_ <: Trigger]], replace: Boolean): Unit = {
-    val payload: java.util.Map[JobDetail, java.util.Set[_ <: Trigger]] =
-      new java.util.HashMap(triggersAndJobs.mapValues { item =>
-        new java.util.HashSet(item.asJava)
-      }.asJava)
+    val payload = new java.util.HashMap[JobDetail, java.util.Set[_ <: Trigger]](triggersAndJobs.size)
+    for ((key, sets) <- triggersAndJobs) {
+      payload.put(key, sets.asJava)
+    }
     scheduler.scheduleJobs(payload, replace)
   }
 

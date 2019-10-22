@@ -16,13 +16,15 @@
 
 package docs.http
 
-import akka.actor.ActorSystem
+import akka.actor.typed.ActorSystem
 import akka.http.scaladsl.server.Directives
+import akka.{actor => classic}
 import fusion.http.FusionHttpServer
 
 // #SampleHttp
 object SampleHttp extends App with Directives {
-  implicit val system = ActorSystem()
+  implicit val classicSystem = classic.ActorSystem()
+  val system = ActorSystem.wrap(classicSystem)
 
   val route = path("hello") {
     get {

@@ -17,8 +17,8 @@ object Commons {
     Seq(
       organization := "com.helloscala.fusion",
       organizationName := "helloscala.com",
-      organizationHomepage := Some(url("http://ihongka.cn")),
-      homepage := Some(url("http://ihongka.github.cn/akka-fusion")),
+      organizationHomepage := Some(url("https://github.com/akka-fusion")),
+      homepage := Some(url("https://akka-fusion.github.io/akka-fusion")),
       startYear := Some(2019),
       licenses += ("Apache-2.0", new URL("https://www.apache.org/licenses/LICENSE-2.0.txt")),
       headerLicense := Some(HeaderLicense.ALv2("2019", "helloscala.com")),
@@ -34,8 +34,7 @@ object Commons {
           "-Ywarn-dead-code",
           //"-Yrangepos", // required by SemanticDB compiler plugin
           //"-Ywarn-unused-import", // required by `RemoveUnused` rule
-          "-Xlint"
-        )
+          "-Xlint")
         //if (scalaVersion.value.startsWith("2.12")) {
         //  list ++= Seq("-opt:l:inline", "-opt-inline-from")
         //}
@@ -88,7 +87,7 @@ object Publishing {
                       "Helloscala_sbt-public_release".at(
                         "https://artifactory.hongkazhijia.com/artifactory/libs-release"))
                   }),
-    credentials += Credentials(Path.userHome / ".ivy2" / ".credentials_ihongka"))
+    credentials += Credentials(Path.userHome / ".ivy2" / ".credentials_akka-fusion"))
 
   lazy val noPublish =
     Seq(publish := ((): Unit), publishLocal := ((): Unit), publishTo := None)

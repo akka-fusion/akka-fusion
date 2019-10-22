@@ -16,22 +16,19 @@
 
 package fusion.mybatis
 
-import akka.actor.ExtendedActorSystem
-import akka.actor.Extension
-import akka.actor.ExtensionId
-import akka.actor.ExtensionIdProvider
+import akka.actor.typed.ActorSystem
 import fusion.core.extension.FusionCore
 import fusion.core.extension.FusionExtension
+import fusion.core.extension.FusionExtensionId
 
-class FusionMybatis private (override protected val _system: ExtendedActorSystem) extends FusionExtension {
-  val components: MybatisComponents = new MybatisComponents(_system)
+class FusionMybatis private (override val system: ActorSystem[_]) extends FusionExtension {
+  val components: MybatisComponents = new MybatisComponents(system)
   def component: FusionSqlSessionFactory = components.component
   FusionCore(system).shutdowns.beforeActorSystemTerminate("StopFusionMybatis") { () =>
-    components.closeAsync()(system.dispatcher)
+    components.closeAsync()(system.executionContext)
   }
 }
 
-object FusionMybatis extends ExtensionId[FusionMybatis] with ExtensionIdProvider {
-  override def createExtension(system: ExtendedActorSystem): FusionMybatis = new FusionMybatis(system)
-  override def lookup(): ExtensionId[_ <: Extension] = FusionMybatis
+object FusionMybatis extends FusionExtensionId[FusionMybatis] {
+  override def createExtension(system: ActorSystem[_]): FusionMybatis = new FusionMybatis(system)
 }

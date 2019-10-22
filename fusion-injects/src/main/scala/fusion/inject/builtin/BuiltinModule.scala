@@ -16,9 +16,9 @@
 
 package fusion.inject.builtin
 
-import akka.actor.ActorSystem
-import akka.stream.ActorMaterializer
+import akka.actor.typed.ActorSystem
 import akka.stream.Materializer
+import akka.{actor => classic}
 import com.google.inject.AbstractModule
 import com.typesafe.config.Config
 import fusion.core.extension.FusionCore
@@ -43,32 +43,40 @@ class ConfigProvider @Inject()(configuration: Configuration) extends Provider[Co
 }
 
 @Singleton
-class ActorSystemProvider @Inject()(configuration: Configuration) extends Provider[ActorSystem] {
+class ActorSystemProvider @Inject()(configuration: Configuration) extends Provider[ActorSystem[_]] {
   private[this] val system = FusionUtils.createActorSystem(configuration)
   FusionCore(system)
   sys.addShutdownHook { system.terminate() }
-  override def get(): ActorSystem = system
+  override def get(): ActorSystem[_] = system
 }
 
 @Singleton
-class ExecutionContextExecutorProvider @Inject()(system: ActorSystem) extends Provider[ExecutionContextExecutor] {
-  override def get(): ExecutionContextExecutor = system.dispatcher
+class ClassicActorSystemProvider @Inject()(system: ActorSystem[_]) extends Provider[classic.ActorSystem] {
+  import akka.actor.typed.scaladsl.adapter._
+  override def get(): classic.ActorSystem = system.toClassic
 }
 
 @Singleton
-class ActorMaterializerProvider @Inject()(system: ActorSystem) extends Provider[ActorMaterializer] {
-  private[this] val materializer = ActorMaterializer()(system)
+class ExecutionContextExecutorProvider @Inject()(system: ActorSystem[_]) extends Provider[ExecutionContextExecutor] {
+  override def get(): ExecutionContextExecutor = system.executionContext
+}
 
-  override def get(): ActorMaterializer = materializer
+@Singleton
+class MaterializerProvider @Inject()(system: classic.ActorSystem) extends Provider[Materializer] {
+  private[this] val materializer = Materializer(system)
+
+  override def get(): Materializer = materializer
 }
 
 class BuiltinModule extends AbstractModule {
+
   override def configure(): Unit = {
     bind(classOf[Configuration]).toProvider(classOf[ConfigurationProvider])
-    bind(classOf[ActorSystem]).toProvider(classOf[ActorSystemProvider])
+    bind(classOf[ActorSystem[_]]).toProvider(classOf[ActorSystemProvider])
+    bind(classOf[classic.ActorSystem]).toProvider(classOf[ClassicActorSystemProvider])
     bind(classOf[ExecutionContextExecutor]).toProvider(classOf[ExecutionContextExecutorProvider])
     bind(classOf[ExecutionContext]).to(classOf[ExecutionContextExecutor])
-    bind(classOf[ActorMaterializer]).toProvider(classOf[ActorMaterializerProvider])
-    bind(classOf[Materializer]).to(classOf[ActorMaterializer])
+    bind(classOf[Materializer]).toProvider(classOf[MaterializerProvider])
   }
+
 }

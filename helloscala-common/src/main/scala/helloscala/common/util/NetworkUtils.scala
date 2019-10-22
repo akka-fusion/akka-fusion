@@ -22,7 +22,7 @@ import java.net.InetSocketAddress
 import java.net.InterfaceAddress
 import java.net.NetworkInterface
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 object NetworkUtils {
   private val validNetworkNamePrefixes = List("eth", "enp", "wlp")

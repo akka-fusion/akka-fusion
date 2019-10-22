@@ -17,11 +17,7 @@
 package fusion.data.mongodb.extension
 
 import akka.Done
-import akka.actor.ActorSystem
-import akka.actor.ExtendedActorSystem
-import akka.actor.Extension
-import akka.actor.ExtensionId
-import akka.actor.ExtensionIdProvider
+import akka.actor.typed.ActorSystem
 import com.mongodb.ConnectionString
 import com.mongodb.MongoClientSettings
 import com.mongodb.MongoDriverInformation
@@ -29,15 +25,16 @@ import com.mongodb.reactivestreams.client.MongoClients
 import fusion.core.component.Components
 import fusion.core.extension.FusionCore
 import fusion.core.extension.FusionExtension
+import fusion.core.extension.FusionExtensionId
 import fusion.data.mongodb.MongoTemplate
 import fusion.data.mongodb.constant.MongoConstants
 import helloscala.common.Configuration
 
 import scala.concurrent.Future
 
-final private[mongodb] class MongoComponents(system: ActorSystem)
+final private[mongodb] class MongoComponents(system: ActorSystem[_])
     extends Components[MongoTemplate](MongoConstants.PATH_DEFAULT) {
-  import system.dispatcher
+  import system.executionContext
   override def configuration: Configuration = Configuration(system.settings.config)
 
   override protected def componentClose(c: MongoTemplate): Future[Done] = Future {
@@ -81,17 +78,16 @@ final private[mongodb] class MongoComponents(system: ActorSystem)
 
 }
 
-final class FusionMongo private (val _system: ExtendedActorSystem) extends FusionExtension {
+final class FusionMongo private (override val system: ActorSystem[_]) extends FusionExtension {
   FusionCore(system)
   val components = new MongoComponents(system)
   FusionCore(system).shutdowns.beforeActorSystemTerminate("StopFusionMongo") { () =>
-    components.closeAsync()(system.dispatcher)
+    components.closeAsync()(system.executionContext)
   }
 
   def mongoTemplate: MongoTemplate = components.component
 }
 
-object FusionMongo extends ExtensionId[FusionMongo] with ExtensionIdProvider {
-  override def createExtension(system: ExtendedActorSystem): FusionMongo = new FusionMongo(system)
-  override def lookup(): ExtensionId[_ <: Extension] = FusionMongo
+object FusionMongo extends FusionExtensionId[FusionMongo] {
+  override def createExtension(system: ActorSystem[_]): FusionMongo = new FusionMongo(system)
 }

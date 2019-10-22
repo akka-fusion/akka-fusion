@@ -34,6 +34,7 @@ class DefaultDisallowConcurrentJob extends Job {
 }
 
 class DefaultInterruptableJob extends InterruptableJob {
+
   override def interrupt(): Unit = {
     throw new UnableToInterruptJobException(s"interrupt on ${OffsetDateTime.now()}")
   }

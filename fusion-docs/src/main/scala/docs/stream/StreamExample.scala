@@ -17,11 +17,11 @@
 package docs.stream
 
 import akka.Done
-import akka.actor.ActorSystem
+import akka.{actor => classic}
 import akka.kafka.ConsumerSettings
 import akka.kafka.Subscriptions
 import akka.kafka.scaladsl.Consumer
-import akka.stream.ActorMaterializer
+import akka.stream.Materializer
 import akka.stream.scaladsl.Sink
 import akka.stream.scaladsl.Source
 import fusion.json.jackson.Jackson
@@ -32,8 +32,8 @@ import scala.concurrent.Future
 import scala.util.Random
 
 object StreamExample {
-  implicit val system = ActorSystem()
-  implicit val mat = ActorMaterializer()
+  implicit val system = classic.ActorSystem()
+  implicit val mat = Materializer(system)
   import system.dispatcher
 
   def findOrgIdsByArea(area: String): Future[List[String]] = Future {
@@ -69,7 +69,7 @@ object StreamExample {
 
   def secondOnAkkaStream(): Future[Done] = {
     Source
-      .fromFuture(findOrgIdsByArea("北京"))
+      .future(findOrgIdsByArea("北京"))
       .mapConcat(identity)
       .mapAsync(4)(orgId => findUserIdsByOrgId(orgId))
       .mapAsync(4)(userIds => findImeisByUserIds(userIds))
@@ -81,7 +81,7 @@ object StreamExample {
   def secondOnAkkaStreamThrottle(): Future[Done] = {
     import scala.concurrent.duration._
     Source
-      .fromFuture(findOrgIdsByArea("北京"))
+      .future(findOrgIdsByArea("北京"))
       .mapConcat(identity)
       .mapAsync(4)(orgId => findUserIdsByOrgId(orgId))
       .mapAsync(4)(userIds => findImeisByUserIds(userIds))
@@ -103,7 +103,7 @@ object StreamExample {
       .map(record => Jackson.convertValue[SendMessageByArea](record.value()))
       .flatMapConcat { req =>
         Source
-          .fromFuture(findOrgIdsByArea(req.area))
+          .future(findOrgIdsByArea(req.area))
           .mapConcat(identity)
           .mapAsync(4)(orgId => findUserIdsByOrgId(orgId))
           .mapAsync(4)(userIds => findImeisByUserIds(userIds))

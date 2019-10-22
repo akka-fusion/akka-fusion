@@ -35,7 +35,7 @@ import helloscala.common.exception.HSBadRequestException
 import helloscala.common.util.Utils
 import org.json4s.jackson.Json4sScalaModule
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.reflect.ClassTag
 import scala.util.control.NonFatal
 

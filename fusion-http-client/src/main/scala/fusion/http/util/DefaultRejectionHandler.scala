@@ -24,6 +24,7 @@ import com.typesafe.scalalogging.StrictLogging
 import scala.collection.immutable
 
 final class DefaultRejectionHandler extends RejectionHandler with StrictLogging {
+
   override def apply(rejections: immutable.Seq[Rejection]): Option[Route] = {
     BaseRejectionBuilder.rejectionHandler(rejections)
   }

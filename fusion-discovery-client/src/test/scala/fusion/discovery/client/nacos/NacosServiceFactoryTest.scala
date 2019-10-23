@@ -28,7 +28,7 @@ class NacosServiceFactoryTest extends FusionTestFunSuite with MustMatchers {
   // #NacosServiceFactoryTest
   test("通过serverAddr地址和namespace直接访问") {
     val configService = NacosServiceFactory.configService("localhost:8848", "5b764784-f457-46fb-96c6-4f086d5d0ce1")
-    val confStr = configService.getConfig("hongka.file.app", NacosConstants.DEFAULT_GROUP, 3000)
+    val confStr = configService.getConfig("fusion.file.app", NacosConstants.DEFAULT_GROUP, 3000)
     confStr must not be empty
     val config = ConfigFactory.parseString(confStr).resolve()
     config.getString("fusion.name") mustBe "file-local"
@@ -40,7 +40,7 @@ class NacosServiceFactoryTest extends FusionTestFunSuite with MustMatchers {
     props.put("namespace", "5b764784-f457-46fb-96c6-4f086d5d0ce1")
 
     val configService = NacosServiceFactory.configService(props)
-    val confStr = configService.getConfig("hongka.file.app", NacosConstants.DEFAULT_GROUP, 3000)
+    val confStr = configService.getConfig("fusion.file.app", NacosConstants.DEFAULT_GROUP, 3000)
     confStr must not be empty
     ConfigFactory.invalidateCaches()
     val config = ConfigFactory.parseString(confStr).resolve()
@@ -52,7 +52,7 @@ class NacosServiceFactoryTest extends FusionTestFunSuite with MustMatchers {
     props.put("fusion.discovery.enable", "true")
     props.put("fusion.discovery.nacos.serverAddr", "123.206.9.104:8849")
     props.put("fusion.discovery.nacos.namespace", "7bf36554-e291-4789-b5fb-9e515ca58ba0")
-    props.put("fusion.discovery.nacos.dataId", "hongka.file.app")
+    props.put("fusion.discovery.nacos.dataId", "fusion.file.app")
 //    props.put("fusion.discovery.nacos.group", NacosConstants.DEFAULT_GROUP)
     val configuration = Configuration.fromDiscovery()
     configuration.getString("fusion.name") mustBe "file-app"

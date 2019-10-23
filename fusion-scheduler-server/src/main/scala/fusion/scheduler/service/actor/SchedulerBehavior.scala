@@ -14,19 +14,21 @@
  * limitations under the License.
  */
 
-package fusion.scheduler.service
+package fusion.scheduler.service.actor
 
 import akka.actor.typed.Behavior
 import akka.actor.typed.scaladsl.Behaviors
 import fusion.job.FusionJob
 import fusion.job.FusionScheduler
 import fusion.scheduler.model._
+import fusion.scheduler.service.SchedulerServiceComponent
 
 object SchedulerBehavior extends SchedulerServiceComponent {
   val name = "fusion-scheduler"
 
   def apply(): Behavior[JobCommand] = Behaviors.setup { context =>
     implicit val fusionScheduler: FusionScheduler = FusionJob(context.system).component
+    context.log.info(s"${context.self} SchedulerBehavior started")
 
     Behaviors.receiveMessagePartial {
       case dto: JobCancelDTO =>

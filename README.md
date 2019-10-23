@@ -11,18 +11,15 @@ Akka Fusion可以轻松创建独立的，生产级的基于Akka的应用程序�
 object SampleApplication {
 
   def main(args: Array[String]): Unit = {
-    implicit val system = ActorSystem()
-    implicit val ec     = system.dispatcher
-    val sampleService   = new SampleService()
-    val routes          = new SampleRoute(sampleService)
-    FusionHttp(system).startAwait(routes.route)
+    val system = FusionUtils.createActorSystem(ConfigFactory.load())
+    implicit val ec = system.executionContext
+    val sampleService = new SampleService()
+    val route = new SampleRoute(sampleService)
+    FusionHttpServer(system).component.startAbstractRouteSync(route)
   }
 }
 
-// Server
-class SampleServer(val routes: SampleRoute) extends FusionServer
-
-// Controller
+// Route
 class SampleRoute(sampleService: SampleService) extends AbstractRoute {
   override def route: Route = pathGet("hello") {
     parameters(('hello, 'year.as[Int].?(2019))).as(SampleReq) { req =>

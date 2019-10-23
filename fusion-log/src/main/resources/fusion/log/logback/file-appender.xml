@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <included>
-    <appender name="file_out" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <File>${fusion.log.logback.dir:-${user.dir}/logs}/${fusion.log.logback.file:-${spring.application.name:-fusion}}.log</File>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <FileNamePattern>${fusion.log.logback.dir:-${user.dir}/logs}/${fusion.log.logback.file:-${spring.application.name:-fusion}}.%d{yyyy-MM-dd}.gz</FileNamePattern>
@@ -33,8 +33,13 @@
                 </pattern>
                 <callerData/>
                 <version/>
-                <stackTrace/>
+                <!--<stackTrace/>-->
             </providers>
         </encoder>
     </appender>
+<!--    <appender name="ASYNC_FILE" class="ch.qos.logback.classic.AsyncAppender">-->
+<!--        <queueSize>1024</queueSize>-->
+<!--        <neverBlock>true</neverBlock>-->
+<!--        <appender-ref ref="FILE" />-->
+<!--    </appender>-->
 </included>

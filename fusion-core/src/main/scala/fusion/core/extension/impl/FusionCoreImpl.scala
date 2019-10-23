@@ -18,6 +18,7 @@ package fusion.core.extension.impl
 
 import java.nio.file.Paths
 
+import akka.actor.ExtendedActorSystem
 import akka.actor.typed.ActorRef
 import akka.actor.typed.ActorSystem
 import akka.actor.typed.Behavior
@@ -42,6 +43,7 @@ import helloscala.common.util.Utils
 import scala.concurrent.Future
 import scala.concurrent.duration._
 import scala.util.control.NonFatal
+import akka.actor.typed.scaladsl.adapter._
 
 private[fusion] class FusionCoreImpl(val system: ActorSystem[_]) extends FusionCore with StrictLogging {
 
@@ -62,6 +64,14 @@ private[fusion] class FusionCoreImpl(val system: ActorSystem[_]) extends FusionC
   private lazy val _configuration = new Configuration(system.settings.config)
 
   override def configuration: Configuration = _configuration
+
+  override def fusionSystem: ActorSystem[FusionProtocol.Command] =
+    system.asInstanceOf[ActorSystem[FusionProtocol.Command]]
+
+  override def classicSystem: ExtendedActorSystem = system.toClassic match {
+    case v: ExtendedActorSystem => v
+    case _                      => throw new IllegalStateException("Need ExtendedActorSystem instance.")
+  }
 
   val currentXService: HttpHeader = {
     val serviceName = configuration.get[Option[String]]("fusion.discovery.nacos.serviceName").getOrElse(name)

@@ -27,8 +27,8 @@ import fusion.core.extension.FusionExtension
 import fusion.core.extension.FusionExtensionId
 import fusion.scheduler.grpc.SchedulerService
 import fusion.scheduler.model.End
-import fusion.scheduler.service.SchedulerBehavior
 import fusion.scheduler.service.SchedulerServiceImpl
+import fusion.scheduler.service.actor.SchedulerBehavior
 
 import scala.concurrent.Future
 

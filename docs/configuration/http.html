@@ -156,7 +156,7 @@ akka-fusion/akka-fusion
   <ul>
     <li><a href="../discovery-client/nacos.html" class="page">连接 Nacos</a></li>
   </ul></li>
-  <li><a href="../http-gateway/index.html" class="page">HTTP网关代理</a></li>
+  <li><a href="../http-gateway/index.html" class="page">HTTP 代理网关</a></li>
   <li><a href="../jdbc/index.html" class="page">Jdbc</a></li>
   <li><a href="../slick/index.html" class="page">Slick</a></li>
   <li><a href="../mybatis/index.html" class="page">MyBatis</a>
@@ -191,7 +191,7 @@ akka-fusion/akka-fusion
 <ul style="display: none">
 <li class="md-nav__item md-version" id="project.version">
 <label class="md-nav__link" for="__version">
-<i class="md-icon" title="Version">label_outline</i> 1.0.0*
+<i class="md-icon" title="Version">label_outline</i> 2.0.0*
 </label>
 </li>
 </ul>
@@ -202,7 +202,17 @@ akka-fusion/akka-fusion
 <article class="md-content__inner md-typeset">
 <div class="md-content__searchable">
 <h1><a href="#fusion-http-配置" name="fusion-http-配置" class="anchor"><span class="anchor-link"></span></a>Fusion HTTP 配置</h1>
-<pre class="prettyprint"><a class="icon go-to-source" href="https://github.com/yangbajing/akka-fusion/tree/master/fusion-http/src/main/resources/reference.conf" target="_blank" title="Go to snippet source"></a><code class="language-conf">fusion {
+<pre class="prettyprint"><a class="icon go-to-source" href="https://github.com/yangbajing/akka-fusion/tree/master/fusion-http/src/main/resources/reference.conf" target="_blank" title="Go to snippet source"></a><code class="language-conf">fusion.default.http {
+  server {
+    host = &quot;0.0.0.0&quot;
+    port = 8000
+  }
+  rejection-handler = fusion.http.util.DefaultRejectionHandler
+  exception-handler = fusion.http.util.DefaultExceptionHandler
+  default-interceptor = [fusion.http.util.DefaultHttpInterceptor]
+  http-interceptors = []
+}
+fusion {
   http {
     default {
       server {
@@ -255,7 +265,7 @@ Edit this page
 </div>
 <div class="print-only">
 <span class="md-source-file md-version">
-1.0.0*
+2.0.0*
 </span>
 </div>
 </article>

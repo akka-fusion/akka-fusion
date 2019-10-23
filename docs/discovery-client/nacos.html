@@ -156,7 +156,7 @@ akka-fusion/akka-fusion
   <ul>
     <li><a href="../discovery-client/nacos.html" class="active page">连接 Nacos</a></li>
   </ul></li>
-  <li><a href="../http-gateway/index.html" class="page">HTTP网关代理</a></li>
+  <li><a href="../http-gateway/index.html" class="page">HTTP 代理网关</a></li>
   <li><a href="../jdbc/index.html" class="page">Jdbc</a></li>
   <li><a href="../slick/index.html" class="page">Slick</a></li>
   <li><a href="../mybatis/index.html" class="page">MyBatis</a>
@@ -200,7 +200,7 @@ akka-fusion/akka-fusion
 <ul style="display: none">
 <li class="md-nav__item md-version" id="project.version">
 <label class="md-nav__link" for="__version">
-<i class="md-icon" title="Version">label_outline</i> 1.0.0*
+<i class="md-icon" title="Version">label_outline</i> 2.0.0*
 </label>
 </li>
 </ul>
@@ -236,12 +236,12 @@ akka-fusion/akka-fusion
   <li>Akka的扩展性很好，可非常容易的接入Nacos。</li>
 </ol>
 <h2><a href="#依赖" name="依赖" class="anchor"><span class="anchor-link"></span></a>依赖</h2>
-<p>要使用Fusion提供到服务发现、注册客户端功能，需添加以下依赖：</p><dl class="dependency"><dt>sbt</dt><dd><pre class="prettyprint"><code class="language-scala">libraryDependencies += "com.helloscala.fusion" %% "fusion-discovery-client" % "1.0.0-SNAPSHOT"</code></pre></dd><dt>Maven</dt><dd><pre class="prettyprint"><code class="language-xml">&lt;dependency&gt;
+<p>要使用Fusion提供到服务发现、注册客户端功能，需添加以下依赖：</p><dl class="dependency"><dt>sbt</dt><dd><pre class="prettyprint"><code class="language-scala">libraryDependencies += "com.helloscala.fusion" %% "fusion-discovery-client" % "2.0.0-SNAPSHOT"</code></pre></dd><dt>Maven</dt><dd><pre class="prettyprint"><code class="language-xml">&lt;dependency&gt;
   &lt;groupId&gt;com.helloscala.fusion&lt;/groupId&gt;
-  &lt;artifactId&gt;fusion-discovery-client_2.12&lt;/artifactId&gt;
-  &lt;version&gt;1.0.0-SNAPSHOT&lt;/version&gt;
+  &lt;artifactId&gt;fusion-discovery-client_2.13&lt;/artifactId&gt;
+  &lt;version&gt;2.0.0-SNAPSHOT&lt;/version&gt;
 &lt;/dependency&gt;</code></pre></dd><dt>Gradle</dt><dd><pre class="prettyprint"><code class="language-gradle">dependencies {
-  compile group: 'com.helloscala.fusion', name: 'fusion-discovery-client_2.12', version: '1.0.0-SNAPSHOT'
+  compile group: 'com.helloscala.fusion', name: 'fusion-discovery-client_2.13', version: '2.0.0-SNAPSHOT'
 }</code></pre></dd></dl>
 <h2><a href="#开始使用" name="开始使用" class="anchor"><span class="anchor-link"></span></a>开始使用</h2>
 <p>在<code>application.conf</code>配置文件中添加以下配置指定Nacos服务端：</p>
@@ -250,10 +250,10 @@ akka-fusion/akka-fusion
   nacos {
     serverAddr = &quot;10.0.5.36:8849&quot;
     namespace = &quot;7bf36554-e291-4789-b5fb-9e515ca58ba0&quot;
-    dataId = &quot;hongka.file.app&quot;
+    dataId = &quot;fusion.file.app&quot;
     group = &quot;DEFAULT_GROUP&quot;
     timeoutMs = 3000
-    serviceName = &quot;hongka-file-app&quot;
+    serviceName = &quot;fusion-file-app&quot;
   }
 }
 </code></pre>
@@ -276,9 +276,9 @@ val system = ActorSystem(&quot;name&quot;, configuration.underlying)
 FusionNacos(system)
 </code></pre>
 <h2><a href="#更多示例" name="更多示例" class="anchor"><span class="anchor-link"></span></a>更多示例</h2>
-<pre class="prettyprint"><a class="icon go-to-source" href="https://github.com/yangbajing/akka-fusion/tree/master/fusion-discovery-client/src/test/scala/fusion/discovery/client/nacos/NacosServiceFactoryTest.scala#L12-L42" target="_blank" title="Go to snippet source"></a><code class="language-scala">  test(&quot;通过serverAddr地址和namespace直接访问&quot;) {
+<pre class="prettyprint"><a class="icon go-to-source" href="https://github.com/yangbajing/akka-fusion/tree/master/fusion-discovery-client/src/test/scala/fusion/discovery/client/nacos/NacosServiceFactoryTest.scala#L29-L59" target="_blank" title="Go to snippet source"></a><code class="language-scala">  test(&quot;通过serverAddr地址和namespace直接访问&quot;) {
     val configService = NacosServiceFactory.configService(&quot;localhost:8848&quot;, &quot;5b764784-f457-46fb-96c6-4f086d5d0ce1&quot;)
-    val confStr       = configService.getConfig(&quot;hongka.file.app&quot;, NacosConstants.DEFAULT_GROUP, 3000)
+    val confStr = configService.getConfig(&quot;fusion.file.app&quot;, NacosConstants.DEFAULT_GROUP, 3000)
     confStr must not be empty
     val config = ConfigFactory.parseString(confStr).resolve()
     config.getString(&quot;fusion.name&quot;) mustBe &quot;file-local&quot;
@@ -290,7 +290,7 @@ FusionNacos(system)
     props.put(&quot;namespace&quot;, &quot;5b764784-f457-46fb-96c6-4f086d5d0ce1&quot;)
 
     val configService = NacosServiceFactory.configService(props)
-    val confStr       = configService.getConfig(&quot;hongka.file.app&quot;, NacosConstants.DEFAULT_GROUP, 3000)
+    val confStr = configService.getConfig(&quot;fusion.file.app&quot;, NacosConstants.DEFAULT_GROUP, 3000)
     confStr must not be empty
     ConfigFactory.invalidateCaches()
     val config = ConfigFactory.parseString(confStr).resolve()
@@ -302,7 +302,7 @@ FusionNacos(system)
     props.put(&quot;fusion.discovery.enable&quot;, &quot;true&quot;)
     props.put(&quot;fusion.discovery.nacos.serverAddr&quot;, &quot;123.206.9.104:8849&quot;)
     props.put(&quot;fusion.discovery.nacos.namespace&quot;, &quot;7bf36554-e291-4789-b5fb-9e515ca58ba0&quot;)
-    props.put(&quot;fusion.discovery.nacos.dataId&quot;, &quot;hongka.file.app&quot;)
+    props.put(&quot;fusion.discovery.nacos.dataId&quot;, &quot;fusion.file.app&quot;)
 //    props.put(&quot;fusion.discovery.nacos.group&quot;, NacosConstants.DEFAULT_GROUP)
     val configuration = Configuration.fromDiscovery()
     configuration.getString(&quot;fusion.name&quot;) mustBe &quot;file-app&quot;
@@ -316,7 +316,7 @@ Edit this page
 </div>
 <div class="print-only">
 <span class="md-source-file md-version">
-1.0.0*
+2.0.0*
 </span>
 </div>
 </article>
@@ -339,13 +339,13 @@ Previous
 </span>
 </div>
 </a>
-<a href="../http-gateway/index.html" title="HTTP网关代理" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+<a href="../http-gateway/index.html" title="HTTP 代理网关" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
 <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
 <span class="md-flex__ellipsis">
 <span class="md-footer-nav__direction">
 Next
 </span>
-HTTP网关代理
+HTTP 代理网关
 </span>
 </div>
 <div class="md-flex__cell md-flex__cell--shrink">

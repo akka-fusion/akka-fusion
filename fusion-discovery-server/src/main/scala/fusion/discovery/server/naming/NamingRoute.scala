@@ -14,15 +14,12 @@
  * limitations under the License.
  */
 
-package fusion.config.server
+package fusion.discovery.server.naming
 
-import com.typesafe.config.ConfigFactory
-import fusion.config.server.controller.Routes
-import fusion.core.util.FusionUtils
-import fusion.http.FusionHttpServer
+import akka.actor.typed.ActorSystem
+import akka.http.scaladsl.server.Route
+import fusion.http.server.AbstractRoute
 
-object FusionConfigServerApplication extends App {
-  implicit val system = FusionUtils.createActorSystem(ConfigFactory.load())
-  val route = new Routes().route
-  FusionHttpServer(system).component.startRouteSync(route)
+class NamingRoute(system: ActorSystem[_]) extends AbstractRoute {
+  override def route: Route = ???
 }

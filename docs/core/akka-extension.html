@@ -156,7 +156,7 @@ akka-fusion/akka-fusion
   <ul>
     <li><a href="../discovery-client/nacos.html" class="page">连接 Nacos</a></li>
   </ul></li>
-  <li><a href="../http-gateway/index.html" class="page">HTTP网关代理</a></li>
+  <li><a href="../http-gateway/index.html" class="page">HTTP 代理网关</a></li>
   <li><a href="../jdbc/index.html" class="page">Jdbc</a></li>
   <li><a href="../slick/index.html" class="page">Slick</a></li>
   <li><a href="../mybatis/index.html" class="page">MyBatis</a>
@@ -201,7 +201,7 @@ akka-fusion/akka-fusion
 <ul style="display: none">
 <li class="md-nav__item md-version" id="project.version">
 <label class="md-nav__link" for="__version">
-<i class="md-icon" title="Version">label_outline</i> 1.0.0*
+<i class="md-icon" title="Version">label_outline</i> 2.0.0*
 </label>
 </li>
 </ul>
@@ -246,28 +246,34 @@ akka-fusion/akka-fusion
 </code></pre>
 <h2><a href="#构建扩展" name="构建扩展" class="anchor"><span class="anchor-link"></span></a>构建扩展</h2>
 <p>akka-fusion在提供了 <code>FusionExtension</code> 帮助trait来构建Akka Extension。</p>
-<pre class="prettyprint"><a class="icon go-to-source" href="https://github.com/yangbajing/akka-fusion/tree/master/fusion-core/src/main/scala/fusion/core/extension/FusionExtension.scala#L9-L13" target="_blank" title="Go to snippet source"></a><code class="language-scala">trait FusionExtension extends Extension {
-  protected val _system: ExtendedActorSystem
-  implicit val system: ActorSystem = _system
-  def configuration: Configuration = FusionCore(system).configuration
+<pre class="prettyprint"><a class="icon go-to-source" href="https://github.com/yangbajing/akka-fusion/tree/master/fusion-core/src/main/scala/fusion/core/extension/FusionExtension.scala#L28-L39" target="_blank" title="Go to snippet source"></a><code class="language-scala">trait FusionExtension extends Extension {
+  val system: ActorSystem[_] // = _system
+
+  def fusionSystem: ActorSystem[FusionProtocol.Command] = system.asInstanceOf[ActorSystem[FusionProtocol.Command]]
+
+  def classicSystem: ExtendedActorSystem = system.toClassic match {
+    case v: ExtendedActorSystem =&gt; v
+    case _                      =&gt; throw new IllegalStateException(&quot;Need ExtendedActorSystem instance.&quot;)
+  }
+
+  def configuration: Configuration = Configuration(system.settings.config)
 }</code></pre>
 <p><code>FusionExtension</code>在默认<code>Extension</code>基础之上添加了<code>ActorSystem</code>引用，并通过<code>FusionCore</code>提供了<code>Configuration</code>（对Lightbend Config的增强包装）。</p>
 <h2><a href="#通过akka-extension来管理资源" name="通过akka-extension来管理资源" class="anchor"><span class="anchor-link"></span></a>通过Akka Extension来管理资源</h2>
 <p>接下来为<code>FusionJdbc</code>作为示例，说明<code>FusionExtension</code>是怎样来管理我们的数据库访问资源的。<code>FusionJdbc</code>管理了一个或多个数据库连接池，连接池通过 <a href="https://github.com/brettwooldridge/HikariCP">HikariCP</a> 实现。</p>
-<pre class="prettyprint"><a class="icon go-to-source" href="https://github.com/yangbajing/akka-fusion/tree/master/fusion-jdbc/src/main/scala/fusion/jdbc/FusionJdbc.scala#L34-L45" target="_blank" title="Go to snippet source"></a><code class="language-scala">class FusionJdbc private (val _system: ExtendedActorSystem) extends FusionExtension {
+<pre class="prettyprint"><a class="icon go-to-source" href="https://github.com/yangbajing/akka-fusion/tree/master/fusion-jdbc/src/main/scala/fusion/jdbc/FusionJdbc.scala#L48-L58" target="_blank" title="Go to snippet source"></a><code class="language-scala">class FusionJdbc private (override val system: ActorSystem[_]) extends FusionExtension {
   val components = new JdbcComponents(system)
   FusionCore(system).shutdowns.beforeActorSystemTerminate(&quot;StopFusionJdbc&quot;) { () =&gt;
-    components.closeAsync()(system.dispatcher)
+    components.closeAsync()(system.executionContext)
   }
   def component: HikariDataSource = components.component
 }
 
-object FusionJdbc extends ExtensionId[FusionJdbc] with ExtensionIdProvider {
-  override def createExtension(system: ExtendedActorSystem): FusionJdbc = new FusionJdbc(system)
-  override def lookup(): ExtensionId[_ &lt;: Extension]                    = FusionJdbc
+object FusionJdbc extends FusionExtensionId[FusionJdbc] {
+  override def createExtension(system: ActorSystem[_]): FusionJdbc = new FusionJdbc(system)
 }</code></pre>
 <p><code>FusionJdbc</code>将由Akka保证在同一个ActorSystem中只被实例化一次，就像Spring框架里的<code>@Service</code>注解、Guice框架的<code>Singleton</code>注解一样，它们都是 <strong>单例</strong> 。</p>
-<pre class="prettyprint"><a class="icon go-to-source" href="https://github.com/yangbajing/akka-fusion/tree/master/fusion-jdbc/src/main/scala/fusion/jdbc/FusionJdbc.scala#L20-L30" target="_blank" title="Go to snippet source"></a><code class="language-scala">final private[jdbc] class JdbcComponents(system: ActorSystem)
+<pre class="prettyprint"><a class="icon go-to-source" href="https://github.com/yangbajing/akka-fusion/tree/master/fusion-jdbc/src/main/scala/fusion/jdbc/FusionJdbc.scala#L33-L44" target="_blank" title="Go to snippet source"></a><code class="language-scala">final private[jdbc] class JdbcComponents(system: ActorSystem[_])
     extends Components[HikariDataSource](JdbcConstants.PATH_DEFAULT) {
   override def configuration: Configuration = FusionCore(system).configuration
 
@@ -275,6 +281,7 @@ object FusionJdbc extends ExtensionId[FusionJdbc] with ExtensionIdProvider {
     c.close()
     Done
   }
+
   override protected def createComponent(id: String): HikariDataSource =
     JdbcUtils.createHikariDataSource(configuration.getConfig(id))
 }</code></pre>
@@ -282,7 +289,7 @@ object FusionJdbc extends ExtensionId[FusionJdbc] with ExtensionIdProvider {
 <p>请关注<code>FusionCore(system).shutdowns.beforeActorSystemTerminate</code>这行代码，它使用<code>CoordinatedShutdown</code>来协调资源的关闭，它将在<code>ActorSystem</code>终止前关闭所有数据库连接池。更多内容请参阅： <a href="fusion-core.html#shutdowns">FusionCore#shutdowns</a></p>
 <h4><a href="#components" name="components" class="anchor"><span class="anchor-link"></span></a>Components</h4>
 <p><code>Components</code> 提供代码实现如下：</p>
-<pre class="prettyprint"><a class="icon go-to-source" href="https://github.com/yangbajing/akka-fusion/tree/master/fusion-core/src/main/scala/fusion/core/util/Components.scala#L14-L54" target="_blank" title="Go to snippet source"></a><code class="language-scala">abstract class Components[T](DEFAULT_ID: String) extends StrictLogging {
+<pre class="prettyprint"><a class="icon go-to-source" href="https://github.com/yangbajing/akka-fusion/tree/master/fusion-core/src/main/scala/fusion/core/component/Components.scala#L30-L70" target="_blank" title="Go to snippet source"></a><code class="language-scala">abstract class Components[T](DEFAULT_ID: String) extends StrictLogging {
   protected val components = mutable.Map.empty[String, T]
 
   def configuration: Configuration
@@ -331,12 +338,26 @@ object FusionJdbc extends ExtensionId[FusionJdbc] with ExtensionIdProvider {
   <li>LoginService：实现用户登录、注册等业务逻辑</li>
 </ul>
 <p>你可以如下定义3个服务</p>
-<pre class="prettyprint"><a class="icon go-to-source" href="https://github.com/yangbajing/akka-fusion/tree/master/fusion-docs/src/main/scala/docs/extension/customservice/CustomService.scala" target="_blank" title="Go to snippet source"></a><code class="language-scala">package docs.extension.customservice
+<pre class="prettyprint"><a class="icon go-to-source" href="https://github.com/yangbajing/akka-fusion/tree/master/fusion-docs/src/main/scala/docs/extension/customservice/CustomService.scala" target="_blank" title="Go to snippet source"></a><code class="language-scala">/*
+ * Copyright 2019 helloscala.com
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
-import akka.actor.ExtendedActorSystem
-import akka.actor.Extension
-import akka.actor.ExtensionId
-import akka.actor.ExtensionIdProvider
+package docs.extension.customservice
+
+import akka.actor.typed.ActorSystem
+import akka.actor.typed.ExtensionId
 import fusion.core.extension.FusionExtension
 import helloscala.common.exception.HSUnauthorizedException
 import helloscala.common.util.DigestUtils
@@ -358,21 +379,22 @@ class UserRepository {
     Future.successful(UserDO(id, &quot;用户&quot;, StringUtils.randomString(24), &quot;password&quot;, &quot;salt&quot;))
 }
 
-class FileService private (val _system: ExtendedActorSystem) extends FusionExtension {
+class FileService private (val system: ActorSystem[_]) extends FusionExtension {
 
   def findUrlById(fileId: String): Future[String] = Future.successful {
     s&quot;http://localhost:9999/file/$fileId.png&quot;
   }
 }
 
-object FileService extends ExtensionId[FileService] with ExtensionIdProvider {
-  override def createExtension(system: ExtendedActorSystem): FileService = new FileService(system)
-  override def lookup(): ExtensionId[_ &lt;: Extension]                     = FileService
+object FileService extends ExtensionId[FileService] {
+//  override def createExtension(system: ExtendedActorSystem): FileService = new FileService(system)
+//  override def lookup(): ExtensionId[_ &lt;: Extension] = FileService
+  override def createExtension(system: ActorSystem[_]): FileService = new FileService(system)
 }
 
-class UserService private (val _system: ExtendedActorSystem) extends FusionExtension {
-  import system.dispatcher
-  private val fileService    = FileService(system)
+class UserService private (val system: ActorSystem[_]) extends FusionExtension {
+  import system.executionContext
+  private val fileService = FileService(system)
   private val userRepository = new UserRepository()
 
   def findBOById(id: String): Future[UserBO] = {
@@ -388,13 +410,12 @@ class UserService private (val _system: ExtendedActorSystem) extends FusionExten
   }
 }
 
-object UserService extends ExtensionId[UserService] with ExtensionIdProvider {
-  override def createExtension(system: ExtendedActorSystem): UserService = new UserService(system)
-  override def lookup(): ExtensionId[_ &lt;: Extension]                     = UserService
+object UserService extends ExtensionId[UserService] {
+  override def createExtension(system: ActorSystem[_]): UserService = new UserService(system)
 }
 
-class LoginService private (val _system: ExtendedActorSystem) extends FusionExtension {
-  import system.dispatcher
+class LoginService private (val system: ActorSystem[_]) extends FusionExtension {
+  import system.executionContext
   private val userService = UserService(system)
 
   def login(dto: LoginDTO): Future[LoginBO] = {
@@ -407,9 +428,8 @@ class LoginService private (val _system: ExtendedActorSystem) extends FusionExte
   }
 }
 
-object LoginService extends ExtensionId[LoginService] with ExtensionIdProvider {
-  override def createExtension(system: ExtendedActorSystem): LoginService = new LoginService(system)
-  override def lookup(): ExtensionId[_ &lt;: Extension]                      = LoginService
+object LoginService extends ExtensionId[LoginService] {
+  override def createExtension(system: ActorSystem[_]): LoginService = new LoginService(system)
 }</code></pre>
 <p>通过以上代码，你看到了怎样使用Akka Extension来实现服务的依赖管理。所有的服务之间只有一个显示依赖：<code>ActorSystem</code>。因为我们的框架是基于Akka的，所以我们认为显示依赖<code>ActorSystem</code>并不是一个问题。</p>
 </div>
@@ -420,7 +440,7 @@ Edit this page
 </div>
 <div class="print-only">
 <span class="md-source-file md-version">
-1.0.0*
+2.0.0*
 </span>
 </div>
 </article>

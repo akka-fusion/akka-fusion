@@ -30,7 +30,7 @@ object FusionNacosDemo extends App {
   implicit val system = ActorSystem.wrap(classic.ActorSystem("fusion-nacos-demo"))
   val actuatorRoute = FusionActuator(system).route
   FusionHttpServer(system).component.startRouteSync(actuatorRoute)
-  FusionNacos(system).component.namingService.registerInstance("hongka.file.converter", "192.168.1.53", 8000)
+  FusionNacos(system).component.namingService.registerInstance("fusion.file.converter", "192.168.1.53", 8000)
 
   StdIn.readLine()
   system.terminate()

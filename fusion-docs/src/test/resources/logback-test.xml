@@ -1,12 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration scan="false">
-    <appender name="console_out" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder>
-            <pattern>%-5level %date [%thread] %logger{36} %line - %msg%n%exception</pattern>
-        </encoder>
-    </appender>
+    <include resource="fusion/log/logback/base.xml"/>
 
-    <logger name="cn.akka-fusion" level="DEBUG"/>
     <logger name="ch.qos" level="WARN"/>
     <logger name="slick.jdbc.JdbcBackend.statement" level="DEBUG"/>
     <logger name="slick.jdbc.JdbcBackend.benchmark" level="DEBUG"/>
@@ -15,11 +10,11 @@
     <logger name="net.schmizz.sshj" level="WARN"/>
     <logger name="com.zaxxer" level="WARN"/>
     <logger name="io.getquill" level="WARN"/>
-    <logger name="hongka" level="DEBUG"/>
+    <logger name="com.akkafusion" level="DEBUG"/>
     <logger name="fusion" level="DEBUG"/>
     <logger name="helloscala" level="DEBUG"/>
 
     <root level="INFO">
-        <appender-ref ref="console_out"/>
+        <appender-ref ref="STDOUT"/>
     </root>
 </configuration>

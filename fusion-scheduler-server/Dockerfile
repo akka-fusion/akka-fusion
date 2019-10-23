@@ -1,9 +1,9 @@
-FROM postgres:11
+FROM postgres:12
 MAINTAINER Yang Jing <yangbajing@gmail.com>
 
-#ENV POSTGIS_MAJOR 2.5
-#ENV POSTGIS_VERSION 2.5.2+dfsg-1~exp1.pgdg90+1
-#ENV POSTGRES_PASSWORD Postgres.2019
+ENV POSTGRES_USER devuser
+ENV POSTGRES_PASSWORD devPass.2019
+ENV POSTGRES_DB fusion_scheduler
 ENV LANG zh_CN.utf8
 ENV TZ Asia/Shanghai
 

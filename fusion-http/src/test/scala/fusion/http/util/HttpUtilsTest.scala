@@ -29,7 +29,7 @@ class HttpUtilsTest extends ScalaTestWithActorTestKit with FusionTestFunSuite {
   implicit private def classicSystem = system.toClassic
 
   test("authority") {
-    val a = Authority.parse("hongka-server-account")
+    val a = Authority.parse("fusion-server-account")
     println(a)
     println(a.host)
     println(a.host.address())

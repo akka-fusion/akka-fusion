@@ -115,18 +115,26 @@ lazy val fusionHttpGateway = _project("fusion-http-gateway")
   .settings(libraryDependencies ++= Seq())
 
 lazy val fusionDiscoveryServer = _project("fusion-discovery-server")
-  .dependsOn(fusionDiscoveryClient, fusionHttp, fusionTest % "test->test", fusionCore)
-  .settings(libraryDependencies ++= _akkaClusters)
+  .enablePlugins(AkkaGrpcPlugin, JavaAgent)
+  .dependsOn(fusionDiscoveryClient, fusionHttp, fusionLog, fusionTest % "test->test", fusionCore)
   .settings(Publishing.noPublish)
+  .settings(
+    javaAgents += _alpnAgent % "runtime;test",
+    akkaGrpcCodeGeneratorSettings += "server_power_apis",
+    libraryDependencies ++= Seq(
+        "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion % "protobuf") ++ _akkaClusters)
 
 lazy val fusionDiscoveryClient = _project("fusion-discovery-client")
   .dependsOn(fusionHttpClient, fusionTest % "test->test", fusionCore)
   .settings(libraryDependencies ++= Seq(_akkaDiscovery, _nacosClient) ++ _akkaHttps)
 
 lazy val fusionSchedulerServer = _project("fusion-scheduler-server")
-  .dependsOn(fusionJsonCirce, fusionHttp, fusionDiscoveryClient, fusionJob, fusionTest % "test->test")
-  .enablePlugins(AkkaGrpcPlugin)
+  .enablePlugins(AkkaGrpcPlugin, JavaAgent)
+  .dependsOn(fusionJsonCirce, fusionHttp, fusionDiscoveryClient, fusionJob, fusionLog, fusionTest % "test->test")
+  .settings(Publishing.noPublish)
   .settings(
+    javaAgents += _alpnAgent % "runtime;test",
+    akkaGrpcCodeGeneratorSettings += "server_power_apis",
     libraryDependencies ++= Seq(
         "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion % "protobuf",
         _postgresql) ++ _akkaClusters)
@@ -250,7 +258,6 @@ lazy val fusionProtobufV3 = _project("fusion-protobuf-v3")
   .dependsOn(fusionCommon)
   .settings(Publishing.publishing: _*)
   .settings(
-    PB.protocVersion := "-v371",
     libraryDependencies ++= Seq(
         "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion % "protobuf,provided",
         _akkaGrpcRuntime,

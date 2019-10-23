@@ -1,0 +1,45 @@
+syntax = "proto3";
+package fusion.discovery.grpc;
+
+import "fusion/discovery/model/discovery.proto";
+import "fusion/define.proto";
+
+service ConfigService {
+    // 查询服务状态
+    rpc ServerStatus (fusion.discovery.model.ServerStatusQuery) returns (fusion.discovery.model.ServerStatusBO) {
+    }
+
+    // 查询配置
+    rpc QueryConfig (fusion.discovery.model.ConfigQuery) returns (fusion.discovery.model.ConfigBO) {
+    }
+
+    // 发布配置
+    rpc AddConfig (fusion.discovery.model.ConfigAdd) returns (fusion.discovery.model.ConfigAdded) {
+    }
+
+    // 删除配置
+    rpc RemoveConfig (fusion.discovery.model.ConfigRemove) returns (fusion.discovery.model.ConfigRemoved) {
+    }
+
+    // 监听配置变化
+    rpc ListenerConfig (fusion.discovery.model.ConfigChangeListen) returns (stream fusion.discovery.model.ConfigChanged) {
+    }
+}
+
+service NamingService {
+    // 查询服务状态
+    rpc ServerStatus (fusion.discovery.model.ServerStatusQuery) returns (fusion.discovery.model.ServerStatusBO) {
+    }
+
+    // 添加实例
+    rpc AddInstance (fusion.discovery.model.InstanceAdd) returns (fusion.discovery.model.InstanceAdded) {
+    }
+
+    // 删除实例
+    rpc RemoveInstance (fusion.discovery.model.InstanceRemove) returns (fusion.discovery.model.InstanceRemoved) {
+    }
+
+    // 查询实例
+    rpc QueryInstance (fusion.discovery.model.InstanceQuery) returns (fusion.discovery.model.InstanceQueried) {
+    }
+}

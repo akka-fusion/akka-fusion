@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <included>
-    <appender name="console_out" class="ch.qos.logback.core.ConsoleAppender">
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <pattern>${fusion.log.logback.console-pattern:-%d %-5level [%thread] %logger{36} %line - %msg%n%exception}</pattern>
+            <pattern>${fusion.log.logback.console-pattern:-%date{ISO8601} %-5level %thread %logger %X{akkaSource} %line - %msg%n%exception}</pattern>
         </encoder>
     </appender>
-    <appender name="console_json_out" class="ch.qos.logback.core.ConsoleAppender">
+    <appender name="STDOUT_JSON" class="ch.qos.logback.core.ConsoleAppender">
         <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
             <charset>UTF-8</charset>
             <providers>
@@ -34,4 +34,9 @@
             </providers>
         </encoder>
     </appender>
+<!--    <appender name="ASYNC_STDOUT" class="ch.qos.logback.classic.AsyncAppender">-->
+<!--        <queueSize>1024</queueSize>-->
+<!--        <neverBlock>true</neverBlock>-->
+<!--        <appender-ref ref="STDOUT" />-->
+<!--    </appender>-->
 </included>

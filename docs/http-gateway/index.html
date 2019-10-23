@@ -20,7 +20,7 @@
 
 <meta name="description" content="fusion-docs">
 <link rel="shortcut icon" href="../assets/images/favicon.png">
-<title>HTTP网关代理 · Akka Fusion</title>
+<title>HTTP 代理网关 · Akka Fusion</title>
 <link rel="stylesheet" href="../assets/stylesheets/application.451f80e5.css">
 <link rel="stylesheet" href="../assets/stylesheets/application-palette.22915126.css">
 <meta name="theme-color" content="#3f51b5" />
@@ -60,7 +60,7 @@ data-md-color-accent="red"
 Akka Fusion
 </span>
 <span class="md-header-nav__topic">
-HTTP网关代理
+HTTP 代理网关
 </span>
 </div>
 </div>
@@ -156,7 +156,7 @@ akka-fusion/akka-fusion
   <ul>
     <li><a href="../discovery-client/nacos.html" class="page">连接 Nacos</a></li>
   </ul></li>
-  <li><a href="../http-gateway/index.html" class="active page">HTTP网关代理</a></li>
+  <li><a href="../http-gateway/index.html" class="active page">HTTP 代理网关</a></li>
   <li><a href="../jdbc/index.html" class="page">Jdbc</a></li>
   <li><a href="../slick/index.html" class="page">Slick</a></li>
   <li><a href="../mybatis/index.html" class="page">MyBatis</a>
@@ -187,8 +187,9 @@ akka-fusion/akka-fusion
 <nav class="md-nav md-nav--secondary">
 <label class="md-nav__title" for="__toc">Table of contents</label>
 <ul>
-  <li><a href="../http-gateway/index.html#http网关代理" class="header">HTTP网关代理</a>
+  <li><a href="../http-gateway/index.html#http-代理网关" class="header">HTTP 代理网关</a>
   <ul>
+    <li><a href="../http-gateway/index.html#特性" class="header">特性</a></li>
     <li><a href="../http-gateway/index.html#配置实现" class="header">配置实现</a></li>
     <li><a href="../http-gateway/index.html#编程实现" class="header">编程实现</a></li>
     <li><a href="../http-gateway/index.html#自定义-httpgatewaycomponent" class="header">自定义 <code>HttpGatewayComponent</code></a></li>
@@ -200,7 +201,7 @@ akka-fusion/akka-fusion
 <ul style="display: none">
 <li class="md-nav__item md-version" id="project.version">
 <label class="md-nav__link" for="__version">
-<i class="md-icon" title="Version">label_outline</i> 1.0.0*
+<i class="md-icon" title="Version">label_outline</i> 2.0.0*
 </label>
 </li>
 </ul>
@@ -213,8 +214,9 @@ akka-fusion/akka-fusion
 <nav class="md-nav md-nav--secondary">
 <label class="md-nav__title" for="__toc">Table of contents</label>
 <ul>
-  <li><a href="../http-gateway/index.html#http网关代理" class="header">HTTP网关代理</a>
+  <li><a href="../http-gateway/index.html#http-代理网关" class="header">HTTP 代理网关</a>
   <ul>
+    <li><a href="../http-gateway/index.html#特性" class="header">特性</a></li>
     <li><a href="../http-gateway/index.html#配置实现" class="header">配置实现</a></li>
     <li><a href="../http-gateway/index.html#编程实现" class="header">编程实现</a></li>
     <li><a href="../http-gateway/index.html#自定义-httpgatewaycomponent" class="header">自定义 <code>HttpGatewayComponent</code></a></li>
@@ -228,9 +230,19 @@ akka-fusion/akka-fusion
 <div class="md-content">
 <article class="md-content__inner md-typeset">
 <div class="md-content__searchable">
-<h1><a href="#http网关代理" name="http网关代理" class="anchor"><span class="anchor-link"></span></a>HTTP网关代理</h1>
+<h1><a href="#http-代理网关" name="http-代理网关" class="anchor"><span class="anchor-link"></span></a>HTTP 代理网关</h1>
 <p><strong>fusion-http-gateway</strong></p>
 <p>fusion-http-gateway基于 Akka HTTP 实现了一个强大的API网关代理功能，可通过 Lightbend Config 进行配置或编码实现。fusion-http-gateway支持对HTTP 1.0、1.1和2.0请求进行代理，同时还支持GRPC（使用HTTP 2实现）。</p>
+<h2><a href="#特性" name="特性" class="anchor"><span class="anchor-link"></span></a>特性</h2>
+<ul>
+  <li>支持HTTP 1.0、1.1、2.0</li>
+  <li>支持GRPC</li>
+  <li>支持服务发现（通过 Akka Discovery）</li>
+  <li>支持自定义代理策略（如：修改上传body大小限制、请求超时等）</li>
+  <li>支持HTTP拦截器</li>
+  <li>支持熔断（通过 Akka CircuitBreaker 对某一地址设置熔断策略）</li>
+</ul>
+<p>最后，若你想要更大的可控性，可以继承 <code>HttpGatewayComponent</code> 实现你自己的HTTP代理组件。</p>
 <h2><a href="#配置实现" name="配置实现" class="anchor"><span class="anchor-link"></span></a>配置实现</h2>
 <p>fusion-http-gateway的配置主要分两部分（参考了Nginx）：</p>
 <ol>
@@ -244,7 +256,7 @@ upstreams {
   account {
     # 动态服务发现配置
     # 服务发现服务名字，将通过 Akka Discovery 发现服务实际地址
-    serviceName = hongka-server-account
+    serviceName = fusion-server-account
     # 默认使用 akka.discovery.method 指定的 DiscoveryService
     #discoveryMethod = nacos
   }
@@ -285,21 +297,22 @@ locations {
 <p><strong>自定义HTTP网关代理组件</strong></p>
 <pre class="prettyprint"><code class="language-scala">package fusion.docs.gateway
 
-final class CustomHttpGatewayComponent(id: String, system: ActorSystem)
-    extends HttpGatewayComponent
+final class CustomHttpGatewayComponent(id: String, system: ActorSystem) 
+    extends HttpGatewayComponent 
     with SessionDirectives {
   private val aggregate = BackendAggregate(system)
 
   override def route: Route = {
     validationSession(aggregate.sessionComponent) {                        // 校验session
-      logging(aggregate.sessionComponent,
+      logging(aggregate.sessionComponent, 
           logMsg =&gt; aggregate.kafkaMessageService.processLogMsg(logMsg)) { // 记录日志
-        super.route
+        super.route  
       }
     }
   }
 }
 </code></pre>
+<p>这里我们使用 <code>validationSession</code> Directive来校验请求是否包含了有效的用户登录会话信息，<code>logging</code>指定记录HttpRequest、HttpResponse日志；可以看到，这里将请求、响应日志发送到了 Kafka 中，再由其它服务从 Kafka 里消费日志以对其进行进一步处理。</p>
 </div>
 <div>
 <a href="https://github.com/yangbajing/akka-fusion/tree/master/fusion-docs/src/main/paradox/http-gateway/index.md" title="Edit this page" class="md-source-file md-edit">
@@ -308,7 +321,7 @@ Edit this page
 </div>
 <div class="print-only">
 <span class="md-source-file md-version">
-1.0.0*
+2.0.0*
 </span>
 </div>
 </article>

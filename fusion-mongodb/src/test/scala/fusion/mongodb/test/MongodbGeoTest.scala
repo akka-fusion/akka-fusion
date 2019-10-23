@@ -49,7 +49,7 @@ class MongodbGeoTest extends ScalaTestWithActorTestKit with FunSuiteLike {
   private val localClient = MongoClients.create("mongodb://localhost:27017")
 
   private val coll = client
-    .getDatabase("hongka-resource_dev")
+    .getDatabase("fusion-resource_dev")
     .getCollection("school_3")
     .withCodecRegistry(MongoTemplate.DEFAULT_CODEC_REGISTRY)
 

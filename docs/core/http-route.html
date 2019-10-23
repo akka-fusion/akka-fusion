@@ -156,7 +156,7 @@ akka-fusion/akka-fusion
   <ul>
     <li><a href="../discovery-client/nacos.html" class="page">连接 Nacos</a></li>
   </ul></li>
-  <li><a href="../http-gateway/index.html" class="page">HTTP网关代理</a></li>
+  <li><a href="../http-gateway/index.html" class="page">HTTP 代理网关</a></li>
   <li><a href="../jdbc/index.html" class="page">Jdbc</a></li>
   <li><a href="../slick/index.html" class="page">Slick</a></li>
   <li><a href="../mybatis/index.html" class="page">MyBatis</a>
@@ -199,7 +199,7 @@ akka-fusion/akka-fusion
 <ul style="display: none">
 <li class="md-nav__item md-version" id="project.version">
 <label class="md-nav__link" for="__version">
-<i class="md-icon" title="Version">label_outline</i> 1.0.0*
+<i class="md-icon" title="Version">label_outline</i> 2.0.0*
 </label>
 </li>
 </ul>
@@ -260,7 +260,7 @@ akka-fusion/akka-fusion
 <p>请求正常完成时，返回数据通过<code>complete</code>函数来响应。<code>complete</code>函数通过<code>ToResponseMarshallable</code>来决定数据类型该怎么处理（序列化），Akka HTTP默认已提供了大部分数据类型的处理方式，我们可以很方便的对自定义数据实现<code>ToResponseMarshallable</code>。对应JSON类型的数据响应，<a href="https://github.com/hseeberger/akka-http-json">https://github.com/hseeberger/akka-http-json</a> 是一个很好的起点。</p>
 <p><strong><code>reject</code></strong></p>
 <p><code>reject</code>顾名思义，调用它将拒绝当前请求。它需要传一个或多个实现了<code>Rejection</code>接口的类型。akka-fusion默认的reject处理如下：</p>
-<pre class="prettyprint"><a class="icon go-to-source" href="https://github.com/yangbajing/akka-fusion/tree/master/fusion-http-client/src/main/scala/fusion/http/util/BaseRejectionBuilder.scala#L19-L68" target="_blank" title="Go to snippet source"></a><code class="language-scala">def rejectionBuilder: Builder =
+<pre class="prettyprint"><a class="icon go-to-source" href="https://github.com/yangbajing/akka-fusion/tree/master/fusion-http-client/src/main/scala/fusion/http/util/BaseRejectionBuilder.scala#L35-L84" target="_blank" title="Go to snippet source"></a><code class="language-scala">def rejectionBuilder: Builder =
   RejectionHandler
     .newBuilder()
     .handle {
@@ -294,7 +294,7 @@ akka-fusion/akka-fusion
     }
     .handleAll[MethodRejection] { methodRejections =&gt;
       val description = methodRejections.map(_.supported.name).mkString(&quot; or &quot;)
-      val msg         = s&quot;不支持的方法！当前支持：$description!&quot;
+      val msg = s&quot;不支持的方法！当前支持：$description!&quot;
       logger.info(msg)
       complete(jsonEntity(MethodNotAllowed, msg))
     }
@@ -333,7 +333,7 @@ Edit this page
 </div>
 <div class="print-only">
 <span class="md-source-file md-version">
-1.0.0*
+2.0.0*
 </span>
 </div>
 </article>

@@ -26,10 +26,10 @@ fusion.discovery {
   nacos {
     serverAddr = "10.0.5.36:8849"
     namespace = "7bf36554-e291-4789-b5fb-9e515ca58ba0"
-    dataId = "hongka.file.app"
+    dataId = "fusion.file.app"
     group = "DEFAULT_GROUP"
     timeoutMs = 3000
-    serviceName = "hongka-file-app"
+    serviceName = "fusion-file-app"
   }
 }
 ```

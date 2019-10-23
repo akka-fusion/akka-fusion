@@ -36,9 +36,9 @@ class FusionNacosTest extends FusionTestFunSuite with Matchers with BeforeAndAft
 
   private val SERVER_ADDR = "localhost:8848"
   private val NAMESPACE = "5b764784-f457-46fb-96c6-4f086d5d0ce1"
-  private val DATA_ID = "hongka.file.app"
+  private val DATA_ID = "fusion.file.app"
   private val GROUP = NacosConstants.DEFAULT_GROUP
-  private val SERVICE_NAME = "hongka-file-app"
+  private val SERVICE_NAME = "fusion-file-app"
 
   test("ConfigService") {
     val props = new Properties()

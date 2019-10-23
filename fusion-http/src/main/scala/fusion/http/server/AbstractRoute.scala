@@ -45,7 +45,7 @@ trait AbstractRoute extends Directives with HttpDirectives with FileDirectives {
 
   def createTempFileFunc(
       dir: java.nio.file.Path = Paths.get("/tmp"),
-      prefix: String = "hongka-",
+      prefix: String = "fusion-",
       suffix: String = ".tmp"): FileInfo => File =
     fileInfo => Files.createTempFile(dir, fileInfo.fileName, suffix).toFile
 

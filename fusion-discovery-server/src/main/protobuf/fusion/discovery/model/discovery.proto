@@ -1,0 +1,114 @@
+syntax = "proto3";
+package fusion.discovery.model;
+
+import "google/protobuf/wrappers.proto";
+import "google/protobuf/any.proto";
+import "scalapb/scalapb.proto";
+import "fusion/define.proto";
+
+message ServerStatusQuery {
+}
+message ServerStatusBO {
+    int32 status = 1;
+}
+
+message ConfigQuery {
+    string data_id = 1;
+    string group = 2;
+    int64 timeout_ms = 3;
+}
+message ConfigBO {
+    string data_id = 1;
+    string group = 2;
+    string content = 3;
+}
+
+message ConfigAdd {
+    string data_id = 1;
+    string group = 2;
+    string content = 3;
+}
+message ConfigAdded {
+    int32 status = 1;
+    string version = 2;
+    google.protobuf.StringValue old_content = 3;
+}
+
+message ConfigRemove {
+    string data_id = 1;
+    string group = 2;
+}
+message ConfigRemoved {
+    int32 status = 1;
+}
+
+message ConfigChangeListen {
+    string data_id = 1;
+    string group = 2;
+}
+message ConfigChanged {
+    string data_id = 1;
+    string group = 2;
+    string content = 3;
+    int32 version = 4;
+    google.protobuf.StringValue old_content = 5;
+}
+
+message InstanceAdd {
+    string service_name = 1;
+    string group_name = 2;
+    string ip = 3;
+    int32 port = 4;
+    string cluster_name = 5;
+}
+message InstanceAdded {
+    int32 status = 1;
+}
+
+message InstanceRemove {
+    string service_name = 1;
+    string group_name = 2;
+    string ip = 3;
+    int32 port = 4;
+    string cluster_name = 5;
+}
+message InstanceRemoved {
+    int32 status = 1;
+}
+
+message Instance {
+    // unique id of this instance.
+    string instance_id = 1;
+    // Service information of instance
+    string service_name = 2;
+    string group_name = 3;
+    // instance ip
+    string ip = 4;
+    // instance port
+    int32 port = 5;
+    // cluster information of instance
+    string cluster_name = 6;
+    // instance weight
+    double weight = 7;
+    // instance health status
+    bool healthy = 8;
+    // If instance is enabled to accept request
+    bool enabled = 9;
+    // If instance is ephemeral
+    bool ephemeral = 10;
+    // user extended attributes
+    map<string, string> metadata = 11;
+}
+
+message InstanceQuery {
+    string service_name = 1;
+    string group_name = 2;
+    repeated string cluster_name = 3;
+    // only return all healthy instances
+    bool all_healthy = 4;
+    // only return one healthy instance
+    bool one_healthy = 5;
+}
+message InstanceQueried {
+    repeated Instance instances = 1;
+}

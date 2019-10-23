@@ -22,7 +22,7 @@ import fusion.test.FusionTestFunSuite
 class NacosHttpClientTest extends FusionTestFunSuite {
 
   test("testUrl") {
-    val uri = Uri("http://hongka-server-account/api/v4/account/credential/login")
+    val uri = Uri("http://fusion-server-account/api/v4/account/credential/login")
     println(uri.authority.host.address())
   }
 

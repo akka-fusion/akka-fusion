@@ -156,7 +156,7 @@ akka-fusion/akka-fusion
   <ul>
     <li><a href="../discovery-client/nacos.html" class="page">连接 Nacos</a></li>
   </ul></li>
-  <li><a href="../http-gateway/index.html" class="page">HTTP网关代理</a></li>
+  <li><a href="../http-gateway/index.html" class="page">HTTP 代理网关</a></li>
   <li><a href="../jdbc/index.html" class="page">Jdbc</a></li>
   <li><a href="../slick/index.html" class="page">Slick</a></li>
   <li><a href="../mybatis/index.html" class="page">MyBatis</a>
@@ -199,7 +199,7 @@ akka-fusion/akka-fusion
 <ul style="display: none">
 <li class="md-nav__item md-version" id="project.version">
 <label class="md-nav__link" for="__version">
-<i class="md-icon" title="Version">label_outline</i> 1.0.0*
+<i class="md-icon" title="Version">label_outline</i> 2.0.0*
 </label>
 </li>
 </ul>
@@ -227,25 +227,25 @@ akka-fusion/akka-fusion
 <article class="md-content__inner md-typeset">
 <div class="md-content__searchable">
 <h1><a href="#起步" name="起步" class="anchor"><span class="anchor-link"></span></a>起步</h1>
-<h2><a href="#依赖" name="依赖" class="anchor"><span class="anchor-link"></span></a>依赖</h2><dl class="dependency"><dt>sbt</dt><dd><pre class="prettyprint"><code class="language-scala">libraryDependencies += "com.helloscala.fusion" %% "fusion-mybatis" % "1.0.0-SNAPSHOT"</code></pre></dd><dt>Maven</dt><dd><pre class="prettyprint"><code class="language-xml">&lt;dependency&gt;
+<h2><a href="#依赖" name="依赖" class="anchor"><span class="anchor-link"></span></a>依赖</h2><dl class="dependency"><dt>sbt</dt><dd><pre class="prettyprint"><code class="language-scala">libraryDependencies += "com.helloscala.fusion" %% "fusion-mybatis" % "2.0.0-SNAPSHOT"</code></pre></dd><dt>Maven</dt><dd><pre class="prettyprint"><code class="language-xml">&lt;dependency&gt;
   &lt;groupId&gt;com.helloscala.fusion&lt;/groupId&gt;
-  &lt;artifactId&gt;fusion-mybatis_2.12&lt;/artifactId&gt;
-  &lt;version&gt;1.0.0-SNAPSHOT&lt;/version&gt;
+  &lt;artifactId&gt;fusion-mybatis_2.13&lt;/artifactId&gt;
+  &lt;version&gt;2.0.0-SNAPSHOT&lt;/version&gt;
 &lt;/dependency&gt;</code></pre></dd><dt>Gradle</dt><dd><pre class="prettyprint"><code class="language-gradle">dependencies {
-  compile group: 'com.helloscala.fusion', name: 'fusion-mybatis_2.12', version: '1.0.0-SNAPSHOT'
+  compile group: 'com.helloscala.fusion', name: 'fusion-mybatis_2.13', version: '2.0.0-SNAPSHOT'
 }</code></pre></dd></dl>
 <h2><a href="#示例" name="示例" class="anchor"><span class="anchor-link"></span></a>示例</h2>
 <p><code>FusionMyBatisTest</code> 演示了一个典型的 MyBatis 数据库操作。</p>
-<pre class="prettyprint"><a class="icon go-to-source" href="https://github.com/yangbajing/akka-fusion/tree/master/fusion-mybatis/src/test/scala/fusion/mybatis/FusionMybatisTest.scala#L15-L73" target="_blank" title="Go to snippet source"></a><code class="language-scala">class FusionMybatisTest extends TestKit(ActorSystem(&quot;fusion-mybatis&quot;)) with FusionTestFunSuite {
+<pre class="prettyprint"><a class="icon go-to-source" href="https://github.com/yangbajing/akka-fusion/tree/master/fusion-mybatis/src/test/scala/fusion/mybatis/FusionMybatisTest.scala#L29-L87" target="_blank" title="Go to snippet source"></a><code class="language-scala">class FusionMybatisTest extends ScalaTestWithActorTestKit with FusionTestFunSuite {
 
   test(&quot;testSqlSession&quot;) {
     val sqlSessionFactory = FusionMybatis(system).component
-    sqlSessionFactory must not be null
+    sqlSessionFactory should not be null
 
     // auto commit is false
     val session = sqlSessionFactory.openSession()
     try {
-      session must not be null
+      session should not be null
     } finally {
       session.close()
     }
@@ -257,7 +257,7 @@ akka-fusion/akka-fusion
     // using函数将自动提交/回滚（异常抛出时）
     sqlSessionFactory.transactional { session =&gt;
       val fileMapper = session.getMapper(classOf[FileMapper])
-      val file       = CFile(&quot;file_id&quot;, &quot;文件&quot;, &quot;/32/234242.jpg&quot;, 98234)
+      val file = CFile(&quot;file_id&quot;, &quot;文件&quot;, &quot;/32/234242.jpg&quot;, 98234)
       fileMapper.insert(file)
 //      session.commit()
 //      throw new SQLException()
@@ -268,11 +268,11 @@ akka-fusion/akka-fusion
     val sqlSessionFactory = FusionMybatis(system).component
     sqlSessionFactory.transactional { session =&gt;
       val fileMapper = session.getMapper(classOf[FileMapper])
-      val list       = fileMapper.list(10)
+      val list = fileMapper.list(10)
       list.forEach(new Consumer[CFile] {
         override def accept(t: CFile): Unit = println(t)
       })
-      list must not be empty
+      list should not be empty
     }
   }
 
@@ -287,11 +287,11 @@ akka-fusion/akka-fusion
       val req = new Page[CFile](0, 10)
       fileMapper.selectPage(req, null)
     }
-    result.getRecords must not be empty
+    result.getRecords should not be empty
     result.getRecords.forEach(new Consumer[CFile] {
       override def accept(t: CFile): Unit = println(t)
     })
-    println(Jackson.prettyStringify(result))
+    println(result)
   }
 
 }</code></pre>
@@ -301,7 +301,7 @@ akka-fusion/akka-fusion
 }
 </code></pre>
 <h3><a href="#cfile" name="cfile" class="anchor"><span class="anchor-link"></span></a><code>CFile</code></h3>
-<pre class="prettyprint"><a class="icon go-to-source" href="https://github.com/yangbajing/akka-fusion/tree/master/fusion-mybatis/src/test/scala/fusion/mybatis/model/CFile.scala#L8-L13" target="_blank" title="Go to snippet source"></a><code class="language-scala">case class CFile(
+<pre class="prettyprint"><a class="icon go-to-source" href="https://github.com/yangbajing/akka-fusion/tree/master/fusion-mybatis/src/test/scala/fusion/mybatis/model/CFile.scala#L24-L29" target="_blank" title="Go to snippet source"></a><code class="language-scala">case class CFile(
     @BeanProperty var fileId: String = &quot;&quot;,
     @BeanProperty var fileSubject: String = &quot;&quot;,
     @BeanProperty var fileUrl: String = &quot;&quot;,
@@ -311,10 +311,10 @@ akka-fusion/akka-fusion
 <p><code>application.conf</code>文件中</p>
 <pre class="prettyprint"><a class="icon go-to-source" href="https://github.com/yangbajing/akka-fusion/tree/master/fusion-mybatis/src/test/resources/application.conf" target="_blank" title="Go to snippet source"></a><code class="language-conf">fusion.jdbc {
   default {
-    poolName = &quot;hongka&quot;
+    poolName = &quot;fusion&quot;
     jdbcUrl = &quot;jdbc:postgresql://localhost:55432/fusion_dev&quot;
     username = &quot;devuser&quot;
-    password = &quot;devpass.2019&quot;
+    password = &quot;devPass.2019&quot;
     connectionTestQuery = &quot;select 1;&quot;
     maximumPoolSize = 2
     autoCommit = true
@@ -337,7 +337,7 @@ Edit this page
 </div>
 <div class="print-only">
 <span class="md-source-file md-version">
-1.0.0*
+2.0.0*
 </span>
 </div>
 </article>

@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package fusion.config.server.controller
+package fusion.discovery.server.config
 
+import akka.actor.typed.ActorSystem
 import akka.http.scaladsl.server.Route
 import fusion.http.server.AbstractRoute
 
-class Routes extends AbstractRoute {
+class ConfigRoute(system: ActorSystem[_]) extends AbstractRoute {
   override def route: Route = ???
 }

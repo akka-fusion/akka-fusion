@@ -156,7 +156,7 @@ akka-fusion/akka-fusion
   <ul>
     <li><a href="../discovery-client/nacos.html" class="page">连接 Nacos</a></li>
   </ul></li>
-  <li><a href="../http-gateway/index.html" class="page">HTTP网关代理</a></li>
+  <li><a href="../http-gateway/index.html" class="page">HTTP 代理网关</a></li>
   <li><a href="../jdbc/index.html" class="active page">Jdbc</a></li>
   <li><a href="../slick/index.html" class="page">Slick</a></li>
   <li><a href="../mybatis/index.html" class="page">MyBatis</a>
@@ -198,7 +198,7 @@ akka-fusion/akka-fusion
 <ul style="display: none">
 <li class="md-nav__item md-version" id="project.version">
 <label class="md-nav__link" for="__version">
-<i class="md-icon" title="Version">label_outline</i> 1.0.0*
+<i class="md-icon" title="Version">label_outline</i> 2.0.0*
 </label>
 </li>
 </ul>
@@ -230,46 +230,60 @@ akka-fusion/akka-fusion
 <p><strong><em>配置 src/main/resources/application.conf</em></strong></p>
 <pre class="prettyprint"><a class="icon go-to-source" href="https://github.com/yangbajing/akka-fusion/tree/master/fusion-jdbc/src/test/resources/sample/mysql.conf" target="_blank" title="Go to snippet source"></a><code class="language-conf">fusion.jdbc {
   default {
-    poolName = &quot;hongka&quot;
+    poolName = &quot;fusion&quot;
     jdbcUrl = &quot;jdbc:mysql://localhost:3306/akka-fusion?useSSL=false&amp;autoReconnect=true&quot;
     username = &quot;devops&quot;
-    password = &quot;2019.Devops&quot;
+    password = &quot;devPass.2019&quot;
     connectionTestQuery = &quot;select 1;&quot;
     maximumPoolSize = 2
   }
 }</code></pre>
 <p><strong><em>测试代码</em></strong></p>
-<pre class="prettyprint"><a class="icon go-to-source" href="https://github.com/yangbajing/akka-fusion/tree/master/fusion-jdbc/src/test/scala/fusion/jdbc/JdbcTemplateTest.scala" target="_blank" title="Go to snippet source"></a><code class="language-scala">package fusion.jdbc
+<pre class="prettyprint"><a class="icon go-to-source" href="https://github.com/yangbajing/akka-fusion/tree/master/fusion-jdbc/src/test/scala/fusion/jdbc/JdbcTemplateTest.scala" target="_blank" title="Go to snippet source"></a><code class="language-scala">/*
+ * Copyright 2019 helloscala.com
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package fusion.jdbc
 
 import java.time.OffsetDateTime
 
-import akka.{actor => classic}
+import akka.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
 import com.zaxxer.hikari.HikariDataSource
 import fusion.jdbc.util.JdbcUtils
 import fusion.test.FusionTestFunSuite
-import org.scalatest.BeforeAndAfterAll
 
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
 
 class CFile {
-  var fileId: String                  = _
-  var fileSubject: String             = _
-  var fileType: java.lang.Integer     = _
-  var fileUrl: String                 = _
-  var fileCtime: java.lang.Long       = _
+  var fileId: String = _
+  var fileSubject: String = _
+  var fileType: java.lang.Integer = _
+  var fileUrl: String = _
+  var fileCtime: java.lang.Long = _
   var tableAutoUptime: OffsetDateTime = _
-  var duration: java.lang.Integer     = _
-  var fileSize: java.lang.Integer     = _
+  var duration: java.lang.Integer = _
+  var fileSize: java.lang.Integer = _
 
   override def toString =
     s&quot;CFile($fileId, $fileSubject, $fileType, $fileUrl, $fileCtime, $tableAutoUptime, $duration, $fileSize)&quot;
 }
 
-class JdbcTemplateTest extends FusionTestFunSuite with BeforeAndAfterAll {
-  private val system                       = ActorSystem()
+class JdbcTemplateTest extends ScalaTestWithActorTestKit with FusionTestFunSuite {
   private def dataSource: HikariDataSource = FusionJdbc(system).component
-  private def jdbcTemplate                 = JdbcTemplate(dataSource)
+  private def jdbcTemplate = JdbcTemplate(dataSource)
 
   test(&quot;listForObject&quot;) {
     val sql =
@@ -312,7 +326,7 @@ Edit this page
 </div>
 <div class="print-only">
 <span class="md-source-file md-version">
-1.0.0*
+2.0.0*
 </span>
 </div>
 </article>
@@ -322,7 +336,7 @@ Edit this page
 <footer class="md-footer">
 <div class="md-footer-nav">
 <nav class="md-footer-nav__inner md-grid">
-<a href="../http-gateway/index.html" title="HTTP网关代理" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+<a href="../http-gateway/index.html" title="HTTP 代理网关" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
 <div class="md-flex__cell md-flex__cell--shrink">
 <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
 </div>
@@ -331,7 +345,7 @@ Edit this page
 <span class="md-footer-nav__direction">
 Previous
 </span>
-HTTP网关代理
+HTTP 代理网关
 </span>
 </div>
 </a>

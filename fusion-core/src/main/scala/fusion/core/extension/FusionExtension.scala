@@ -20,22 +20,18 @@ import akka.actor.ExtendedActorSystem
 import akka.actor.typed.ActorSystem
 import akka.actor.typed.Extension
 import akka.actor.typed.ExtensionId
-import akka.actor.typed.scaladsl.adapter._
 import fusion.core.FusionProtocol
 import helloscala.common.Configuration
 
 // #FusionExtension
 trait FusionExtension extends Extension {
-  val system: ActorSystem[_] // = _system
+  val system: ActorSystem[_]
 
-  def fusionSystem: ActorSystem[FusionProtocol.Command] = system.asInstanceOf[ActorSystem[FusionProtocol.Command]]
+  def fusionSystem: ActorSystem[FusionProtocol.Command] = FusionCore(system).fusionSystem
 
-  def classicSystem: ExtendedActorSystem = system.toClassic match {
-    case v: ExtendedActorSystem => v
-    case _                      => throw new IllegalStateException("Need ExtendedActorSystem instance.")
-  }
+  def classicSystem: ExtendedActorSystem = FusionCore(system).classicSystem
 
-  def configuration: Configuration = Configuration(system.settings.config)
+  def configuration: Configuration = FusionCore(system).configuration
 }
 // #FusionExtension
 

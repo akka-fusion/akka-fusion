@@ -246,17 +246,14 @@ akka-fusion/akka-fusion
 </code></pre>
 <h2><a href="#构建扩展" name="构建扩展" class="anchor"><span class="anchor-link"></span></a>构建扩展</h2>
 <p>akka-fusion在提供了 <code>FusionExtension</code> 帮助trait来构建Akka Extension。</p>
-<pre class="prettyprint"><a class="icon go-to-source" href="https://github.com/yangbajing/akka-fusion/tree/master/fusion-core/src/main/scala/fusion/core/extension/FusionExtension.scala#L28-L39" target="_blank" title="Go to snippet source"></a><code class="language-scala">trait FusionExtension extends Extension {
-  val system: ActorSystem[_] // = _system
+<pre class="prettyprint"><a class="icon go-to-source" href="https://github.com/yangbajing/akka-fusion/tree/master/fusion-core/src/main/scala/fusion/core/extension/FusionExtension.scala#L27-L35" target="_blank" title="Go to snippet source"></a><code class="language-scala">trait FusionExtension extends Extension {
+  val system: ActorSystem[_]
 
-  def fusionSystem: ActorSystem[FusionProtocol.Command] = system.asInstanceOf[ActorSystem[FusionProtocol.Command]]
+  def fusionSystem: ActorSystem[FusionProtocol.Command] = FusionCore(system).fusionSystem
 
-  def classicSystem: ExtendedActorSystem = system.toClassic match {
-    case v: ExtendedActorSystem =&gt; v
-    case _                      =&gt; throw new IllegalStateException(&quot;Need ExtendedActorSystem instance.&quot;)
-  }
+  def classicSystem: ExtendedActorSystem = FusionCore(system).classicSystem
 
-  def configuration: Configuration = Configuration(system.settings.config)
+  def configuration: Configuration = FusionCore(system).configuration
 }</code></pre>
 <p><code>FusionExtension</code>在默认<code>Extension</code>基础之上添加了<code>ActorSystem</code>引用，并通过<code>FusionCore</code>提供了<code>Configuration</code>（对Lightbend Config的增强包装）。</p>
 <h2><a href="#通过akka-extension来管理资源" name="通过akka-extension来管理资源" class="anchor"><span class="anchor-link"></span></a>通过Akka Extension来管理资源</h2>

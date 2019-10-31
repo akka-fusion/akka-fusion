@@ -19,11 +19,12 @@ package fusion.core.extension.impl
 import java.nio.file.Paths
 
 import akka.actor.ExtendedActorSystem
-import akka.actor.typed.ActorRef
-import akka.actor.typed.ActorSystem
-import akka.actor.typed.Behavior
-import akka.actor.typed.Props
+import akka.actor.typed._
+import akka.actor.typed.receptionist.Receptionist
+import akka.actor.typed.receptionist.ServiceKey
 import akka.actor.typed.scaladsl.AskPattern._
+import akka.actor.typed.scaladsl.Behaviors
+import akka.actor.typed.scaladsl.adapter._
 import akka.http.scaladsl.model.HttpHeader
 import akka.util.Timeout
 import com.typesafe.scalalogging.StrictLogging
@@ -35,23 +36,25 @@ import fusion.core.extension.FusionCoordinatedShutdown
 import fusion.core.extension.FusionCore
 import fusion.core.http.headers.`X-Service`
 import fusion.core.setting.CoreSetting
-import fusion.core.util.FusionUtils
 import helloscala.common.Configuration
 import helloscala.common.util.PidFile
 import helloscala.common.util.Utils
 
+import scala.concurrent.Await
 import scala.concurrent.Future
 import scala.concurrent.duration._
 import scala.util.control.NonFatal
-import akka.actor.typed.scaladsl.adapter._
 
-private[fusion] class FusionCoreImpl(val system: ActorSystem[_]) extends FusionCore with StrictLogging {
+private[fusion] class FusionCoreImpl(val system: ActorSystem[Nothing]) extends FusionCore with StrictLogging {
 
   override def name: String = system.name
   override val setting: CoreSetting = new CoreSetting(configuration)
   override val events = new FusionEvents()
   override val shutdowns = new FusionCoordinatedShutdown(classicSystem)
-  FusionUtils.setupActorSystem(system)
+  import system.executionContext
+  implicit private val scheduler: Scheduler = system.scheduler
+
+  //FusionUtils.setupActorSystem(system)
   writePidfile()
   System.setProperty(
     FusionConstants.NAME_PATH,
@@ -64,6 +67,15 @@ private[fusion] class FusionCoreImpl(val system: ActorSystem[_]) extends FusionC
   private lazy val _configuration = new Configuration(system.settings.config)
 
   override def configuration: Configuration = _configuration
+
+  override val fusionGuardian: ActorRef[FusionProtocol.Command] = {
+    system.toClassic
+      .actorOf(
+        PropsAdapter(
+          Behaviors.supervise(FusionProtocol.behavior).onFailure[RuntimeException](SupervisorStrategy.resume)),
+        "fusion")
+      .toTyped[FusionProtocol.Command]
+  }
 
   override def fusionSystem: ActorSystem[FusionProtocol.Command] =
     system.asInstanceOf[ActorSystem[FusionProtocol.Command]]
@@ -78,11 +90,34 @@ private[fusion] class FusionCoreImpl(val system: ActorSystem[_]) extends FusionC
     `X-Service`(serviceName)
   }
 
-  override def spawnUserActor[REF](behavior: Behavior[REF], name: String, props: Props): Future[ActorRef[REF]] = {
-    implicit val timeout = Timeout(3.seconds)
-    implicit val scheduler = system.scheduler
+  override def spawnActor[REF](behavior: Behavior[REF], name: String, props: Props)(
+      implicit timeout: Timeout): Future[ActorRef[REF]] = {
+    fusionGuardian.ask(FusionProtocol.Spawn(behavior, name, props))
+  }
 
-    fusionSystem.ask(FusionProtocol.Spawn(behavior, name, props))
+  def receptionistFind[T](serviceKey: ServiceKey[T], timeout: FiniteDuration)(
+      func: Receptionist.Listing => ActorRef[T]): ActorRef[T] = {
+    implicit val t: Timeout = Timeout(timeout)
+    val f = system.receptionist
+      .ask[Receptionist.Listing] { replyTo =>
+        Receptionist.Find(serviceKey, replyTo)
+      }
+      //      .map { case ConfigManager.ConfigManagerServiceKey.Listing(refs) => refs.head }
+      .map(func)
+    Await.result(f, timeout)
+  }
+
+  override def receptionistFindSet[T](serviceKey: ServiceKey[T], timeout: FiniteDuration): Set[ActorRef[T]] = {
+    implicit val t: Timeout = Timeout(timeout)
+    val f = system.receptionist.ask[Receptionist.Listing](Receptionist.Find(serviceKey)).map { listing =>
+      logger.debug(s"receptionistFindSet($listing)")
+      if (listing.isForKey(serviceKey)) {
+        listing.serviceInstances(serviceKey)
+      } else {
+        Set[ActorRef[T]]()
+      }
+    }
+    Await.result(f, timeout)
   }
 
   private def writePidfile(): Unit = {

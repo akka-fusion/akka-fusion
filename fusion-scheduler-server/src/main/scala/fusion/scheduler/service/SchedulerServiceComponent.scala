@@ -58,8 +58,7 @@ trait SchedulerServiceComponent {
     JobBO(dto.group, jobDetail.getKey.getName, jobDetail.getDescription, data, List(triggerBO), createdAt.toEpochMilli)
   }
 
-  def getJob(dto: JobGetDTO)(implicit scheduler: FusionScheduler): JobBO = {
-    val in = dto.in.get
+  def getJob(in: Key)(implicit scheduler: FusionScheduler): JobBO = {
     val jobKey = JobKey.jobKey(in.name, in.group)
     Option(scheduler.getJobDetail(jobKey)) match {
       case Some(jobDetail) =>

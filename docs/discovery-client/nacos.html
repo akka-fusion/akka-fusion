@@ -250,7 +250,7 @@ akka-fusion/akka-fusion
   nacos {
     serverAddr = &quot;10.0.5.36:8849&quot;
     namespace = &quot;7bf36554-e291-4789-b5fb-9e515ca58ba0&quot;
-    dataId = &quot;fusion.file.app&quot;
+    namespace = &quot;fusion.file.app&quot;
     group = &quot;DEFAULT_GROUP&quot;
     timeoutMs = 3000
     serviceName = &quot;fusion-file-app&quot;
@@ -262,7 +262,7 @@ akka-fusion/akka-fusion
   <li><code>enable</code>：启用Fusion Discovery功能，默认值为<code>false</code></li>
   <li><code>nacos.serverAddr</code>：Nacos服务地址</li>
   <li><code>nacos.namespace</code>：Nacos服务命名空间（可选）</li>
-  <li><code>nacos.dataId</code>：配置ID</li>
+  <li><code>nacos.namespace</code>：配置ID</li>
   <li><code>nacos.group</code>：配置分组</li>
   <li><code>nacos.timeoutMs</code>：获取注册配置时的超时时间（单位：毫秒），默认值为<code>3000</code></li>
   <li><code>nacos.serviceName</code>：注册到Nacos时的服务端，不指定则使用<code>fusion.name</code>配置</li>
@@ -302,7 +302,7 @@ FusionNacos(system)
     props.put(&quot;fusion.discovery.enable&quot;, &quot;true&quot;)
     props.put(&quot;fusion.discovery.nacos.serverAddr&quot;, &quot;123.206.9.104:8849&quot;)
     props.put(&quot;fusion.discovery.nacos.namespace&quot;, &quot;7bf36554-e291-4789-b5fb-9e515ca58ba0&quot;)
-    props.put(&quot;fusion.discovery.nacos.dataId&quot;, &quot;fusion.file.app&quot;)
+    props.put(&quot;fusion.discovery.nacos.namespace&quot;, &quot;fusion.file.app&quot;)
 //    props.put(&quot;fusion.discovery.nacos.group&quot;, NacosConstants.DEFAULT_GROUP)
     val configuration = Configuration.fromDiscovery()
     configuration.getString(&quot;fusion.name&quot;) mustBe &quot;file-app&quot;

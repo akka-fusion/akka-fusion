@@ -31,20 +31,20 @@ object SchedulerBehavior extends SchedulerServiceComponent {
     context.log.info(s"${context.self} SchedulerBehavior started")
 
     Behaviors.receiveMessagePartial {
-      case dto: JobCancelDTO =>
-        dto.replyActor ! cancelJob(dto)
+      case JobCancelDTOReplyTo(Some(dto), replyActor) =>
+        replyActor ! cancelJob(dto)
         Behaviors.same
-      case dto: JobDTO =>
-        dto.replyActor ! createJob(dto)
+      case JobDTOReplyTO(Some(dto), replyActor) =>
+        replyActor ! createJob(dto)
         Behaviors.same
-      case dto: JobGetDTO =>
-        dto.replyActor ! getJob(dto)
+      case JobGetDTO(Some(key), replyActor) =>
+        replyActor ! getJob(key)
         Behaviors.same
-      case dto: JobPauseDTO =>
-        dto.replyActor ! pauseJob(dto)
+      case JobPauseDTOReplyTo(Some(dto), replyActor) =>
+        replyActor ! pauseJob(dto)
         Behaviors.same
-      case dto: JobResumeDTO =>
-        dto.replyActor ! resumeJob(dto)
+      case JobResumeDTOReplyTo(Some(dto), replyActor) =>
+        replyActor ! resumeJob(dto)
         Behaviors.same
       case End =>
         fusionScheduler.close()

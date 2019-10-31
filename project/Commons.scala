@@ -2,16 +2,13 @@ import de.heikoseeberger.sbtheader.HeaderPlugin.autoImport.HeaderLicense
 import de.heikoseeberger.sbtheader.HeaderPlugin.autoImport.headerLicense
 import sbt.Keys._
 import sbt._
-import sbtassembly.MergeStrategy
+import sbtassembly.AssemblyKeys.assemblyMergeStrategy
+import sbtassembly.{MergeStrategy, PathList}
 
 object Commons {
 
   import Environment.BuildEnv
   import Environment.buildEnv
-  import sbtassembly.AssemblyKeys.assembly
-  import sbtassembly.AssemblyKeys.assemblyMergeStrategy
-  import sbtassembly.MergeStrategy
-  import sbtassembly.PathList
 
   def basicSettings =
     Seq(
@@ -47,25 +44,6 @@ object Commons {
       javaOptions in run ++= Seq("-Xms128m", "-Xmx1024m", "-Djava.library.path=./target/native"),
       shellPrompt := { s =>
         Project.extract(s).currentProject.id + " > "
-      },
-      test in assembly := {},
-      assemblyMergeStrategy in assembly := {
-        case PathList("javax", "servlet", xs @ _*) => MergeStrategy.first
-        case PathList("io", "netty", xs @ _*)      => MergeStrategy.first
-        case PathList("jnr", xs @ _*)              => MergeStrategy.first
-        case PathList("com", "datastax", xs @ _*)  => MergeStrategy.first
-        case PathList("com", "kenai", xs @ _*)     => MergeStrategy.first
-        case PathList("org", "objectweb", xs @ _*) => MergeStrategy.first
-        case PathList(ps @ _*) if ps.last.endsWith(".html") =>
-          MergeStrategy.first
-        case "application.conf"                      => MergeStrategy.concat
-        case "META-INF/io.netty.versions.properties" => MergeStrategy.first
-        case PathList("org", "slf4j", xs @ _*)       => MergeStrategy.first
-        case "META-INF/native/libnetty-transport-native-epoll.so" =>
-          MergeStrategy.first
-        case x =>
-          val oldStrategy = (assemblyMergeStrategy in assembly).value
-          oldStrategy(x)
       },
 //            resolvers ++= Seq(
 //            "elasticsearch-releases" at "https://artifacts.elastic.co/maven"
@@ -116,6 +94,10 @@ object Packaging {
   import Environment.buildEnv
   import com.typesafe.sbt.SbtNativePackager._
   import com.typesafe.sbt.packager.Keys._
+  import sbtassembly.AssemblyKeys.assembly
+  import sbtassembly.AssemblyKeys.assemblyMergeStrategy
+  import sbtassembly.MergeStrategy
+  import sbtassembly.PathList
 
   // This is dirty, but play has stolen our keys, and we must mimc them here.
   val stage = TaskKey[File]("stage")
@@ -171,4 +153,29 @@ object Packaging {
     }
   }
 
+  def assemblySettings = Seq(
+    test in assembly := {},
+    assemblyMergeStrategy in assembly := {
+      case PathList("javax", "servlet", xs @ _*)                => MergeStrategy.first
+      case PathList("io", "netty", xs @ _*)                     => MergeStrategy.first
+      case PathList("jnr", xs @ _*)                             => MergeStrategy.first
+      case PathList("com", "datastax", xs @ _*)                 => MergeStrategy.first
+      case PathList("com", "kenai", xs @ _*)                    => MergeStrategy.first
+      case PathList("org", "objectweb", xs @ _*)                => MergeStrategy.first
+      case PathList(ps @ _*) if ps.last.endsWith(".html")       => MergeStrategy.first
+      case PathList("org", "slf4j", xs @ _*)                    => MergeStrategy.first
+      case PathList("google", "protobuf", xs @ _*)              => MergeStrategy.first
+      case PathList("com", "google", "protobuf", xs @ _*)       => MergeStrategy.first
+      case "application.conf"                                   => MergeStrategy.concat
+      case "reference.conf"                                     => MergeStrategy.concat
+      case "module-info.class"                                  => MergeStrategy.concat
+      case "META-INF/io.netty.versions.properties"              => MergeStrategy.first
+      case "META-INF/native/libnetty-transport-native-epoll.so" => MergeStrategy.first
+      case n if n.endsWith(".txt")                              => MergeStrategy.concat
+      case n if n.endsWith("NOTICE")                            => MergeStrategy.concat
+      case x =>
+        val oldStrategy = (assemblyMergeStrategy in assembly).value
+        oldStrategy(x)
+    }
+  )
 }

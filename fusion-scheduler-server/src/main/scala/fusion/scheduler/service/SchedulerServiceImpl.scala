@@ -17,12 +17,8 @@
 package fusion.scheduler.service
 
 import akka.actor.typed.ActorRef
-import akka.actor.typed.ActorSystem
 import akka.actor.typed.Scheduler
 import akka.actor.typed.scaladsl.AskPattern._
-import akka.actor.typed.scaladsl.adapter._
-import akka.cluster.singleton.ClusterSingletonProxy
-import akka.cluster.singleton.ClusterSingletonProxySettings
 import akka.util.Timeout
 import fusion.ResultBO
 import fusion.scheduler.grpc.SchedulerService
@@ -36,11 +32,11 @@ class SchedulerServiceImpl(schedulerProxy: ActorRef[JobCommand])(implicit schedu
   implicit private val timeout: Timeout = Timeout(5.seconds)
 
   override def cancelJob(in: JobCancelDTO): Future[ResultBO] = {
-    schedulerProxy.ask[ResultBO](replyTo => in.copy(replyActor = replyTo))
+    schedulerProxy.ask[ResultBO](replyTo => JobCancelDTOReplyTo(Some(in), replyTo))
   }
 
   override def createJob(in: JobDTO): Future[JobBO] = {
-    schedulerProxy.ask[JobBO](replyTo => in.copy(replyActor = replyTo))
+    schedulerProxy.ask[JobBO](JobDTOReplyTO(Some(in), _))
   }
 
   override def getJob(in: Key): Future[JobBO] = {
@@ -48,11 +44,11 @@ class SchedulerServiceImpl(schedulerProxy: ActorRef[JobCommand])(implicit schedu
   }
 
   override def pauseJob(in: JobPauseDTO): Future[ResultBO] = {
-    schedulerProxy.ask[ResultBO](replyTo => in.copy(replyActor = replyTo))
+    schedulerProxy.ask[ResultBO](JobPauseDTOReplyTo(Some(in), _))
   }
 
   override def resumeJob(in: JobResumeDTO): Future[ResultBO] = {
-    schedulerProxy.ask[ResultBO](replyTo => in.copy(replyActor = replyTo))
+    schedulerProxy.ask[ResultBO](JobResumeDTOReplyTo(Some(in), _))
   }
 
 }

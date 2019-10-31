@@ -25,6 +25,7 @@ import akka.cluster.typed.SingletonActor
 import fusion.core.extension.FusionCore
 import fusion.core.extension.FusionExtension
 import fusion.core.extension.FusionExtensionId
+import fusion.core.util.FusionUtils
 import fusion.scheduler.grpc.SchedulerService
 import fusion.scheduler.model.End
 import fusion.scheduler.service.SchedulerServiceImpl
@@ -33,6 +34,7 @@ import fusion.scheduler.service.actor.SchedulerBehavior
 import scala.concurrent.Future
 
 class SchedulerAggregate private (override val system: ActorSystem[_]) extends FusionExtension {
+  FusionUtils.setupActorSystem(system)
 
   // 使用Akka Cluster Singleton保证调度服务Actor在集群中只启动并活跃一个
   private val schedulerProxy = ClusterSingleton(system).init(

@@ -1,8 +1,11 @@
 import Commons._
 import Dependencies._
 import Environment._
+import sbtassembly.AssemblyKeys.assemblyMergeStrategy
+import sbtassembly.MergeStrategy
+import sbtassembly.PathList
 
-buildEnv in ThisBuild := {
+ThisBuild / buildEnv := {
   sys.props
     .get("build.env")
     .orElse(sys.env.get("BUILD_ENV"))
@@ -16,13 +19,13 @@ buildEnv in ThisBuild := {
     .getOrElse(BuildEnv.Developement)
 }
 
-scalaVersion in ThisBuild := versionScala213
+ThisBuild / scalaVersion := versionScala213
 
-crossScalaVersions in ThisBuild := Seq(versionScala212, versionScala213)
+ThisBuild / crossScalaVersions := Seq(versionScala212, versionScala213)
 
-scalafmtOnCompile in ThisBuild := true
+ThisBuild / scalafmtOnCompile := true
 
-sonarUseExternalConfig in ThisBuild := true
+ThisBuild / sonarUseExternalConfig := true
 
 lazy val root = Project(id = "akka-fusion", base = file("."))
   .aggregate(
@@ -115,14 +118,27 @@ lazy val fusionHttpGateway = _project("fusion-http-gateway")
   .settings(libraryDependencies ++= Seq())
 
 lazy val fusionDiscoveryServer = _project("fusion-discovery-server")
-  .enablePlugins(AkkaGrpcPlugin, JavaAgent)
-  .dependsOn(fusionDiscoveryClient, fusionHttp, fusionLog, fusionTest % "test->test", fusionCore)
+  .enablePlugins(AkkaGrpcPlugin /*, MultiJvmPlugin*/, JavaAgent)
+  .dependsOn(fusionJsonCirce, fusionDiscoveryClient, fusionHttp, fusionLog, fusionTest % "test->test", fusionCore)
+//  .settings(MultiJvmPlugin.multiJvmSettings: _*)
   .settings(Publishing.noPublish)
+  .settings(Packaging.assemblySettings: _*)
   .settings(
+    javaOptions in run ++= Seq("-Xms128m", "-Xmx1024m", "-Djava.library.path=./target/native"),
     javaAgents += _alpnAgent % "runtime;test",
     akkaGrpcCodeGeneratorSettings += "server_power_apis",
     libraryDependencies ++= Seq(
-        "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion % "protobuf") ++ _akkaClusters)
+        "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion % "protobuf",
+        "org.iq80.leveldb"            % "leveldb"                  % "0.7",
+        "org.fusesource.leveldbjni"   % "leveldbjni-all"           % "1.8",
+        _akkaGrpcRuntime,
+        _akkaSerializationJackson,
+        _akkaPersistenceCassandra,
+        _akkaPersistenceJdbc,
+        _hikariCP,
+        _postgresql,
+        _akkaPersistenceTyped) ++ _akkaClusters)
+//  .configs(MultiJvm)
 
 lazy val fusionDiscoveryClient = _project("fusion-discovery-client")
   .dependsOn(fusionHttpClient, fusionTest % "test->test", fusionCore)
@@ -137,6 +153,7 @@ lazy val fusionSchedulerServer = _project("fusion-scheduler-server")
     akkaGrpcCodeGeneratorSettings += "server_power_apis",
     libraryDependencies ++= Seq(
         "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion % "protobuf",
+        _akkaGrpcRuntime,
         _postgresql) ++ _akkaClusters)
 
 lazy val fusionJob = _project("fusion-job")

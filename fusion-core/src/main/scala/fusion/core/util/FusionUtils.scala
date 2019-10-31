@@ -21,6 +21,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicLong
 
 import akka.actor.typed.ActorSystem
+import akka.actor.typed.Behavior
 import akka.actor.typed.scaladsl.Behaviors
 import com.typesafe.config.Config
 import fusion.common.constant.FusionConstants
@@ -47,9 +48,19 @@ object FusionUtils {
     createActorSystem(name, config.underlying)
 
   def createActorSystem(name: String, config: Config): ActorSystem[FusionProtocol.Command] = {
-    val behavior = Behaviors.setup[FusionProtocol.Command] { ctx =>
-      FusionProtocol.behavior
-    }
+    createActorSystem(FusionProtocol.behavior, getName(config), config)
+  }
+
+  def createActorSystem(
+      behavior: Behavior[FusionProtocol.Command],
+      config: Config): ActorSystem[FusionProtocol.Command] = {
+    createActorSystem(behavior, getName(config), config)
+  }
+
+  def createActorSystem(
+      behavior: Behavior[FusionProtocol.Command],
+      name: String,
+      config: Config): ActorSystem[FusionProtocol.Command] = {
     ActorSystem(behavior, getName(config), config)
   }
 
@@ -58,7 +69,7 @@ object FusionUtils {
     else throw new NullPointerException("请调用 FusionCore(system) 设置全局 ActorSystem")
   }
 
-  private[core] def setupActorSystem(system: ActorSystem[_]): Unit = {
+  private[fusion] def setupActorSystem(system: ActorSystem[_]): Unit = {
     if (_isSetupSystem.compareAndSet(false, true)) {
       _system = system
       ActorSystemUtils.system = system

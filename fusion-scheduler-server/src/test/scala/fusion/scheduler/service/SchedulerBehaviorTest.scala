@@ -16,29 +16,17 @@
 
 package fusion.scheduler.service
 
-import akka.actor.ExtendedActorSystem
-import akka.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
 import akka.actor.typed.ActorRef
-import akka.actor.typed.ActorRefResolver
 import akka.actor.typed.ActorSystem
 import akka.actor.typed.Behavior
-import fusion.test.FusionTestFunSuite
-import akka.actor.typed.scaladsl.AskPattern._
 import akka.actor.typed.scaladsl.Behaviors
-import akka.serialization.Serialization
-import akka.serialization.jackson.JacksonObjectMapperProvider
-import fusion.scheduler.model.JobBO
-import fusion.scheduler.model.JobDTO
-import fusion.scheduler.model.ScheduleType
-import fusion.scheduler.model.TriggerSchedule
-import org.scalatest.BeforeAndAfterAll
-import org.scalatest.Matchers
-import akka.actor.typed.scaladsl.adapter._
 import fusion.core.extension.FusionCore
-import fusion.json.JsonUtils
 import fusion.json.circe.CirceUtils
 import fusion.protobuf.internal.ActorSystemUtils
-import scalapb_circe.JsonFormat
+import fusion.test.FusionTestFunSuite
+import org.scalatest.BeforeAndAfterAll
+import org.scalatest.Matchers
+import fusion.scheduler.model._
 
 object TestJob {
   trait JobCommand
@@ -67,7 +55,8 @@ object TestGuardian {
     val jobActor = context.spawn(TestJob(), "job")
     println("jobActor: " + jobActor.path.toStringWithoutAddress)
     println("deadLetters: " + ActorSystemUtils.system.deadLetters.path.toStringWithoutAddress)
-    val job = JobDTO(schedule = Some(TriggerSchedule(ScheduleType.SIMPLE)), replyActor = jobActor)
+    val command = JobDTO(schedule = Some(TriggerSchedule(ScheduleType.SIMPLE)))
+    val job = JobDTOReplyTO(Some(command), replyActor = jobActor)
 //    Serialization.withTransportInformation(context.system.toClassic.asInstanceOf[ExtendedActorSystem]) { () =>
 //      val mapper = JacksonObjectMapperProvider(context.system.toClassic).getOrCreate("jackson-json", None)
 //      println(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(job))

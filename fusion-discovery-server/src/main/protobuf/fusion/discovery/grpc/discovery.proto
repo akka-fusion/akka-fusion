@@ -10,15 +10,15 @@ service ConfigService {
     }
 
     // 查询配置
-    rpc QueryConfig (fusion.discovery.model.ConfigQuery) returns (fusion.discovery.model.ConfigBO) {
+    rpc QueryConfig (fusion.discovery.model.ConfigQuery) returns (fusion.discovery.model.ConfigReply) {
     }
 
     // 发布配置
-    rpc AddConfig (fusion.discovery.model.ConfigAdd) returns (fusion.discovery.model.ConfigAdded) {
+    rpc PublishConfig (fusion.discovery.model.ConfigPublish) returns (fusion.discovery.model.ConfigReply) {
     }
 
     // 删除配置
-    rpc RemoveConfig (fusion.discovery.model.ConfigRemove) returns (fusion.discovery.model.ConfigRemoved) {
+    rpc RemoveConfig (fusion.discovery.model.ConfigRemove) returns (fusion.discovery.model.ConfigReply) {
     }
 
     // 监听配置变化
@@ -32,14 +32,21 @@ service NamingService {
     }
 
     // 添加实例
-    rpc AddInstance (fusion.discovery.model.InstanceAdd) returns (fusion.discovery.model.InstanceAdded) {
+    rpc RegisterInstance (fusion.discovery.model.InstanceRegister) returns (fusion.discovery.model.InstanceReply) {
+    }
+
+    // 修改实例
+    rpc ModifyInstance (fusion.discovery.model.InstanceModify) returns (fusion.discovery.model.InstanceReply) {
     }
 
     // 删除实例
-    rpc RemoveInstance (fusion.discovery.model.InstanceRemove) returns (fusion.discovery.model.InstanceRemoved) {
+    rpc RemoveInstance (fusion.discovery.model.InstanceRemove) returns (fusion.discovery.model.InstanceReply) {
     }
 
     // 查询实例
-    rpc QueryInstance (fusion.discovery.model.InstanceQuery) returns (fusion.discovery.model.InstanceQueried) {
+    rpc QueryInstance (fusion.discovery.model.InstanceQuery) returns (fusion.discovery.model.InstanceReply) {
+    }
+
+    rpc Heartbeat (stream fusion.discovery.model.InstanceHeartbeat) returns (stream fusion.discovery.model.ServerStatusBO) {
     }
 }

@@ -56,9 +56,9 @@ class FusionKafkaConsumerTest extends ScalaTestWithActorTestKit with FusionTestF
       producer.send(new ProducerRecord[String, String]("test", c.toString))
       TimeUnit.MILLISECONDS.sleep(50)
     }
-    println(LocalTime.now() + " produce complete ")
+    println(s"${LocalTime.now()} produce complete ")
     TimeUnit.SECONDS.sleep(5)
-    println(LocalTime.now() + " begin drain shutdown")
+    println(s"${LocalTime.now()} begin drain shutdown")
     val f = control.drainAndShutdown()
     val result = Await.result(f, Duration.Inf)
     println(s"${LocalTime.now()} complete drain shutdown: $result")

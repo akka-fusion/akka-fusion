@@ -8,7 +8,7 @@ object Dependencies {
   val versionJava8Compat = "0.9.0"
   val versionScalameta = "4.2.3"
   val versionScalatest = "3.0.8"
-  val versionAkka = "2.6.0-RC1"
+  val versionAkka = "2.6.0-RC2"
   val versionAkkaManagement = "1.0.3"
   val versionAkkaHttp = "10.1.10"
   val versionAkkaHttpCors = "0.4.1"
@@ -63,6 +63,7 @@ object Dependencies {
   val _akkaStreamTyped = "com.typesafe.akka" %% "akka-stream-typed" % versionAkka
   val _akkaDiscovery = "com.typesafe.akka" %% "akka-discovery" % versionAkka
   val _akkaSerializationJackson = "com.typesafe.akka" %% "akka-serialization-jackson" % versionAkka
+  val _akkaPersistenceTyped = "com.typesafe.akka" %% "akka-persistence-typed" % versionAkka
   val _akkaTypedTestkit = "com.typesafe.akka" %% "akka-actor-testkit-typed" % versionAkka
   val _akkaStreamTestkit = "com.typesafe.akka" %% "akka-stream-testkit" % versionAkka
 
@@ -149,6 +150,16 @@ object Dependencies {
 
   val _alpakkaUnixDomainSocket =
     ("com.lightbend.akka" %% "akka-stream-alpakka-unix-domain-socket" % versionAlpakka)
+      .excludeAll(ExclusionRule("com.typesafe.akka"))
+      .cross(CrossVersion.binary)
+
+  val _akkaPersistenceCassandra =
+    ("com.typesafe.akka" %% "akka-persistence-cassandra" % "0.100")
+      .excludeAll(ExclusionRule("com.typesafe.akka"))
+      .cross(CrossVersion.binary)
+
+  val _akkaPersistenceJdbc =
+    ("com.github.dnvriend" %% "akka-persistence-jdbc" % "3.5.2")
       .excludeAll(ExclusionRule("com.typesafe.akka"))
       .cross(CrossVersion.binary)
 

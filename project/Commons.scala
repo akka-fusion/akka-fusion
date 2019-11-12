@@ -3,7 +3,8 @@ import de.heikoseeberger.sbtheader.HeaderPlugin.autoImport.headerLicense
 import sbt.Keys._
 import sbt._
 import sbtassembly.AssemblyKeys.assemblyMergeStrategy
-import sbtassembly.{MergeStrategy, PathList}
+import sbtassembly.MergeStrategy
+import sbtassembly.PathList
 
 object Commons {
 
@@ -45,9 +46,7 @@ object Commons {
       shellPrompt := { s =>
         Project.extract(s).currentProject.id + " > "
       },
-//            resolvers ++= Seq(
-//            "elasticsearch-releases" at "https://artifacts.elastic.co/maven"
-//        ),
+      resolvers += Resolver.bintrayRepo("akka", "snapshots"),
       fork in run := true,
       fork in Test := true,
       parallelExecution in Test := false,
@@ -153,9 +152,8 @@ object Packaging {
     }
   }
 
-  def assemblySettings = Seq(
-    test in assembly := {},
-    assemblyMergeStrategy in assembly := {
+  def assemblySettings =
+    Seq(test in assembly := {}, assemblyMergeStrategy in assembly := {
       case PathList("javax", "servlet", xs @ _*)                => MergeStrategy.first
       case PathList("io", "netty", xs @ _*)                     => MergeStrategy.first
       case PathList("jnr", xs @ _*)                             => MergeStrategy.first
@@ -176,6 +174,5 @@ object Packaging {
       case x =>
         val oldStrategy = (assemblyMergeStrategy in assembly).value
         oldStrategy(x)
-    }
-  )
+    })
 }

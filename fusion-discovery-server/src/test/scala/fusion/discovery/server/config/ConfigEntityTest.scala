@@ -22,12 +22,17 @@ import java.util.concurrent.TimeUnit
 import akka.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
 import akka.actor.typed.scaladsl.AskPattern._
 import akka.cluster.sharding.typed.ShardingEnvelope
-import akka.cluster.sharding.typed.scaladsl.{ClusterSharding, EntityRef}
+import akka.cluster.sharding.typed.scaladsl.ClusterSharding
+import akka.cluster.sharding.typed.scaladsl.EntityRef
 import akka.util.Timeout
-import fusion.discovery.model.{ConfigPublish, ConfigQuery, ConfigReply}
+import fusion.discovery.model.ConfigPublish
+import fusion.discovery.model.ConfigQuery
+import fusion.discovery.model.ConfigReply
 import fusion.test.FusionTestWordSpec
 import helloscala.common.IntStatus
-import org.scalatest.time.{Millis, Seconds, Span}
+import org.scalatest.time.Millis
+import org.scalatest.time.Seconds
+import org.scalatest.time.Span
 
 import scala.concurrent.duration._
 

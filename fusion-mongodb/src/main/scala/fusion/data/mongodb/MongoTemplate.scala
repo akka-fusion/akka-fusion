@@ -82,7 +82,6 @@ class MongoTemplate private (val client: MongoClient, defaultDbName: String) ext
 }
 
 object MongoTemplate {
-
   val DEFAULT_CODEC_REGISTRY: CodecRegistry = fromRegistries(
     MongoClients.getDefaultCodecRegistry,
     fromProviders(DocumentCodecProvider(), IterableCodecProvider()),

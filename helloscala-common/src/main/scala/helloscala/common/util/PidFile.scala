@@ -23,13 +23,10 @@ import java.nio.file.Path
 import java.nio.file.StandardOpenOption
 
 object PidFile {
-
   def apply(pid: Long): PidFile = new PidFile(pid)
-
 }
 
 class PidFile(val pid: Long) {
-
   /**
    * Creates a new PidFile and writes the current process ID into the provided path
    *
@@ -74,7 +71,6 @@ class PidFile(val pid: Long) {
 
   private def addShutdownHook(path: Path): Unit =
     Runtime.getRuntime.addShutdownHook(new Thread() {
-
       override def run(): Unit =
         try {
           Files.deleteIfExists(path)
@@ -83,5 +79,4 @@ class PidFile(val pid: Long) {
             throw new IllegalArgumentException("Failed to delete pid file " + path, e)
         }
     })
-
 }

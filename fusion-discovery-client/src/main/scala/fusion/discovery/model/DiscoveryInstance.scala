@@ -31,7 +31,6 @@ case class DiscoveryInstance(
     group: String = Constants.DEFAULT_GROUP,
     // ip#port#clasterName#group@@serviceName
     instanceId: String = null) {
-
   def isEnabled: Boolean = enable
 
   def toInetAddr: String = ip + ":" + port

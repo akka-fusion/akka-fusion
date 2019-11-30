@@ -77,5 +77,4 @@ class CipherComponent(key: String) {
     val keyDes = util.Arrays.copyOf(keys, KEY_DES_LENGTH)
     new SecretKeySpec(keyDes, ALGORITHM)
   }
-
 }

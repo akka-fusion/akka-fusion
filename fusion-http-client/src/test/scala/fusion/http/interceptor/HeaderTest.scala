@@ -47,5 +47,4 @@ class HeaderTest extends FusionTestFunSuite with ScalatestRouteTest with MustMat
       headerValueByName("X-Trace-Id") mustBe "2"
     }
   }
-
 }

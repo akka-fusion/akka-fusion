@@ -29,5 +29,4 @@ final class InfoRoute(val system: ExtendedActorSystem) extends ActuatorRoute wit
   override def route: Route = get {
     complete(EMPTY)
   }
-
 }

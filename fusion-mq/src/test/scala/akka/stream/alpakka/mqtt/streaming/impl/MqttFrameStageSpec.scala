@@ -14,28 +14,24 @@
  * limitations under the License.
  */
 
-package akka.stream.alpakka.mqtt.streaming.impl
+package akka.stream.alpakka.mqtt.streaming
+package impl
 
 import akka.actor.ActorSystem
-import akka.stream.scaladsl.Keep
-import akka.stream.scaladsl.Source
+import akka.stream.scaladsl.{ Keep, Source }
 import akka.stream.testkit.javadsl.TestSink
 import akka.stream.testkit.scaladsl.TestSource
-import akka.stream.ActorMaterializer
-import akka.stream.Materializer
+import akka.stream.{ ActorMaterializer, Materializer }
 import akka.testkit.TestKit
 import akka.util.ByteString
-import org.scalatest.BeforeAndAfterAll
-import org.scalatest.Matchers
-import org.scalatest.WordSpecLike
+import org.scalatest.{ BeforeAndAfterAll, Matchers, WordSpecLike }
 
 class MqttFrameStageSpec
     extends TestKit(ActorSystem("MqttFrameStageSpec"))
     with WordSpecLike
     with Matchers
     with BeforeAndAfterAll {
-
-  implicit val mat: Materializer = ActorMaterializer()
+  implicit val mat: Materializer = Materializer.matFromSystem(system)
 
   val MaxPacketSize = 100
 

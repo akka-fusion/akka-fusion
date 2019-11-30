@@ -27,7 +27,6 @@ import fusion.test.FusionTestFunSuite
 
 // #FusionMybatisTest
 class FusionMybatisTest extends ScalaTestWithActorTestKit with FusionTestFunSuite {
-
   test("testSqlSession") {
     val sqlSessionFactory = FusionMybatis(system).component
     sqlSessionFactory should not be null
@@ -83,6 +82,5 @@ class FusionMybatisTest extends ScalaTestWithActorTestKit with FusionTestFunSuit
     })
     println(result)
   }
-
 }
 // #FusionMybatisTest

@@ -40,7 +40,6 @@ import scala.annotation.tailrec
 import scala.concurrent.Future
 
 trait AbstractRoute extends Directives with HttpDirectives with FileDirectives {
-
   def route: Route
 
   def createTempFileFunc(
@@ -192,5 +191,4 @@ trait AbstractRoute extends Directives with HttpDirectives with FileDirectives {
         complete(response)
       }
     }
-
 }

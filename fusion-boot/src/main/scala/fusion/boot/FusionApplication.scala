@@ -24,7 +24,6 @@ import fusion.core.util.FusionUtils
 import helloscala.common.Configuration
 
 class FusionApplication private (system: ActorSystem[FusionProtocol.Command]) {
-
   def run(): FusionApplication = {
     this
   }

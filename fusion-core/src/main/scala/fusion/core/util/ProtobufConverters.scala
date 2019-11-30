@@ -28,7 +28,6 @@ import com.google.protobuf.timestamp.Timestamp
 import scala.concurrent.duration.FiniteDuration
 
 trait ProtobufConverters {
-
   implicit class ProtobufTimestampConverter(value: Timestamp) {
     @inline def toInstant: Instant = toJavaInstant
 
@@ -47,7 +46,6 @@ trait ProtobufConverters {
   }
 
   implicit class ScalaDurationToProtobuf(value: scala.concurrent.duration.Duration) {
-
     def toProtobuf: Duration = {
       val seconds = value.toSeconds
       val nanos = (value.toNanos - (seconds * 1000000000L)).toInt

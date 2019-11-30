@@ -30,7 +30,6 @@ import scala.concurrent.Future
 import scala.concurrent.duration._
 
 object SampleActor {
-
   trait Command
 
   def apply(): Behavior[Command] = Behaviors.receiveMessagePartial {

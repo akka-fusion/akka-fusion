@@ -16,22 +16,13 @@
 
 package docs.scaladsl
 
-import akka.Done
-import akka.NotUsed
+import akka.{ Done, NotUsed }
 import akka.actor.ActorSystem
 import akka.actor.typed.scaladsl.Behaviors
 import akka.actor.typed.scaladsl.adapter._
 import akka.stream.alpakka.mqtt.streaming._
-import akka.stream.alpakka.mqtt.streaming.scaladsl.ActorMqttClientSession
-import akka.stream.alpakka.mqtt.streaming.scaladsl.ActorMqttServerSession
-import akka.stream.alpakka.mqtt.streaming.scaladsl.Mqtt
-import akka.stream.scaladsl.BroadcastHub
-import akka.stream.scaladsl.Flow
-import akka.stream.scaladsl.Keep
-import akka.stream.scaladsl.Sink
-import akka.stream.scaladsl.Source
-import akka.stream.scaladsl.SourceQueueWithComplete
-import akka.stream.scaladsl.Tcp
+import akka.stream.alpakka.mqtt.streaming.scaladsl.{ ActorMqttClientSession, ActorMqttServerSession, Mqtt }
+import akka.stream.scaladsl.{ BroadcastHub, Flow, Keep, Sink, Source, SourceQueueWithComplete, Tcp }
 import akka.stream.testkit.scaladsl.StreamTestKit.assertAllStagesStopped
 import akka.stream._
 import akka.testkit.TestKit
@@ -39,15 +30,12 @@ import akka.util.ByteString
 import org.scalatest._
 import org.scalatest.concurrent.ScalaFutures
 
-import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
-import scala.concurrent.Promise
+import scala.concurrent.{ ExecutionContext, Future, Promise }
 import scala.concurrent.duration._
 
 class UntypedMqttFlowSpec
     extends ParametrizedTestKit("untyped-flow-spec/flow", "typed-flow-spec/topic1", ActorSystem("UntypedMqttFlowSpec"))
     with MqttFlowSpec
-
 class TypedMqttFlowSpec
     extends ParametrizedTestKit(
       "typed-flow-spec/flow",
@@ -60,10 +48,10 @@ class ParametrizedTestKit(val clientId: String, val topic: String, system: Actor
 trait MqttFlowSpec extends WordSpecLike with Matchers with BeforeAndAfterAll with ScalaFutures {
   self: ParametrizedTestKit =>
 
-  implicit private val defaultPatience: PatienceConfig = PatienceConfig(timeout = 5.seconds, interval = 100.millis)
+  private implicit val defaultPatience: PatienceConfig = PatienceConfig(timeout = 5.seconds, interval = 100.millis)
 
-  implicit private val mat: Materializer = ActorMaterializer()
-  implicit private val dispatcherExecutionContext: ExecutionContext = system.dispatcher
+  private implicit val mat: Materializer = Materializer.matFromSystem(system)
+  private implicit val dispatcherExecutionContext: ExecutionContext = system.dispatcher
 
   override def afterAll(): Unit =
     TestKit.shutdownActorSystem(system)

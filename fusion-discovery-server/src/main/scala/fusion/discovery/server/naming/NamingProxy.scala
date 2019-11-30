@@ -50,5 +50,4 @@ object NamingProxy {
           Behaviors.same
       }
   }
-
 }

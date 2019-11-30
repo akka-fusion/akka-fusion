@@ -85,7 +85,6 @@ object Injects {
 }
 
 trait InjectSupport {
-
   def instance[T](implicit ev: ClassTag[T]): T = Injects.instance[T]
 
   def instance[T](a: Named)(implicit ev: ClassTag[T]): T =
@@ -96,5 +95,4 @@ trait InjectSupport {
   def getInstance[T](key: Key[T]): T = Injects.getInstance(key)
 
   def getInstance[T](c: Class[T], a: Named): T = Injects.getInstance(Key.get(c, a))
-
 }

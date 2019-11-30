@@ -14,21 +14,18 @@
  * limitations under the License.
  */
 
-package akka.stream.alpakka.mqtt.streaming.impl
+package akka.stream.alpakka.mqtt.streaming
+package impl
 
 import akka.actor.testkit.typed.scaladsl.ActorTestKit
-import akka.stream.alpakka.mqtt.streaming.PacketId
 import akka.util.ByteString
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.BeforeAndAfterAll
-import org.scalatest.Matchers
-import org.scalatest.WordSpec
+import org.scalatest.{ BeforeAndAfterAll, Matchers, WordSpec }
 
 import scala.concurrent.Promise
 import scala.concurrent.duration._
 
 class RequestStateSpec extends WordSpec with Matchers with BeforeAndAfterAll with ScalaFutures {
-
   val testKit = ActorTestKit()
   override def afterAll(): Unit = testKit.shutdownTestKit()
 
@@ -163,7 +160,6 @@ class RequestStateSpec extends WordSpec with Matchers with BeforeAndAfterAll wit
   }
 
   "remote packet router" should {
-
     "route a packet" in {
       val clientId = "some-client"
       val packetId = PacketId(1)
@@ -199,7 +195,6 @@ class RequestStateSpec extends WordSpec with Matchers with BeforeAndAfterAll wit
       router ! RemotePacketRouter.Route(Some(clientId), packetId, "some-packet", failureReply2)
       failureReply2.future.failed.futureValue shouldBe RemotePacketRouter.CannotRoute(packetId)
       registrant.expectNoMessage(100.millis)
-
     }
   }
 }

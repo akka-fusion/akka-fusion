@@ -75,7 +75,6 @@ object ConfigManager {
           childFunc(child)
           active(context, children.updated(namespace, child))
       }
-
     }
 
     Behaviors.receiveMessagePartial {
@@ -91,5 +90,4 @@ object ConfigManager {
         activeThan(in.namespace, _ ! Configs.RegisterListener(listenerId, in.dataId, queue))
     }
   }
-
 }

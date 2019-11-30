@@ -30,7 +30,6 @@ import org.scalatest.FunSuite
 import org.scalatest.MustMatchers
 
 class TimeUtilsTest extends FunSuite with MustMatchers {
-
   test("testToLocalTime") {
     TimeUtils.toLocalTime("22:11:32") mustBe LocalTime.of(22, 11, 32)
     TimeUtils.toLocalTime("8:7:32") mustBe LocalTime.of(8, 7, 32)
@@ -138,5 +137,4 @@ class TimeUtilsTest extends FunSuite with MustMatchers {
     val (_, nanos) = TimeUtils.executeNanoTime(TimeUnit.NANOSECONDS.sleep(1500))
     nanos must be >= 1500L
   }
-
 }

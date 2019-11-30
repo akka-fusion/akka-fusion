@@ -74,5 +74,4 @@ object BaseExceptionHandler extends StrictLogging {
         }
         ctx.complete(response)
   }
-
 }

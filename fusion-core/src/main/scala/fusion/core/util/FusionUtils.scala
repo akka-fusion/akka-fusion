@@ -80,5 +80,4 @@ object FusionUtils {
 
   @inline def getName(config: Config): String =
     if (config.hasPath(FusionConstants.NAME_PATH)) config.getString(FusionConstants.NAME_PATH) else FusionConstants.NAME
-
 }

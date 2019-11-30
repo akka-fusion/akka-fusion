@@ -17,20 +17,14 @@
 package akka.stream.alpakka.mqtt.streaming.impl
 
 import akka.actor.ActorSystem
-import akka.actor.testkit.typed.scaladsl.ActorTestKit
-import akka.actor.testkit.typed.scaladsl.BehaviorTestKit
-import akka.actor.testkit.typed.scaladsl.TestInbox
+import akka.actor.testkit.typed.scaladsl.{ ActorTestKit, BehaviorTestKit, TestInbox }
 import akka.actor.typed.ActorRef
 import akka.actor.typed.scaladsl.Behaviors
 import akka.stream.alpakka.mqtt.streaming.impl.QueueOfferState.QueueOfferCompleted
 import akka.stream.QueueOfferResult
 import akka.testkit.TestKit
-import org.scalatest.BeforeAndAfterAll
-import org.scalatest.Matchers
-import org.scalatest.WordSpecLike
-import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
-import scala.concurrent.Promise
+import org.scalatest.{ BeforeAndAfterAll, Matchers, WordSpecLike }
+import scala.concurrent.{ ExecutionContext, Future, Promise }
 import scala.concurrent.duration._
 
 class QueueOfferStateSpec
@@ -38,14 +32,13 @@ class QueueOfferStateSpec
     with WordSpecLike
     with Matchers
     with BeforeAndAfterAll {
-
   sealed trait Msg
 
   case class DoubleIt(n: Int, reply: ActorRef[Int]) extends Msg
   case object NotHandled extends Msg
   case class Done(result: Either[Throwable, QueueOfferResult]) extends Msg with QueueOfferCompleted
 
-  implicit private val ec: ExecutionContext = system.dispatcher
+  private implicit val ec: ExecutionContext = system.dispatcher
 
   private val baseBehavior = Behaviors.receivePartial[Msg] {
     case (context, DoubleIt(n, reply)) =>

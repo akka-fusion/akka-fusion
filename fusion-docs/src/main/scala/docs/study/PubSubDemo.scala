@@ -54,11 +54,9 @@ object PubSubs {
       case None => // topic not exists
         0
     }
-
 }
 
 object PubSubDemo extends App {
-
   case class Subscribe(name: String) extends Sub {
     override def onMessage(topic: String, message: Object): Unit = println(s"$name 收到 $topic 消息：$message")
     override def onUnsubscribe(topic: String): Unit = println(s"$name 被 tickOff 主题：$topic")

@@ -37,7 +37,6 @@ import io.circe.parser.parse
  * To use automatic codec derivation, user needs to import `io.circe.generic.auto._`.
  */
 object ErrorAccumulatingCirceSupport extends ErrorAccumulatingCirceSupport {
-
   final case class DecodingFailures(failures: NonEmptyList[DecodingFailure]) extends Exception {
     override def getMessage = failures.toList.map(_.show).mkString("\n")
   }
@@ -55,7 +54,6 @@ trait ErrorAccumulatingCirceSupport extends BaseCirceSupport with ErrorAccumulat
  * Automatic to and from JSON marshalling/unmarshalling using an in-scope circe protocol.
  */
 trait BaseCirceSupport {
-
   def unmarshallerContentTypes: Seq[ContentTypeRange] =
     mediaTypes.map(ContentTypeRange.apply)
 
@@ -92,7 +90,6 @@ trait BaseCirceSupport {
    */
   implicit final val safeJsonUnmarshaller: FromEntityUnmarshaller[Either[io.circe.ParsingFailure, Json]] =
     Unmarshaller.stringUnmarshaller.forContentTypes(unmarshallerContentTypes: _*).map(parse)
-
 }
 
 /**
@@ -129,5 +126,4 @@ trait ErrorAccumulatingUnmarshaller { this: BaseCirceSupport =>
       Decoder[A].decodeAccumulating(json.hcursor)
     safeJsonUnmarshaller.map(_.toValidatedNel.andThen(decode))
   }
-
 }

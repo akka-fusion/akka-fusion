@@ -61,5 +61,4 @@ class NacosDiscoveryComponent(
   override def close(): Unit = {
     currentInstances.foreach(inst => namingService.deregisterInstance(inst))
   }
-
 }

@@ -16,7 +16,8 @@
 
 package fusion.shared.scalapb.json4s
 
-import com.google.protobuf.any.{Any => PBAny}
+import com.google.protobuf.any.{ Any => PBAny }
+import fusion.json.JsonFormatException
 import org.json4s.JsonAST.JNothing
 import org.json4s.JsonAST.JObject
 import org.json4s.JsonAST.JString
@@ -25,7 +26,6 @@ import org.json4s.JsonAST.JValue
 import scala.language.existentials
 
 object AnyFormat {
-
   val anyWriter: (Printer, PBAny) => JValue = {
     case (printer, any) =>
       // Find the companion so it can be used to JSON-serialize the message. Perhaps this can be circumvented by

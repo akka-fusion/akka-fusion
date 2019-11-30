@@ -15,20 +15,16 @@
  */
 
 package docs.scaladsl
-
 import java.nio.ByteOrder
 
 import akka.stream.alpakka.mqtt.streaming._
-import akka.util.ByteString
-import akka.util.ByteStringBuilder
-import org.scalatest.Matchers
-import org.scalatest.WordSpec
+import akka.util.{ ByteString, ByteStringBuilder }
+import org.scalatest.{ Matchers, WordSpec }
 
 import scala.concurrent.duration._
 
 class MqttCodecSpec extends WordSpec with Matchers {
-
-  implicit private val byteOrder: ByteOrder = ByteOrder.BIG_ENDIAN
+  private implicit val byteOrder: ByteOrder = ByteOrder.BIG_ENDIAN
   import MqttCodec._
 
   private val MaxPacketSize = 100

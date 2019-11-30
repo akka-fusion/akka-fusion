@@ -18,7 +18,7 @@ package fusion.discovery.client
 
 import java.util.concurrent.ConcurrentHashMap
 import scala.concurrent.duration._
-import akka.{actor => classic}
+import akka.{ actor => classic }
 import akka.actor.typed.ActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.HttpRequest
@@ -144,7 +144,6 @@ trait DiscoveryHttpClient extends HttpClient {
     httpSourceQueueMap.forEach((_, queue) => queue.complete())
     httpSourceQueueMap.clear()
   }
-
 }
 
 object DiscoveryHttpClient {
@@ -160,5 +159,4 @@ object DiscoveryHttpClient {
 
   def apply(system: classic.ActorSystem, clientSetting: DiscoveryHttpClientSetting): DiscoveryHttpClient =
     new AkkaDiscoveryHttpClient(clientSetting)(system)
-
 }

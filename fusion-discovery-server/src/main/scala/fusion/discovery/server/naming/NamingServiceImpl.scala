@@ -94,5 +94,4 @@ class NamingServiceImpl(namingProxy: ActorRef[Namings.Command], system: ActorSys
     StringUtils.isNoneBlank(v.namespace) && StringUtils.isNoneBlank(v.ip) && v.port > 0 &&
     StringUtils.isNoneBlank(v.serviceName)
   }
-
 }

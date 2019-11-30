@@ -25,7 +25,6 @@ import fusion.discovery.client.FusionConfigService
 import fusion.discovery.client.FusionNamingService
 
 object NacosServiceFactory extends StrictLogging {
-
   def configService(props: Properties): FusionConfigService =
     new NacosConfigServiceImpl(props, NacosFactory.createConfigService(props))
 

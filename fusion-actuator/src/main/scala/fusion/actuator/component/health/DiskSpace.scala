@@ -24,7 +24,6 @@ import fusion.core.model.Health
 import fusion.core.model.HealthComponent
 
 object DiskSpace extends HealthComponent {
-
   override def health: Health = {
     var free = 0L
     var total = 0L

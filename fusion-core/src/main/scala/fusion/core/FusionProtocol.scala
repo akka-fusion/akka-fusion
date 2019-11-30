@@ -28,7 +28,6 @@ object FusionProtocol {
   trait Command
 
   object Spawn {
-
     /**
      * Special factory to make using Spawn with ask easier
      */
@@ -76,7 +75,6 @@ object FusionProtocol {
         if (name == null || name.equals(""))
           ctx.spawnAnonymous(bhvr, props)
         else {
-
           @tailrec def spawnWithUniqueName(c: Int): ActorRef[Any] = {
             val nameSuggestion = if (c == 0) name else s"$name-$c"
             ctx.child(nameSuggestion) match {
@@ -93,5 +91,4 @@ object FusionProtocol {
     case (_, Shutdown) =>
       Behaviors.stopped
   }
-
 }

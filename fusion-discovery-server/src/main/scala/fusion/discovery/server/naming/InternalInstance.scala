@@ -146,5 +146,4 @@ final private[server] class InternalService(namingServiceKey: NamingServiceKey) 
     this.instances = items.sortWith(_ > _)
     instIds = this.instances.view.map(_.instanceId).zipWithIndex.toMap
   }
-
 }

@@ -75,7 +75,6 @@ object Namings {
   case class NamingServiceKey(namespace: String, serviceName: String) extends CborSerializable
 
   object NamingServiceKey {
-
     def entityId(namespace: String, serviceName: String): Either[String, String] = {
       if (StringUtils.isBlank(namespace) || StringUtils.isBlank(serviceName)) {
         Left("entityId invalid, need [namespace]_[serviceName] format.")
@@ -120,7 +119,6 @@ object Namings {
     require(StringUtils.isNoneBlank(serviceName), s"serviceName invalid, is: $serviceName")
     s"$ip-$port-$serviceName"
   }
-
 }
 
 class NamingEntity(
@@ -209,5 +207,4 @@ class Namings private (
     replyTo ! result
     this
   }
-
 }

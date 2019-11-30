@@ -29,7 +29,7 @@ lazy val root = Project(id = "akka-fusion", base = file("."))
     fusionBoot,
     fusionInjects,
     fusionMq,
-    fusionSchedulerServer,
+    fusionSchedulerxServer,
     fusionJob,
     fusionLog,
     fusionDiscoveryServer,
@@ -68,7 +68,7 @@ lazy val fusionDocs = _project("fusion-docs")
   .dependsOn(
     fusionInjects,
     fusionMq,
-    fusionSchedulerServer,
+    fusionSchedulerxServer,
     fusionJob,
     fusionLog,
     fusionDiscoveryServer,
@@ -122,7 +122,7 @@ lazy val fusionHttpGateway = _project("fusion-http-gateway")
 lazy val fusionMq = _project("fusion-mq")
   .dependsOn(fusionTestkit % "test->test", fusionCommon)
   .settings(
-    libraryDependencies ++= Seq(_alpakkaMqttStreaming) ++ _akkaClusters ++ _akkaHttps ++ _cassandras ++ _akkaStreamKafkas)
+    libraryDependencies ++= Seq( /*_alpakkaMqttStreaming*/ ) ++ _akkaClusters ++ _akkaHttps ++ _cassandras ++ _akkaStreamKafkas)
 
 lazy val fusionDiscoveryServer = _project("fusion-discovery-server")
   .enablePlugins(AkkaGrpcPlugin /*, MultiJvmPlugin*/, JavaAgent)
@@ -144,16 +144,24 @@ lazy val fusionDiscoveryServer = _project("fusion-discovery-server")
         _akkaPersistenceJdbc,
         _hikariCP,
         _postgresql,
-        _akkaPersistenceTyped) ++ _akkaClusters)
+        _akkaPersistenceTyped,
+        _akkaMultiNodeTestkit % Test) ++ _akkaClusters)
 //  .configs(MultiJvm)
 
 lazy val fusionDiscoveryClient = _project("fusion-discovery-client")
   .dependsOn(fusionHttpClient, fusionTestkit % "test->test", fusionCore)
   .settings(libraryDependencies ++= Seq(_akkaDiscovery, _nacosClient) ++ _akkaHttps)
 
-lazy val fusionSchedulerServer = _project("fusion-scheduler-server")
+lazy val fusionSchedulerxFunctest = _project("fusion-schedulerx-functest")
+  .enablePlugins(MultiJvmPlugin)
+  .dependsOn(fusionSchedulerxWorker, fusionSchedulerxServer, fusionTestkit % "test->test")
+  .settings(Publishing.noPublish)
+  .configs(MultiJvm)
+  .settings(jvmOptions in MultiJvm := Seq("-Xmx512M"), libraryDependencies ++= Seq(_akkaMultiNodeTestkit % Test))
+
+lazy val fusionSchedulerxServer = _project("fusion-schedulerx-server")
   .enablePlugins(AkkaGrpcPlugin, JavaAgent)
-  .dependsOn(fusionJsonCirce, fusionHttp, fusionDiscoveryClient, fusionJob, fusionLog, fusionTestkit % "test->test")
+  .dependsOn(fusionSchedulerxWorker, fusionSchedulerxCommon, fusionTestkit % "test->test")
   .settings(Publishing.noPublish)
   .settings(
     javaAgents += _alpnAgent % "runtime;test",
@@ -161,7 +169,27 @@ lazy val fusionSchedulerServer = _project("fusion-scheduler-server")
     libraryDependencies ++= Seq(
         "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion % "protobuf",
         _akkaGrpcRuntime,
-        _postgresql) ++ _akkaClusters)
+        _postgresql,
+        _quartz))
+
+lazy val fusionSchedulerxWorker = _project("fusion-schedulerx-worker")
+  .enablePlugins(AkkaGrpcPlugin, JavaAgent)
+  .dependsOn(fusionHttp, fusionSchedulerxCommon, fusionTestkit % "test->test")
+  .settings(
+    akkaGrpcCodeGeneratorSettings += "server_power_apis",
+    libraryDependencies ++= Seq(
+        "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion % "protobuf",
+        _akkaGrpcRuntime,
+        _akkaHttp))
+
+lazy val fusionSchedulerxCommon = _project("fusion-schedulerx-common")
+  .dependsOn(fusionTestkit % "test->test", fusionCommon)
+  .settings(
+    libraryDependencies ++= Seq(
+        _h2,
+        _akkaSerializationJackson,
+        "com.typesafe.akka" %% "akka-cluster-typed" % versionAkka,
+        "com.typesafe.akka" %% "akka-cluster-sharding-typed" % versionAkka))
 
 lazy val fusionJob = _project("fusion-job")
   .dependsOn(fusionJdbc, fusionTestkit % "test->test", fusionCore)
@@ -320,15 +348,17 @@ lazy val fusionCommon = _project("fusion-common")
 
 lazy val helloscalaCommon = _project("helloscala-common")
   .settings(Publishing.publishing: _*)
-  .settings(libraryDependencies ++= Seq(
-      _jacksonAnnotations,
-      _uuidGenerator,
-      "org.scala-lang" % "scala-library" % scalaVersion.value,
-      _scalaCollectionCompat,
-      _scalaJava8Compat,
-      _akkaTypedTestkit % Test,
-      _akkaStreamTestkit % Test,
-      _scalatest % Test) ++ _akkas ++ _logs)
+  .settings(
+    libraryDependencies ++= Seq(
+        //_jacksonAnnotations,
+        _uuidGenerator,
+        "org.scala-lang" % "scala-library" % scalaVersion.value,
+        _akkaSerializationJackson % Provided,
+        _scalaCollectionCompat,
+        _scalaJava8Compat,
+        _akkaTypedTestkit % Test,
+        _akkaStreamTestkit % Test,
+        _scalatest % Test) ++ _akkas ++ _logs)
 
 def _project(name: String, _base: String = null) =
   Project(id = name, base = file(if (_base eq null) name else _base))

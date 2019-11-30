@@ -23,7 +23,7 @@ import akka.stream.OverflowStrategy
 import akka.stream.scaladsl.Keep
 import akka.stream.scaladsl.Sink
 import akka.stream.scaladsl.Source
-import akka.{actor => classic}
+import akka.{ actor => classic }
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
@@ -31,7 +31,7 @@ import scala.io.StdIn
 
 object StreamDemo extends App {
   implicit val system = classic.ActorSystem()
-  implicit val mat = Materializer(system)
+  implicit val mat = Materializer.matFromSystem(system)
   import mat.executionContext
 
   val (queue, resultF) = Source
@@ -54,5 +54,4 @@ object StreamDemo extends App {
 
   system.terminate()
   Await.ready(system.whenTerminated, 10.seconds)
-
 }

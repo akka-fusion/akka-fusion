@@ -71,5 +71,4 @@ class HttpUtilsTest extends ScalaTestWithActorTestKit with FusionTestFunSuite {
 
     httpSourceQueueMap.forEach((a, q) => println(s"$a  <->  $q"))
   }
-
 }

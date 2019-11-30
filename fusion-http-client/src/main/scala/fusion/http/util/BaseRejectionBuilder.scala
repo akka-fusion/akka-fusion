@@ -85,5 +85,4 @@ object BaseRejectionBuilder extends StrictLogging {
   // #rejectionBuilder
 
   final val rejectionHandler: RejectionHandler = rejectionBuilder.result()
-
 }

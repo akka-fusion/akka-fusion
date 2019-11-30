@@ -17,7 +17,7 @@
 package fusion.core.setting
 
 import akka.pattern.CircuitBreaker
-import akka.{actor => classic}
+import akka.{ actor => classic }
 import com.typesafe.config.ConfigFactory
 import helloscala.common.Configuration
 
@@ -31,7 +31,6 @@ final class CircuitBreakerSetting private (c: Configuration) {
 }
 
 object CircuitBreakerSetting {
-
   def apply(c: Configuration): CircuitBreakerSetting = new CircuitBreakerSetting(c)
 
   def apply(configuration: Configuration, prefix: String): CircuitBreakerSetting =
@@ -48,5 +47,4 @@ object CircuitBreakerSetting {
       None
     }
   }
-
 }

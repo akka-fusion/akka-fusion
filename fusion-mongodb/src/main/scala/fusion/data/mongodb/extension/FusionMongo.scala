@@ -75,7 +75,6 @@ final private[mongodb] class MongoComponents(system: ActorSystem[_])
       None
     }
   }
-
 }
 
 final class FusionMongo private (override val system: ActorSystem[_]) extends FusionExtension {

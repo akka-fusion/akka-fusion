@@ -253,5 +253,4 @@ object Configs {
       active(Nil, Map())
     }
   }
-
 }

@@ -29,11 +29,9 @@ import akka.cluster.typed.ClusterSingletonSettings
 import akka.cluster.typed.SingletonActor
 
 object AppOneMaster {
-
   val WorkerServiceKey = ServiceKey[StatsWorker.Process]("Worker")
 
   object RootBehavior {
-
     def apply(): Behavior[Nothing] = Behaviors.setup[Nothing] { ctx =>
       val cluster = Cluster(ctx.system)
 
@@ -82,5 +80,4 @@ object AppOneMaster {
 
     val system = ActorSystem[Nothing](RootBehavior(), "ClusterSystem", config)
   }
-
 }

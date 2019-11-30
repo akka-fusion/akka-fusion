@@ -29,7 +29,6 @@ import helloscala.common.Configuration
 import scala.concurrent.Future
 
 class FusionHttpApplication private (system: ActorSystem[FusionProtocol.Command]) {
-
   def run(route: Route): FusionHttpApplication = {
     FusionApplication(system).run()
     FusionHttpServer(system).component.startRouteSync(route)

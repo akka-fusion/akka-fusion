@@ -48,7 +48,7 @@
 //class NamingClient(system: ActorSystem[_]) {
 //  import system.executionContext
 //  implicit private val classicSystem = system.toClassic
-//  implicit private val mat = Materializer(system)
+//  implicit private val mat = Materializer.matFromSystem(system)
 //  private var clients = Map[Authority, NamingServiceClient]()
 //
 //  val client = NamingServiceClient(GrpcClientSettings.connectToServiceAt("127.0.0.0", 8000))

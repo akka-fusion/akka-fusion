@@ -7,7 +7,6 @@ import sbtassembly.MergeStrategy
 import sbtassembly.PathList
 
 object Commons {
-
   import Environment.BuildEnv
   import Environment.buildEnv
 
@@ -54,7 +53,6 @@ object Commons {
 }
 
 object Publishing {
-
   lazy val publishing = Seq(
     publishTo := (if (version.value.endsWith("-SNAPSHOT")) {
                     Some("Helloscala_sbt-public_snapshot".at(
@@ -71,7 +69,6 @@ object Publishing {
 }
 
 object Environment {
-
   object BuildEnv extends Enumeration {
     val Production, Stage, Test, Developement = Value
   }

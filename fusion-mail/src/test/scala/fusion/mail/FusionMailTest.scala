@@ -24,7 +24,6 @@ import javax.mail.Message.RecipientType
 import org.scalatest.BeforeAndAfterAll
 
 class FusionMailTest extends ScalaTestWithActorTestKit with FusionTestFunSuite with BeforeAndAfterAll {
-
   test("init") {
     val mailHelper = FusionMail(system).components.lookup("fusion.mail.wangyi")
 

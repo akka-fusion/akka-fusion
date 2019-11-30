@@ -36,7 +36,7 @@ import akka.http.scaladsl.server.RejectionHandler
 import akka.http.scaladsl.server.Route
 import akka.stream.Materializer
 import akka.Done
-import akka.{actor => classic}
+import akka.{ actor => classic }
 import com.typesafe.config.ConfigFactory
 import com.typesafe.scalalogging.StrictLogging
 import fusion.core.event.http.HttpBindingServerEvent

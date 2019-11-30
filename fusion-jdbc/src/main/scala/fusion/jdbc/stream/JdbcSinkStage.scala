@@ -125,5 +125,4 @@ class JdbcSinkStage[T](
 
     (logic, promise.future)
   }
-
 }

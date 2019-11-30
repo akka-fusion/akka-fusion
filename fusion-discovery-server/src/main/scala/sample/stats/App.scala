@@ -29,11 +29,9 @@ import akka.cluster.typed.Cluster
 import scala.concurrent.duration._
 
 object App {
-
   val StatsServiceKey = ServiceKey[StatsService.ProcessText]("StatsService")
 
   object RootBehavior {
-
     def apply(): Behavior[Nothing] = Behaviors.setup[Nothing] { ctx =>
       val cluster = Cluster(ctx.system)
       if (cluster.selfMember.hasRole("compute")) {
@@ -66,7 +64,6 @@ object App {
   }
 
   def startup(role: String, port: Int): Unit = {
-
     // Override the configuration of the port when specified as program argument
     val config = ConfigFactory.parseString(s"""
       akka.remote.artery.canonical.port=$port
@@ -78,7 +75,6 @@ object App {
 }
 
 object StatsSampleClient {
-
   sealed trait Event
   private case object Tick extends Event
   private case class ServiceResponse(result: StatsService.Response) extends Event
@@ -100,5 +96,4 @@ object StatsSampleClient {
         }
       }
     }
-
 }

@@ -24,7 +24,6 @@ trait FusionTestSuite
     extends OptionValues
     //with ScalaFutures
     with EitherValues {
-
   //implicit override def patienceConfig: PatienceConfig =
   //  PatienceConfig(scaled(Span(patienceTimeout.toMillis, Millis)), scaled(Span(15, Millis)))
 

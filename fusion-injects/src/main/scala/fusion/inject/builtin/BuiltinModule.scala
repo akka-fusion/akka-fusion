@@ -18,7 +18,7 @@ package fusion.inject.builtin
 
 import akka.actor.typed.ActorSystem
 import akka.stream.Materializer
-import akka.{actor => classic}
+import akka.{ actor => classic }
 import com.google.inject.AbstractModule
 import com.typesafe.config.Config
 import fusion.core.extension.FusionCore
@@ -32,18 +32,18 @@ import scala.concurrent.ExecutionContext
 import scala.concurrent.ExecutionContextExecutor
 
 @Singleton
-class ConfigurationProvider @Inject()() extends Provider[Configuration] {
+class ConfigurationProvider @Inject() () extends Provider[Configuration] {
   private[this] val configuration = Configuration.fromDiscovery()
   override def get(): Configuration = configuration
 }
 
 @Singleton
-class ConfigProvider @Inject()(configuration: Configuration) extends Provider[Config] {
+class ConfigProvider @Inject() (configuration: Configuration) extends Provider[Config] {
   override def get(): Config = configuration.underlying
 }
 
 @Singleton
-class ActorSystemProvider @Inject()(configuration: Configuration) extends Provider[ActorSystem[_]] {
+class ActorSystemProvider @Inject() (configuration: Configuration) extends Provider[ActorSystem[_]] {
   private[this] val system = FusionUtils.createActorSystem(configuration)
   FusionCore(system)
   sys.addShutdownHook { system.terminate() }
@@ -51,25 +51,24 @@ class ActorSystemProvider @Inject()(configuration: Configuration) extends Provid
 }
 
 @Singleton
-class ClassicActorSystemProvider @Inject()(system: ActorSystem[_]) extends Provider[classic.ActorSystem] {
+class ClassicActorSystemProvider @Inject() (system: ActorSystem[_]) extends Provider[classic.ActorSystem] {
   import akka.actor.typed.scaladsl.adapter._
   override def get(): classic.ActorSystem = system.toClassic
 }
 
 @Singleton
-class ExecutionContextExecutorProvider @Inject()(system: ActorSystem[_]) extends Provider[ExecutionContextExecutor] {
+class ExecutionContextExecutorProvider @Inject() (system: ActorSystem[_]) extends Provider[ExecutionContextExecutor] {
   override def get(): ExecutionContextExecutor = system.executionContext
 }
 
 @Singleton
-class MaterializerProvider @Inject()(system: classic.ActorSystem) extends Provider[Materializer] {
-  private[this] val materializer = Materializer(system)
+class MaterializerProvider @Inject() (system: classic.ActorSystem) extends Provider[Materializer] {
+  private[this] val materializer = Materializer.matFromSystem(system)
 
   override def get(): Materializer = materializer
 }
 
 class BuiltinModule extends AbstractModule {
-
   override def configure(): Unit = {
     bind(classOf[Configuration]).toProvider(classOf[ConfigurationProvider])
     bind(classOf[ActorSystem[_]]).toProvider(classOf[ActorSystemProvider])
@@ -78,5 +77,4 @@ class BuiltinModule extends AbstractModule {
     bind(classOf[ExecutionContext]).to(classOf[ExecutionContextExecutor])
     bind(classOf[Materializer]).toProvider(classOf[MaterializerProvider])
   }
-
 }

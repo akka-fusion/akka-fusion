@@ -20,32 +20,22 @@ import akka.Done
 import akka.actor.ActorSystem
 import akka.pattern.ask
 import akka.stream.alpakka.mqtt.streaming._
-import akka.stream.alpakka.mqtt.streaming.scaladsl.ActorMqttClientSession
-import akka.stream.alpakka.mqtt.streaming.scaladsl.ActorMqttServerSession
-import akka.stream.alpakka.mqtt.streaming.scaladsl.Mqtt
-import akka.stream.alpakka.mqtt.streaming.scaladsl.MqttServerSession
-import akka.stream.scaladsl.BroadcastHub
-import akka.stream.scaladsl.Flow
-import akka.stream.scaladsl.Keep
-import akka.stream.scaladsl.Sink
-import akka.stream.scaladsl.Source
-import akka.stream.scaladsl.SourceQueueWithComplete
+import akka.stream.alpakka.mqtt.streaming.scaladsl.{
+  ActorMqttClientSession,
+  ActorMqttServerSession,
+  Mqtt,
+  MqttServerSession
+}
+import akka.stream.scaladsl.{ BroadcastHub, Flow, Keep, Sink, Source, SourceQueueWithComplete }
 import akka.stream.testkit.scaladsl.StreamTestKit.assertAllStagesStopped
-import akka.stream.ActorMaterializer
-import akka.stream.Materializer
-import akka.stream.OverflowStrategy
+import akka.stream.{ ActorMaterializer, Materializer, OverflowStrategy, SystemMaterializer }
 import akka.testkit._
-import akka.util.ByteString
-import akka.util.Timeout
-import org.scalatest.BeforeAndAfterAll
-import org.scalatest.Matchers
-import org.scalatest.WordSpecLike
+import akka.util.{ ByteString, Timeout }
+import org.scalatest.{ BeforeAndAfterAll, Matchers, WordSpecLike }
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.time.Millis
-import org.scalatest.time.Span
+import org.scalatest.time.{ Millis, Span }
 
-import scala.concurrent.ExecutionContext
-import scala.concurrent.Promise
+import scala.concurrent.{ ExecutionContext, Promise }
 import scala.concurrent.duration._
 
 class MqttSessionSpec
@@ -54,8 +44,7 @@ class MqttSessionSpec
     with BeforeAndAfterAll
     with ScalaFutures
     with Matchers {
-
-  implicit val mat: Materializer = ActorMaterializer()
+  implicit val mat: Materializer = Materializer.matFromSystem(system)
   implicit val executionContext: ExecutionContext = system.dispatcher
   implicit val timeout: Timeout = Timeout(3.seconds.dilated)
 
@@ -64,7 +53,6 @@ class MqttSessionSpec
   import MqttCodec._
 
   "MQTT client connector" should {
-
     "flow through a client session" in assertAllStagesStopped {
       val session = ActorMqttClientSession(settings)
 
@@ -1191,11 +1179,9 @@ class MqttSessionSpec
       client.complete()
       client.watchCompletion().foreach(_ => session.shutdown())
     }
-
   }
 
   "MQTT server connector" should {
-
     "flow through a server session" in assertAllStagesStopped {
       val session = ActorMqttServerSession(settings)
 
@@ -1927,7 +1913,6 @@ class MqttSessionSpec
         _ <- serverConnection1.watchCompletion()
         _ <- serverConnection2.watchCompletion()
       } serverSession.shutdown()
-
     }
   }
 

@@ -64,5 +64,4 @@ final class HealthRoute(val system: ExtendedActorSystem) extends ActuatorRoute w
         }
       }
     }
-
 }

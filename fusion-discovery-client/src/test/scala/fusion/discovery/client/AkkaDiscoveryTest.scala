@@ -19,7 +19,7 @@ package fusion.discovery.client
 import akka.discovery.Discovery
 import akka.discovery.Lookup
 import akka.testkit.TestKit
-import akka.{actor => classic}
+import akka.{ actor => classic }
 import fusion.test.FusionTestFunSuite
 
 import scala.concurrent.Await

@@ -73,7 +73,6 @@ trait JsonUtils extends JsonMethods {
 
     @inline def extract[A <: GeneratedMessage with Message[A]: GeneratedMessageCompanion](value: JValue): A =
       fromJson(value)
-
   }
 
   object serialization extends Serialization {
@@ -131,7 +130,6 @@ trait JsonUtils extends JsonMethods {
       f
     })
   }
-
 }
 
 object JsonUtils extends JsonUtils

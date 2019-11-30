@@ -21,7 +21,6 @@ import akka.http.scaladsl.unmarshalling.Unmarshaller
 import org.bson.types.ObjectId
 
 trait MongodbDirectives {
-
   implicit def objectIdFromStringUnmarshaller: FromStringUnmarshaller[ObjectId] =
     MongodbDirectives._objectIdFromStringUnmarshaller
 }

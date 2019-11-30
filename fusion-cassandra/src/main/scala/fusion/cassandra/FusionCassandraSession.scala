@@ -36,7 +36,6 @@ import edu.umd.cs.findbugs.annotations.Nullable
 import scala.concurrent.Future
 
 trait FusionCassandraSession {
-
   @Nullable def execute[RequestT <: Request, ResultT](
       @NonNull request: RequestT,
       @NonNull resultType: GenericType[ResultT]): ResultT

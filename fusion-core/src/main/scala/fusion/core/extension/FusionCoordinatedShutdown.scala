@@ -20,7 +20,7 @@ import akka.actor.Cancellable
 import akka.actor.CoordinatedShutdown
 import akka.actor.CoordinatedShutdown.UnknownReason
 import akka.Done
-import akka.{actor => classic}
+import akka.{ actor => classic }
 
 import scala.concurrent.Future
 

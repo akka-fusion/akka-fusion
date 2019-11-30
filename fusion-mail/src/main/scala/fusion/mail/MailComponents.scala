@@ -28,7 +28,6 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 class MailComponents(val configuration: Configuration)
     extends Components[MailHelper](s"${MailConstants.CONF_ROOT}.default") {
-
   override protected def createComponent(id: String): MailHelper = {
     new MailHelper(configuration.get[Properties](id), null)
   }
@@ -37,5 +36,4 @@ class MailComponents(val configuration: Configuration)
     c.close()
     Done
   }
-
 }

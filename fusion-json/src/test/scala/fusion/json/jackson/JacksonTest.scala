@@ -28,7 +28,6 @@ import scala.collection.mutable
 case class Item(name: String, updatedAt: Option[Instant], now: LocalDateTime)
 
 class JacksonTest extends FunSuite with MustMatchers {
-
   test("Instant") {
     val now = LocalDateTime.now()
     val str = Jackson.stringify(Item("name", Some(Instant.ofEpochMilli(1554799028397L)), now))
@@ -44,5 +43,4 @@ class JacksonTest extends FunSuite with MustMatchers {
     val tree: JsonNode = Jackson.valueToTree(data)
     println(tree)
   }
-
 }

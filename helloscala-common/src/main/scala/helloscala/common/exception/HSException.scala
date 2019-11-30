@@ -27,7 +27,6 @@ class HSException(
     enableSuppression: Boolean,
     writableStackTrace: Boolean)
     extends RuntimeException(msg, cause, enableSuppression, writableStackTrace) {
-
   def httpStatus: Int = IntStatus.INTERNAL_ERROR
 
   val data: Object = null

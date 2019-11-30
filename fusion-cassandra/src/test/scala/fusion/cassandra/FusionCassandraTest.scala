@@ -37,5 +37,4 @@ class FusionCassandraTest extends ScalaTestWithActorTestKit with FusionTestFunSu
       .setInt("s", 99)
     session.execute(stmt)
   }
-
 }

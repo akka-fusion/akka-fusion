@@ -41,7 +41,6 @@ final class HttpSetting private (c: Configuration, system: ActorSystem[_]) {
   }
 
   object server {
-
     def host: String =
       c.getOrElse("server.host", system.settings.config.getString(HttpConstants.SERVER_HOST_PATH))
 

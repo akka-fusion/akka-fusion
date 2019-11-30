@@ -49,12 +49,10 @@ class ConfigurationTest extends FusionTestFunSuite with Matchers with LogCapturi
     c.get[FiniteDuration]("connecting-timeout") should be(62.seconds)
 //    val props = c.getProperties(null)
 //    println(props)
-
   }
 
   test("configuration") {
     val configuration = Configuration.fromDiscovery()
     configuration.getString("fusion.name") shouldBe "fusion"
   }
-
 }

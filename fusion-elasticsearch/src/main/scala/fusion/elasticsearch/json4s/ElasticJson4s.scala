@@ -28,9 +28,7 @@ import org.json4s.Serialization
 import scala.util.Try
 
 object ElasticJson4s {
-
   object Implicits extends Logging {
-
     implicit def Json4sHitReader[T](
         implicit mf: Manifest[T],
         formats: Formats = JsonUtils.defaultFormats,
@@ -54,5 +52,4 @@ object ElasticJson4s {
         json4s: Serialization = JsonUtils.serialization): Indexable[T] =
       (t: T) => json4s.write(t)
   }
-
 }

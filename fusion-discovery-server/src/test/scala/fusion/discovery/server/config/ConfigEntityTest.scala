@@ -41,7 +41,6 @@ class ConfigEntityTest extends ScalaTestWithActorTestKit(s"""
       akka.persistence.snapshot-store.plugin = "akka.persistence.snapshot-store.local"
       akka.persistence.snapshot-store.local.dir = "target/snapshot-${UUID.randomUUID().toString}"
     """) with FusionTestWordSpec {
-
   implicit override val patience: PatienceConfig =
     PatienceConfig(scaled(Span(10, Seconds)), scaled(Span(15, Millis)))
   implicit override val timeout: Timeout = 5.seconds
@@ -78,5 +77,4 @@ class ConfigEntityTest extends ScalaTestWithActorTestKit(s"""
       println(s"query result: $queried")
     }
   }
-
 }

@@ -116,5 +116,4 @@ object ConfigEntity {
         state.copy(contents = contents)
     }
   }
-
 }

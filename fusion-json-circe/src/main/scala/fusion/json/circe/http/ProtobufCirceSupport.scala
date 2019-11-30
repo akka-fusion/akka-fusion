@@ -30,7 +30,6 @@ trait FailFastProtobufCirceSupport extends ProtobufCirceSupport with FailFastUnm
 object FailFastProtobufCirceSupport extends FailFastProtobufCirceSupport
 
 trait ProtobufCirceSupport extends BaseCirceSupport {
-
   implicit final def marshaller[A <: GeneratedMessage](
       implicit printer: Printer = Printer.noSpaces): ToEntityMarshaller[A] =
     jsonMarshaller(printer).compose(CirceUtils.toJson)
@@ -40,5 +39,4 @@ trait ProtobufCirceSupport extends BaseCirceSupport {
     def decode(json: Json): A = CirceUtils.fromJson[A](json)
     jsonUnmarshaller.map(decode)
   }
-
 }

@@ -17,7 +17,7 @@
 package helloscala.common.util
 
 import java.math.BigInteger
-import java.math.{BigDecimal => JBigDecimal}
+import java.math.{ BigDecimal => JBigDecimal }
 
 object NumberUtils {
   private val LONG_MIN = BigInteger.valueOf(Long.MinValue)
@@ -140,5 +140,4 @@ object NumberUtils {
     throw new IllegalArgumentException(
       "Could not convert number [" + number + "] of type [" + number.getClass.getName + "] to target class [" + targetClass.getName + "]: overflow")
   }
-
 }

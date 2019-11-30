@@ -26,7 +26,6 @@ import scala.concurrent.duration._
 
 //#worker
 object StatsWorker {
-
   trait Command
   final case class Process(word: String, replyTo: ActorRef[Processed]) extends Command with CborSerializable
   private case object EvictCache extends Command

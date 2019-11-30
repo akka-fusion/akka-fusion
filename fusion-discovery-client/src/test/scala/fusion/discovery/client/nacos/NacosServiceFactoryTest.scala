@@ -24,7 +24,6 @@ import helloscala.common.Configuration
 import org.scalatest.MustMatchers
 
 class NacosServiceFactoryTest extends FusionTestFunSuite with MustMatchers {
-
   // #NacosServiceFactoryTest
   test("通过serverAddr地址和namespace直接访问") {
     val configService = NacosServiceFactory.configService("localhost:8848", "5b764784-f457-46fb-96c6-4f086d5d0ce1")

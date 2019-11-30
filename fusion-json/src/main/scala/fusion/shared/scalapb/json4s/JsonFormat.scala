@@ -25,6 +25,10 @@ import com.google.protobuf.duration.Duration
 import com.google.protobuf.field_mask.FieldMask
 import com.google.protobuf.struct.NullValue
 import com.google.protobuf.timestamp.Timestamp
+import fusion.json.Durations
+import fusion.json.JsonFormatException
+import fusion.json.NameUtils
+import fusion.json.Timestamps
 import fusion.shared.scalapb.json4s.JsonFormat.GenericCompanion
 import org.json4s.JsonAST._
 import org.json4s.Reader
@@ -35,17 +39,12 @@ import scala.collection.mutable
 import scala.language.existentials
 import scala.reflect.ClassTag
 
-case class JsonFormatException(msg: String, cause: Exception) extends Exception(msg, cause) {
-  def this(msg: String) = this(msg, null)
-}
-
 case class Formatter[T](writer: (Printer, T) => JValue, parser: (Parser, JValue) => T)
 
 case class FormatRegistry(
     messageFormatters: Map[Class[_], Formatter[_]] = Map.empty,
     enumFormatters: Map[EnumDescriptor, Formatter[EnumValueDescriptor]] = Map.empty,
     registeredCompanions: Seq[GenericCompanion] = Seq.empty) {
-
   def registerMessageFormatter[T <: GeneratedMessage](writer: (Printer, T) => JValue, parser: (Parser, JValue) => T)(
       implicit ct: ClassTag[T]): FormatRegistry = {
     copy(messageFormatters = messageFormatters + (ct.runtimeClass -> Formatter(writer, parser)))
@@ -85,7 +84,6 @@ case class FormatRegistry(
 case class TypeRegistry(
     companions: Map[String, GenericCompanion] = Map.empty,
     private val filesSeen: Set[String] = Set.empty) {
-
   def addMessage[T <: GeneratedMessage with Message[T]](implicit cmp: GeneratedMessageCompanion[T]): TypeRegistry = {
     addMessageByCompanion(cmp)
   }
@@ -119,7 +117,6 @@ object TypeRegistry {
 }
 
 object Printer {
-
   final private case class PrinterConfig(
       isIncludingDefaultValueFields: Boolean,
       isPreservingProtoFieldNames: Boolean,
@@ -296,7 +293,6 @@ class Printer private (config: Printer.PrinterConfig) {
 }
 
 object Parser {
-
   final private case class ParserConfig(
       isIgnoringUnknownFields: Boolean,
       formatRegistry: FormatRegistry,
@@ -339,7 +335,6 @@ class Parser private (config: Parser.ParserConfig) {
   }
 
   private def fromJsonToPMessage(cmp: GeneratedMessageCompanion[_], value: JValue, skipTypeUrl: Boolean): PMessage = {
-
     def parseValue(fd: FieldDescriptor, value: JValue): PValue = {
       if (fd.isMapField) {
         value match {

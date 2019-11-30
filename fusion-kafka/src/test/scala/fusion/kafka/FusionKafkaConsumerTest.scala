@@ -64,5 +64,4 @@ class FusionKafkaConsumerTest extends ScalaTestWithActorTestKit with FusionTestF
     println(s"${LocalTime.now()} complete drain shutdown: $result")
     producer.close()
   }
-
 }

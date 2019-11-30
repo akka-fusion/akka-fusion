@@ -67,7 +67,6 @@ final case class GatewayLocation(
     routingSettings: GatewayRoutingSettings,
     gateway: Option[immutable.Seq[GatewayLocation]],
     protocol: HttpProtocol) {
-
   def proxyToUri(uri: Uri): Uri = {
     proxyTo
       .map(realProxyTo => uri.copy(path = Uri.Path(realProxyTo + uri.path.toString().drop(location.length))))
@@ -183,7 +182,5 @@ final class GatewaySetting(system: ActorSystem[_], prefix: String) {
 }
 
 object GatewaySetting {
-
   def fromActorSystem(system: ActorSystem[_], prefix: String): GatewaySetting = new GatewaySetting(system, prefix)
-
 }

@@ -46,7 +46,6 @@ import scala.concurrent.duration._
 import scala.util.control.NonFatal
 
 private[fusion] class FusionCoreImpl(val system: ActorSystem[Nothing]) extends FusionCore with StrictLogging {
-
   override def name: String = system.name
   override val setting: CoreSetting = new CoreSetting(configuration)
   override val events = new FusionEvents()
@@ -137,7 +136,5 @@ private[fusion] class FusionCoreImpl(val system: ActorSystem[Nothing]) extends F
       case _ =>
         logger.warn(s"-D${ConfigKeys.FUSION.PIDFILE} 未设置，将不写入 .pid 文件。")
     }
-
   }
-
 }

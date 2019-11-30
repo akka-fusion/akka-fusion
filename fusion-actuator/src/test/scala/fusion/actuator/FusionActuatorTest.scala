@@ -41,5 +41,4 @@ class FusionActuatorTest extends FusionTestFunSuite with ScalatestRouteTest with
     super.beforeAll()
     FusionActuator(system.toTyped)
   }
-
 }

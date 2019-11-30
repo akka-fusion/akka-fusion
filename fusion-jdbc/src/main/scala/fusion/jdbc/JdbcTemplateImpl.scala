@@ -38,7 +38,6 @@ private[jdbc] class JdbcTemplateImpl(
     ignoreWarnings: Boolean,
     _allowPrintLog: Boolean)
     extends JdbcTemplate {
-
   private[this] val logger = Logger(LoggerFactory.getLogger(getClass.getName))
 
   private[this] def needUseTransaction(implicit conn: Connection = JdbcTemplate.EmptyConnection): Boolean = //    if (conn != JdbcTemplate.EmptyConnection) true else _useTransaction
@@ -90,7 +89,6 @@ private[jdbc] class JdbcTemplateImpl(
       connection,
       JdbcUtils.preparedStatementCreator(sql),
       JdbcUtils.preparedStatementAction(args, new PreparedStatementAction[Long] {
-
         override def apply(pstmt: PreparedStatement): Long = {
           JdbcUtils.setStatementParameters(pstmt, args)
           val rs = pstmt.executeQuery()
@@ -109,7 +107,6 @@ private[jdbc] class JdbcTemplateImpl(
       connection,
       JdbcUtils.preparedStatementCreator(sql),
       JdbcUtils.preparedStatementAction(args, new PreparedStatementAction[List[R]] {
-
         override def apply(stmt: PreparedStatement): List[R] = {
           JdbcUtils.setStatementParameters(stmt, args)
           val rs = stmt.executeQuery()
@@ -132,7 +129,6 @@ private[jdbc] class JdbcTemplateImpl(
       connection,
       JdbcUtils.preparedStatementCreator(sql),
       JdbcUtils.preparedStatementAction(args, new PreparedStatementAction[Option[R]] {
-
         override def apply(stmt: PreparedStatement): Option[R] = {
           JdbcUtils.setStatementParameters(stmt, args)
           val rs = stmt.executeQuery()
@@ -249,5 +245,4 @@ private[jdbc] class JdbcTemplateImpl(
     val con = if (externalConn == null) dataSource.getConnection else externalConn
     JdbcUtils.execute(pscFunc, actionFunc, ignoreWarnings, allowPrintLog, useTransaction, externalConn == null)(con)
   }
-
 }

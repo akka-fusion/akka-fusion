@@ -19,12 +19,10 @@ package fusion.discovery.server.config
 import java.util.UUID
 
 import akka.NotUsed
-import akka.actor.typed.ActorRef
-import akka.actor.typed.ActorSystem
+import akka.actor.typed.{ ActorRef, ActorSystem }
 import akka.actor.typed.scaladsl.AskPattern._
-import akka.stream.Materializer
-import akka.stream.OverflowStrategy
 import akka.stream.scaladsl.Source
+import akka.stream.{ Materializer, OverflowStrategy }
 import akka.util.Timeout
 import fusion.discovery.grpc.ConfigService
 import fusion.discovery.model._
@@ -37,7 +35,7 @@ import scala.concurrent.duration._
 
 class ConfigServiceImpl(configManager: ActorRef[ConfigManager.Command], system: ActorSystem[_]) extends ConfigService {
   import system.executionContext
-  implicit private val mat = Materializer(system)
+  implicit private val mat = Materializer.matFromSystem(system)
   implicit private val timeout = Timeout(5.seconds)
   implicit private val scheduler = system.scheduler
 
@@ -70,5 +68,4 @@ class ConfigServiceImpl(configManager: ActorRef[ConfigManager.Command], system: 
     configManager ! ConfigManager.RegisterChangeListener(UUID.randomUUID(), in, queue)
     source
   }
-
 }

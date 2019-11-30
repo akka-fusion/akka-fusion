@@ -22,7 +22,6 @@ import fusion.core.util.FusionUtils
 import fusion.http.FusionHttpServer
 
 object FusionDiscoveryApplication {
-
   def main(args: Array[String]): Unit = {
     val system = FusionUtils.createActorSystem(FusionProtocol.behavior, ConfigFactory.load())
     val route = new Routes(system).route

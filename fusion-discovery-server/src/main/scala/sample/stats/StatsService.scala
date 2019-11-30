@@ -24,7 +24,6 @@ import fusion.json.jackson.CborSerializable
 
 //#service
 object StatsService {
-
   sealed trait Command extends CborSerializable
 
   final case class ProcessText(text: String, replyTo: ActorRef[Response]) extends Command {
@@ -55,7 +54,6 @@ object StatsService {
 }
 
 object StatsAggregator {
-
   sealed trait Event
   private case object Timeout extends Event
   private case class CalculationComplete(length: Int) extends Event
@@ -93,6 +91,5 @@ object StatsAggregator {
         replyTo ! StatsService.JobFailed("Service unavailable, try again later")
         Behaviors.stopped
     }
-
 }
 //#service

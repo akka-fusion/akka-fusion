@@ -29,7 +29,6 @@ import fusion.discovery.model.DiscoveryServiceInfo
 import scala.util.control.NonFatal
 
 trait FusionNamingService {
-
   /**
    * register a instance to service
    *
@@ -315,5 +314,4 @@ trait FusionNamingService {
       case NonFatal(_) => Authority.parse(serviceName)
     }
   }
-
 }

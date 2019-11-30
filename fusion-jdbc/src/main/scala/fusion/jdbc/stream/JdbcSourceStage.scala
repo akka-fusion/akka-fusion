@@ -34,7 +34,6 @@ import scala.util.control.NonFatal
 
 class JdbcSourceStage(dataSource: DataSource, creator: ConnectionPreparedStatementCreator, fetchRowSize: Int)
     extends GraphStage[SourceShape[ResultSet]] {
-
   private val out: Outlet[ResultSet] = Outlet("JdbcSource.out")
 
   override def shape: SourceShape[ResultSet] = SourceShape(out)
@@ -78,5 +77,4 @@ class JdbcSourceStage(dataSource: DataSource, creator: ConnectionPreparedStateme
             JdbcUtils.closeConnection(conn)
         }
     }
-
 }

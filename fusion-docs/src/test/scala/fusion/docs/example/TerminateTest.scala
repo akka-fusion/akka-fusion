@@ -21,7 +21,7 @@ import java.util.concurrent.TimeUnit
 import akka.actor.CoordinatedShutdown
 import akka.testkit.TestKit
 import akka.Done
-import akka.{actor => classic}
+import akka.{ actor => classic }
 import com.typesafe.scalalogging.StrictLogging
 import fusion.test.FusionTestFunSuite
 import org.scalatest.BeforeAndAfterAll

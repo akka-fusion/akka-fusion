@@ -261,5 +261,4 @@ object Utils extends StrictLogging {
       case _: Throwable => // do nothing
     }
   }
-
 }

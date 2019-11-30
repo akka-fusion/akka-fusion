@@ -69,5 +69,4 @@ class KafkaTest extends ScalaTestWithActorTestKit with FunSuiteLike {
 
     TimeUnit.SECONDS.sleep(10)
   }
-
 }

@@ -19,9 +19,9 @@ package helloscala.common.util
 import java.time.format.DateTimeFormatter
 import java.time._
 import java.util.Date
-import java.sql.{Date => SQLDate}
-import java.sql.{Time => SQLTime}
-import java.sql.{Timestamp => SQLTimestamp}
+import java.sql.{ Date => SQLDate }
+import java.sql.{ Time => SQLTime }
+import java.sql.{ Timestamp => SQLTimestamp }
 
 import com.typesafe.scalalogging.StrictLogging
 
@@ -29,7 +29,6 @@ import scala.util.Try
 import scala.util.control.NonFatal
 
 object TimeUtils extends StrictLogging {
-
   val DATE_TIME_EPOCH: LocalDateTime = LocalDateTime.of(1970, 1, 1, 0, 0, 0)
   val ZONE_CHINA_OFFSET: ZoneOffset = ZoneOffset.ofHours(8)
 
@@ -358,5 +357,4 @@ object TimeUtils extends StrictLogging {
       logger.info(s"funcId: $fid end time: $end, cost: $cost")
     }
   }
-
 }

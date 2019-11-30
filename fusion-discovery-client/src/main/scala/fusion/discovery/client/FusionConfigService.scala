@@ -17,7 +17,6 @@
 package fusion.discovery.client
 
 trait FusionConfigService {
-
   /**
    * Get config
    *
@@ -77,5 +76,4 @@ trait FusionConfigService {
    * @return whether health
    */
   def getServerStatus: String
-
 }

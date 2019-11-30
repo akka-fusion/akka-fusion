@@ -16,7 +16,7 @@
 
 package docs.core
 
-import akka.{actor => classic}
+import akka.{ actor => classic }
 import akka.actor.ExtendedActorSystem
 import akka.http.scaladsl.model.HttpRequest
 import akka.http.scaladsl.model.HttpResponse
@@ -83,7 +83,6 @@ object HttpHandlerDoc {
 
   // #TerminationHttpInterceptor
   class TerminationHttpInterceptor extends HttpInterceptor {
-
     override def filter(handler: HttpHandler): HttpHandler = { req =>
       //handler(req).flatMap(resp => Future.failed(HttpResponseException(resp)))
 //      handler(req).map(resp => throw HttpResponseException(resp))
@@ -91,12 +90,10 @@ object HttpHandlerDoc {
     }
   }
   // #TerminationHttpInterceptor
-
 }
 
 // #NothingHttpInterceptor
 class NothingHttpInterceptor extends HttpInterceptor {
-
   override def interceptor(route: Route): Route = { ctx =>
     route(ctx)
   }

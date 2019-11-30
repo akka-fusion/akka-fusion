@@ -16,10 +16,14 @@
 
 package fusion.discovery.client.nacos
 
+import akka.actor.testkit.typed.scaladsl.LogCapturing
 import fusion.test.FusionTestFunSuite
 import helloscala.common.Configuration
+import org.scalatest.Matchers
 
-class ConfigurationTest extends FusionTestFunSuite {
+import scala.concurrent.duration._
+
+class ConfigurationTest extends FusionTestFunSuite with Matchers with LogCapturing {
   test("fusion.jdbc.default") {
     val configuration = Configuration.parseString("""akka.http {
   host-connection-pool {
@@ -41,17 +45,14 @@ class ConfigurationTest extends FusionTestFunSuite {
   }
 }
 """)
-    val c = configuration.getConfig("akka.http.client")
-    println("c is " + c)
+    val c = configuration.getConfiguration("akka.http.client")
+    c.get[FiniteDuration]("connecting-timeout") should be(62.seconds)
 //    val props = c.getProperties(null)
 //    println(props)
-
   }
 
   test("configuration") {
     val configuration = Configuration.fromDiscovery()
-    println(configuration.toString)
-    println(configuration.getString("fusion.name"))
+    configuration.getString("fusion.name") shouldBe "fusion"
   }
-
 }

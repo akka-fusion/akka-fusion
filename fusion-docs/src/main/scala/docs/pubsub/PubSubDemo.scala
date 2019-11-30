@@ -62,7 +62,6 @@ object PubSubs {
   def send(message: Any): Unit = ins.subscribies.foreach {
     case (id, func) => func(PubSubMessage(id, "", message))
   }
-
 }
 
 object PubSubDemo extends App {

@@ -26,7 +26,7 @@ fusion.discovery {
   nacos {
     serverAddr = "10.0.5.36:8849"
     namespace = "7bf36554-e291-4789-b5fb-9e515ca58ba0"
-    dataId = "fusion.file.app"
+    namespace = "fusion.file.app"
     group = "DEFAULT_GROUP"
     timeoutMs = 3000
     serviceName = "fusion-file-app"
@@ -39,7 +39,7 @@ fusion.discovery {
 - `enable`：启用Fusion Discovery功能，默认值为`false`
 - `nacos.serverAddr`：Nacos服务地址
 - `nacos.namespace`：Nacos服务命名空间（可选）
-- `nacos.dataId`：配置ID
+- `nacos.namespace`：配置ID
 - `nacos.group`：配置分组
 - `nacos.timeoutMs`：获取注册配置时的超时时间（单位：毫秒），默认值为`3000`
 - `nacos.serviceName`：注册到Nacos时的服务端，不指定则使用`fusion.name`配置

@@ -126,5 +126,4 @@ object JacksonHttpUtils {
       case e: HSException => Future.successful(Left(e))
     }
   }
-
 }

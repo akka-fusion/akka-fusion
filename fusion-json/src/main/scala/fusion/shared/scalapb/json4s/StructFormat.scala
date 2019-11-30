@@ -19,9 +19,9 @@ package fusion.shared.scalapb.json4s
 import com.google.protobuf.struct.Value.Kind
 import org.json4s.JsonAST._
 import com.google.protobuf.struct
+import fusion.json.JsonFormatException
 
 object StructFormat {
-
   def structValueWriter(v: struct.Value): JValue = v.kind match {
     case Kind.Empty              => JNull
     case Kind.NullValue(value)   => JNull

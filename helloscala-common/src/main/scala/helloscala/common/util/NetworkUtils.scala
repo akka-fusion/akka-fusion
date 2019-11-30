@@ -48,5 +48,4 @@ object NetworkUtils {
     case Array(host)              => InetSocketAddress.createUnresolved(host, defaultPort)
     case _                        => throw new ExceptionInInitializerError(s"无效的通信地址：$address")
   }
-
 }

@@ -34,7 +34,6 @@ import scala.jdk.CollectionConverters._
 case class Item(href: String, templated: Boolean)
 
 class FusionActuatorRoute(system: ActorSystem[_], actuatorSetting: ActuatorSetting) extends StrictLogging {
-
   private val components: Seq[ActuatorRoute] = system.settings.config
     .getStringList("fusion.actuator.routes")
     .asScala

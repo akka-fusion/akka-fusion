@@ -28,9 +28,7 @@ import fusion.json.jackson.Jackson
 import scala.util.Try
 
 object ElasticJackson {
-
   object Implicits extends Logging {
-
     implicit def JacksonJsonIndexable[T](implicit mapper: ObjectMapper = Jackson.defaultObjectMapper): Indexable[T] =
       (t: T) => mapper.writeValueAsString(t)
 
@@ -56,5 +54,4 @@ object ElasticJackson {
           mapper.readValue[T](mapper.writeValueAsBytes(node))
         }
   }
-
 }

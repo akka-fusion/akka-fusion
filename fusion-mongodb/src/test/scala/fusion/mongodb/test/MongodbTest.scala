@@ -39,7 +39,6 @@ import scala.concurrent.duration.Duration
 case class FileEntity(_id: String, fileName: String, size: Long, localPath: String, hash: String)
 
 class MongodbTest extends ScalaTestWithActorTestKit with FunSuiteLike {
-
   implicit val classicSystem = system.toClassic
   implicit val materializer = Materializer(classicSystem)
 
@@ -121,5 +120,4 @@ class MongodbTest extends ScalaTestWithActorTestKit with FunSuiteLike {
     template.close()
     system.terminate()
   }
-
 }

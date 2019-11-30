@@ -101,6 +101,5 @@ class LoggingJobListener extends JobListener with StrictLogging {
             Integer.valueOf(context.getRefireCount),
             result))
       }
-
     }
 }

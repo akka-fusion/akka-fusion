@@ -80,5 +80,4 @@ final class FusionSqlSessionFactory(underlying: SqlSessionFactory) extends SqlSe
       session.close()
     }
   }
-
 }

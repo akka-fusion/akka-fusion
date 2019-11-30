@@ -37,7 +37,6 @@ class TableTest(tag: Tag) extends Table[Test](tag, "t_test") {
 }
 
 class FusionPostgresProfileTest extends ScalaTestWithActorTestKit with FusionTestFunSuite {
-
   test("init jdbc") {
     val dataSource = FusionJdbc(system).component
     Utils.using(dataSource.getConnection) { conn =>

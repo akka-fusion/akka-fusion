@@ -18,7 +18,7 @@ package fusion.discovery.client.nacos
 
 import com.alibaba.nacos.api.naming.listener.Event
 import com.alibaba.nacos.api.naming.listener.EventListener
-import com.alibaba.nacos.api.naming.{NamingService => JNamingService}
+import com.alibaba.nacos.api.naming.{ NamingService => JNamingService }
 import com.alibaba.nacos.api.selector.AbstractSelector
 import com.typesafe.scalalogging.StrictLogging
 import fusion.discovery.client.FusionNamingService
@@ -33,7 +33,6 @@ import scala.jdk.CollectionConverters._
 class NacosNamingServiceImpl(props: NacosDiscoveryProperties, val underlying: JNamingService)
     extends FusionNamingService
     with StrictLogging {
-
   override def registerInstance(serviceName: String, ip: String, port: Int): DiscoveryInstance =
     registerInstance(DiscoveryInstance(ip, port, serviceName))
 

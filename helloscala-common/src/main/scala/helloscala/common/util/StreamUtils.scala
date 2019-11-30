@@ -26,7 +26,6 @@ import scala.collection.immutable
 import scala.concurrent.Future
 
 object StreamUtils {
-
   def publishToHead[T](publisher: Publisher[T])(implicit mat: Materializer): Future[T] =
     Source.fromPublisher(publisher).runWith(Sink.head)
 
@@ -44,5 +43,4 @@ object StreamUtils {
 
   def sourceToPublishMultiple[T](source: Source[T, _])(implicit mat: Materializer): Publisher[T] =
     source.runWith(Sink.asPublisher(true))
-
 }

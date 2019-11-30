@@ -42,11 +42,9 @@ final private[discovery] class NacosComponents(system: ActorSystem[_])
   }
 
   override def configuration: Configuration = Configuration(system.settings.config)
-
 }
 
 final class FusionNacos private (override val system: ActorSystem[_]) extends FusionExtension with StrictLogging {
-
   val components = new NacosComponents(system)
 
   def component: NacosDiscoveryComponent = components.component

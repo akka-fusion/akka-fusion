@@ -19,7 +19,7 @@ package fusion.discovery.client.nacos
 import java.util.Properties
 import java.util.concurrent.TimeUnit
 
-import akka.{actor => classic}
+import akka.{ actor => classic }
 import akka.actor.typed.scaladsl.adapter._
 import com.alibaba.nacos.api.NacosFactory
 import fusion.common.constant.PropKeys
@@ -96,5 +96,4 @@ class FusionNacosTest extends FusionTestFunSuite with Matchers with BeforeAndAft
     system.terminate()
     super.afterAll()
   }
-
 }

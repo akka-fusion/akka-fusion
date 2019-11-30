@@ -17,7 +17,7 @@
 package docs.stream
 
 import akka.Done
-import akka.{actor => classic}
+import akka.{ actor => classic }
 import akka.kafka.ConsumerSettings
 import akka.kafka.Subscriptions
 import akka.kafka.scaladsl.Consumer
@@ -33,7 +33,7 @@ import scala.util.Random
 
 object StreamExample {
   implicit val system = classic.ActorSystem()
-  implicit val mat = Materializer(system)
+  implicit val mat = Materializer.matFromSystem(system)
   import system.dispatcher
 
   def findOrgIdsByArea(area: String): Future[List[String]] = Future {
@@ -114,5 +114,4 @@ object StreamExample {
       }
       .runWith(Sink.ignore)
   }
-
 }

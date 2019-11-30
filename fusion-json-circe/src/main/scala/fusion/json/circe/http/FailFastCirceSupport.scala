@@ -37,7 +37,6 @@ object FailFastCirceSupport extends FailFastCirceSupport
 trait FailFastCirceSupport extends AnyCirceSupport with FailFastUnmarshaller
 
 trait AnyCirceSupport extends BaseCirceSupport {
-
   /**
    * `A` => HTTP entity
    *
@@ -46,5 +45,4 @@ trait AnyCirceSupport extends BaseCirceSupport {
    */
   implicit final def marshaller[A: Encoder](implicit printer: Printer = Printer.noSpaces): ToEntityMarshaller[A] =
     jsonMarshaller(printer).compose(Encoder[A].apply)
-
 }

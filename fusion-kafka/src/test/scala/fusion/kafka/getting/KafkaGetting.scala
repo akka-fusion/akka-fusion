@@ -26,7 +26,7 @@ import akka.stream.OverflowStrategy
 import akka.stream.scaladsl.Keep
 import akka.stream.scaladsl.Sink
 import akka.stream.scaladsl.Source
-import akka.{actor => classic}
+import akka.{ actor => classic }
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.serialization.StringDeserializer
 import org.apache.kafka.common.serialization.StringSerializer
@@ -37,7 +37,7 @@ import scala.io.StdIn
 
 object KafkaGetting extends App {
   implicit val system = classic.ActorSystem()
-  implicit val mat = Materializer(system)
+  implicit val mat = Materializer.matFromSystem(system)
   import system.dispatcher
   val config = system.settings.config
 

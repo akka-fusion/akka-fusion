@@ -21,7 +21,6 @@ import slick.ast.TypedType
 import slick.jdbc.JdbcProfile
 
 trait FusionJdbcProfile extends JdbcProfile {
-
   trait FusionImplicits {
     this: API =>
 

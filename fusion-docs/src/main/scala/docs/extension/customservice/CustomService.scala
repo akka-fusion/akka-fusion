@@ -31,7 +31,6 @@ case class UserBO(id: String, nickname: String, avatarId: String, avatarUrl: Str
 case class UserDO(id: String, nickname: String, avatarId: String, password: String, salt: String)
 
 class UserRepository {
-
   def findByAccount(account: String): Future[UserDO] =
     Future.successful(UserDO(StringUtils.randomString(24), account, StringUtils.randomString(24), "password", "salt"))
 
@@ -41,7 +40,6 @@ class UserRepository {
 
 // #CustomService
 class FileService private (val system: ActorSystem[_]) extends FusionExtension {
-
   def findUrlById(fileId: String): Future[String] = Future.successful {
     s"http://localhost:9999/file/$fileId.png"
   }

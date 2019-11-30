@@ -25,7 +25,6 @@ import helloscala.common.util.StringUtils
 import helloscala.common.util.Utils
 
 object Converters {
-
   val hosts = List(() => System.getProperty("fusion.http.default.server.host"), () => System.getProperty("server.host"))
 
   val ports = List(() => System.getProperty("fusion.http.default.server.port"), () => System.getProperty("server.port"))
@@ -46,7 +45,6 @@ object Converters {
 }
 
 class LogHostNameConverter extends ClassicConverter {
-
   override def convert(event: ILoggingEvent): String =
     try {
       InetAddress.getLocalHost.getCanonicalHostName

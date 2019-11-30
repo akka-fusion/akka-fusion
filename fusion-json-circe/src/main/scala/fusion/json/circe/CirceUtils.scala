@@ -24,7 +24,6 @@ import scalapb_circe.Parser
 import scalapb_circe.Printer
 
 object CirceUtils {
-
   val printer = new Printer(includingDefaultValueFields = true, formattingEnumsAsNumber = true)
   val parser = new Parser()
 

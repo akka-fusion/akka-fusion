@@ -38,7 +38,6 @@ object Protobufs {
   val VALUE_CLS = classOf[Value]
 
   val timestampSerializer = new JsonSerializer[Timestamp] {
-
     override def serialize(value: Timestamp, gen: JsonGenerator, serializers: SerializerProvider): Unit = {
       if (Objects.isNull(value)) {
         gen.writeNull()
@@ -49,7 +48,6 @@ object Protobufs {
   }
 
   val timestampDeserializer = new JsonDeserializer[Timestamp] {
-
     override def deserialize(p: JsonParser, ctxt: DeserializationContext): Timestamp = {
       p.getValueAsString match {
         case null => null
@@ -61,7 +59,6 @@ object Protobufs {
   }
 
   val nullValueSer = new JsonSerializer[NullValue] {
-
     override def serialize(value: NullValue, gen: JsonGenerator, serializers: SerializerProvider): Unit =
       gen.writeNull()
   }
@@ -71,7 +68,6 @@ object Protobufs {
   }
 
   val kindSer = new JsonSerializer[Kind] {
-
     override def serialize(value: Kind, gen: JsonGenerator, serializers: SerializerProvider): Unit = {
       value match {
         case Kind.NumberValue(v) => gen.writeNumber(v)
@@ -88,7 +84,6 @@ object Protobufs {
   }
 
   val kindDeser = new JsonDeserializer[Kind] {
-
     override def deserialize(p: JsonParser, ctxt: DeserializationContext): Kind = {
       val token = p.currentToken()
       println(token + " | " + p)
@@ -108,13 +103,11 @@ object Protobufs {
   }
 
   val valueSer = new JsonSerializer[Value] {
-
     override def serialize(value: Value, gen: JsonGenerator, serializers: SerializerProvider): Unit =
       gen.writeObject(value.kind)
   }
 
   val valueDeser = new JsonDeserializer[Value] {
-
     override def deserialize(p: JsonParser, ctxt: DeserializationContext): Value = {
       val token = p.currentToken()
       token match {
@@ -129,7 +122,6 @@ class ProtobufScalaJacksonModule extends JacksonModule {
   import Protobufs._
 
   object ProtobufScalaSers extends Serializers.Base {
-
     override def findSerializer(
         config: SerializationConfig,
         `type`: JavaType,
@@ -150,7 +142,6 @@ class ProtobufScalaJacksonModule extends JacksonModule {
   }
 
   object ProtobufScalaDesers extends Deserializers.Base {
-
     override def findBeanDeserializer(
         `type`: JavaType,
         config: DeserializationConfig,
@@ -168,7 +159,6 @@ class ProtobufScalaJacksonModule extends JacksonModule {
         super.findBeanDeserializer(`type`, config, beanDesc)
       }
     }
-
   }
 
   override def getModuleName(): String = getClass.getSimpleName

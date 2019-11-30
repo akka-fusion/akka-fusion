@@ -23,7 +23,6 @@ import org.scalatest.FunSuite
 import org.scalatest.MustMatchers
 
 class ExcelUtilsTest extends FunSuite with MustMatchers {
-
   test("render xlsx") {
     val wb = WorkbookFactory.create(
       Paths.get("/opt/Documents/Work/akka-fusion/weekly/ZSHK-中层工作周报表【2019.05.06-05.10】-杨景.xlsx").toFile)
@@ -36,5 +35,4 @@ class ExcelUtilsTest extends FunSuite with MustMatchers {
     }
     sheets must not be empty
   }
-
 }

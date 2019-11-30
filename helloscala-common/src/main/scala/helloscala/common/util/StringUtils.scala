@@ -21,8 +21,8 @@ import java.io.PrintWriter
 import java.io.StringWriter
 import java.nio.file.Files
 import java.nio.file.Path
-import java.util.{HashMap => JHashMap}
-import java.util.{Map => JMap}
+import java.util.{ HashMap => JHashMap }
+import java.util.{ Map => JMap }
 
 import scala.annotation.tailrec
 import scala.collection.immutable
@@ -40,6 +40,10 @@ object StringUtils {
 
   private val HEX_CHARS: Array[Char] = "0123456789abcdef".toCharArray
   private val HEX_CHAR_SETS = Set[Char]() ++ ('0' to '9') ++ ('a' to 'f') ++ ('A' to 'F')
+
+  @inline def dropLast$(s: String): String = {
+    if (s == null) s else if (s.last == '$') s.dropRight(1) else s
+  }
 
   def blankToChineseComma(text: String, replacement: String): String = blankReplaceAll(text, CHINESE_COMMA)
 
@@ -232,6 +236,25 @@ object StringUtils {
     result.toString
   }
 
+  def snakeCaseToCamelCase(name: String, upperInitial: Boolean = false): String = {
+    val b = new StringBuilder()
+    @tailrec
+    def inner(name: String, index: Int, capNext: Boolean): Unit = if (name.nonEmpty) {
+      val (r, capNext2) = name.head match {
+        case c if c.isLower => (Some(if (capNext) c.toUpper else c), false)
+        case c if c.isUpper =>
+          // force first letter to lower unless forced to capitalize it.
+          (Some(if (index == 0 && !capNext) c.toLower else c), false)
+        case c if c.isDigit => (Some(c), true)
+        case _              => (None, true)
+      }
+      r.foreach(b.append)
+      inner(name.tail, index + 1, capNext2)
+    }
+    inner(name, 0, upperInitial)
+    b.toString
+  }
+
   /**
    * Check that the given {@code CharSequence} is neither {@code null} nor
    * of length 0.
@@ -347,5 +370,4 @@ object StringUtils {
     val trans: Path => java.util.stream.Stream[String] = path => Files.readAllLines(path).stream()
     Files.list(dir).flatMap(trans.asJava).map[String](trim.asJava).filter(filterNoneBlank.asJava)
   }
-
 }

@@ -48,7 +48,6 @@ class FusionJobComponents(system: ActorSystem[_])
     extends Components[FusionScheduler]("fusion.job.default")
     with SchedulerFactory
     with StrictLogging {
-
   private val factory = DirectSchedulerFactory.getInstance()
 
   override def configuration: Configuration = FusionCore(system).configuration

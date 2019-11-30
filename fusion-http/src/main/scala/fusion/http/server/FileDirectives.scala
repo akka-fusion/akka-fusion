@@ -36,7 +36,6 @@ import scala.collection.immutable
 import scala.concurrent.Future
 
 trait FileDirectives {
-
   def uploadedMultiFile(tmpDirectory: Path): Directive1[immutable.Seq[(FileInfo, Path)]] =
     entity(as[Multipart.FormData])
       .flatMap { formData =>
@@ -132,7 +131,6 @@ trait FileDirectives {
         onSuccess(seqF)
       }
     }
-
 }
 
 object FileDirectives extends FileDirectives {}

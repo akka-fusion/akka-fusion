@@ -36,7 +36,6 @@ import helloscala.common.util.Utils
 import scala.jdk.CollectionConverters._
 
 package object nacos {
-
   implicit final class NacosDiscoveryProperties(underlying: Properties) extends Properties with StrictLogging {
     import fusion.common.constant.PropKeys._
     underlying.forEach(new BiConsumer[AnyRef, AnyRef] {
@@ -77,7 +76,6 @@ package object nacos {
   }
 
   implicit final class ToDiscoveryInstance(instance: Instance) {
-
     def toDiscoveryInstance: DiscoveryInstance =
       DiscoveryInstance(
         instance.getIp,
@@ -94,7 +92,6 @@ package object nacos {
   }
 
   implicit final class ToNacosInstantce(instance: DiscoveryInstance) {
-
     def toNacosInstance: Instance = {
       val payload = new Instance
       payload.setClusterName(instance.clusterName)
@@ -113,7 +110,6 @@ package object nacos {
   }
 
   implicit final class ToDiscoveryServiceInfo(v: ServiceInfo) {
-
     def toDiscoveryServiceInfo =
       DiscoveryServiceInfo(
         v.getName,
@@ -127,7 +123,6 @@ package object nacos {
   }
 
   implicit final class ToDiscoveryEvent(v: Event) {
-
     def toDiscoveryEvent: DiscoveryEvent = v match {
       case evt: NamingEvent =>
         DiscoveryNamingEvent(evt.getServiceName, evt.getInstances.asScala.map(_.toDiscoveryInstance).toSeq)

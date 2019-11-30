@@ -44,7 +44,6 @@ import scala.util.Failure
 import scala.util.Success
 
 abstract class HttpGatewayComponent(id: String, system: ActorSystem[_]) extends AbstractRoute with StrictLogging {
-
   implicit protected def classicSystem = system.toClassic
   implicit protected val materializer: Materializer = Materializer(classicSystem)
   import system.executionContext
@@ -204,5 +203,4 @@ abstract class HttpGatewayComponent(id: String, system: ActorSystem[_]) extends 
     })
     Future.sequence(queues).fast.map(_ => Done).fast.recover { case _ => Done }
   }
-
 }

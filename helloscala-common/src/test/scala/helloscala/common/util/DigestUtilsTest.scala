@@ -19,7 +19,7 @@ package helloscala.common.util
 import java.nio.file.Paths
 
 import akka.testkit.TestKit
-import akka.{actor => classic}
+import akka.{ actor => classic }
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.FunSuiteLike
 import org.scalatest.MustMatchers
@@ -32,7 +32,6 @@ class DigestUtilsTest
     with FunSuiteLike
     with BeforeAndAfterAll
     with MustMatchers {
-
   import system.dispatcher
 
   val PROJECT_BASE = sys.props("user.dir")
@@ -47,5 +46,4 @@ class DigestUtilsTest
   override protected def afterAll(): Unit = {
     system.dispatcher
   }
-
 }

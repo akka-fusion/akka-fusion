@@ -16,7 +16,7 @@
 
 package fusion.discovery.client
 
-import akka.{actor => classic}
+import akka.{ actor => classic }
 import akka.discovery.Discovery
 import akka.http.scaladsl.model.Uri
 import com.typesafe.scalalogging.StrictLogging
@@ -29,7 +29,6 @@ private class AkkaDiscoveryHttpClient(val clientSetting: DiscoveryHttpClientSett
     implicit val classicSystem: classic.ActorSystem)
     extends DiscoveryHttpClient
     with StrictLogging {
-
   private val discovery =
     clientSetting.discoveryMethod
       .map(Discovery(classicSystem).loadServiceDiscovery)
@@ -51,5 +50,4 @@ private class AkkaDiscoveryHttpClient(val clientSetting: DiscoveryHttpClientSett
       Future.successful(uri)
     }
   }
-
 }

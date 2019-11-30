@@ -19,15 +19,15 @@ package fusion.core
 import akka.actor.typed.ActorRef
 import akka.actor.typed.Behavior
 import akka.actor.typed.Props
+import akka.actor.typed.scaladsl.ActorContext
 import akka.actor.typed.scaladsl.Behaviors
 
 import scala.annotation.tailrec
 
 object FusionProtocol {
-  sealed trait Command {}
+  trait Command
 
   object Spawn {
-
     /**
      * Special factory to make using Spawn with ask easier
      */
@@ -60,31 +60,35 @@ object FusionProtocol {
   /**
    * Behavior implementing the [[FusionProtocol.Command]].
    */
-  val behavior: Behavior[Command] =
-    Behaviors.receive { (ctx, msg) =>
-      msg match {
-        case Spawn(bhvr, name, props, replyTo) =>
-          val ref =
-            if (name == null || name.equals(""))
-              ctx.spawnAnonymous(bhvr, props)
-            else {
+  val behavior: Behavior[Command] = Behaviors.receive {
+    case (ctx, t) =>
+      behaviorPartial.applyOrElse((ctx, t), (_: (ActorContext[Command], Command)) => Behaviors.unhandled[Command])
+  }
 
-              @tailrec def spawnWithUniqueName(c: Int): ActorRef[Any] = {
-                val nameSuggestion = if (c == 0) name else s"$name-$c"
-                ctx.child(nameSuggestion) match {
-                  case Some(_) => spawnWithUniqueName(c + 1) // already taken, try next
-                  case None    => ctx.spawn(bhvr, nameSuggestion, props)
-                }
-              }
+  def behaviorMessagePartial(context: ActorContext[Command]): PartialFunction[Command, Behavior[Command]] = {
+    case msg => behaviorPartial(context, msg)
+  }
 
-              spawnWithUniqueName(0)
+  val behaviorPartial: PartialFunction[(ActorContext[Command], Command), Behavior[Command]] = {
+    case (ctx, Spawn(bhvr, name, props, replyTo)) =>
+      val ref =
+        if (name == null || name.equals(""))
+          ctx.spawnAnonymous(bhvr, props)
+        else {
+          @tailrec def spawnWithUniqueName(c: Int): ActorRef[Any] = {
+            val nameSuggestion = if (c == 0) name else s"$name-$c"
+            ctx.child(nameSuggestion) match {
+              case Some(_) => spawnWithUniqueName(c + 1) // already taken, try next
+              case None    => ctx.spawn(bhvr, nameSuggestion, props)
             }
-          replyTo ! ref
-          Behaviors.same
+          }
 
-        case Shutdown =>
-          Behaviors.stopped
-      }
-    }
+          spawnWithUniqueName(0)
+        }
+      replyTo ! ref
+      Behaviors.same
 
+    case (_, Shutdown) =>
+      Behaviors.stopped
+  }
 }

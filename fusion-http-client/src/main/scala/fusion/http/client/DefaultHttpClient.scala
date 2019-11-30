@@ -19,7 +19,7 @@ package fusion.http.client
 import java.util.Objects
 
 import akka.actor.typed.ActorSystem
-import akka.{actor => classic}
+import akka.{ actor => classic }
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.marshalling.Marshal
 import akka.http.scaladsl.marshalling.Marshaller
@@ -31,7 +31,6 @@ import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
 class DefaultHttpClient private ()(implicit val classicSystem: classic.ActorSystem) extends HttpClient {
-
   /**
    * 发送 Http 请求
    *

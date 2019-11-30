@@ -23,7 +23,7 @@ import java.util.Objects
 import java.util.Properties
 
 import akka.actor.typed.ActorSystem
-import akka.{actor => classic}
+import akka.{ actor => classic }
 import com.typesafe.config._
 import com.typesafe.config.impl.ConfigurationHelper
 import com.typesafe.scalalogging.StrictLogging
@@ -312,7 +312,6 @@ object Configuration extends StrictLogging {
     val msg = origin.map(o => s"[$o] $message").getOrElse(message)
     me.map(e => new HSException(msg, e)).getOrElse(new HSException(msg))
   }
-
 }
 
 /**
@@ -325,7 +324,6 @@ trait ConfigLoader[A] { self =>
 }
 
 object ConfigLoader {
-
   def apply[A](f: Config => String => A): ConfigLoader[A] = (config: Config, path: String) => f(config)(path)
 
   implicit val stringLoader: ConfigLoader[String] = ConfigLoader(_.getString)
@@ -421,7 +419,6 @@ object ConfigLoader {
 
   implicit val propertiesLoader: ConfigLoader[Properties] =
     new ConfigLoader[Properties] {
-
       def make(props: Properties, parentKeys: String, obj: ConfigObject): Unit =
         obj.keySet().forEach { key =>
           val value = obj.get(key)
@@ -448,7 +445,6 @@ object ConfigLoader {
 
   implicit val scalaMapLoader: ConfigLoader[Map[String, String]] =
     new ConfigLoader[Map[String, String]] {
-
       def make(props: mutable.Map[String, String], parentKeys: String, obj: ConfigObject): Unit =
         obj.keySet().forEach { key: String =>
           val value = obj.get(key)

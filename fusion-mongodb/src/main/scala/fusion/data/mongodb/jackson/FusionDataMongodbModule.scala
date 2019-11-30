@@ -26,14 +26,12 @@ import com.fasterxml.jackson.module.scala.JacksonModule
 import org.bson.types.ObjectId
 
 private object ObjectIdSer extends JsonSerializer[ObjectId] {
-
   override def serialize(value: ObjectId, gen: JsonGenerator, serializers: SerializerProvider): Unit = {
     gen.writeString(value.toHexString)
   }
 }
 
 private object ObjectIdDeser extends JsonDeserializer[ObjectId] {
-
   override def deserialize(p: JsonParser, ctxt: DeserializationContext): ObjectId = {
     p.getValueAsString match {
       case null                         => ctxt.handleUnexpectedToken(classOf[ObjectId], p).asInstanceOf[ObjectId]
@@ -44,7 +42,6 @@ private object ObjectIdDeser extends JsonDeserializer[ObjectId] {
 }
 
 private object ObjectIdDeserializer extends Deserializers.Base {
-
   override def findBeanDeserializer(
       `type`: JavaType,
       config: DeserializationConfig,
@@ -56,7 +53,6 @@ private object ObjectIdDeserializer extends Deserializers.Base {
 }
 
 private object ObjectIdSerializer extends Serializers.Base {
-
   override def findSerializer(
       config: SerializationConfig,
       `type`: JavaType,

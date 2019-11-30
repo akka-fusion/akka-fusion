@@ -1,0 +1,135 @@
+syntax = "proto3";
+package fusion.scheduler.model;
+
+import "google/protobuf/wrappers.proto";
+import "google/protobuf/any.proto";
+import "scalapb/scalapb.proto";
+import "fusion/define.proto";
+
+enum ScheduleType {
+    SIMPLE = 0;
+    CRON = 1;
+}
+
+message Key {
+    string group = 1;
+    string name = 2;
+}
+
+message TriggerSchedule {
+    ScheduleType type = 1;
+    google.protobuf.StringValue interval = 2;
+    // 大于0指定重复次数，小于等于0无限执行
+    google.protobuf.Int32Value repeatCount = 3;
+    google.protobuf.Int32Value misfireInstruction = 4;
+    google.protobuf.StringValue cronExpression = 5;
+    google.protobuf.StringValue timezone = 6;
+    google.protobuf.StringValue startAt = 7;
+    google.protobuf.Int32Value triggerPriority = 8;
+}
+
+message JobDTO {
+    string group = 1;
+    google.protobuf.StringValue description = 2;
+    // $$callback$$ 为内置key，此参数设置任务执行时要操作的回调地址
+    map<string, string> data = 3;
+    TriggerSchedule schedule = 4;
+    // 是否持久化Job，默认为true。当Job为非持久化时，若没有任何trigger关联时Job将被自动删除。
+    google.protobuf.BoolValue durable = 5;
+}
+message JobDTOReplyTO {
+    option (scalapb.message).extends = "fusion.scheduler.model.JobCommand";
+    option (scalapb.message).companion_extends = "fusion.protobuf.ActorRefCompanion";
+    JobDTO command = 1;
+    string reply_actor = 2 [(scalapb.field).type = "akka.actor.typed.ActorRef[fusion.scheduler.model.JobBO]"];
+}
+
+message JobBO {
+    option (scalapb.message).extends = "fusion.scheduler.model.JobResponse";
+
+    string group = 1;
+    string name = 2;
+    string description = 3;
+    map<string, string> data = 4;
+    repeated JobTriggerBO triggers = 5;
+    int64 createdAt = 6;
+}
+
+message JobTriggerDTO {
+    option (scalapb.message).extends = "fusion.scheduler.model.JobCommand";
+    option (scalapb.message).companion_extends = "fusion.protobuf.ActorRefCompanion";
+
+    string group = 1;
+    Key jobKey = 2;
+    TriggerSchedule schedule = 3;
+    google.protobuf.StringValue startAt = 4;
+    google.protobuf.Int32Value triggerPriority = 5;
+    string reply_actor = 6 [(scalapb.field).type = "akka.actor.typed.ActorRef[fusion.scheduler.model.JobTriggerBO]"];
+}
+
+message JobTriggerBO {
+    option (scalapb.message).extends = "fusion.scheduler.model.JobResponse";
+
+    string group = 1;
+    string name = 2;
+    Key jobKey = 3;
+    TriggerSchedule schedule = 4;
+    int64 createdAt = 5;
+    // 已被触发（执行）次数
+    int64 timesTriggered = 6;
+    // 下一次触发时间
+    int64 nextFireTime = 7;
+    // 上一次触发时间
+    int64 previousFireTime = 8;
+    int64 endTime = 9;
+}
+
+// 1. 停止triggerKey指定的调度
+// 2. 停止jobKey关联的所有调度
+message JobCancelDTO {
+    Key triggerKey = 1;
+    Key jobKey = 2;
+}
+message JobCancelDTOReplyTo {
+    option (scalapb.message).extends = "fusion.scheduler.model.JobCommand";
+    option (scalapb.message).companion_extends = "fusion.protobuf.ActorRefCompanion";
+    JobCancelDTO command = 1;
+    string reply_actor = 2 [(scalapb.field).type = "akka.actor.typed.ActorRef[fusion.ResultBO]"];
+}
+
+message JobPauseDTO {
+    Key triggerKey = 1;
+    Key jobKey = 2;
+}
+message JobPauseDTOReplyTo {
+    option (scalapb.message).extends = "fusion.scheduler.model.JobCommand";
+    option (scalapb.message).companion_extends = "fusion.protobuf.ActorRefCompanion";
+    JobPauseDTO command = 1;
+    string reply_actor = 2 [(scalapb.field).type = "akka.actor.typed.ActorRef[fusion.ResultBO]"];
+}
+
+message JobResumeDTO {
+    Key triggerKey = 1;
+    Key jobKey = 2;
+}
+message JobResumeDTOReplyTo {
+    option (scalapb.message).extends = "fusion.scheduler.model.JobCommand";
+    option (scalapb.message).companion_extends = "fusion.protobuf.ActorRefCompanion";
+    JobResumeDTO command = 1;
+    string reply_actor = 2 [(scalapb.field).type = "akka.actor.typed.ActorRef[fusion.ResultBO]"];
+}
+message JobQueryDTO {
+    option (scalapb.message).extends = "fusion.scheduler.model.JobCommand";
+    option (scalapb.message).companion_extends = "fusion.protobuf.ActorRefCompanion";
+
+    Key triggerKey = 1;
+    Key jobKey = 2;
+}
+
+message JobGetDTO {
+    option (scalapb.message).extends = "fusion.scheduler.model.JobCommand";
+    option (scalapb.message).companion_extends = "fusion.protobuf.ActorRefCompanion";
+
+    Key in = 1;
+    string reply_actor = 2 [(scalapb.field).type = "akka.actor.typed.ActorRef[fusion.scheduler.model.JobBO]"];
+}

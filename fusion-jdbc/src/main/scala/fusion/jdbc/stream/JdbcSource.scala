@@ -27,7 +27,6 @@ import fusion.jdbc.util.JdbcUtils
 import javax.sql.DataSource
 
 object JdbcSource {
-
   def apply(sql: String, args: Iterable[Any], fetchRowSize: Int)(
       implicit dataSource: DataSource): Source[ResultSet, NotUsed] = {
     val connCreator = new ConnectionPreparedStatementCreator {
@@ -42,5 +41,4 @@ object JdbcSource {
   def apply(creator: ConnectionPreparedStatementCreator, fetchRowSize: Int)(
       implicit dataSource: DataSource): Source[ResultSet, NotUsed] =
     Source.fromGraph(new JdbcSourceStage(dataSource, creator, fetchRowSize))
-
 }

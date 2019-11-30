@@ -91,14 +91,12 @@ trait Jackson {
       Jackson.treeToValue(node)
     }.toList
   }
-
 }
 
 object Jackson extends Jackson with StrictLogging {
-
   private lazy val _defaultObjectMapper: ObjectMapper with ScalaObjectMapper = createObjectMapper
 
-  override def defaultObjectMapper: ObjectMapper with ScalaObjectMapper = _defaultObjectMapper
+  implicit override def defaultObjectMapper: ObjectMapper with ScalaObjectMapper = _defaultObjectMapper
 
   private def createObjectMapper: ObjectMapper with ScalaObjectMapper = {
     val mapper = new ObjectMapper() with ScalaObjectMapper
@@ -140,5 +138,4 @@ object Jackson extends Jackson with StrictLogging {
 
     mapper
   }
-
 }

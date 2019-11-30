@@ -76,6 +76,5 @@ class JdbcTemplateTest extends ScalaTestWithActorTestKit with FusionTestFunSuite
     system.terminate()
     Await.ready(system.whenTerminated, Duration.Inf)
   }
-
 }
 // #JdbcTemplateTest

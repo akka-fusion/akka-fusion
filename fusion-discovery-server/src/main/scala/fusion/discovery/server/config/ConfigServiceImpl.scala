@@ -16,23 +16,56 @@
 
 package fusion.discovery.server.config
 
+import java.util.UUID
+
 import akka.NotUsed
-import akka.grpc.scaladsl.Metadata
+import akka.actor.typed.{ ActorRef, ActorSystem }
+import akka.actor.typed.scaladsl.AskPattern._
 import akka.stream.scaladsl.Source
-import fusion.discovery.grpc.ConfigServicePowerApi
+import akka.stream.{ Materializer, OverflowStrategy }
+import akka.util.Timeout
+import fusion.discovery.grpc.ConfigService
 import fusion.discovery.model._
-import fusion.discovery.server.DiscoveryServer
+import fusion.discovery.server.config.data.ConfigContent
+import helloscala.common.IntStatus
 
+import scala.collection.immutable
 import scala.concurrent.Future
+import scala.concurrent.duration._
 
-class ConfigServiceImpl(server: DiscoveryServer) extends ConfigServicePowerApi {
-  override def serverStatus(in: ServerStatusQuery, metadata: Metadata): Future[ServerStatusBO] = ???
+class ConfigServiceImpl(configManager: ActorRef[ConfigManager.Command], system: ActorSystem[_]) extends ConfigService {
+  import system.executionContext
+  implicit private val mat = Materializer.matFromSystem(system)
+  implicit private val timeout = Timeout(5.seconds)
+  implicit private val scheduler = system.scheduler
 
-  override def queryConfig(in: ConfigQuery, metadata: Metadata): Future[ConfigBO] = ???
+  override def serverStatus(in: ServerStatusQuery): Future[ServerStatusBO] =
+    Future.successful(ServerStatusBO(IntStatus.OK))
 
-  override def addConfig(in: ConfigAdd, metadata: Metadata): Future[ConfigAdded] = ???
+  override def queryConfig(in: ConfigQuery): Future[ConfigReply] = {
+    configManager
+      .ask[immutable.Seq[ConfigContent]](replyTo => ConfigManager.GetContent(in.namespace, in.dataIds, replyTo))
+      .map { contents =>
+        val queried = ConfigQueried(contents.map(c => ConfigItem(c.namespace, "DEFAULT", c.dataId, c.content)))
+        ConfigReply(IntStatus.OK, ConfigReply.Data.Queried(queried))
+      }
+  }
 
-  override def removeConfig(in: ConfigRemove, metadata: Metadata): Future[ConfigRemoved] = ???
+  override def publishConfig(in: ConfigPublish): Future[ConfigReply] = {
+    configManager
+      .ask[Configs.ModifyReply](replyTo => ConfigManager.UpdateContent(in.namespace, in.dataId, in.content, replyTo))
+      .map(reply => ConfigReply(reply.status))
+  }
 
-  override def listenerConfig(in: ConfigChangeListen, metadata: Metadata): Source[ConfigChanged, NotUsed] = ???
+  override def removeConfig(in: ConfigRemove): Future[ConfigReply] = {
+    configManager
+      .ask[Configs.ModifyReply](replyTo => ConfigManager.RemoveContent(in.namespace, in.dataId, replyTo))
+      .map(reply => ConfigReply(reply.status))
+  }
+
+  override def listenerConfig(in: ConfigChangeListen): Source[ConfigChanged, NotUsed] = {
+    val (queue, source) = Source.queue[ConfigChanged](8, OverflowStrategy.dropHead).preMaterialize()
+    configManager ! ConfigManager.RegisterChangeListener(UUID.randomUUID(), in, queue)
+    source
+  }
 }

@@ -26,7 +26,6 @@ import helloscala.common.Configuration
 import scala.annotation.varargs
 
 trait JdbcTemplate {
-
   // 数据库源
   val dataSource: HikariDataSource
 
@@ -172,11 +171,9 @@ trait JdbcTemplate {
       pscFunc: ConnectionPreparedStatementCreator,
       actionFunc: PreparedStatementAction[R],
       useTransaction: Boolean): R
-
 }
 
 object JdbcTemplate {
-
   val EmptyConnection: Connection = null
 
   def apply(dataSource: HikariDataSource, config: Config): JdbcTemplate = apply(dataSource, Configuration(config))
@@ -196,5 +193,4 @@ object JdbcTemplate {
       ignoreWarnings: Boolean,
       allowPrintLog: Boolean): JdbcTemplate =
     new JdbcTemplateImpl(dataSource, useTransaction, ignoreWarnings, allowPrintLog)
-
 }

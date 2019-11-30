@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="false">
+    <include resource="fusion/log/logback/base.xml"/>
+
+    <logger name="ch.qos" level="WARN"/>
+    <logger name="com.zaxxer" level="WARN"/>
+
+    <root level="DEBUG">
+        <appender-ref ref="STDOUT"/>
+    </root>
+</configuration>

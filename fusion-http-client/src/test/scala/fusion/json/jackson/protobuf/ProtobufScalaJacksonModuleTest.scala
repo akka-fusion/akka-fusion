@@ -51,5 +51,4 @@ class ProtobufScalaJacksonModuleTest extends FusionTestFunSuite {
     val v = JsonUtils.protobuf.fromJson[ResultBO](jvalue)
     println(v)
   }
-
 }

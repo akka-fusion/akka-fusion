@@ -26,5 +26,4 @@ class DiscoveryHttpClientTest extends ScalaTestWithActorTestKit with FusionTestF
     val discovery = Discovery(system.toClassic).discovery
     println(discovery)
   }
-
 }

@@ -25,7 +25,6 @@ import com.typesafe.scalalogging.StrictLogging
 import scala.concurrent.Future
 
 object GrpcUtils extends StrictLogging {
-
   def contactToRoute(partials: PartialFunction[HttpRequest, Future[HttpResponse]]*): HttpRequest => Route = {
     contactToRouteCustom(partials: _*) {
       case req =>
@@ -46,5 +45,4 @@ object GrpcUtils extends StrictLogging {
         })
       .orElse(rejectPF)
   }
-
 }

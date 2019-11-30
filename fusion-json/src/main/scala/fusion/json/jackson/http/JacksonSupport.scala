@@ -16,7 +16,7 @@
 
 package fusion.json.jackson.http
 import java.lang.reflect.ParameterizedType
-import java.lang.reflect.{Type => JType}
+import java.lang.reflect.{ Type => JType }
 
 import akka.http.scaladsl.marshalling._
 import akka.http.scaladsl.unmarshalling.FromEntityUnmarshaller
@@ -31,7 +31,6 @@ import scala.reflect.runtime.universe._
  * JSON marshalling/unmarshalling using an in-scope Jackson's ObjectMapper
  */
 trait JacksonSupport {
-
   private def typeReference[T: TypeTag] = {
     val t = typeTag[T]
     val mirror = t.mirror
@@ -68,7 +67,6 @@ trait JacksonSupport {
    */
   implicit def marshaller[A](implicit objectMapper: ObjectMapper = Jackson.defaultObjectMapper): ToEntityMarshaller[A] =
     JacksonHelper.marshaller[A](objectMapper)
-
 }
 
 object JacksonSupport extends JacksonSupport

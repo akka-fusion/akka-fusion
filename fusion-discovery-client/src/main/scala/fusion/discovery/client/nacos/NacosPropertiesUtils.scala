@@ -23,9 +23,7 @@ import com.typesafe.scalalogging.StrictLogging
 import helloscala.common.Configuration
 
 object NacosPropertiesUtils extends StrictLogging {
-
   @inline def configProps(path: String): NacosDiscoveryProperties = {
     Configuration(ConfigFactory.load().resolve()).get[Properties](path)
   }
-
 }

@@ -40,7 +40,6 @@ import scala.concurrent.ExecutionContext
  * Pretty printing is enabled if an implicit [[Json4sSupport.ShouldWritePretty.True]] is in scope.
  */
 object Json4sSupport extends Json4sSupport {
-
   sealed abstract class ShouldWritePretty
 
   final object ShouldWritePretty {

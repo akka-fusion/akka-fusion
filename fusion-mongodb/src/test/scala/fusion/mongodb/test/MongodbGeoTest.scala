@@ -94,5 +94,4 @@ class MongodbGeoTest extends ScalaTestWithActorTestKit with FunSuiteLike {
     list.foreach(println)
     println(list.size)
   }
-
 }

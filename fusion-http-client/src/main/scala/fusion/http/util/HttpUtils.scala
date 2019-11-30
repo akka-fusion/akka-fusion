@@ -37,7 +37,7 @@ import akka.stream.scaladsl.Keep
 import akka.stream.scaladsl.Sink
 import akka.stream.scaladsl.Source
 import akka.util.ByteString
-import akka.{actor => classic}
+import akka.{ actor => classic }
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
 import com.typesafe.scalalogging.Logger
@@ -496,5 +496,4 @@ object HttpUtils extends StrictLogging {
     HttpResponse(status, entity = HttpUtils.entityJson(s"""{"status":${status.intValue()},"msg":"$msg"}"""))
 
   def toString(query: Uri.Query): String = query.map { case (name, value) => s"$name=$value" }.mkString("&")
-
 }

@@ -21,7 +21,7 @@ import akka.actor.typed.ActorRef
 import akka.actor.typed.ActorRefResolver
 import akka.actor.typed.scaladsl.adapter._
 import akka.serialization.Serialization
-import akka.{actor => classic}
+import akka.{ actor => classic }
 import com.google.protobuf.wrappers.StringValue
 import fusion.protobuf.internal.ActorSystemUtils
 import helloscala.common.util.StringUtils
@@ -46,7 +46,6 @@ trait ActorReferenceTrait {
 }
 
 trait ActorReferenceCompanion {
-
   def fromTyped[T](ref: ActorRef[T])(implicit ev1: ClassTag[T]): fusion.ActorReference = {
     fusion.ActorReference(
       ActorRefResolver(ActorSystemUtils.system).toSerializationFormat(ref),
@@ -70,7 +69,6 @@ trait ActorTypedReferenceCompanion {
 }
 
 trait ActorRefCompanion {
-
   private def resolver: ActorRefResolver = ActorRefResolver(ActorSystemUtils.system)
 
   implicit def actorRefTypeMapper[T]: TypeMapper[String, ActorRef[T]] = {

@@ -49,7 +49,6 @@ trait PgJacksonJsonSupport extends PgJsonExtensions with PgCommonJdbcTypes {
   trait JsonImplicits extends JacksonImplicits
 
   trait JacksonImplicits extends JacksonCodeGenSupport {
-
     implicit val jacksonJsonTypeMapper: JdbcType[JsonNode] = new GenericJdbcType[JsonNode](
       pgjson,
       v => Try(Jackson.defaultObjectMapper.readTree(v)).getOrElse(NullNode.instance),
@@ -70,7 +69,6 @@ trait PgJacksonJsonSupport extends PgJsonExtensions with PgCommonJdbcTypes {
   }
 
   trait JacksonJsonPlainImplicits extends JacksonCodeGenSupport {
-
     import com.github.tminglei.slickpg.utils.PlainSQLUtils._
 
     implicit class PgJacksonJsonPositionResult(r: PositionedResult) {
@@ -89,5 +87,4 @@ trait PgJacksonJsonSupport extends PgJsonExtensions with PgCommonJdbcTypes {
     implicit val setJacksonJsonOption: SetParameter[Option[JsonNode]] =
       mkOptionSetParameter[JsonNode](pgjson, node => Jackson.stringify(node))
   }
-
 }

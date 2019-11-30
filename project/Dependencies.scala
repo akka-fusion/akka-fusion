@@ -8,11 +8,11 @@ object Dependencies {
   val versionJava8Compat = "0.9.0"
   val versionScalameta = "4.2.3"
   val versionScalatest = "3.0.8"
-  val versionAkka = "2.6.0-RC1"
-  val versionAkkaManagement = "1.0.3"
+  val versionAkka = "2.6.0"
+  val versionAkkaManagement = "1.0.4"
   val versionAkkaHttp = "10.1.10"
   val versionAkkaHttpCors = "0.4.1"
-  val versionAlpakka = "1.1.2"
+  val versionAlpakka = "2.0.0-M1"
   val versionAlpakkaKafka = "1.1.0"
   val versionCassandra = "4.2.1"
   val versionElastic4s = "6.7.3"
@@ -21,7 +21,6 @@ object Dependencies {
   val versionNeotypes = "0.13.0"
   val versionKamon = "2.0.0"
   val versionKanela = "1.0.0"
-  val versionJackson = "2.10.0"
   val versionUuidGenerator = "3.2.0"
   val versionHanlp = "portable-1.7.4"
   val versionSlick = "3.3.2"
@@ -63,19 +62,20 @@ object Dependencies {
   val _akkaStreamTyped = "com.typesafe.akka" %% "akka-stream-typed" % versionAkka
   val _akkaDiscovery = "com.typesafe.akka" %% "akka-discovery" % versionAkka
   val _akkaSerializationJackson = "com.typesafe.akka" %% "akka-serialization-jackson" % versionAkka
+  val _akkaProtobufV3 = "com.typesafe.akka" %% "akka-protobuf-v3" % versionAkka
+  val _akkaPersistenceTyped = "com.typesafe.akka" %% "akka-persistence-typed" % versionAkka
   val _akkaTypedTestkit = "com.typesafe.akka" %% "akka-actor-testkit-typed" % versionAkka
   val _akkaStreamTestkit = "com.typesafe.akka" %% "akka-stream-testkit" % versionAkka
 
   val _akkas =
-    Seq("com.typesafe.akka" %% "akka-slf4j" % versionAkka, _akkaActorTyped, _akkaStreamTyped)
+    Seq("com.typesafe.akka" %% "akka-slf4j" % versionAkka, _akkaActorTyped, _akkaStreamTyped, _akkaDiscovery)
       .map(_.exclude("org.scala-lang.modules", "scala-java8-compat").cross(CrossVersion.binary))
   val _akkaMultiNodeTestkit = "com.typesafe.akka" %% "akka-multi-node-testkit" % versionAkka
 
   val _akkaClusters = Seq(
     "com.typesafe.akka" %% "akka-cluster-typed" % versionAkka,
     //"com.typesafe.akka" %% "akka-cluster-metrics" % versionAkka,
-    "com.typesafe.akka" %% "akka-cluster-sharding-typed" % versionAkka,
-    _akkaMultiNodeTestkit % Test)
+    "com.typesafe.akka" %% "akka-cluster-sharding-typed" % versionAkka)
 
   val _akkaManagement =
     ("com.lightbend.akka.management" %% "akka-management" % versionAkkaManagement)
@@ -152,6 +152,21 @@ object Dependencies {
       .excludeAll(ExclusionRule("com.typesafe.akka"))
       .cross(CrossVersion.binary)
 
+  val _alpakkaMqttStreaming =
+    ("com.lightbend.akka" %% "akka-stream-alpakka-mqtt-streaming" % versionAlpakka)
+      .excludeAll(ExclusionRule("com.typesafe.akka"))
+      .cross(CrossVersion.binary)
+
+  val _akkaPersistenceCassandra =
+    ("com.typesafe.akka" %% "akka-persistence-cassandra" % "0.100")
+      .excludeAll(ExclusionRule("com.typesafe.akka"))
+      .cross(CrossVersion.binary)
+
+  val _akkaPersistenceJdbc =
+    ("com.github.dnvriend" %% "akka-persistence-jdbc" % "3.5.2")
+      .excludeAll(ExclusionRule("com.typesafe.akka"))
+      .cross(CrossVersion.binary)
+
   val _mongodbs = Seq(
     "org.mongodb.scala" %% "mongo-scala-bson" % versionMongoScalaBson,
     "org.mongodb" % "mongodb-driver-reactivestreams" % versionMongoDriverReactivestreams)
@@ -174,14 +189,6 @@ object Dependencies {
       .excludeAll(ExclusionRule("com.typesafe.akka"))
       .cross(CrossVersion.binary)
 
-//  val _alpakkas = Seq(
-//    _alpakkaText,
-//    _alpakkaSimpleCodecs,
-//    _alpakkaXml,
-//    _alpakkaCsv,
-//    //_alpakkaJsonStreaming,
-//    _alpakkaFile)
-
   val _akkaStreamKafkas = Seq(
     ("com.typesafe.akka" %% "akka-stream-kafka" % versionAlpakkaKafka)
       .exclude("com.typesafe.akka", "akka-stream")
@@ -194,12 +201,7 @@ object Dependencies {
   val _uuidGenerator = ("com.fasterxml.uuid" % "java-uuid-generator" % versionUuidGenerator).exclude("log4j", "log4j")
   val _guice = "com.google.inject" % "guice" % versionGuice
 
-  val _jacksonAnnotations = "com.fasterxml.jackson.core" % "jackson-annotations" % versionJackson
-  val _jacksonDatabind = "com.fasterxml.jackson.core" % "jackson-databind" % versionJackson
-
-  val _jacksonDataformatProtobuf = "com.fasterxml.jackson.dataformat" % "jackson-dataformat-protobuf" % versionJackson
-
-  val _json4s = "org.json4s" %% "json4s-jackson" % "3.6.7"
+  val _json4s = ("org.json4s" %% "json4s-jackson" % "3.6.7").exclude("com.fasterxml.jackson.core", "jackson-databind")
 
   val _circeGeneric = "io.circe" %% "circe-generic" % "0.12.2"
 
@@ -246,7 +248,7 @@ object Dependencies {
   val _fastparse = "com.lihaoyi" %% "fastparse" % versionFastparse
   val _shapeless = "com.chuusai" %% "shapeless" % "2.3.3"
   val _jwt = "com.pauldijou" %% "jwt-core" % "4.1.0"
-  val _jwtJson4s = ("com.pauldijou" %% "jwt-json4s-jackson" % "4.1.0").excludeAll(ExclusionRule("org.json4s"))
+  val _jwtJson4s = ("com.pauldijou" %% "jwt-json4s-jackson" % "4.2.0").excludeAll(ExclusionRule("org.json4s"))
 
   val _slicks =
     Seq("com.typesafe.slick" %% "slick" % versionSlick, "com.typesafe.slick" %% "slick-testkit" % versionSlick % Test)
@@ -266,6 +268,7 @@ object Dependencies {
   val _lombok = "org.projectlombok" % "lombok" % versionLombok
   val _postgresql = "org.postgresql" % "postgresql" % versionPostgres
   val _mysql = "mysql" % "mysql-connector-java" % versionMySQL
+  val _h2 = "com.h2database" % "h2" % "1.4.200"
   val _hikariCP = "com.zaxxer" % "HikariCP" % versionHikariCP
   val _jsch = "com.jcraft" % "jsch" % versionJsch
   val _nacosClient = "com.alibaba.nacos" % "nacos-client" % versionNacos

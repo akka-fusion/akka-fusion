@@ -27,7 +27,6 @@ import scala.concurrent.ExecutionContextExecutor
 import scala.concurrent.Future
 
 object FusionRoute {
-
   /**
    * Turns a `Route` into an async handler function.
    */
@@ -57,5 +56,4 @@ object FusionRoute {
         }
     }
   }
-
 }

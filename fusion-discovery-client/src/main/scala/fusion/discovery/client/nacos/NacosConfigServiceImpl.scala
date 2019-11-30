@@ -19,11 +19,10 @@ package fusion.discovery.client.nacos
 import java.util.Properties
 
 import com.alibaba.nacos.api.config.listener.AbstractListener
-import com.alibaba.nacos.api.config.{ConfigService => JConfigService}
+import com.alibaba.nacos.api.config.{ ConfigService => JConfigService }
 import fusion.discovery.client.FusionConfigService
 
 class NacosConfigServiceImpl(props: Properties, val underlying: JConfigService) extends FusionConfigService {
-
   override def addListener(dataId: String, group: String, listener: String => Unit): Unit =
     underlying.addListener(dataId, group, new AbstractListener {
       override def receiveConfigInfo(configInfo: String): Unit = listener(configInfo)

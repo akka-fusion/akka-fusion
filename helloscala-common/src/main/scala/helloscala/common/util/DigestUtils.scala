@@ -29,7 +29,6 @@ import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
 object MessageDigestAlgorithms {
-
   /**
    * The MD5 message digest algorithm defined in RFC 1321.
    */

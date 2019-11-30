@@ -74,5 +74,4 @@ case class RichCell(num: Int, cell: Cell) extends ICell {
     case CellType.ERROR  => deft
     case _               => deft
   }
-
 }

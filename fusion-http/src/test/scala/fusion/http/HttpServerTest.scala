@@ -50,5 +50,4 @@ class HttpServerTest extends ScalaTestWithActorTestKit with FusionTestFunSuite {
     super.beforeAll()
     FusionHttpServer(system).component.startRouteSync(route)
   }
-
 }

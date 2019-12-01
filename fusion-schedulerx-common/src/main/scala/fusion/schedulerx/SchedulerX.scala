@@ -23,10 +23,10 @@ import akka.actor.typed.ActorSystem
 import akka.actor.typed.scaladsl.adapter._
 import akka.{ actor => classic }
 import com.typesafe.config.Config
+import fusion.common.FusionProtocol
 import helloscala.common.util.DigestUtils
-class SchedulerX private (
-    val schedulerXSettings: SchedulerXSettings,
-    val system: ActorSystem[SchedulerXGuardian.Command]) {
+
+class SchedulerX private (val schedulerXSettings: SchedulerXSettings, val system: ActorSystem[FusionProtocol.Command]) {
   def classicSystem: classic.ActorSystem = system.toClassic
 }
 

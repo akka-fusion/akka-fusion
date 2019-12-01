@@ -17,12 +17,11 @@
 package fusion.jdbc
 
 import akka.Done
+import akka.actor.CoordinatedShutdown
 import akka.actor.typed.ActorSystem
 import com.zaxxer.hikari.HikariDataSource
-import fusion.core.component.Components
-import fusion.core.extension.FusionCore
-import fusion.core.extension.FusionExtension
-import fusion.core.extension.FusionExtensionId
+import fusion.common.component.Components
+import fusion.common.extension.{ FusionCoordinatedShutdown, FusionExtension, FusionExtensionId }
 import fusion.jdbc.constant.JdbcConstants
 import fusion.jdbc.util.JdbcUtils
 import helloscala.common.Configuration
@@ -32,7 +31,7 @@ import scala.concurrent.Future
 // #JdbcComponents
 final private[jdbc] class JdbcComponents(system: ActorSystem[_])
     extends Components[HikariDataSource](JdbcConstants.PATH_DEFAULT) {
-  override def configuration: Configuration = FusionCore(system).configuration
+  override def configuration: Configuration = Configuration(system.settings.config)
 
   override protected def componentClose(c: HikariDataSource): Future[Done] = Future.successful {
     c.close()
@@ -47,7 +46,7 @@ final private[jdbc] class JdbcComponents(system: ActorSystem[_])
 // #FusionJdbc
 class FusionJdbc private (override val system: ActorSystem[_]) extends FusionExtension {
   val components = new JdbcComponents(system)
-  FusionCore(system).shutdowns.beforeActorSystemTerminate("StopFusionJdbc") { () =>
+  FusionCoordinatedShutdown(system).beforeActorSystemTerminate("StopFusionJdbc") { () =>
     components.closeAsync()(system.executionContext)
   }
   def component: HikariDataSource = components.component

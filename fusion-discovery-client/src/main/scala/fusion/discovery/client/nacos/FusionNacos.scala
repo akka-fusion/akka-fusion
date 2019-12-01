@@ -19,11 +19,10 @@ package fusion.discovery.client.nacos
 import akka.Done
 import akka.actor.typed.ActorSystem
 import com.typesafe.scalalogging.StrictLogging
+import fusion.common.component.Components
 import fusion.common.constant.FusionConstants
-import fusion.core.component.Components
+import fusion.common.extension.{ FusionExtension, FusionExtensionId }
 import fusion.core.extension.FusionCore
-import fusion.core.extension.FusionExtension
-import fusion.core.extension.FusionExtensionId
 import fusion.discovery.DiscoveryUtils
 import helloscala.common.Configuration
 

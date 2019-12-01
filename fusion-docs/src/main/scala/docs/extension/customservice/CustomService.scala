@@ -18,7 +18,7 @@ package docs.extension.customservice
 
 import akka.actor.typed.ActorSystem
 import akka.actor.typed.ExtensionId
-import fusion.core.extension.FusionExtension
+import fusion.common.extension.FusionExtension
 import helloscala.common.exception.HSUnauthorizedException
 import helloscala.common.util.DigestUtils
 import helloscala.common.util.StringUtils

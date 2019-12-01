@@ -14,27 +14,30 @@
  * limitations under the License.
  */
 
-package fusion.schedulerx
+package fusion.schedulerx.server
 
-import akka.actor
+import akka.{ actor => classic }
 import akka.actor.typed.scaladsl.adapter._
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.server.Route
 import com.typesafe.config.ConfigFactory
-import fusion.schedulerx.route.Routes
+import fusion.schedulerx.SchedulerX
+import fusion.schedulerx.server.route.Routes
 
 object SchedulerXApplication {
   def main(args: Array[String]): Unit = {
     val schedulerX = SchedulerX(ConfigFactory.load())
-    implicit val system = schedulerX.system
-    SchedulerXBroker(schedulerX)
-    startHttp(new Routes(system))(system.toClassic)
+    val schedulerXBroker = SchedulerXBroker(schedulerX)
+    startHttp(schedulerXBroker)(schedulerX.system.toClassic)
   }
 
-  private def startHttp(routes: Routes)(implicit system: actor.ActorSystem): Unit = {
-    val route: Route = routes.route
-    val host = "127.0.0.1"
-    val port = 9999
-    Http().bindAndHandle(route, host, port)
+  private def startHttp(schedulerXBroker: SchedulerXBroker)(implicit system: classic.ActorSystem): Unit = {
+    val route: Route = new Routes(schedulerXBroker).route
+    val brokerSettings = schedulerXBroker.brokerSettings
+    val config = schedulerXBroker.settings.config
+    Http().bindAndHandle(
+      route,
+      config.getString("fusion.http.default.server.host"),
+      config.getInt("fusion.http.default.server.port"))
   }
 }

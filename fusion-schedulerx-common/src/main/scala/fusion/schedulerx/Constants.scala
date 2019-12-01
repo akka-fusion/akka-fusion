@@ -18,4 +18,7 @@ package fusion.schedulerx
 
 object Constants {
   val SCHEDULERX = "schedulerx"
+  object Dispatcher {
+    val WORKER_BLOCK = s"$SCHEDULERX.worker.block-dispatcher"
+  }
 }

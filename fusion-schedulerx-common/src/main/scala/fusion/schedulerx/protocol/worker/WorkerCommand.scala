@@ -18,8 +18,12 @@ package fusion.schedulerx.protocol.worker
 
 import akka.actor.typed.ActorRef
 import fusion.json.jackson.CborSerializable
+import fusion.schedulerx.job.ProcessResult
 import fusion.schedulerx.protocol.broker.BrokerCommand
 
 trait WorkerCommand extends CborSerializable
 
-final case class GetWorkerStatus(broker: ActorRef[BrokerCommand]) extends WorkerCommand
+final case class RegisterToBrokerAck(broker: ActorRef[BrokerCommand]) extends WorkerCommand
+final case class ReportWorkerStatusRequest(broker: ActorRef[BrokerCommand]) extends WorkerCommand
+
+final case class WorkerJobResult(result: ProcessResult) extends WorkerCommand

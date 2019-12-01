@@ -22,7 +22,7 @@ import akka.http.scaladsl.Http
 import akka.http.scaladsl.server.Route
 import com.typesafe.config.Config
 import fusion.boot.FusionApplication
-import fusion.core.FusionProtocol
+import fusion.common.FusionProtocol
 import fusion.core.util.FusionUtils
 import helloscala.common.Configuration
 

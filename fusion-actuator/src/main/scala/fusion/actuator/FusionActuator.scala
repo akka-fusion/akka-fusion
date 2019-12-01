@@ -21,8 +21,7 @@ import akka.http.scaladsl.server.Route
 import com.typesafe.scalalogging.StrictLogging
 import fusion.actuator.route.FusionActuatorRoute
 import fusion.actuator.setting.ActuatorSetting
-import fusion.core.extension.FusionExtension
-import fusion.core.extension.FusionExtensionId
+import fusion.common.extension.{ FusionExtension, FusionExtensionId }
 import helloscala.common.Configuration
 
 final class FusionActuator private (override val system: ActorSystem[_]) extends FusionExtension with StrictLogging {

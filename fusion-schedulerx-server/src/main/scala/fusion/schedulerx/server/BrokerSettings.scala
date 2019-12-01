@@ -14,17 +14,16 @@
  * limitations under the License.
  */
 
-package fusion.schedulerx.route
+package fusion.schedulerx.server
 
-import akka.actor.typed.ActorSystem
-import akka.http.scaladsl.model.StatusCodes
-import akka.http.scaladsl.server.Directives._
-import akka.http.scaladsl.server.Route
-import com.typesafe.scalalogging.StrictLogging
-import fusion.schedulerx.SchedulerXGuardian
+import fusion.json.jackson.CborSerializable
+import fusion.schedulerx.{ Constants, SchedulerXSettings }
 
-class Routes(system: ActorSystem[SchedulerXGuardian.Command]) extends StrictLogging {
-  def route: Route = path("openapi") {
-    complete(StatusCodes.NotImplemented)
+case class BrokerSettings() extends CborSerializable
+
+object BrokerSettings {
+  def apply(settings: SchedulerXSettings): BrokerSettings = {
+    val c = settings.config.getConfig(s"${Constants.SCHEDULERX}.broker")
+    new BrokerSettings()
   }
 }

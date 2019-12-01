@@ -17,15 +17,12 @@
 package fusion.core.util
 
 import java.util.Objects
-import java.util.concurrent.atomic.AtomicBoolean
-import java.util.concurrent.atomic.AtomicLong
+import java.util.concurrent.atomic.{ AtomicBoolean, AtomicLong }
 
-import akka.actor.typed.ActorSystem
-import akka.actor.typed.Behavior
-import akka.actor.typed.scaladsl.Behaviors
+import akka.actor.typed.{ ActorSystem, Behavior }
 import com.typesafe.config.Config
+import fusion.common.FusionProtocol
 import fusion.common.constant.FusionConstants
-import fusion.core.FusionProtocol
 import fusion.protobuf.internal.ActorSystemUtils
 import helloscala.common.Configuration
 

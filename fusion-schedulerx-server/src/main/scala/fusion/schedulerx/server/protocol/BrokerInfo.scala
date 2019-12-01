@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-package fusion.http.gateway.server
+package fusion.schedulerx.server.protocol
 
-import akka.actor.typed.ActorSystem
-import fusion.common.extension.{ FusionExtension, FusionExtensionId }
+import fusion.json.jackson.CborSerializable
 
-class FusionHttpGateway private (override val system: ActorSystem[_]) extends FusionExtension {
-  val components = new HttpGatewayComponents(system)
-  def component: HttpGatewayComponent = components.component
+trait BrokerInfo extends CborSerializable {
+  val namespace: String
+  val name: String
+  val description: Option[String]
 }
 
-object FusionHttpGateway extends FusionExtensionId[FusionHttpGateway] {
-  override def createExtension(system: ActorSystem[_]): FusionHttpGateway = new FusionHttpGateway(system)
-}
+case class BrokerCreate(namespace: String, name: String, description: Option[String] = None) extends BrokerInfo
+
+case class BrokerInfoData(namespace: String, name: String, description: Option[String] = None) extends BrokerInfo {}

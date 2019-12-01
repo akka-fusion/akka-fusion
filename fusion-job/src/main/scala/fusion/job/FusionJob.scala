@@ -18,8 +18,7 @@ package fusion.job
 
 import akka.actor.CoordinatedShutdown
 import akka.actor.typed.ActorSystem
-import fusion.core.extension.FusionExtension
-import fusion.core.extension.FusionExtensionId
+import fusion.common.extension.{ FusionExtension, FusionExtensionId }
 
 class FusionJob private (override val system: ActorSystem[_]) extends FusionExtension {
   val components = new FusionJobComponents(system)

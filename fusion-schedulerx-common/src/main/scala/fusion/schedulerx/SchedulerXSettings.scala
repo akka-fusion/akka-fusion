@@ -16,21 +16,38 @@
 
 package fusion.schedulerx
 
+import java.util.concurrent.TimeUnit
+
 import akka.actor.{ Address, AddressFromURIString }
 import com.typesafe.config.{ Config, ConfigFactory }
 
-import scala.concurrent.duration.FiniteDuration
+import scala.concurrent.duration._
 import scala.jdk.CollectionConverters._
 import scala.jdk.DurationConverters._
 
-case class WorkerSettings(healthInterval: FiniteDuration)
+case class WorkerSettings(
+    jobMaxConcurrent: Int,
+    healthInterval: FiniteDuration,
+    registerDelay: FiniteDuration,
+    registerDelayMax: FiniteDuration,
+    registerDelayFactor: Double) {
+  def computeRegisterDelay(delay: FiniteDuration): FiniteDuration = {
+    delay match {
+      case Duration.Zero => registerDelay
+      case _ if delay < registerDelayMax =>
+        delay * registerDelayFactor
+        FiniteDuration(delay.toNanos, TimeUnit.NANOSECONDS)
+      case _ => registerDelay
+    }
+  }
+}
 
 case class SchedulerXSettings(
     namespace: String,
     groupId: String,
     endpoint: String,
     name: String,
-    host: String,
+    hostname: String,
     port: Int,
     seedNodes: List[Address],
     roles: Set[String],
@@ -54,7 +71,7 @@ object SchedulerXSettings {
     val sc = c.getConfig(Constants.SCHEDULERX)
     val swc = sc.getConfig("worker")
     val name = sc.getString("name")
-    val host = c.getString("akka.remote.artery.canonical.hostname")
+    val hostname = c.getString("akka.remote.artery.canonical.hostname")
     val port = c.getInt("akka.remote.artery.canonical.port")
     val seedNodes = c
       .getStringList("akka.cluster.seed-nodes")
@@ -75,11 +92,16 @@ object SchedulerXSettings {
       sc.getString("groupId"),
       sc.getString("endpoint"),
       name,
-      host,
+      hostname,
       port,
       seedNodes,
       roles,
-      WorkerSettings(swc.getDuration("healthInterval").toScala),
+      WorkerSettings(
+        swc.getInt("jobMaxConcurrent"),
+        swc.getDuration("healthInterval").toScala,
+        swc.getDuration("registerDelay").toScala,
+        swc.getDuration("registerDelayMax").toScala,
+        swc.getDouble("registerDelayFactor")),
       ConfigFactory.parseString(s"""
              |akka.cluster.seed-nodes = ${seedNodes.mkString("[\"", "\", \"", "\"]")}
              |""".stripMargin).withFallback(c))

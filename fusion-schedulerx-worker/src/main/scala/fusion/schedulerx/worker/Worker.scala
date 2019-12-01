@@ -16,7 +16,6 @@
 
 package fusion.schedulerx.worker
 
-import akka.actor.Cancellable
 import akka.actor.typed.receptionist.Receptionist
 import akka.actor.typed.scaladsl.adapter._
 import akka.actor.typed.scaladsl.{ ActorContext, Behaviors, TimerScheduler }
@@ -27,7 +26,7 @@ import akka.cluster.sharding.typed.scaladsl.EntityTypeKey
 import akka.cluster.typed.Cluster
 import fusion.json.jackson.CborSerializable
 import fusion.schedulerx.protocol.broker.{ BrokerCommand, RegisterWorker, WorkerServiceStatus, WorkerStatus }
-import fusion.schedulerx.protocol.worker.{ GetWorkerStatus, WorkerCommand }
+import fusion.schedulerx.protocol.worker.{ RegisterToBrokerAck, ReportWorkerStatusRequest, WorkerCommand }
 import fusion.schedulerx.{ SchedulerX, SchedulerXSettings, Topics }
 
 import scala.concurrent.duration._
@@ -36,8 +35,6 @@ object Worker {
   final case class AnsweredAddress(workerId: String, address: UniqueAddress) extends CborSerializable
   final private case class BrokerListing(listing: Receptionist.Listing) extends WorkerCommand
   final case object ReportSystemStatus extends WorkerCommand
-
-  sealed trait JobCommand extends WorkerCommand
 
   val TypeKey: EntityTypeKey[WorkerCommand] = EntityTypeKey[WorkerCommand]("Worker")
   def apply(workerId: String, settings: SchedulerXSettings): Behavior[WorkerCommand] =
@@ -50,29 +47,27 @@ class Worker private (
     settings: SchedulerXSettings,
     timers: TimerScheduler[WorkerCommand],
     context: ActorContext[WorkerCommand]) {
-  import context.executionContext
+  private val mediator = DistributedPubSub(context.system.toClassic).mediator
   private val cluster = Cluster(context.system)
 
   context.log.info(s"Worker: $workerId, startup.")
 
   def init(): Behavior[WorkerCommand] = {
-    val mediator = DistributedPubSub(context.system.toClassic).mediator
-    val cancellable = context.system.scheduler.scheduleAtFixedRate(0.second, 1.second) { () =>
-      val message = RegisterWorker(SchedulerX.counter(), settings.namespace, workerId, context.self)
-      mediator ! DistributedPubSubMediator.Publish(Topics.WORKER_STARTUP, message)
-    }
-    idle(cancellable)
+    idle(1, Duration.Zero)
   }
 
-  def idle(cancellable: Cancellable): Behavior[WorkerCommand] = Behaviors.receiveMessage {
-    case GetWorkerStatus(broker) =>
+  def idle(registerCount: Int, registerDelay: FiniteDuration): Behavior[WorkerCommand] = Behaviors.receiveMessage {
+    case RegisterToBrokerAck(broker) =>
       broker ! getWorkerStatus()
-      cancellable.cancel()
       context.watch(broker)
       timers.startTimerWithFixedDelay(ReportSystemStatus, ReportSystemStatus, settings.worker.healthInterval)
       receive(broker)
     case ReportSystemStatus =>
-      Behaviors.same
+      val message = RegisterWorker(registerCount, settings.namespace, workerId, context.self)
+      mediator ! DistributedPubSubMediator.Publish(Topics.REGISTER_WORKER, message)
+      val delay = settings.worker.computeRegisterDelay(registerDelay)
+      timers.startSingleTimer(ReportSystemStatus, ReportSystemStatus, delay)
+      idle(registerCount + 1, delay)
     case other =>
       context.log.warn(s"Invalid message: $other")
       Behaviors.same
@@ -84,7 +79,7 @@ class Worker private (
         case ReportSystemStatus =>
           broker ! getWorkerStatus()
           Behaviors.same
-        case GetWorkerStatus(broker) =>
+        case ReportWorkerStatusRequest(broker) =>
           broker ! getWorkerStatus()
           receive(broker)
       }

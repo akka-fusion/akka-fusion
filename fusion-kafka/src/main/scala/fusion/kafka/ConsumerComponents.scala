@@ -19,7 +19,7 @@ package fusion.kafka
 import akka.Done
 import akka.actor.typed.ActorSystem
 import akka.kafka.ConsumerSettings
-import fusion.core.component.Components
+import fusion.common.component.Components
 import helloscala.common.Configuration
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.common.serialization.StringDeserializer

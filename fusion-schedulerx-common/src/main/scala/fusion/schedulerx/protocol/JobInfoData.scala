@@ -16,4 +16,16 @@
 
 package fusion.schedulerx.protocol
 
-case class JobInfo(id: String, name: String, `type`: JobType)
+import java.time.OffsetDateTime
+
+import scala.concurrent.duration._
+
+case class JobInfoData(
+    id: String,
+    name: String,
+    `type`: JobType,
+    schedulerTime: OffsetDateTime,
+    jarUrl: Option[String] = None,
+    mainClass: Option[String] = None,
+    codeContent: Option[String] = None,
+    timeout: FiniteDuration = 2.hours)

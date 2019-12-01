@@ -14,16 +14,17 @@
  * limitations under the License.
  */
 
-package fusion.http.gateway.server
+package fusion.schedulerx.server.repository
 
 import akka.actor.typed.ActorSystem
-import fusion.common.extension.{ FusionExtension, FusionExtensionId }
+import fusion.jdbc.FusionJdbc
+import fusion.schedulerx.server.protocol.BrokerInfoData
 
-class FusionHttpGateway private (override val system: ActorSystem[_]) extends FusionExtension {
-  val components = new HttpGatewayComponents(system)
-  def component: HttpGatewayComponent = components.component
-}
+// 数据存储访问
+class BrokerRepository(system: ActorSystem[_]) {
+  FusionJdbc(system)
 
-object FusionHttpGateway extends FusionExtensionId[FusionHttpGateway] {
-  override def createExtension(system: ActorSystem[_]): FusionHttpGateway = new FusionHttpGateway(system)
+  def listBroker(): Seq[BrokerInfoData] = {
+    List(BrokerInfoData("default", "default"))
+  }
 }

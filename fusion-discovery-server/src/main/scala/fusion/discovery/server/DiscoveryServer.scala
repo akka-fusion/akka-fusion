@@ -25,9 +25,7 @@ import akka.cluster.sharding.typed.scaladsl.Entity
 import akka.grpc.scaladsl.ServiceHandler
 import akka.http.scaladsl.model.HttpRequest
 import akka.http.scaladsl.model.HttpResponse
-import fusion.core.extension.FusionCore
-import fusion.core.extension.FusionExtension
-import fusion.core.extension.FusionExtensionId
+import fusion.common.extension.{ FusionExtension, FusionExtensionId }
 import fusion.discovery.grpc.ConfigServiceHandler
 import fusion.discovery.grpc.NamingServiceHandler
 import fusion.discovery.server.config.ConfigManager
@@ -40,13 +38,14 @@ import fusion.discovery.server.naming.Namings
 
 import scala.concurrent.Future
 import scala.concurrent.duration._
-
+import akka.actor.typed.scaladsl.adapter._
+import fusion.core.extension.FusionCore
 class DiscoveryServer private (override val system: ActorSystem[_]) extends FusionExtension {
   val configSetting = new ConfigSetting(configuration)
   val namingSetting = new NamingSetting(configuration)
 
   val grpcHandler: HttpRequest => Future[HttpResponse] = {
-    implicit val classicSystem = FusionCore(system).classicSystem
+    implicit val classicSystem = system.toClassic
     val services = List(
       if (configSetting.enable) {
         val configManager: ActorRef[ConfigManager.Command] = FusionCore(system).spawnActorSync(

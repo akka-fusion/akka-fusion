@@ -17,7 +17,7 @@
 package fusion.discovery.server
 
 import com.typesafe.config.ConfigFactory
-import fusion.core.FusionProtocol
+import fusion.common.FusionProtocol
 import fusion.core.util.FusionUtils
 import fusion.http.FusionHttpServer
 

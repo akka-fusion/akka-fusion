@@ -11,7 +11,6 @@ import akka.cluster.typed.Subscribe
 import akka.cluster.typed.Unsubscribe
 import akka.remote.testkit.MultiNodeConfig
 import com.typesafe.config.ConfigFactory
-import fusion.core.extension.FusionCore
 import fusion.discovery.FusionMultiNodeSpec
 import fusion.discovery.model._
 import helloscala.common.IntStatus

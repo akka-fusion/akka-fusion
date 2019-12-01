@@ -18,18 +18,14 @@ package fusion.elasticsearch
 
 import akka.Done
 import akka.actor.typed.ActorSystem
-import com.sksamuel.elastic4s.http.ElasticClient
-import com.sksamuel.elastic4s.http.ElasticProperties
-import com.sksamuel.elastic4s.http.HttpClient
-import fusion.core.component.Components
+import com.sksamuel.elastic4s.http.{ ElasticClient, ElasticProperties, HttpClient }
+import fusion.common.component.Components
+import fusion.common.extension.{ FusionCoordinatedShutdown, FusionExtension, FusionExtensionId }
 import fusion.core.extension.FusionCore
-import fusion.core.extension.FusionExtension
-import fusion.core.extension.FusionExtensionId
 import helloscala.common.Configuration
 import org.apache.http.client.config.RequestConfig
 import org.apache.http.impl.nio.client.HttpAsyncClientBuilder
-import org.elasticsearch.client.RestClientBuilder.HttpClientConfigCallback
-import org.elasticsearch.client.RestClientBuilder.RequestConfigCallback
+import org.elasticsearch.client.RestClientBuilder.{ HttpClientConfigCallback, RequestConfigCallback }
 
 import scala.concurrent.Future
 
@@ -81,7 +77,7 @@ class ElasticsearchComponents(system: ActorSystem[_])
 
 class FusionElasticsearch private (override val system: ActorSystem[_]) extends FusionExtension {
   val components = new ElasticsearchComponents(system)
-  FusionCore(system).shutdowns.beforeActorSystemTerminate("StopFusionElasticsearch") { () =>
+  FusionCoordinatedShutdown(system).beforeActorSystemTerminate("StopFusionElasticsearch") { () =>
     components.closeAsync()(system.executionContext)
   }
   def component: FusionESClient = components.component

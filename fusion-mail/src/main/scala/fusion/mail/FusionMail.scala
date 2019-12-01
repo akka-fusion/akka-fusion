@@ -16,10 +16,9 @@
 
 package fusion.mail
 
-import akka.actor.typed.ExtensionId
-import akka.actor.typed.ActorSystem
+import akka.actor.typed.{ ActorSystem, ExtensionId }
+import fusion.common.extension.FusionExtension
 import fusion.core.extension.FusionCore
-import fusion.core.extension.FusionExtension
 import helloscala.common.Configuration
 
 class FusionMail private (override val system: ActorSystem[_]) extends FusionExtension {

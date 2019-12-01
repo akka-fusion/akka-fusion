@@ -13,7 +13,6 @@ import akka.remote.testkit.MultiNodeConfig
 import akka.stream.Materializer
 import akka.testkit.ImplicitSender
 import com.typesafe.config.ConfigFactory
-import fusion.core.extension.FusionCore
 import fusion.discovery.FusionMultiNodeSpec
 import fusion.discovery.model._
 import helloscala.common.IntStatus

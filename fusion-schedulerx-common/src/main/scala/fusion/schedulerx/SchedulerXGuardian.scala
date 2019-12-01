@@ -16,26 +16,17 @@
 
 package fusion.schedulerx
 
-import akka.actor.typed.{ ActorRef, Behavior, Props }
+import akka.actor.typed.Behavior
 import akka.actor.typed.scaladsl.{ ActorContext, Behaviors }
+import fusion.common.FusionProtocol
 
 object SchedulerXGuardian {
-  sealed trait Command
-  case class Spawn[T](behavior: Behavior[T], name: String, props: Props, replyTo: ActorRef[ActorRef[T]]) extends Command
-  case class SpawnAnonymous[T](behavior: Behavior[T], props: Props, replyTo: ActorRef[ActorRef[T]]) extends Command
-
-  def apply(): Behavior[Command] = Behaviors.setup(context => new SchedulerXGuardian(context).init())
+  def apply(): Behavior[FusionProtocol.Command] = Behaviors.setup(context => new SchedulerXGuardian(context).init())
 }
-
-import SchedulerXGuardian._
-class SchedulerXGuardian private (context: ActorContext[Command]) {
-  def init(): Behavior[Command] = Behaviors.receiveMessage {
-    case Spawn(behavior, name, props, replyTo) =>
+class SchedulerXGuardian private (context: ActorContext[FusionProtocol.Command]) {
+  def init(): Behavior[FusionProtocol.Command] = Behaviors.receiveMessage {
+    case FusionProtocol.Spawn(behavior, name, props, replyTo) =>
       val child = context.spawn(behavior, name, props)
-      replyTo ! child
-      Behaviors.same
-    case SpawnAnonymous(behavior, props, replyTo) =>
-      val child = context.spawnAnonymous(behavior, props)
       replyTo ! child
       Behaviors.same
   }

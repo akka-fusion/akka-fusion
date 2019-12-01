@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fusion.core.component
+package fusion.common.component
 
 import akka.Done
 import com.typesafe.scalalogging.StrictLogging

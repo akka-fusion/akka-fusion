@@ -161,7 +161,7 @@ lazy val fusionSchedulerxFunctest = _project("fusion-schedulerx-functest")
 
 lazy val fusionSchedulerxServer = _project("fusion-schedulerx-server")
   .enablePlugins(AkkaGrpcPlugin, JavaAgent)
-  .dependsOn(fusionSchedulerxWorker, fusionSchedulerxCommon, fusionTestkit % "test->test")
+  .dependsOn(fusionSchedulerxWorker, fusionSchedulerxCommon, fusionJdbc, fusionTestkit % "test->test")
   .settings(Publishing.noPublish)
   .settings(
     javaAgents += _alpnAgent % "runtime;test",
@@ -275,7 +275,7 @@ lazy val fusionMybatis = _project("fusion-mybatis")
   .settings(libraryDependencies ++= Seq(_mybatisPlus, _lombok % Provided, _postgresql % Test, _mysql % Test))
 
 lazy val fusionJdbc = _project("fusion-jdbc")
-  .dependsOn(fusionTestkit % "test->test", fusionCore)
+  .dependsOn(fusionTestkit % "test->test", fusionCommon)
   .settings(libraryDependencies ++= Seq(_hikariCP, _postgresql % Test, _mysql % Test))
 
 lazy val fusionDoc =
@@ -344,7 +344,7 @@ lazy val fusionCommon = _project("fusion-common")
     buildInfoOptions += BuildInfoOption.BuildTime,
     buildInfoPackage := "fusion.version",
     buildInfoObject := "Version",
-    libraryDependencies ++= Seq(_scalatest % Test) ++ _akkas)
+    libraryDependencies ++= Seq(_akkaTypedTestkit % Test, _scalatest % Test) ++ _akkas)
 
 lazy val helloscalaCommon = _project("helloscala-common")
   .settings(Publishing.publishing: _*)

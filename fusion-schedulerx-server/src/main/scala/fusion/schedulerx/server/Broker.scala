@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fusion.schedulerx
+package fusion.schedulerx.server
 
 import akka.actor.Address
 import akka.actor.typed.scaladsl.{ ActorContext, Behaviors, TimerScheduler }
@@ -26,8 +26,10 @@ import akka.cluster.sharding.typed.scaladsl.{ ClusterSharding, Entity }
 import akka.cluster.typed.{ Cluster, Subscribe }
 import akka.cluster.{ Member, MemberStatus }
 import fusion.schedulerx.protocol.broker.{ BrokerCommand, BrokerCommandNS, RegisterWorker, WorkerStatus }
-import fusion.schedulerx.protocol.worker.{ GetWorkerStatus, WorkerCommand, WorkerProtocol }
+import fusion.schedulerx.protocol.worker.{ RegisterToBrokerAck, WorkerCommand, WorkerProtocol }
+import fusion.schedulerx.server.protocol.BrokerInfo
 import fusion.schedulerx.worker.Worker
+import fusion.schedulerx.{ NodeRoles, SchedulerXSettings, Topics }
 
 object Broker {
   trait InternalCommand extends BrokerCommand
@@ -35,19 +37,20 @@ object Broker {
   private final case class InitFailure(e: Throwable) extends InternalCommand
   private case class InternalClusterEvent(event: MemberEvent) extends InternalCommand
   private case class RemoveWorkerByAddress(address: Address) extends InternalCommand
-  case class Tick(namespace: String) extends BrokerCommandNS
+  case class InitParameters(namespace: String, payload: BrokerInfo) extends BrokerCommandNS
 
-  def apply(brokerId: String, settings: SchedulerXSettings): Behavior[BrokerCommand] =
+  def apply(brokerId: String, brokerSettings: BrokerSettings, settings: SchedulerXSettings): Behavior[BrokerCommand] =
     Behaviors.setup(context =>
       Behaviors.withTimers { timers =>
-        new Broker(brokerId, settings, timers, context).idle()
+        new Broker(brokerId, brokerSettings, settings, timers, context).idle()
       })
 }
 
 import akka.actor.typed.scaladsl.adapter._
-import fusion.schedulerx.Broker._
+import fusion.schedulerx.server.Broker._
 class Broker(
     brokerId: String,
+    brokerSettings: BrokerSettings,
     settings: SchedulerXSettings,
     timers: TimerScheduler[BrokerCommand],
     context: ActorContext[BrokerCommand]) {
@@ -56,7 +59,7 @@ class Broker(
   private val sharding = ClusterSharding(context.system)
   private val mediator = DistributedPubSub(context.system.toClassic).mediator
 
-  mediator ! DistributedPubSubMediator.Subscribe(Topics.WORKER_STARTUP, context.self.toClassic)
+  mediator ! DistributedPubSubMediator.Subscribe(Topics.REGISTER_WORKER, context.self.toClassic)
   cluster.subscriptions ! Subscribe(clusterAdapter, classOf[MemberEvent])
   for (member <- cluster.state.members if member.status == MemberStatus.Up) {
     if (member.roles(NodeRoles.WORKER)) {
@@ -79,7 +82,7 @@ class Broker(
 
         case RegisterWorker(counter, `brokerId`, workerId, worker) =>
           context.log.info(s"The ${counter}th worker registration, worker id is $workerId.")
-          worker ! GetWorkerStatus(context.self)
+          worker ! RegisterToBrokerAck(context.self)
           Behaviors.same
 
         case other =>

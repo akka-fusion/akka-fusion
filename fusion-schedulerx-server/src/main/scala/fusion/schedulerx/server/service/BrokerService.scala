@@ -14,16 +14,10 @@
  * limitations under the License.
  */
 
-package fusion.http.gateway.server
+package fusion.schedulerx.server.service
 
-import akka.actor.typed.ActorSystem
-import fusion.common.extension.{ FusionExtension, FusionExtensionId }
+import akka.actor.typed.ActorRef
+import akka.cluster.sharding.typed.ShardingEnvelope
+import fusion.schedulerx.protocol.broker.BrokerCommand
 
-class FusionHttpGateway private (override val system: ActorSystem[_]) extends FusionExtension {
-  val components = new HttpGatewayComponents(system)
-  def component: HttpGatewayComponent = components.component
-}
-
-object FusionHttpGateway extends FusionExtensionId[FusionHttpGateway] {
-  override def createExtension(system: ActorSystem[_]): FusionHttpGateway = new FusionHttpGateway(system)
-}
+class BrokerService(brokerRegion: ActorRef[ShardingEnvelope[BrokerCommand]]) {}

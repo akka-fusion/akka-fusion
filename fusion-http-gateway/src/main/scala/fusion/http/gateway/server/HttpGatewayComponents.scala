@@ -18,7 +18,7 @@ package fusion.http.gateway.server
 
 import akka.Done
 import akka.actor.typed.ActorSystem
-import fusion.core.component.Components
+import fusion.common.component.Components
 import fusion.core.extension.FusionCore
 import helloscala.common.Configuration
 

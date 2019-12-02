@@ -5,7 +5,8 @@ import java.util.concurrent.TimeUnit
 import akka.remote.testconductor.RoleName
 import akka.remote.testkit.{MultiNodeConfig, STMultiNodeSpec, SchudulerXMultiNodeSpec}
 import com.typesafe.config.ConfigFactory
-import fusion.schedulerx.{SchedulerX, SchedulerXBroker}
+import fusion.schedulerx.{SchedulerX, server}
+import fusion.schedulerx.server.SchedulerXBroker
 import fusion.schedulerx.worker.SchedulerXWorker
 
 object SchedulerXMultiTestConfig extends MultiNodeConfig {
@@ -18,7 +19,7 @@ object SchedulerXMultiTestConfig extends MultiNodeConfig {
   }
 
   // this configuration will be used for all nodes
-  // note that no fixed host names and ports are used
+  // note that no fixed hostname names and ports are used
   commonConfig(ConfigFactory.parseString(s"""
     akka.loglevel = "DEBUG"
     akka.actor.provider = cluster
@@ -43,7 +44,7 @@ object SchedulerXMultiTestConfig extends MultiNodeConfig {
 }
 
 abstract class SchedulerXMultiTest
-    extends SchudulerXMultiNodeSpec(SchedulerXMultiTestConfig, config => SchedulerX(config))
+    extends SchudulerXMultiNodeSpec(SchedulerXMultiTestConfig, config => SchedulerX.fromOriginalConfig(config))
     with STMultiNodeSpec {
   import SchedulerXMultiTestConfig._
 
@@ -57,7 +58,7 @@ abstract class SchedulerXMultiTest
 
     "wait for all nodes initialize finished" in {
       runOn(brokers: _*) {
-        schedulerXBrokers :+= SchedulerXBroker(schedulerX).start()
+        schedulerXBrokers :+= server.SchedulerXBroker(schedulerX).start()
         enterBarrier("brokers-init")
       }
 

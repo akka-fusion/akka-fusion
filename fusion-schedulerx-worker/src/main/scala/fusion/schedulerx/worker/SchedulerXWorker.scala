@@ -20,18 +20,20 @@ import java.util.concurrent.TimeoutException
 
 import akka.actor.typed.scaladsl.AskPattern._
 import akka.actor.typed.{ ActorRef, ActorSystem, Props }
+import akka.cluster.typed.Cluster
 import akka.util.Timeout
-import com.typesafe.config.{ Config, ConfigFactory }
-import fusion.schedulerx.{ SchedulerX, SchedulerXGuardian, SchedulerXSettings }
+import fusion.common.FusionProtocol
+import fusion.schedulerx.protocol.Worker
+import fusion.schedulerx.{ NodeRoles, SchedulerX, SchedulerXSettings }
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
 
 final class SchedulerXWorker private (schedulerX: SchedulerX) {
-  implicit val system: ActorSystem[SchedulerXGuardian.Command] = schedulerX.system
-  private var _worker: ActorRef[WorkerGuardian.Command] = _
+  implicit val system: ActorSystem[FusionProtocol.Command] = schedulerX.system
+  private var _worker: ActorRef[Worker.Command] = _
 
-  def worker: ActorRef[WorkerGuardian.Command] = _worker
+  def worker: ActorRef[Worker.Command] = _worker
 
   def settings: SchedulerXSettings = schedulerX.schedulerXSettings
 
@@ -39,8 +41,13 @@ final class SchedulerXWorker private (schedulerX: SchedulerX) {
   def start(): SchedulerXWorker = {
     implicit val timeout: Timeout = 10.seconds
     _worker = Await.result(
-      system.ask[ActorRef[WorkerGuardian.Command]](replyTo =>
-        SchedulerXGuardian.Spawn(WorkerGuardian(settings), "worker", Props.empty, replyTo)),
+      system.ask[ActorRef[Worker.Command]](
+        replyTo =>
+          FusionProtocol.Spawn(
+            WorkerImpl(SchedulerX.getWorkerId(Cluster(system).selfMember.address), settings),
+            NodeRoles.WORKER,
+            Props.empty,
+            replyTo)),
       timeout.duration)
     this
   }
@@ -48,6 +55,4 @@ final class SchedulerXWorker private (schedulerX: SchedulerX) {
 
 object SchedulerXWorker {
   def apply(schedulerX: SchedulerX): SchedulerXWorker = new SchedulerXWorker(schedulerX)
-  def apply(config: Config): SchedulerXWorker = apply(SchedulerX(config))
-  def apply(): SchedulerXWorker = apply(ConfigFactory.load())
 }

@@ -14,8 +14,17 @@
  * limitations under the License.
  */
 
-package fusion.schedulerx.protocol.broker
+package fusion.schedulerx.server
 
-import akka.actor.Address
+import com.typesafe.config.Config
+import fusion.json.jackson.CborSerializable
+import fusion.schedulerx.{ Constants, SchedulerXSettings }
 
-case class WorkerServiceStatus(namespace: String, workerId: String, address: Address)
+case class BrokerSettings() extends CborSerializable
+
+object BrokerSettings {
+  def apply(settings: SchedulerXSettings, config: Config): BrokerSettings = {
+    val c = config.getConfig(s"${Constants.SCHEDULERX}.broker")
+    new BrokerSettings()
+  }
+}

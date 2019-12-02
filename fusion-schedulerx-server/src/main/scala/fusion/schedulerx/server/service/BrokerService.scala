@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 
-package fusion.schedulerx.protocol
+package fusion.schedulerx.server.service
 
-case class JobInfo(id: String, name: String, `type`: JobType)
+import akka.actor.typed.ActorRef
+import akka.cluster.sharding.typed.ShardingEnvelope
+import fusion.schedulerx.protocol.Broker
+
+class BrokerService(brokerRegion: ActorRef[ShardingEnvelope[Broker.Command]]) {}

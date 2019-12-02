@@ -21,8 +21,7 @@ import java.util
 import akka.Done
 import akka.actor.typed.ActorSystem
 import com.typesafe.scalalogging.StrictLogging
-import fusion.core.component.Components
-import fusion.core.extension.FusionCore
+import fusion.common.component.Components
 import fusion.jdbc.FusionJdbc
 import fusion.job.impl.FactoryHelper
 import fusion.job.impl.FusionJdbcConnectionProvider
@@ -50,7 +49,7 @@ class FusionJobComponents(system: ActorSystem[_])
     with StrictLogging {
   private val factory = DirectSchedulerFactory.getInstance()
 
-  override def configuration: Configuration = FusionCore(system).configuration
+  override def configuration: Configuration = Configuration(system.settings.config)
 
   override protected def createComponent(id: String): FusionScheduler = {
     val c = configuration.getConfiguration(id).withFallback(configuration.getConfiguration("fusion.default.job"))

@@ -14,12 +14,22 @@
  * limitations under the License.
  */
 
-package fusion.schedulerx.protocol.worker
+package fusion.schedulerx.server.model
 
-import akka.actor.typed.ActorRef
-import fusion.json.jackson.CborSerializable
-import fusion.schedulerx.protocol.broker.BrokerCommand
+import java.time.OffsetDateTime
 
-trait WorkerCommand extends CborSerializable
+import fusion.schedulerx.protocol.JobType
 
-final case class GetWorkerStatus(broker: ActorRef[BrokerCommand]) extends WorkerCommand
+import scala.concurrent.duration._
+
+case class JobEntity(
+    id: String,
+    `type`: JobType,
+    name: String,
+    description: String,
+    mainClass: Option[String] = None,
+    jarUrl: Option[String] = None,
+    timeExpression: Option[String] = None,
+    codeContent: Option[String] = None,
+    timeout: FiniteDuration = 2.hours,
+    createdAt: OffsetDateTime = OffsetDateTime.now())

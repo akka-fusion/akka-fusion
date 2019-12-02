@@ -18,8 +18,7 @@ package fusion.kafka
 
 import akka.actor.typed.ActorSystem
 import akka.kafka.ConsumerSettings
-import fusion.core.extension.FusionExtension
-import fusion.core.extension.FusionExtensionId
+import fusion.common.extension.{ FusionExtension, FusionExtensionId }
 
 final class FusionKafkaConsumer private (val system: ActorSystem[_]) extends FusionExtension {
   def consumer: ConsumerSettings[String, String] = consumers.component

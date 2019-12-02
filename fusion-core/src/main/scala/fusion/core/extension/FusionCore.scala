@@ -18,21 +18,20 @@ package fusion.core.extension
 
 import akka.actor.ExtendedActorSystem
 import akka.actor.typed._
-import akka.actor.typed.receptionist.Receptionist
-import akka.actor.typed.receptionist.ServiceKey
+import akka.actor.typed.receptionist.{ Receptionist, ServiceKey }
 import akka.http.scaladsl.model.HttpHeader
 import akka.util.Timeout
 import com.typesafe.scalalogging.StrictLogging
-import fusion.core.FusionProtocol
+import fusion.common.FusionProtocol
+import fusion.common.extension.FusionCoordinatedShutdown
 import fusion.core.event.FusionEvents
 import fusion.core.extension.impl.FusionCoreImpl
 import fusion.core.setting.CoreSetting
 import helloscala.common.Configuration
 import helloscala.common.exception.HSInternalErrorException
 
-import scala.concurrent.Await
-import scala.concurrent.Future
 import scala.concurrent.duration.FiniteDuration
+import scala.concurrent.{ Await, Future }
 
 abstract class FusionCore extends Extension with StrictLogging {
   def name: String

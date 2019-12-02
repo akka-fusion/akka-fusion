@@ -18,14 +18,10 @@ package fusion.data.mongodb.extension
 
 import akka.Done
 import akka.actor.typed.ActorSystem
-import com.mongodb.ConnectionString
-import com.mongodb.MongoClientSettings
-import com.mongodb.MongoDriverInformation
 import com.mongodb.reactivestreams.client.MongoClients
-import fusion.core.component.Components
-import fusion.core.extension.FusionCore
-import fusion.core.extension.FusionExtension
-import fusion.core.extension.FusionExtensionId
+import com.mongodb.{ ConnectionString, MongoClientSettings, MongoDriverInformation }
+import fusion.common.component.Components
+import fusion.common.extension.{ FusionCoordinatedShutdown, FusionExtension, FusionExtensionId }
 import fusion.data.mongodb.MongoTemplate
 import fusion.data.mongodb.constant.MongoConstants
 import helloscala.common.Configuration
@@ -78,9 +74,8 @@ final private[mongodb] class MongoComponents(system: ActorSystem[_])
 }
 
 final class FusionMongo private (override val system: ActorSystem[_]) extends FusionExtension {
-  FusionCore(system)
   val components = new MongoComponents(system)
-  FusionCore(system).shutdowns.beforeActorSystemTerminate("StopFusionMongo") { () =>
+  FusionCoordinatedShutdown(system).beforeActorSystemTerminate("StopFusionMongo") { () =>
     components.closeAsync()(system.executionContext)
   }
 

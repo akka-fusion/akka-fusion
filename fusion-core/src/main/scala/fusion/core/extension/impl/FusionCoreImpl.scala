@@ -20,28 +20,24 @@ import java.nio.file.Paths
 
 import akka.actor.ExtendedActorSystem
 import akka.actor.typed._
-import akka.actor.typed.receptionist.Receptionist
-import akka.actor.typed.receptionist.ServiceKey
+import akka.actor.typed.receptionist.{ Receptionist, ServiceKey }
 import akka.actor.typed.scaladsl.AskPattern._
 import akka.actor.typed.scaladsl.Behaviors
 import akka.actor.typed.scaladsl.adapter._
 import akka.http.scaladsl.model.HttpHeader
 import akka.util.Timeout
 import com.typesafe.scalalogging.StrictLogging
-import fusion.common.constant.ConfigKeys
-import fusion.common.constant.FusionConstants
-import fusion.core.FusionProtocol
+import fusion.common.FusionProtocol
+import fusion.common.constant.{ ConfigKeys, FusionConstants }
+import fusion.common.extension.FusionCoordinatedShutdown
 import fusion.core.event.FusionEvents
-import fusion.core.extension.FusionCoordinatedShutdown
 import fusion.core.extension.FusionCore
 import fusion.core.http.headers.`X-Service`
 import fusion.core.setting.CoreSetting
 import helloscala.common.Configuration
-import helloscala.common.util.PidFile
-import helloscala.common.util.Utils
+import helloscala.common.util.{ PidFile, Utils }
 
-import scala.concurrent.Await
-import scala.concurrent.Future
+import scala.concurrent.{ Await, Future }
 import scala.concurrent.duration._
 import scala.util.control.NonFatal
 

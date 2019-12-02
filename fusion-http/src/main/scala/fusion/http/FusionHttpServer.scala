@@ -18,10 +18,8 @@ package fusion.http
 
 import akka.Done
 import akka.actor.typed.ActorSystem
-import fusion.core.component.Components
-import fusion.core.extension.FusionCore
-import fusion.core.extension.FusionExtension
-import fusion.core.extension.FusionExtensionId
+import fusion.common.component.Components
+import fusion.common.extension.{ FusionCoordinatedShutdown, FusionExtension, FusionExtensionId }
 import fusion.http.constant.HttpConstants
 import helloscala.common.Configuration
 
@@ -37,7 +35,7 @@ private[http] class HttpServerComponents(system: ActorSystem[_])
 class FusionHttpServer private (override val system: ActorSystem[_]) extends FusionExtension {
   val components = new HttpServerComponents(system)
   def component: HttpServer = components.component
-  FusionCore(system).shutdowns.serviceUnbind("StopFusionHttpServer") { () =>
+  FusionCoordinatedShutdown(system).serviceUnbind("StopFusionHttpServer") { () =>
     components.closeAsync()(system.executionContext)
   }
 }

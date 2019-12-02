@@ -14,17 +14,16 @@
  * limitations under the License.
  */
 
-package fusion.schedulerx.route
+package fusion.schedulerx.server.protocol
 
-import akka.actor.typed.ActorSystem
-import akka.http.scaladsl.model.StatusCodes
-import akka.http.scaladsl.server.Directives._
-import akka.http.scaladsl.server.Route
-import com.typesafe.scalalogging.StrictLogging
-import fusion.schedulerx.SchedulerXGuardian
+import fusion.json.jackson.CborSerializable
 
-class Routes(system: ActorSystem[SchedulerXGuardian.Command]) extends StrictLogging {
-  def route: Route = path("openapi") {
-    complete(StatusCodes.NotImplemented)
-  }
+trait BrokerInfo extends CborSerializable {
+  val namespace: String
+  val name: String
+  val description: Option[String]
 }
+
+case class BrokerCreate(namespace: String, name: String, description: Option[String] = None) extends BrokerInfo
+
+case class BrokerInfoData(namespace: String, name: String, description: Option[String] = None) extends BrokerInfo {}

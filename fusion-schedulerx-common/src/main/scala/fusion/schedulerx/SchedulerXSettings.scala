@@ -16,72 +16,75 @@
 
 package fusion.schedulerx
 
-import akka.actor.{ Address, AddressFromURIString }
-import com.typesafe.config.{ Config, ConfigFactory }
+import java.util.concurrent.TimeUnit
 
-import scala.concurrent.duration.FiniteDuration
+import akka.actor.{ Address, AddressFromURIString }
+import com.typesafe.config.Config
+
+import scala.concurrent.duration._
 import scala.jdk.CollectionConverters._
 import scala.jdk.DurationConverters._
 
-case class WorkerSettings(healthInterval: FiniteDuration)
+case class WorkerSettings(
+    jobMaxConcurrent: Int,
+    healthInterval: FiniteDuration,
+    registerDelay: FiniteDuration,
+    registerDelayMax: FiniteDuration,
+    registerDelayFactor: Double,
+    runOnce: Boolean,
+    runJobWorkerActor: Option[String],
+    runDir: Option[String]) {
+  def computeRegisterDelay(delay: FiniteDuration): FiniteDuration = {
+    delay match {
+      case Duration.Zero => registerDelay
+      case _ if delay < registerDelayMax =>
+        delay * registerDelayFactor
+        FiniteDuration(delay.toNanos, TimeUnit.NANOSECONDS)
+      case _ => registerDelay
+    }
+  }
+}
 
 case class SchedulerXSettings(
     namespace: String,
     groupId: String,
     endpoint: String,
     name: String,
-    host: String,
+    hostname: String,
     port: Int,
     seedNodes: List[Address],
     roles: Set[String],
-    worker: WorkerSettings,
-    config: Config) {
+    worker: WorkerSettings) {
   def isWorker: Boolean = roles(NodeRoles.WORKER)
   def isBroker: Boolean = roles(NodeRoles.BROKER)
 }
 
 object SchedulerXSettings {
-  def arrangeConfig(originalConfig: Config): Config = {
-    ConfigFactory
-      .parseString(s"akka ${originalConfig.getConfig(s"${Constants.SCHEDULERX}.akka").root().render()}")
-      .withFallback(originalConfig)
-  }
-
-  def apply(): SchedulerXSettings = apply(ConfigFactory.load())
-
-  def apply(originalConfig: Config): SchedulerXSettings = {
-    val c = arrangeConfig(originalConfig)
-    val sc = c.getConfig(Constants.SCHEDULERX)
+  def apply(config: Config): SchedulerXSettings = {
+    val sc = config.getConfig(Constants.SCHEDULERX)
     val swc = sc.getConfig("worker")
     val name = sc.getString("name")
-    val host = c.getString("akka.remote.artery.canonical.hostname")
-    val port = c.getInt("akka.remote.artery.canonical.port")
-    val seedNodes = c
-      .getStringList("akka.cluster.seed-nodes")
-      .asScala
-      .map {
-        case addr if !addr.startsWith("akka://") =>
-          val address = AddressFromURIString.parse(s"akka://$name@$addr")
-          require(
-            address.system == name,
-            s"Cluster ActorSystem name must equals be $name, but seed-node name is invalid, it si $addr.")
-          address
-        case addr => AddressFromURIString.parse(addr)
-      }
-      .toList
-    val roles = c.getStringList("akka.cluster.roles").asScala.toSet
+    val hostname = config.getString("akka.remote.artery.canonical.hostname")
+    val port = config.getInt("akka.remote.artery.canonical.port")
+    val seedNodes = config.getStringList("akka.cluster.seed-nodes").asScala.map(AddressFromURIString.parse).toList
+    val roles = config.getStringList("akka.cluster.roles").asScala.toSet
     new SchedulerXSettings(
       sc.getString("namespace"),
       sc.getString("groupId"),
       sc.getString("endpoint"),
       name,
-      host,
+      hostname,
       port,
       seedNodes,
       roles,
-      WorkerSettings(swc.getDuration("healthInterval").toScala),
-      ConfigFactory.parseString(s"""
-             |akka.cluster.seed-nodes = ${seedNodes.mkString("[\"", "\", \"", "\"]")}
-             |""".stripMargin).withFallback(c))
+      WorkerSettings(
+        swc.getInt("jobMaxConcurrent"),
+        swc.getDuration("healthInterval").toScala,
+        swc.getDuration("registerDelay").toScala,
+        swc.getDuration("registerDelayMax").toScala,
+        swc.getDouble("registerDelayFactor"),
+        swc.getBoolean("runOnce"),
+        if (swc.hasPath("runJobWorkerActor")) Some(swc.getString("runJobWorkerActor")) else None,
+        if (swc.hasPath("runDir")) Some(swc.getString("runDir")) else None))
   }
 }

@@ -14,24 +14,22 @@
  * limitations under the License.
  */
 
-package fusion.core.extension
+package fusion.common.extension
 
 import akka.actor.ExtendedActorSystem
-import akka.actor.typed.ActorSystem
-import akka.actor.typed.Extension
-import akka.actor.typed.ExtensionId
-import fusion.core.FusionProtocol
+import akka.actor.typed.scaladsl.adapter._
+import akka.actor.typed.{ ActorSystem, Extension, ExtensionId }
+import fusion.common.FusionProtocol
 import helloscala.common.Configuration
-
 // #FusionExtension
 trait FusionExtension extends Extension {
   val system: ActorSystem[_]
 
-  def fusionSystem: ActorSystem[FusionProtocol.Command] = FusionCore(system).fusionSystem
+  def fusionSystem: ActorSystem[FusionProtocol.Command] = system.asInstanceOf[ActorSystem[FusionProtocol.Command]]
 
-  def classicSystem: ExtendedActorSystem = FusionCore(system).classicSystem
+  def classicSystem: ExtendedActorSystem = system.toClassic.asInstanceOf[ExtendedActorSystem]
 
-  def configuration: Configuration = FusionCore(system).configuration
+  def configuration: Configuration = Configuration(system.settings.config)
 }
 // #FusionExtension
 

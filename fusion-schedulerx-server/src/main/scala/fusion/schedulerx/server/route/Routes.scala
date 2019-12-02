@@ -14,14 +14,16 @@
  * limitations under the License.
  */
 
-package fusion.schedulerx.protocol.broker
+package fusion.schedulerx.server.route
 
-import akka.actor.typed.receptionist.ServiceKey
-import akka.cluster.sharding.typed.scaladsl.EntityTypeKey
+import akka.http.scaladsl.model.StatusCodes
+import akka.http.scaladsl.server.Directives._
+import akka.http.scaladsl.server.Route
+import com.typesafe.scalalogging.StrictLogging
+import fusion.schedulerx.server.SchedulerXBroker
 
-object BrokerProtocol {
-//  val ProxyKey: ServiceKey[BrokerCommand] = ServiceKey("BrokerProxy")
-  type Command = BrokerCommand
-  val BrokerKey: ServiceKey[BrokerCommand] = ServiceKey("BrokerGuardian")
-  val TypeKey: EntityTypeKey[BrokerCommand] = EntityTypeKey("Broker")
+class Routes(schedulerXBroker: SchedulerXBroker) extends StrictLogging {
+  def route: Route = path("openapi") {
+    complete(StatusCodes.NotImplemented)
+  }
 }

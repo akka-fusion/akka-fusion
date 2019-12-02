@@ -14,20 +14,14 @@
  * limitations under the License.
  */
 
-package fusion.schedulerx.protocol.broker
+package fusion.schedulerx.server.protocol
 
 import akka.actor.typed.ActorRef
-import fusion.json.jackson.CborSerializable
-import fusion.schedulerx.protocol.worker.WorkerCommand
+import fusion.schedulerx.protocol.Broker
+import fusion.schedulerx.server.model.JobEntity
 
-trait BrokerCommand
+trait Command
 
-trait BrokerCommandNS extends BrokerCommand with CborSerializable {
-  val namespace: String
-}
-
-case class RegisterWorker(counter: Long, namespace: String, workerId: String, worker: ActorRef[WorkerCommand])
-    extends BrokerCommandNS
-
-case class WorkerStatus(counter: Long, namespace: String, status: WorkerServiceStatus, worker: ActorRef[WorkerCommand])
-    extends BrokerCommandNS
+case class TriggerJob(workerId: Option[String], jobEntity: JobEntity, replyTo: ActorRef[BrokerReply])
+    extends Command
+    with Broker.Command

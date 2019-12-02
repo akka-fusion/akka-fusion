@@ -18,31 +18,22 @@ package fusion.schedulerx.worker.job.internal
 
 import java.time.OffsetDateTime
 
+import akka.actor.typed.ActorSystem
+import fusion.common.FusionProtocol
 import fusion.schedulerx.job.ProcessResult
 import fusion.schedulerx.protocol.JobType
-import fusion.schedulerx.worker.SchedulerXWorker
-import fusion.schedulerx.worker.job.{ JobInstanceData, WorkerJobContext }
+import fusion.schedulerx.worker.job.{ TaskInstanceResult, WorkerJobContext }
 
-class WorkerJobContextImpl(override val worker: SchedulerXWorker) extends WorkerJobContext {
-  override def jobUpstreamData: Seq[JobInstanceData] = ???
-
-  override def taskName: String = ???
-
-  override def taskId: Int = ???
-
-  override def taskPayload: AnyRef = ???
-
-  override def taskResults: Map[Int, ProcessResult] = ???
-
-  override def jobId: String = ???
-
-  override def jobName: String = ???
-
-  override def jobType: JobType = ???
-
-  override def jobParameters: Map[String, String] = ???
-
-  override def schedulerTime: OffsetDateTime = ???
-
-  override def beginScheduleTime: OffsetDateTime = ???
-}
+case class WorkerJobContextImpl(
+    jobId: String,
+    jobName: String,
+    jobType: JobType,
+    jobParameters: Map[String, String],
+    jobUpstreamData: Seq[TaskInstanceResult],
+    schedulerTime: OffsetDateTime,
+    beginScheduleTime: OffsetDateTime,
+    taskName: String,
+    taskId: Int,
+    taskPayload: AnyRef,
+    taskResults: Map[Int, ProcessResult])(@transient val system: ActorSystem[FusionProtocol.Command])
+    extends WorkerJobContext {}

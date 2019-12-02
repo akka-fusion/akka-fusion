@@ -16,16 +16,17 @@
 
 package fusion.schedulerx.worker.job
 
+import akka.actor.typed.ActorSystem
+import fusion.common.FusionProtocol
 import fusion.schedulerx.job.{ JobContext, ProcessResult }
-import fusion.schedulerx.worker.SchedulerXWorker
 
 import scala.collection.immutable
 
 trait WorkerJobContext extends JobContext {
-  def worker: SchedulerXWorker
+  def system: ActorSystem[FusionProtocol.Command]
 
   // 上游传过来的数据，因为可能会有多个上游，所有这里返回一个列表
-  def jobUpstreamData: immutable.Seq[JobInstanceData]
+  def jobUpstreamData: immutable.Seq[TaskInstanceResult]
 
   // 任务名
   def taskName: String

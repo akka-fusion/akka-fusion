@@ -161,7 +161,7 @@ lazy val fusionSchedulerxFunctest = _project("fusion-schedulerx-functest")
 
 lazy val fusionSchedulerxServer = _project("fusion-schedulerx-server")
   .enablePlugins(AkkaGrpcPlugin, JavaAgent)
-  .dependsOn(fusionSchedulerxWorker, fusionSchedulerxCommon, fusionTestkit % "test->test")
+  .dependsOn(fusionSchedulerxWorker, fusionSchedulerxCommon, fusionJdbc, fusionTestkit % "test->test")
   .settings(Publishing.noPublish)
   .settings(
     javaAgents += _alpnAgent % "runtime;test",
@@ -184,12 +184,12 @@ lazy val fusionSchedulerxWorker = _project("fusion-schedulerx-worker")
 
 lazy val fusionSchedulerxCommon = _project("fusion-schedulerx-common")
   .dependsOn(fusionTestkit % "test->test", fusionCommon)
-  .settings(
-    libraryDependencies ++= Seq(
-        _h2,
-        _akkaSerializationJackson,
-        "com.typesafe.akka" %% "akka-cluster-typed" % versionAkka,
-        "com.typesafe.akka" %% "akka-cluster-sharding-typed" % versionAkka))
+  .settings(libraryDependencies ++= Seq(
+      _h2,
+      _akkaSerializationJackson,
+      "com.typesafe.akka" %% "akka-cluster-typed" % versionAkka,
+      "com.typesafe.akka" %% "akka-cluster-sharding-typed" % versionAkka,
+      _oshiCore))
 
 lazy val fusionJob = _project("fusion-job")
   .dependsOn(fusionJdbc, fusionTestkit % "test->test", fusionCore)
@@ -275,7 +275,7 @@ lazy val fusionMybatis = _project("fusion-mybatis")
   .settings(libraryDependencies ++= Seq(_mybatisPlus, _lombok % Provided, _postgresql % Test, _mysql % Test))
 
 lazy val fusionJdbc = _project("fusion-jdbc")
-  .dependsOn(fusionTestkit % "test->test", fusionCore)
+  .dependsOn(fusionTestkit % "test->test", fusionCommon)
   .settings(libraryDependencies ++= Seq(_hikariCP, _postgresql % Test, _mysql % Test))
 
 lazy val fusionDoc =
@@ -322,29 +322,29 @@ lazy val fusionProtobufV3 = _project("fusion-protobuf-v3")
 
 lazy val fusionCommon = _project("fusion-common")
   .dependsOn(helloscalaCommon)
-  .enablePlugins(BuildInfoPlugin)
+  //  .enablePlugins(BuildInfoPlugin)
   .settings(Publishing.publishing: _*)
   .settings(
-    buildInfoKeys := Seq[BuildInfoKey](
-        startYear,
-        organization,
-        organizationName,
-        organizationHomepage,
-        scalacOptions,
-        javacOptions,
-        version,
-        scalaVersion,
-        sbtVersion,
-        sbtBinaryVersion,
-        git.gitCurrentTags,
-        git.gitDescribedVersion,
-        git.gitCurrentBranch,
-        git.gitHeadCommit,
-        git.gitHeadCommitDate),
-    buildInfoOptions += BuildInfoOption.BuildTime,
-    buildInfoPackage := "fusion.version",
-    buildInfoObject := "Version",
-    libraryDependencies ++= Seq(_scalatest % Test) ++ _akkas)
+//    buildInfoKeys := Seq[BuildInfoKey](
+//        startYear,
+//        organization,
+//        organizationName,
+//        organizationHomepage,
+//        scalacOptions,
+//        javacOptions,
+//        version,
+//        scalaVersion,
+//        sbtVersion,
+//        sbtBinaryVersion,
+//        git.gitCurrentTags,
+//        git.gitDescribedVersion,
+//        git.gitCurrentBranch,
+//        git.gitHeadCommit,
+//        git.gitHeadCommitDate),
+//    buildInfoOptions += BuildInfoOption.BuildTime,
+//    buildInfoPackage := "fusion.version",
+//    buildInfoObject := "Version",
+    libraryDependencies ++= Seq(_akkaTypedTestkit % Test, _scalatest % Test) ++ _akkas)
 
 lazy val helloscalaCommon = _project("helloscala-common")
   .settings(Publishing.publishing: _*)

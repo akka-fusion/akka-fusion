@@ -16,19 +16,17 @@
 
 package fusion.schedulerx.job
 
+import java.time.OffsetDateTime
+
 /**
  *
  * @param status 复用HTTP状态码，返回200代码处理成功
  * @param result 处理结果
  */
-final class ProcessResult(val status: Int, val result: String) {
-  def this(result: String) {
-    this(200, result)
-  }
-}
+final class ProcessResult(val status: Int, val result: String, completeTime: OffsetDateTime)
 
 object ProcessResult {
-  val Empty = apply(-1, "")
-  def apply(status: Int, result: String): ProcessResult = new ProcessResult(status, result)
-  def ok(result: String): ProcessResult = new ProcessResult(result)
+  val Empty = new ProcessResult(-1, "", OffsetDateTime.MIN)
+  def apply(status: Int, result: String): ProcessResult = new ProcessResult(status, result, OffsetDateTime.now())
+  def ok(result: String): ProcessResult = apply(200, result)
 }

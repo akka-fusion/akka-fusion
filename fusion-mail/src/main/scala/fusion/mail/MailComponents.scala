@@ -19,7 +19,7 @@ package fusion.mail
 import java.util.Properties
 
 import akka.Done
-import fusion.core.component.Components
+import fusion.common.component.Components
 import fusion.mail.constant.MailConstants
 import helloscala.common.Configuration
 

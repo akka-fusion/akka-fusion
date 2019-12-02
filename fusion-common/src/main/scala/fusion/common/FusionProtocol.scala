@@ -14,13 +14,10 @@
  * limitations under the License.
  */
 
-package fusion.core
+package fusion.common
 
-import akka.actor.typed.ActorRef
-import akka.actor.typed.Behavior
-import akka.actor.typed.Props
-import akka.actor.typed.scaladsl.ActorContext
-import akka.actor.typed.scaladsl.Behaviors
+import akka.actor.typed.{ ActorRef, Behavior, Props }
+import akka.actor.typed.scaladsl.{ ActorContext, Behaviors }
 
 import scala.annotation.tailrec
 

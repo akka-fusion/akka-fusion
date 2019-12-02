@@ -18,22 +18,45 @@ package fusion.schedulerx.protocol
 
 import helloscala.common.util.{ EnumTrait, EnumTraitCompanion }
 
-sealed trait JobType extends EnumTrait
+sealed trait JobType extends EnumTrait {
+  def program: String
+  def ext: String
+}
 
 object JobType extends EnumTraitCompanion {
   case object UNKNOWN extends JobType {
+    override def program: String = ""
+
+    override def ext: String = ""
+
     override def companion: JobType.type = JobType
   }
   case object JAVA extends JobType {
+    override def ext: String = "java"
+
+    override def program: String = "java"
+
     override def companion: JobType.type = JobType
   }
   case object SHELL extends JobType {
+    override def ext: String = "sh"
+
+    override def program: String = "sh"
+
     override def companion: JobType.type = JobType
   }
   case object PYTHON extends JobType {
+    override def ext: String = "py"
+
+    override def program: String = "python"
+
     override def companion: JobType.type = JobType
   }
   case object GO extends JobType {
+    override def ext: String = "go"
+
+    override def program: String = "go"
+
     override def companion: JobType.type = JobType
   }
 }

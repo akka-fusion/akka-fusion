@@ -19,17 +19,12 @@ package fusion.http.gateway.server
 import java.util.concurrent.atomic.AtomicInteger
 
 import akka.actor.typed.ActorSystem
-import akka.discovery.Discovery
-import akka.discovery.ServiceDiscovery
+import akka.discovery.{ Discovery, ServiceDiscovery }
 import akka.discovery.ServiceDiscovery.ResolvedTarget
-import akka.http.scaladsl.model.HttpProtocol
-import akka.http.scaladsl.model.HttpProtocols
-import akka.http.scaladsl.model.Uri
+import akka.http.scaladsl.model.{ HttpProtocol, HttpProtocols, Uri }
 import akka.http.scaladsl.model.headers.`Timeout-Access`
 import akka.pattern.CircuitBreaker
-import com.typesafe.config.ConfigFactory
-import com.typesafe.config.ConfigMemorySize
-import fusion.core.extension.FusionCore
+import com.typesafe.config.{ ConfigFactory, ConfigMemorySize }
 import fusion.core.setting.CircuitBreakerSetting
 import helloscala.common.Configuration
 import helloscala.common.util.AsInt
@@ -78,7 +73,7 @@ final case class GatewayLocation(
 final class GatewaySetting(system: ActorSystem[_], prefix: String) {
   import akka.actor.typed.scaladsl.adapter._
 
-  private val configuration = FusionCore(system).configuration
+  private val configuration = Configuration(system.settings.config)
   private var _upstreams: immutable.Seq[GatewayUpstream] = _
   private var _locations: immutable.Seq[GatewayLocation] = _
   private var _defaultTimeout: FiniteDuration = _

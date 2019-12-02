@@ -17,8 +17,7 @@
 package fusion.http.gateway.server
 
 import akka.actor.typed.ActorSystem
-import fusion.core.extension.FusionExtension
-import fusion.core.extension.FusionExtensionId
+import fusion.common.extension.{ FusionExtension, FusionExtensionId }
 
 class FusionHttpGateway private (override val system: ActorSystem[_]) extends FusionExtension {
   val components = new HttpGatewayComponents(system)

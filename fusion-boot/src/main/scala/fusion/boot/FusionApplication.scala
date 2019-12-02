@@ -19,7 +19,7 @@ package fusion.boot
 import akka.actor.typed.ActorSystem
 import akka.actor.typed.Behavior
 import com.typesafe.config.Config
-import fusion.core.FusionProtocol
+import fusion.common.FusionProtocol
 import fusion.core.util.FusionUtils
 import helloscala.common.Configuration
 

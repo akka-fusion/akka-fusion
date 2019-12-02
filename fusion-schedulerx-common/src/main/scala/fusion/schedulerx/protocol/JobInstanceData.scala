@@ -14,11 +14,22 @@
  * limitations under the License.
  */
 
-package fusion.schedulerx.protocol.worker
+package fusion.schedulerx.protocol
 
-import akka.cluster.sharding.typed.scaladsl.EntityTypeKey
+import java.time.OffsetDateTime
 
-object WorkerProtocol {
-  type Command = WorkerCommand
-  val TypeKey: EntityTypeKey[WorkerCommand] = EntityTypeKey("Worker")
-}
+import scala.concurrent.duration._
+
+// Job实例数据
+case class JobInstanceData(
+    jobId: String,
+    instanceId: String,
+    name: String,
+    `type`: JobType,
+    schedulerTime: OffsetDateTime,
+    jarUrl: Option[String] = None,
+    mainClass: Option[String] = None,
+    codeContent: Option[String] = None,
+    timeout: FiniteDuration = 2.hours,
+    startTime: Option[OffsetDateTime] = None,
+    endTime: Option[OffsetDateTime] = None)

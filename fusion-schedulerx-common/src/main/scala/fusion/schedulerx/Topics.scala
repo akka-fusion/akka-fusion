@@ -17,5 +17,5 @@
 package fusion.schedulerx
 
 object Topics {
-  val WORKER_STARTUP = "worker_startup"
+  val REGISTER_WORKER = "register_worker"
 }

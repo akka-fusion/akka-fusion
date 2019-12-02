@@ -23,24 +23,54 @@ import akka.actor.typed.ActorSystem
 import akka.actor.typed.scaladsl.adapter._
 import akka.{ actor => classic }
 import com.typesafe.config.Config
+import fusion.common.FusionProtocol
+import fusion.schedulerx.protocol.ServerStatus
 import helloscala.common.util.DigestUtils
+import oshi.SystemInfo
+
 class SchedulerX private (
     val schedulerXSettings: SchedulerXSettings,
-    val system: ActorSystem[SchedulerXGuardian.Command]) {
+    val config: Config,
+    val system: ActorSystem[FusionProtocol.Command]) {
   def classicSystem: classic.ActorSystem = system.toClassic
 }
 
 object SchedulerX {
+  private val systemInfo = new SystemInfo()
+  private val hal = systemInfo.getHardware
+  private val os = systemInfo.getOperatingSystem
   private val _counter = new AtomicLong(0)
   def counter(): Long = _counter.getAndIncrement()
 
   @inline def getWorkerId(address: Address): String = DigestUtils.sha1Hex(address.hostPort)
 
-  def apply(originalConfig: Config): SchedulerX = apply(SchedulerXSettings(originalConfig))
+  def fromOriginalConfig(originalConfig: Config): SchedulerX = {
+    val config = SchedulerXConfigFactory.arrangeConfig(originalConfig)
+    val settings = SchedulerXSettings(originalConfig)
+    apply(settings, config)
+  }
 
-  def apply(schedulerXSettings: SchedulerXSettings): SchedulerX = {
-    new SchedulerX(
-      schedulerXSettings,
-      ActorSystem(SchedulerXGuardian(), schedulerXSettings.name, schedulerXSettings.config))
+  def apply(schedulerXSettings: SchedulerXSettings, config: Config): SchedulerX = {
+    new SchedulerX(schedulerXSettings, config, ActorSystem(SchedulerXGuardian(), schedulerXSettings.name, config))
+  }
+
+  def serverStatus(): ServerStatus = {
+    val memory = hal.getMemory
+    val fileSystem = os.getFileSystem
+    var totalSpace = 0L
+    var freeSpace = 0L
+    for (fs <- fileSystem.getFileStores) {
+      totalSpace += fs.getTotalSpace
+      freeSpace += fs.getFreeSpace
+    }
+    val loadAverage = hal.getProcessor.getSystemLoadAverage(3)
+    val runtime = Runtime.getRuntime
+    ServerStatus(
+      runtime.availableProcessors(),
+      memory.getTotal,
+      memory.getAvailable,
+      totalSpace,
+      freeSpace,
+      loadAverage)
   }
 }

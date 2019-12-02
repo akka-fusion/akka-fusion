@@ -30,8 +30,7 @@ import com.baomidou.mybatisplus.extension.incrementer.H2KeyGenerator
 import com.baomidou.mybatisplus.extension.incrementer.OracleKeyGenerator
 import com.baomidou.mybatisplus.extension.incrementer.PostgreKeyGenerator
 import com.typesafe.scalalogging.StrictLogging
-import fusion.core.component.Components
-import fusion.core.extension.FusionCore
+import fusion.common.component.Components
 import fusion.jdbc.FusionJdbc
 import fusion.mybatis.constant.MybatisConstants
 import helloscala.common.Configuration
@@ -48,7 +47,7 @@ import scala.util.Success
 class MybatisComponents(system: ActorSystem[_])
     extends Components[FusionSqlSessionFactory](MybatisConstants.PATH_DEFAULT)
     with StrictLogging {
-  def configuration: Configuration = FusionCore(system).configuration
+  def configuration: Configuration = Configuration(system.settings.config)
 
   override protected def createComponent(id: String): FusionSqlSessionFactory = {
     val c =

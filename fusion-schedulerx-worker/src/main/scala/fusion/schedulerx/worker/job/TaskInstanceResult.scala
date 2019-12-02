@@ -14,14 +14,6 @@
  * limitations under the License.
  */
 
-package fusion.schedulerx.protocol.broker
+package fusion.schedulerx.worker.job
 
-import akka.actor.typed.receptionist.ServiceKey
-import akka.cluster.sharding.typed.scaladsl.EntityTypeKey
-
-object BrokerProtocol {
-//  val ProxyKey: ServiceKey[BrokerCommand] = ServiceKey("BrokerProxy")
-  type Command = BrokerCommand
-  val BrokerKey: ServiceKey[BrokerCommand] = ServiceKey("BrokerGuardian")
-  val TypeKey: EntityTypeKey[BrokerCommand] = EntityTypeKey("Broker")
-}
+case class TaskInstanceResult()

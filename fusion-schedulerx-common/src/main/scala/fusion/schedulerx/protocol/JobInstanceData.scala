@@ -20,12 +20,16 @@ import java.time.OffsetDateTime
 
 import scala.concurrent.duration._
 
-case class JobInfoData(
-    id: String,
+// Job实例数据
+case class JobInstanceData(
+    jobId: String,
+    instanceId: String,
     name: String,
     `type`: JobType,
     schedulerTime: OffsetDateTime,
     jarUrl: Option[String] = None,
     mainClass: Option[String] = None,
     codeContent: Option[String] = None,
-    timeout: FiniteDuration = 2.hours)
+    timeout: FiniteDuration = 2.hours,
+    startTime: Option[OffsetDateTime] = None,
+    endTime: Option[OffsetDateTime] = None)

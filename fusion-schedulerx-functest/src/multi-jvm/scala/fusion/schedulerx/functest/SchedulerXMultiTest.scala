@@ -44,7 +44,7 @@ object SchedulerXMultiTestConfig extends MultiNodeConfig {
 }
 
 abstract class SchedulerXMultiTest
-    extends SchudulerXMultiNodeSpec(SchedulerXMultiTestConfig, config => SchedulerX(config))
+    extends SchudulerXMultiNodeSpec(SchedulerXMultiTestConfig, config => SchedulerX.fromOriginalConfig(config))
     with STMultiNodeSpec {
   import SchedulerXMultiTestConfig._
 

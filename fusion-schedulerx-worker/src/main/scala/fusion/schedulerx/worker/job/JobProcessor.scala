@@ -19,33 +19,37 @@ package fusion.schedulerx.worker.job
 import fusion.schedulerx.job.ProcessResult
 
 trait JobProcessor {
+  def preStart(context: WorkerJobContext): Unit = {}
+
   @throws[Exception]
-  def processor(context: WorkerJobContext): ProcessResult
+  def execute(context: WorkerJobContext): ProcessResult
 
-  def preProcess(context: WorkerJobContext): Unit = {}
-
-  def postProcess(context: WorkerJobContext): ProcessResult = ProcessResult.Empty
+  def postStop(context: WorkerJobContext): ProcessResult = ProcessResult.Empty
 
   /**
-   * 被前端强制杀死时执行，之后仍正常调用 postProcess
+   * 被前端强制杀死时执行，之后仍正常调用 postStop
    */
   def onKill(context: WorkerJobContext): Unit = {}
 }
 
 trait MapJobProcessor extends JobProcessor {
-  override def processor(context: WorkerJobContext): ProcessResult = {
+  override def execute(context: WorkerJobContext): ProcessResult = {
     if (context.isRootTask) {
-      rootProcess(context)
+      mainTaskExecute(context)
     } else {
-      normalProcess(context)
+      subTaskExecute(context)
     }
   }
 
   @throws[Exception]
-  def rootProcess(context: WorkerJobContext): ProcessResult
+  def mainTaskExecute(context: WorkerJobContext): ProcessResult
 
   @throws[Exception]
-  def normalProcess(context: WorkerJobContext): ProcessResult
+  def subTaskExecute(context: WorkerJobContext): ProcessResult
+
+  def preStartAll(context: WorkerJobContext): Unit = {}
+
+  def postStopAll(context: WorkerJobContext): ProcessResult = ProcessResult.Empty
 
   /**
    *

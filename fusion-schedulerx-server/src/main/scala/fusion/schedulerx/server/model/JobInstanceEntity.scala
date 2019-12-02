@@ -14,8 +14,18 @@
  * limitations under the License.
  */
 
-package fusion.schedulerx.protocol.broker
+package fusion.schedulerx.server.model
 
-import akka.actor.Address
+import java.time.OffsetDateTime
 
-case class WorkerServiceStatus(namespace: String, workerId: String, address: Address)
+case class JobInstanceEntity(
+    instanceId: String,
+    jobId: String,
+    workerId: String,
+    // 计划执行时间
+    schedulerTime: OffsetDateTime,
+    // 实际开始时间
+    startTime: Option[OffsetDateTime],
+    // 结束时间
+    endTime: Option[OffsetDateTime],
+    status: Int)

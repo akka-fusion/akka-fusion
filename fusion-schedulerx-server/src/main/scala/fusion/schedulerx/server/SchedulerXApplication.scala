@@ -26,15 +26,15 @@ import fusion.schedulerx.server.route.Routes
 
 object SchedulerXApplication {
   def main(args: Array[String]): Unit = {
-    val schedulerX = SchedulerX(ConfigFactory.load())
-    val schedulerXBroker = SchedulerXBroker(schedulerX)
-    startHttp(schedulerXBroker)(schedulerX.system.toClassic)
+    val schedulerX = SchedulerX.fromOriginalConfig(ConfigFactory.load())
+    startHttp(schedulerX)(schedulerX.system.toClassic)
   }
 
-  private def startHttp(schedulerXBroker: SchedulerXBroker)(implicit system: classic.ActorSystem): Unit = {
+  private def startHttp(schedulerX: SchedulerX)(implicit system: classic.ActorSystem): Unit = {
+    val schedulerXBroker = SchedulerXBroker(schedulerX)
     val route: Route = new Routes(schedulerXBroker).route
     val brokerSettings = schedulerXBroker.brokerSettings
-    val config = schedulerXBroker.settings.config
+    val config = schedulerX.config
     Http().bindAndHandle(
       route,
       config.getString("fusion.http.default.server.host"),

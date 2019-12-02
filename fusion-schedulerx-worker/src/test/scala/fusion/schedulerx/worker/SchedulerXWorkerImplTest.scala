@@ -17,15 +17,17 @@
 package fusion.schedulerx.worker
 
 import akka.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
-import fusion.schedulerx.{ NodeRoles, SchedulerXSettings }
+import com.typesafe.config.ConfigFactory
+import fusion.schedulerx.{ NodeRoles, SchedulerXConfigFactory, SchedulerXSettings }
 import org.scalatest.WordSpecLike
 
-class SchedulerXWorkerTest extends ScalaTestWithActorTestKit with WordSpecLike {
+class SchedulerXWorkerImplTest extends ScalaTestWithActorTestKit with WordSpecLike {
   "SchedulerXWorker" must {
     "settings" in {
-      val settings = SchedulerXSettings()
+      val config = SchedulerXConfigFactory.arrangeConfig(ConfigFactory.load())
+      val settings = SchedulerXSettings(config)
       settings.name should be("schedulerx")
-      settings.config.getStringList("akka.cluster.roles") should contain(NodeRoles.WORKER)
+      config.getStringList("akka.cluster.roles") should contain(NodeRoles.WORKER)
       settings.isBroker should be(false)
       settings.isWorker should be(true)
     }

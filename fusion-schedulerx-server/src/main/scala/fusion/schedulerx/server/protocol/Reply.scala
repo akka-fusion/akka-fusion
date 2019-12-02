@@ -14,17 +14,8 @@
  * limitations under the License.
  */
 
-package fusion.schedulerx.server
+package fusion.schedulerx.server.protocol
 
-import com.typesafe.config.Config
-import fusion.json.jackson.CborSerializable
-import fusion.schedulerx.{ Constants, SchedulerXSettings }
+trait Reply
 
-case class BrokerSettings() extends CborSerializable
-
-object BrokerSettings {
-  def apply(settings: SchedulerXSettings, config: Config): BrokerSettings = {
-    val c = config.getConfig(s"${Constants.SCHEDULERX}.broker")
-    new BrokerSettings()
-  }
-}
+case class BrokerReply(status: Int, message: String, data: Option[AnyRef] = None) extends Reply

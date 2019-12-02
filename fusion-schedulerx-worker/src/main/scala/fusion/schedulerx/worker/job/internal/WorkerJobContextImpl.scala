@@ -22,14 +22,14 @@ import akka.actor.typed.ActorSystem
 import fusion.common.FusionProtocol
 import fusion.schedulerx.job.ProcessResult
 import fusion.schedulerx.protocol.JobType
-import fusion.schedulerx.worker.job.{ JobInstanceData, WorkerJobContext }
+import fusion.schedulerx.worker.job.{ TaskInstanceResult, WorkerJobContext }
 
 case class WorkerJobContextImpl(
     jobId: String,
     jobName: String,
     jobType: JobType,
     jobParameters: Map[String, String],
-    jobUpstreamData: Seq[JobInstanceData],
+    jobUpstreamData: Seq[TaskInstanceResult],
     schedulerTime: OffsetDateTime,
     beginScheduleTime: OffsetDateTime,
     taskName: String,

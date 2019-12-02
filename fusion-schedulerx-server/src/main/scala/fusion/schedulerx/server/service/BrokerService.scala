@@ -18,6 +18,6 @@ package fusion.schedulerx.server.service
 
 import akka.actor.typed.ActorRef
 import akka.cluster.sharding.typed.ShardingEnvelope
-import fusion.schedulerx.protocol.broker.BrokerCommand
+import fusion.schedulerx.protocol.Broker
 
-class BrokerService(brokerRegion: ActorRef[ShardingEnvelope[BrokerCommand]]) {}
+class BrokerService(brokerRegion: ActorRef[ShardingEnvelope[Broker.Command]]) {}

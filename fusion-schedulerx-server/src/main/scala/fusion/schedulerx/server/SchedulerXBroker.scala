@@ -18,22 +18,27 @@ package fusion.schedulerx.server
 
 import java.util.concurrent.TimeoutException
 
-import akka.actor.typed.ActorSystem
+import akka.actor.typed.{ ActorSystem, SupervisorStrategy }
+import akka.actor.typed.scaladsl.Behaviors
 import akka.cluster.sharding.typed.ShardingEnvelope
 import akka.cluster.sharding.typed.scaladsl.{ ClusterSharding, Entity }
 import com.typesafe.config.{ Config, ConfigFactory }
 import fusion.common.FusionProtocol
 import fusion.schedulerx._
-import fusion.schedulerx.protocol.broker.BrokerProtocol
+import fusion.schedulerx.protocol.Broker
 import fusion.schedulerx.server.repository.BrokerRepository
 import fusion.schedulerx.server.service.BrokerService
 
 class SchedulerXBroker(schedulerX: SchedulerX) {
   implicit val system: ActorSystem[FusionProtocol.Command] = schedulerX.system
   private val sharding = ClusterSharding(system)
-  val brokerSettings: BrokerSettings = BrokerSettings(settings)
-  private val brokerRegion = sharding.init(Entity(BrokerProtocol.TypeKey)(entityContext =>
-    server.Broker(entityContext.entityId, brokerSettings, settings)).withRole(NodeRoles.BROKER))
+  val brokerSettings: BrokerSettings = BrokerSettings(settings, schedulerX.config)
+  private val brokerRegion = sharding.init(
+    Entity(Broker.TypeKey)(
+      entityContext =>
+        Behaviors
+          .supervise(BrokerImpl(entityContext.entityId, brokerSettings, settings))
+          .onFailure[Exception](SupervisorStrategy.resume)).withRole(NodeRoles.BROKER))
   private var _brokerIds: Set[String] = Set()
 
   val brokerService = new BrokerService(brokerRegion)
@@ -44,11 +49,10 @@ class SchedulerXBroker(schedulerX: SchedulerX) {
 
   @throws[TimeoutException]
   def start(): SchedulerXBroker = {
-    val brokerRepository = new BrokerRepository(system)
-    _brokerIds = brokerRepository
+    _brokerIds = BrokerRepository(system)
       .listBroker()
       .map { broker =>
-        brokerRegion ! ShardingEnvelope(broker.namespace, Broker.InitParameters(broker.namespace, broker))
+        brokerRegion ! ShardingEnvelope(broker.namespace, BrokerImpl.InitParameters(broker.namespace, broker))
         broker.namespace
       }
       .toSet
@@ -59,6 +63,4 @@ class SchedulerXBroker(schedulerX: SchedulerX) {
 
 object SchedulerXBroker {
   def apply(schedulerX: SchedulerX): SchedulerXBroker = new SchedulerXBroker(schedulerX)
-  def apply(config: Config): SchedulerXBroker = apply(SchedulerX(config))
-  def apply(): SchedulerXBroker = apply(ConfigFactory.load())
 }

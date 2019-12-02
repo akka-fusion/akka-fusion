@@ -16,55 +16,64 @@
 
 package fusion.schedulerx.worker.job
 
-import java.nio.file.Files
+import java.nio.charset.StandardCharsets
+import java.nio.file.{ Files, Path }
 import java.time.OffsetDateTime
 
 import akka.NotUsed
+import akka.actor.typed._
 import akka.actor.typed.scaladsl.{ ActorContext, Behaviors, TimerScheduler }
-import akka.actor.typed.{ ActorRef, ActorSystem, Behavior, DispatcherSelector }
 import akka.http.scaladsl.Http
-import akka.http.scaladsl.model.HttpRequest
+import akka.http.scaladsl.model.{ HttpRequest, StatusCodes }
+import akka.serialization.jackson.JacksonObjectMapperProvider
 import akka.stream.scaladsl.{ FileIO, Source }
 import akka.util.ByteString
+import com.typesafe.config.ConfigFactory
 import fusion.common.FusionProtocol
-import fusion.schedulerx.Constants
+import fusion.json.jackson.Jackson
 import fusion.schedulerx.job.ProcessResult
-import fusion.schedulerx.protocol.worker.{ WorkerCommand, WorkerJobResult }
-import fusion.schedulerx.protocol.{ JobInfoData, JobType }
+import fusion.schedulerx.protocol.{ JobInstanceData, JobType, Worker }
+import fusion.schedulerx.worker.WorkerImpl
 import fusion.schedulerx.worker.job.internal.WorkerJobContextImpl
+import fusion.schedulerx.{ Constants, FileUtils, SchedulerXSettings }
 
 import scala.concurrent.{ ExecutionContext, Future }
 import scala.util.{ Failure, Success, Try }
 
 object JobInstance {
-  sealed trait JobCommand extends WorkerCommand
+  sealed trait JobCommand extends Worker.Command
 
   private case class JobResult(result: Try[ProcessResult]) extends JobCommand
   private case object JobTimeout extends JobCommand
 
-  def apply(worker: ActorRef[WorkerCommand], jobInfo: JobInfoData): Behavior[JobCommand] =
+  def apply(worker: ActorRef[Worker.Command], instanceData: JobInstanceData): Behavior[JobCommand] =
     Behaviors.setup(context =>
-      Behaviors.withTimers(timers => new JobInstance(worker, jobInfo, timers, context).runJob(context.system)))
+      Behaviors.withTimers(timers => new JobInstance(worker, instanceData, timers, context).runJob(context.system)))
 }
 
 import fusion.schedulerx.worker.job.JobInstance._
 class JobInstance private (
-    worker: ActorRef[WorkerCommand],
-    jobInfo: JobInfoData,
+    worker: ActorRef[Worker.Command],
+    instanceData: JobInstanceData,
     timers: TimerScheduler[JobCommand],
     context: ActorContext[JobCommand]) {
-  timers.startSingleTimer(JobTimeout, JobTimeout, jobInfo.timeout)
+  private val settings = SchedulerXSettings(context.system.settings.config)
+  private val runDir = FileUtils.createWorkerRunDirectory(instanceData.instanceId)
+  timers.startSingleTimer(JobTimeout, JobTimeout, instanceData.timeout)
 
   def receive(): Behavior[JobCommand] = Behaviors.receiveMessage {
     case JobTimeout =>
-      worker ! WorkerJobResult(ProcessResult(503, "Timeout"))
+      val result = ProcessResult(StatusCodes.InternalServerError.intValue, "Timeout")
+      worker ! WorkerImpl.JobInstanceResult(instanceData.instanceId, result, context.self)
+      resultWriteToDir(result)
       Behaviors.stopped
     case JobResult(value) =>
       val result = value match {
         case Success(v)         => v
         case Failure(exception) => ProcessResult(500, exception.toString)
       }
-      worker ! WorkerJobResult(result)
+      worker ! WorkerImpl.JobInstanceResult(instanceData.instanceId, result, context.self)
+      resultWriteToDir(result)
       Behaviors.stopped
   }
 
@@ -72,33 +81,49 @@ class JobInstance private (
     implicit val ec = system.dispatchers.lookup(DispatcherSelector.fromConfig(Constants.Dispatcher.WORKER_BLOCK))
 
     val jobContext = createJobContext()
-    val future: Future[ProcessResult] = jobContext.jobType match {
-      case JobType.JAVA => jobInfo.jarUrl.map(runJarJob(_, jobContext)).getOrElse(runClassJob(jobContext))
-      case _            => runShellJob()
+    var future: Future[ProcessResult] = null
+    jobContext.jobType match {
+      case JobType.JAVA =>
+        if (settings.worker.runOnce) {
+          future = runClassJob(runDir, jobContext)
+        } else
+          instanceData.jarUrl match {
+            case Some(jarUrl) =>
+              runJarJob(runDir, jarUrl, jobContext).onComplete {
+                case Success(result) if result.status == 200 => // do nothing
+                case value                                   => context.self ! JobResult(value)
+              }
+            case None => future = runClassJob(runDir, jobContext)
+          }
+      case _ =>
+        future = runShellJob(runDir)
     }
-    context.pipeToSelf(future)(JobResult)
+    if (null ne future) {
+      context.pipeToSelf(future)(JobResult)
+    }
     receive()
   }
 
-  private def runShellJob()(implicit ec: ExecutionContext): Future[ProcessResult] = {
+  private def runShellJob(runDir: Path)(implicit ec: ExecutionContext): Future[ProcessResult] = {
     implicit val system = context.system
     val codeContent =
-      jobInfo.codeContent.getOrElse(throw new IllegalAccessException(s"${jobInfo.`type`} 任务需要指定 'codeContent'。"))
-    val path = Files.createTempFile("", s".${jobInfo.`type`.ext}")
+      instanceData.codeContent.getOrElse(
+        throw new IllegalAccessException(s"${instanceData.`type`} 任务需要指定 'codeContent'。"))
+    val path = Files.createTempFile("", s".${instanceData.`type`.ext}")
     Source.single(ByteString(codeContent)).runWith(FileIO.toPath(path)).map {
-      case ioResult if ioResult.count > 0L => executeCommand(s"${jobInfo.`type`.program} $path")
-      case _                               => throw new IllegalStateException(s"${jobInfo.`type`} 任务执行失败")
+      case ioResult if ioResult.count > 0L => executeCommand(s"${instanceData.`type`.program} $path")
+      case _                               => throw new IllegalStateException(s"${instanceData.`type`} 任务执行失败")
     }
   }
 
-  private def runJarJob(jarUrl: String, jobContext: WorkerJobContextImpl)(
+  private def runJarJob(runDir: Path, jarUrl: String, jobContext: WorkerJobContextImpl)(
       implicit ec: ExecutionContext): Future[ProcessResult] = {
     import akka.actor.typed.scaladsl.adapter._
     implicit val cs = context.system.toClassic
     try {
-      val mainClass =
-        jobInfo.mainClass.getOrElse(throw new IllegalAccessException("${jobInfo.`type`} 作业需要指定 'mainClass'。"))
-      val path = Files.createTempFile("", ".jar")
+      val configFile = runDir.resolve("application.conf")
+      writeJobInstanceDir(runDir, configFile)
+      val path = runDir.resolve("run-worker.jar")
       Http()
         .singleRequest(HttpRequest(uri = jarUrl))
         .flatMap { resp =>
@@ -109,33 +134,36 @@ class JobInstance private (
           }
         }
         .map { _ =>
-          executeCommand(s"java -jar $path $mainClass")
+          executeCommand(s"java -Dconfig.file=$configFile -jar $path fusion.schedulerx.worker.JobInstanceMain")
         }
     } catch {
       case e: Throwable => Future.failed(e)
     }
   }
 
-  private def runClassJob(jobContext: WorkerJobContextImpl)(implicit ec: ExecutionContext): Future[ProcessResult] = {
+  private def runClassJob(runDir: Path, jobContext: WorkerJobContextImpl)(
+      implicit ec: ExecutionContext): Future[ProcessResult] = {
     try {
-      val mainClass = jobInfo.mainClass.getOrElse(throw new IllegalAccessException("Java作业需要指定 'mainClass'。"))
+      val mainClass =
+        instanceData.mainClass.getOrElse(
+          throw new IllegalAccessException(s"${instanceData.`type`} 作业需要指定 'mainClass'。"))
       val clz = Class.forName(mainClass)
       val system = context.system
-      val tryValue = if (classOf[MapReduceJobProcessor].isAssignableFrom(clz)) {
-        system.dynamicAccess.createInstanceFor[MapReduceJobProcessor](clz, Nil)
-      } else if (classOf[MapJobProcessor].isAssignableFrom(clz)) {
-        system.dynamicAccess.createInstanceFor[MapJobProcessor](clz, Nil)
-      } else {
-        system.dynamicAccess.createInstanceFor[JobProcessor](clz, Nil)
-      }
+      val tryValue =
+        if (classOf[MapReduceJobProcessor].isAssignableFrom(clz))
+          system.dynamicAccess.createInstanceFor[MapReduceJobProcessor](clz, Nil)
+        else if (classOf[MapJobProcessor].isAssignableFrom(clz))
+          system.dynamicAccess.createInstanceFor[MapJobProcessor](clz, Nil)
+        else system.dynamicAccess.createInstanceFor[JobProcessor](clz, Nil)
       val processor = tryValue match {
         case Success(value) => value
         case Failure(e)     => throw e
       }
       Future {
-        processor.preProcess(jobContext)
-        val result = processor.processor(jobContext)
-        processor.postProcess(jobContext) match {
+        // TODO MapJobProcessor 和 MapReduceJobProcessor 怎么执行？
+        processor.preStart(jobContext)
+        val result = processor.execute(jobContext)
+        processor.postStop(jobContext) match {
           case ProcessResult.Empty => result
           case value               => value
         }
@@ -147,12 +175,12 @@ class JobInstance private (
 
   private def createJobContext(): WorkerJobContextImpl = {
     WorkerJobContextImpl(
-      jobInfo.id,
-      jobInfo.name,
-      jobInfo.`type`,
+      instanceData.instanceId,
+      instanceData.name,
+      instanceData.`type`,
       Map(),
       Nil,
-      jobInfo.schedulerTime,
+      instanceData.schedulerTime,
       OffsetDateTime.now(),
       "",
       0,
@@ -165,5 +193,28 @@ class JobInstance private (
     import scala.sys.process._
     val ret = cmd.!
     ProcessResult(if (ret == 0) 200 else ret, "")
+  }
+
+  def resultWriteToDir(result: ProcessResult): Unit = {
+    Files.write(runDir.resolve("result.json"), Jackson.defaultObjectMapper.writeValueAsBytes(result))
+  }
+
+  private def writeJobInstanceDir(runDir: Path, configFile: Path): Unit = {
+    val config = context.system.settings.config
+
+    val workerFormat = ActorRefResolver(context.system).toSerializationFormat(worker)
+
+    val mergeableConfig = ConfigFactory.parseString(s"""worker {
+        |  runOnce = true
+        |  runJobWorkerActor = "$workerFormat"
+        |  runDir = runDir
+        |}
+        |akka.remote.artery.canonical.port = 0
+        |akka.cluster.roles = [worker]
+        |""".stripMargin).withFallback(config.getConfig(Constants.SCHEDULERX))
+
+    val content = s"${Constants.SCHEDULERX} { ${mergeableConfig.root().render()} }"
+    Files.write(configFile, content.getBytes(StandardCharsets.UTF_8))
+    Files.write(runDir.resolve("instance.json"), Jackson.defaultObjectMapper.writeValueAsBytes(instanceData))
   }
 }

@@ -19,7 +19,7 @@ object Dependencies {
   val versionConfig = "1.3.4"
   val versionGuice = "4.2.2"
   val versionNeotypes = "0.13.0"
-  val versionKamon = "2.0.0"
+  val versionKamon = "2.0.1"
   val versionKanela = "1.0.0"
   val versionUuidGenerator = "3.2.0"
   val versionHanlp = "portable-1.7.4"
@@ -235,10 +235,10 @@ object Dependencies {
     .cross(CrossVersion.binary)
     .exclude("org.scala-lang", "scala-library")
 
-  val _kamonSystemMetrics = ("io.kamon" %% "kamon-system-metrics" % versionKamon)
-    .exclude("io.kamon", "kamon-core")
-    .cross(CrossVersion.binary)
-    .exclude("org.scala-lang", "scala-library")
+  val _oshiCore = "com.github.oshi" % "oshi-core" % "4.2.1"
+
+  val _kamonSystemMetrics =
+    ("io.kamon" %% "kamon-system-metrics" % versionKamon).exclude("org.scala-lang", "scala-library")
   val _kamonPrometheus = "io.kamon" %% "kamon-prometheus" % versionKamon
   val _kamonZipkin = "io.kamon" %% "kamon-zipkin" % versionKamon
   val _kamonLogback = "io.kamon" %% "kamon-logback" % versionKamon

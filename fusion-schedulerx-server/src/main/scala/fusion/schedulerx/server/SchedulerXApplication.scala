@@ -33,7 +33,6 @@ object SchedulerXApplication {
   private def startHttp(schedulerX: SchedulerX)(implicit system: classic.ActorSystem): Unit = {
     val schedulerXBroker = SchedulerXBroker(schedulerX)
     val route: Route = new Routes(schedulerXBroker).route
-    val brokerSettings = schedulerXBroker.brokerSettings
     val config = schedulerX.config
     Http().bindAndHandle(
       route,

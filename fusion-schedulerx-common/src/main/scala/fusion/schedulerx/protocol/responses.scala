@@ -16,20 +16,17 @@
 
 package fusion.schedulerx.protocol
 
-import java.time.OffsetDateTime
+import fusion.json.jackson.CborSerializable
 
-import scala.concurrent.duration._
+trait Response extends CborSerializable
 
-// Job实例数据
-case class JobInstanceData(
-    jobId: String,
-    instanceId: String,
-    name: String,
-    `type`: JobType,
-    schedulerTime: OffsetDateTime,
-    jarUrl: Option[String] = None,
-    mainClass: Option[String] = None,
-    codeContent: Option[String] = None,
-    timeout: FiniteDuration = 2.hours,
-    startTime: Option[OffsetDateTime] = None,
-    endTime: Option[OffsetDateTime] = None)
+case class ResponseResult(code: Int, message: String = "", data: Any = null) extends Response
+
+object ResponseResult {
+  val NotFound = error(404, "Not found.")
+  val OK = ok(null)
+  def ok(data: Any): ResponseResult = ResponseResult(200, "", data)
+  def ok(data: Any, message: String): ResponseResult = ResponseResult(200, message, data)
+  def error(code: Int): ResponseResult = ResponseResult(code)
+  def error(code: Int, message: String): ResponseResult = ResponseResult(code, message)
+}

@@ -22,19 +22,27 @@ import akka.actor.typed.ActorSystem
 import com.zaxxer.hikari.HikariDataSource
 import fusion.jdbc.FusionJdbc
 import fusion.schedulerx.job.ProcessResult
-import fusion.schedulerx.protocol.JobInstanceData
+import fusion.schedulerx.protocol._
+import fusion.schedulerx.server.model.JobConfigInfo
 import fusion.schedulerx.server.protocol.BrokerInfoData
 
 // 数据存储访问
 class BrokerRepository(dataSource: HikariDataSource) {
-  def updateJobInstance(instanceId: String, result: ProcessResult) = ???
-  def updateJobInstance(instanceId: String, status: Int, startTimeOption: Option[OffsetDateTime]) = ???
+  def disableJobInfo(in: DisableJobRequest): Int = ???
 
-  def saveJobInstance(jobInstanceData: JobInstanceData) = ???
+  def enableJobInfo(in: EnableJobRequest): Int = ???
+
+  def deleteJobInfo(in: DeleteJobRequest): Int = ???
+
+  def getJobInfo(in: GetJobInfoRequest): Option[JobConfigInfo] = ???
 
   def listBroker(): Seq[BrokerInfoData] = {
     List(BrokerInfoData("default", "default"))
   }
+
+  def completeJobInstance(instanceId: String, result: ProcessResult) = ???
+  def updateJobInstance(instanceId: String, status: Int, startTime: Option[OffsetDateTime]) = ???
+  def saveJobInstance(jobInstanceData: JobInstanceDetail) = ???
 }
 
 object BrokerRepository {

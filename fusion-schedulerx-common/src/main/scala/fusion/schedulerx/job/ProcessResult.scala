@@ -23,7 +23,7 @@ import java.time.OffsetDateTime
  * @param status 复用HTTP状态码，返回200代码处理成功
  * @param result 处理结果
  */
-final class ProcessResult(val status: Int, val result: String, completeTime: OffsetDateTime)
+final case class ProcessResult(status: Int, result: String, completeTime: OffsetDateTime)
 
 object ProcessResult {
   val Empty = new ProcessResult(-1, "", OffsetDateTime.MIN)

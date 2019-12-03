@@ -14,22 +14,10 @@
  * limitations under the License.
  */
 
-package fusion.schedulerx.server.model
+package fusion.schedulerx.server.quartz
 
-import java.time.OffsetDateTime
+import org.quartz.{ Job, JobExecutionContext }
 
-import fusion.schedulerx.protocol.JobType
-
-import scala.concurrent.duration._
-
-case class JobEntity(
-    id: String,
-    `type`: JobType,
-    name: String,
-    description: String,
-    mainClass: Option[String] = None,
-    jarUrl: Option[String] = None,
-    timeExpression: Option[String] = None,
-    codeContent: Option[String] = None,
-    timeout: FiniteDuration = 2.hours,
-    createdAt: OffsetDateTime = OffsetDateTime.now())
+class QuartzJob extends Job {
+  override def execute(context: JobExecutionContext): Unit = {}
+}

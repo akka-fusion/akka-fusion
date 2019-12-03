@@ -14,10 +14,22 @@
  * limitations under the License.
  */
 
-package fusion.schedulerx.server.service
+package fusion.schedulerx.protocol
 
-import akka.actor.typed.ActorRef
-import akka.cluster.sharding.typed.ShardingEnvelope
-import fusion.schedulerx.protocol.Broker
+import java.time.OffsetDateTime
 
-class BrokerService(brokerRegion: ActorRef[ShardingEnvelope[Broker.Command]]) {}
+import scala.concurrent.duration._
+
+// Job实例数据
+case class JobInstanceDetail(
+    jobId: String,
+    instanceId: String,
+    name: String,
+    `type`: JobType,
+    schedulerTime: OffsetDateTime,
+    jarUrl: Option[String] = None,
+    mainClass: Option[String] = None,
+    codeContent: Option[String] = None,
+    timeout: FiniteDuration = 2.hours,
+    startTime: Option[OffsetDateTime] = None,
+    endTime: Option[OffsetDateTime] = None)

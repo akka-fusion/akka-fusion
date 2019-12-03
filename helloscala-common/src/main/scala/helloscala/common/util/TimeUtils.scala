@@ -30,6 +30,7 @@ import scala.util.control.NonFatal
 
 object TimeUtils extends StrictLogging {
   val DATE_TIME_EPOCH: LocalDateTime = LocalDateTime.of(1970, 1, 1, 0, 0, 0)
+  val DEFAULT_OFFSET: ZoneOffset = OffsetDateTime.now().getOffset
   val ZONE_CHINA_OFFSET: ZoneOffset = ZoneOffset.ofHours(8)
 
   val formatterDateTime: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")

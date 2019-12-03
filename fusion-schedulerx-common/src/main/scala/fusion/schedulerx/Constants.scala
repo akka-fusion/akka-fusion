@@ -16,8 +16,13 @@
 
 package fusion.schedulerx
 
+import scala.concurrent.duration._
+
 object Constants {
   val SCHEDULERX = "schedulerx"
+  val DEFAULT = "default"
+  val DEFAULT_TIMEOUT = 2.hours
+
   object Dispatcher {
     val WORKER_BLOCK = s"$SCHEDULERX.worker.block-dispatcher"
   }

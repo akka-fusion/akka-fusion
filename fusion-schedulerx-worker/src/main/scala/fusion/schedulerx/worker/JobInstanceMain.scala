@@ -26,7 +26,7 @@ import com.typesafe.scalalogging.StrictLogging
 import fusion.common.FusionProtocol
 import fusion.json.jackson.Jackson
 import fusion.schedulerx.SchedulerX
-import fusion.schedulerx.protocol.{ JobInstanceData, Worker }
+import fusion.schedulerx.protocol.{ JobInstanceDetail, Worker }
 import fusion.schedulerx.worker.job.JobInstance
 import fusion.schedulerx.worker.job.JobInstance.JobCommand
 
@@ -38,7 +38,7 @@ object JobInstanceMain extends StrictLogging {
     val schedulerX = SchedulerX.fromOriginalConfig(ConfigFactory.load())
     implicit val system = schedulerX.system
     implicit val timeout: Timeout = 5.seconds
-    val instData = Jackson.defaultObjectMapper.treeToValue[JobInstanceData](
+    val instData = Jackson.defaultObjectMapper.treeToValue[JobInstanceDetail](
       Jackson.defaultObjectMapper.readTree(new File(schedulerX.schedulerXSettings.worker.runDir.get)))
     val worker = ActorRefResolver(schedulerX.system)
       .resolveActorRef[Worker.Command](schedulerX.schedulerXSettings.worker.runJobWorkerActor.get)
@@ -46,7 +46,7 @@ object JobInstanceMain extends StrictLogging {
       .ask[ActorRef[JobCommand]](FusionProtocol.Spawn(JobInstance(worker, instData), instData.instanceId))
     future.failed.foreach { e =>
       val v = Jackson.defaultObjectMapper.writeValueAsString(instData)
-      logger.error(s"Startup JobInstance failure: ${e.getMessage}, JobInstanceData: $v", e)
+      logger.error(s"Startup JobInstance failure: ${e.getMessage}, JobInstanceDetail: $v", e)
       try {
         system.terminate()
         Await.ready(system.whenTerminated, 60.seconds)

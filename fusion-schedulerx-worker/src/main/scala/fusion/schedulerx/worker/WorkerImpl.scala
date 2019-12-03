@@ -61,13 +61,14 @@ class WorkerImpl private (
 
   def init(registerCount: Int, registerDelay: FiniteDuration): Behavior[Worker.Command] = Behaviors.receiveMessage {
     case RegisterToBrokerTimeout =>
-      val message = Broker.RegisterWorker(registerCount, settings.namespace, workerId, context.self)
+      val message = Broker.RegistrationWorker(settings.namespace, workerId, context.self)
       mediator ! DistributedPubSubMediator.Publish(Topics.REGISTER_WORKER, message)
       val delay = settings.worker.computeRegisterDelay(registerDelay)
+      context.log.info(s"Register worker for the ${registerCount}th time with $delay interval.")
       timers.startSingleTimer(RegisterToBrokerTimeout, RegisterToBrokerTimeout, delay)
       init(registerCount + 1, delay)
 
-    case Worker.RegisterToBrokerAck(broker) =>
+    case Worker.RegistrationWorkerAck(broker) =>
       broker ! WorkerStatus(SchedulerX.counter(), getWorkerStatus(Nil))
       context.watch(broker)
       timers.startTimerWithFixedDelay(ReportSystemStatus, ReportSystemStatus, settings.worker.healthInterval)
@@ -80,7 +81,7 @@ class WorkerImpl private (
 
   def receive(
       broker: ActorRef[Broker.Command],
-      runningJobs: List[(ActorRef[JobCommand], JobInstanceData)]): Behavior[Worker.Command] =
+      runningJobs: List[(ActorRef[JobCommand], JobInstanceDetail)]): Behavior[Worker.Command] =
     Behaviors
       .receiveMessage[Worker.Command] {
         case ReportSystemStatus =>
@@ -117,7 +118,7 @@ class WorkerImpl private (
         case (_, Terminated(ref))      => receive(broker, runningJobs.filterNot(_._1 == ref))
       }
 
-  private def getWorkerStatus(runningJobs: List[(ActorRef[JobCommand], JobInstanceData)]): WorkerServiceStatus = {
+  private def getWorkerStatus(runningJobs: List[(ActorRef[JobCommand], JobInstanceDetail)]): WorkerServiceStatus = {
     val runnings = runningJobs.map { case (_, info) => RunningJob(info.instanceId, info.startTime.get) }
     WorkerServiceStatus(
       context.self,

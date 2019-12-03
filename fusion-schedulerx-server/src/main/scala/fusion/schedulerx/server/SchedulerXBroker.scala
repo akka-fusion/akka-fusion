@@ -18,49 +18,43 @@ package fusion.schedulerx.server
 
 import java.util.concurrent.TimeoutException
 
-import akka.actor.typed.{ ActorSystem, SupervisorStrategy }
 import akka.actor.typed.scaladsl.Behaviors
+import akka.actor.typed.{ ActorSystem, SupervisorStrategy }
 import akka.cluster.sharding.typed.ShardingEnvelope
 import akka.cluster.sharding.typed.scaladsl.{ ClusterSharding, Entity }
-import com.typesafe.config.{ Config, ConfigFactory }
 import fusion.common.FusionProtocol
 import fusion.schedulerx._
-import fusion.schedulerx.protocol.Broker
 import fusion.schedulerx.server.repository.BrokerRepository
-import fusion.schedulerx.server.service.BrokerService
 
 class SchedulerXBroker(schedulerX: SchedulerX) {
   implicit val system: ActorSystem[FusionProtocol.Command] = schedulerX.system
-  private val sharding = ClusterSharding(system)
-  val brokerSettings: BrokerSettings = BrokerSettings(settings, schedulerX.config)
-  private val brokerRegion = sharding.init(
-    Entity(Broker.TypeKey)(
-      entityContext =>
-        Behaviors
-          .supervise(BrokerImpl(entityContext.entityId, brokerSettings, settings))
-          .onFailure[Exception](SupervisorStrategy.resume)).withRole(NodeRoles.BROKER))
-  private var _brokerIds: Set[String] = Set()
+  private var _guardianIds: Set[String] = Set()
 
-  val brokerService = new BrokerService(brokerRegion)
-
-  def brokerIds: Set[String] = _brokerIds
-
-  def settings: SchedulerXSettings = schedulerX.schedulerXSettings
+  def brokerIds: Set[String] = _guardianIds
 
   @throws[TimeoutException]
   def start(): SchedulerXBroker = {
-    _brokerIds = BrokerRepository(system)
+    val guardianRegion = ClusterSharding(system).init(
+      Entity(BrokerGuardian.TypeKey)(entityContext =>
+        Behaviors.supervise(BrokerGuardian(entityContext.entityId)).onFailure[Exception](SupervisorStrategy.resume))
+        .withRole(NodeRoles.BROKER))
+    _guardianIds = BrokerRepository(system)
       .listBroker()
-      .map { broker =>
-        brokerRegion ! ShardingEnvelope(broker.namespace, BrokerImpl.InitParameters(broker.namespace, broker))
-        broker.namespace
+      .map { brokerInfo =>
+        guardianRegion ! ShardingEnvelope(
+          brokerInfo.namespace,
+          BrokerGuardian.BrokerCommand(BrokerImpl.InitParameters(brokerInfo.namespace, brokerInfo)))
+        brokerInfo.namespace
       }
       .toSet
-
+    SchedulerXBroker._instance = this
     this
   }
 }
 
 object SchedulerXBroker {
+  private var _instance: SchedulerXBroker = _
+
+  def instance: SchedulerXBroker = _instance
   def apply(schedulerX: SchedulerX): SchedulerXBroker = new SchedulerXBroker(schedulerX)
 }

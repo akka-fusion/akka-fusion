@@ -14,13 +14,6 @@
  * limitations under the License.
  */
 
-package fusion.schedulerx.worker
+package fusion.discoveryx.client
 
-import com.typesafe.config.ConfigFactory
-import fusion.schedulerx.{ Constants, NodeRoles, SchedulerXSettings }
-import helloscala.common.config.FusionConfigFactory
-import org.scalatest.{ Matchers, WordSpec }
-
-class SchedulerXWorkerImplTest extends WordSpec with Matchers {
-  "SchedulerXWorker" must {}
-}
+class DiscoveryXClientImpl {}

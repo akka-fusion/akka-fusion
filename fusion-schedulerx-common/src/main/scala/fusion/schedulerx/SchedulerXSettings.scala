@@ -66,7 +66,14 @@ object SchedulerXSettings {
     val name = sc.getString("name")
     val hostname = config.getString("akka.remote.artery.canonical.hostname")
     val port = config.getInt("akka.remote.artery.canonical.port")
-    val seedNodes = config.getStringList("akka.cluster.seed-nodes").asScala.map(AddressFromURIString.parse).toList
+    val seedNodes = config
+      .getStringList("akka.cluster.seed-nodes")
+      .asScala
+      .filterNot(_.isEmpty)
+      .map { sn =>
+        AddressFromURIString.parse(sn)
+      }
+      .toList
     val roles = config.getStringList("akka.cluster.roles").asScala.toSet
     new SchedulerXSettings(
       sc.getString("namespace"),

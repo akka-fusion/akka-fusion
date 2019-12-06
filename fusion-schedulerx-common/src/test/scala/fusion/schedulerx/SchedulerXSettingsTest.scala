@@ -14,13 +14,20 @@
  * limitations under the License.
  */
 
-package fusion.schedulerx.worker
+package fusion.schedulerx
 
 import com.typesafe.config.ConfigFactory
-import fusion.schedulerx.{ Constants, NodeRoles, SchedulerXSettings }
 import helloscala.common.config.FusionConfigFactory
-import org.scalatest.{ Matchers, WordSpec }
+import org.scalatest.{ FunSuite, Matchers }
 
-class SchedulerXWorkerImplTest extends WordSpec with Matchers {
-  "SchedulerXWorker" must {}
+class SchedulerXSettingsTest extends FunSuite with Matchers {
+  test("SchedulerXSettings") {
+    val config =
+      FusionConfigFactory.arrangeConfig(ConfigFactory.load("application-test.conf"), Constants.SCHEDULERX, Seq("akka"))
+    val settings = SchedulerXSettings(config)
+    settings.name should be(Constants.SCHEDULERX)
+    config.getStringList("akka.cluster.roles") should contain(NodeRoles.WORKER)
+    settings.isBroker should be(false)
+    settings.isWorker should be(true)
+  }
 }

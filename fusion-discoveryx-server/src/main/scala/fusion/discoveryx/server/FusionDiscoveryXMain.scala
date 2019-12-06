@@ -14,15 +14,10 @@
  * limitations under the License.
  */
 
-package fusion.schedulerx
+package fusion.discoveryx.server
 
-import com.typesafe.config.ConfigFactory
-import org.scalatest.FunSuite
-
-class SchedulerXSettingsTest extends FunSuite {
-  test("should apply") {
-    val originalConfig = ConfigFactory.load()
-    val akkaConfig = originalConfig.getConfig("akka")
-    println(s"""akka ${akkaConfig.root().render()}""")
+object FusionDiscoveryXMain {
+  def main(args: Array[String]): Unit = {
+    DiscoveryXServer().start()
   }
 }

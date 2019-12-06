@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package fusion.schedulerx.worker
+package fusion.discoveryx.server.route
 
-import com.typesafe.config.ConfigFactory
-import fusion.schedulerx.{ Constants, NodeRoles, SchedulerXSettings }
-import helloscala.common.config.FusionConfigFactory
-import org.scalatest.{ Matchers, WordSpec }
+import akka.http.scaladsl.model.StatusCodes
+import akka.http.scaladsl.server.Route
+import fusion.discoveryx.DiscoveryX
+import akka.http.scaladsl.server.Directives._
 
-class SchedulerXWorkerImplTest extends WordSpec with Matchers {
-  "SchedulerXWorker" must {}
+class Routes(discoveryX: DiscoveryX) {
+  def route: Route = complete(StatusCodes.NotImplemented)
 }

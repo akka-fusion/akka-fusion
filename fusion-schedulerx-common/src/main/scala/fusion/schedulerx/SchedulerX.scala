@@ -25,6 +25,7 @@ import akka.{ actor => classic }
 import com.typesafe.config.Config
 import fusion.common.FusionProtocol
 import fusion.schedulerx.protocol.ServerStatus
+import helloscala.common.config.FusionConfigFactory
 import helloscala.common.util.DigestUtils
 import oshi.SystemInfo
 
@@ -45,8 +46,8 @@ object SchedulerX {
   @inline def getWorkerId(address: Address): String = DigestUtils.sha1Hex(address.hostPort)
 
   def fromOriginalConfig(originalConfig: Config): SchedulerX = {
-    val config = SchedulerXConfigFactory.arrangeConfig(originalConfig)
-    val settings = SchedulerXSettings(originalConfig)
+    val config = FusionConfigFactory.arrangeConfig(originalConfig, Constants.SCHEDULERX, Seq("akka"))
+    val settings = SchedulerXSettings(config)
     apply(settings, config)
   }
 

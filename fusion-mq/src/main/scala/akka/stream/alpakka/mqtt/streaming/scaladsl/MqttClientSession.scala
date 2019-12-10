@@ -19,6 +19,7 @@ package akka.stream.alpakka.mqtt.streaming.scaladsl
 import java.util.concurrent.atomic.AtomicLong
 
 import akka.actor.ExtendedActorSystem
+import akka.actor.typed.Props
 import akka.actor.typed.internal.adapter.{ ActorRefAdapter, PropsAdapter }
 import akka.actor.typed.scaladsl.adapter._
 import akka.event.Logging
@@ -92,28 +93,28 @@ final class ActorMqttClientSession(settings: MqttSessionSettings)(
       system
         .asInstanceOf[ExtendedActorSystem]
         .systemActorOf(
-          PropsAdapter(() => RemotePacketRouter[Consumer.Event]),
+          PropsAdapter(() => RemotePacketRouter[Consumer.Event], Props.empty, false),
           "client-consumer-packet-id-allocator-" + clientSessionId))
   private val producerPacketRouter =
     ActorRefAdapter(
       system
         .asInstanceOf[ExtendedActorSystem]
         .systemActorOf(
-          PropsAdapter(() => LocalPacketRouter[Producer.Event]),
+          PropsAdapter(() => LocalPacketRouter[Producer.Event], Props.empty, false),
           "client-producer-packet-id-allocator-" + clientSessionId))
   private val subscriberPacketRouter =
     ActorRefAdapter(
       system
         .asInstanceOf[ExtendedActorSystem]
         .systemActorOf(
-          PropsAdapter(() => LocalPacketRouter[Subscriber.Event]),
+          PropsAdapter(() => LocalPacketRouter[Subscriber.Event], Props.empty, false),
           "client-subscriber-packet-id-allocator-" + clientSessionId))
   private val unsubscriberPacketRouter =
     ActorRefAdapter(
       system
         .asInstanceOf[ExtendedActorSystem]
         .systemActorOf(
-          PropsAdapter(() => LocalPacketRouter[Unsubscriber.Event]),
+          PropsAdapter(() => LocalPacketRouter[Unsubscriber.Event], Props.empty, false),
           "client-unsubscriber-packet-id-allocator-" + clientSessionId))
   private val clientConnector =
     ActorRefAdapter(
@@ -127,7 +128,9 @@ final class ActorMqttClientSession(settings: MqttSessionSettings)(
                 producerPacketRouter,
                 subscriberPacketRouter,
                 unsubscriberPacketRouter,
-                settings)),
+                settings),
+            Props.empty,
+            false),
           "client-connector-" + clientSessionId))
 
   import MqttSession._

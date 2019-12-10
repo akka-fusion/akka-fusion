@@ -16,27 +16,78 @@
 
 package fusion.discoveryx.server
 
+import akka.actor.typed.{ ActorRef, SupervisorStrategy }
+import akka.actor.typed.scaladsl.Behaviors
+import akka.cluster.sharding.typed.scaladsl.{ ClusterSharding, Entity }
+import akka.grpc.scaladsl.ServiceHandler
 import akka.http.scaladsl.Http
+import akka.http.scaladsl.model.{ HttpRequest, HttpResponse }
 import akka.http.scaladsl.server.Route
+import akka.stream.SystemMaterializer
 import akka.{ actor => classic }
 import com.typesafe.config.{ Config, ConfigFactory }
+import com.typesafe.scalalogging.StrictLogging
+import fusion.core.extension.FusionCore
 import fusion.discoveryx.DiscoveryX
+import fusion.discoveryx.grpc.{ ConfigServiceHandler, NamingServiceHandler }
 import fusion.discoveryx.common.Constants
+import fusion.discoveryx.server.config.{ ConfigManager, ConfigServiceImpl, ConfigSetting }
+import fusion.discoveryx.server.naming.{ NamingProxy, NamingServiceImpl, NamingSetting, Namings }
 import fusion.discoveryx.server.route.Routes
+import helloscala.common.Configuration
 import helloscala.common.config.FusionConfigFactory
 
-class DiscoveryXServer private (discoveryX: DiscoveryX) {
-  def start() = {
+import scala.concurrent.Future
+import scala.concurrent.duration._
+import scala.util.{ Failure, Success }
+
+class DiscoveryXServer private (discoveryX: DiscoveryX) extends StrictLogging {
+  FusionCore(discoveryX.system)
+  val configSetting = new ConfigSetting(Configuration(discoveryX.config))
+  val namingSetting = new NamingSetting(Configuration(discoveryX.config))
+  val grpcHandler: HttpRequest => Future[HttpResponse] = {
+    implicit val system = discoveryX.system
+    implicit val mat = SystemMaterializer(system).materializer
+    implicit val classicSystem = discoveryX.classicSystem
+    val services = List(
+      if (configSetting.enable) {
+        val configManager: ActorRef[ConfigManager.Command] = discoveryX.spawnActorSync(
+          Behaviors.supervise(ConfigManager()).onFailure(SupervisorStrategy.restart),
+          ConfigManager.NAME,
+          2.seconds)
+        Some(ConfigServiceHandler.partial(new ConfigServiceImpl(configManager)))
+      } else None,
+      if (namingSetting.enable) {
+        val shardRegion =
+          ClusterSharding(discoveryX.system).init(Entity(Namings.TypeKey)(entityContext =>
+            Namings(entityContext.entityId)))
+        val namingProxy: ActorRef[Namings.Command] = discoveryX.spawnActorSync(
+          Behaviors.supervise(NamingProxy(shardRegion)).onFailure(SupervisorStrategy.restart),
+          ConfigManager.NAME,
+          2.seconds)
+        Some(NamingServiceHandler.partial(new NamingServiceImpl(namingProxy)))
+      } else None).flatten
+    require(services.nonEmpty, "未找到任何 gRPC 服务")
+
+    ServiceHandler.concatOrNotFound(services: _*)
+  }
+
+  def start(): Unit = {
     startHttp()(discoveryX.classicSystem)
   }
 
   private def startHttp()(implicit system: classic.ActorSystem): Unit = {
-    val route: Route = new Routes(discoveryX).route
+    val route = new Routes(grpcHandler).route
     val config = discoveryX.config
-    Http().bindAndHandle(
-      route,
-      config.getString("fusion.http.default.server.host"),
-      config.getInt("fusion.http.default.server.port"))
+    Http()
+      .bindAndHandleAsync(
+        Route.asyncHandler(route),
+        config.getString("fusion.http.default.server.host"),
+        config.getInt("fusion.http.default.server.port"))
+      .onComplete {
+        case Success(value)     => logger.info(s"HTTP started, bind to $value")
+        case Failure(exception) => logger.error(s"HTTP start failure. $exception")
+      }(system.dispatcher)
   }
 }
 

@@ -16,6 +16,8 @@
 
 package fusion.actuator.model
 
+import java.security.SecureRandom
+
 import fusion.core.model.Health
 import fusion.json.jackson.Jackson
 import fusion.test.FusionTestWordSpec

@@ -8,7 +8,7 @@ object Dependencies {
   val versionJava8Compat = "0.9.0"
   val versionScalameta = "4.2.3"
   val versionScalatest = "3.0.8"
-  val versionAkka = "2.6.0"
+  val versionAkka = "2.6.1"
   val versionAkkaManagement = "1.0.4"
   val versionAkkaHttp = "10.1.11"
   val versionAkkaHttpCors = "0.4.1"
@@ -94,27 +94,28 @@ object Dependencies {
     .cross(CrossVersion.binary)
 
   val _akkaHttpTestkit = ("com.typesafe.akka" %% "akka-http-testkit" % versionAkkaHttp)
+    .exclude("com.typesafe.akka", "akka-stream-testkit")
+    .cross(CrossVersion.binary)
+    .exclude("com.typesafe.akka", "akka-testkit")
+    .cross(CrossVersion.binary)
+
+  val _akkaHttpCors = ("ch.megard" %% "akka-http-cors" % versionAkkaHttpCors)
     .excludeAll(ExclusionRule("com.typesafe.akka"))
     .cross(CrossVersion.binary)
 
-  val _akkaHttps = Seq(
-    _akkaHttp,
-    "com.typesafe.akka" %% "akka-http2-support" % versionAkkaHttp,
-    "ch.megard" %% "akka-http-cors" % versionAkkaHttpCors,
-    _akkaHttpTestkit % Test).map(
-    _.exclude("com.typesafe.akka", "akka-actor")
-      .cross(CrossVersion.binary)
-      .exclude("com.typesafe.akka", "akka-stream")
-      .cross(CrossVersion.binary)
-      .exclude("com.typesafe.akka", "akka-stream-testkit")
-      .cross(CrossVersion.binary))
-
-  val _akkaGrpcRuntime = ("com.lightbend.akka.grpc" %% "akka-grpc-runtime" % "0.7.2")
-    .exclude("com.typesafe.akka", "akka-actor")
+  val _akkaHttp2 = ("com.typesafe.akka" %% "akka-http2-support" % versionAkkaHttp)
+    .exclude("com.typesafe.akka", "akka-http-core")
     .cross(CrossVersion.binary)
     .exclude("com.typesafe.akka", "akka-stream")
     .cross(CrossVersion.binary)
-    .exclude("com.typesafe.akka", "akka-discovery")
+
+  val _akkaHttps = Seq(_akkaHttp, _akkaHttp2, _akkaHttpTestkit % Test)
+
+  val _akkaGrpcRuntime = ("com.lightbend.akka.grpc" %% "akka-grpc-runtime" % akka.grpc.gen.BuildInfo.version)
+    .exclude("com.typesafe", "config")
+    .exclude("com.typesafe", "ssl-config-core")
+    .cross(CrossVersion.binary)
+    .excludeAll(ExclusionRule("com.typesafe.akka"))
     .cross(CrossVersion.binary)
 
   val _alpakkaSimpleCodecs =

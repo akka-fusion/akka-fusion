@@ -69,7 +69,6 @@ object FusionUtils {
   private[fusion] def setupActorSystem(system: ActorSystem[_]): Unit = {
     if (_isSetupSystem.compareAndSet(false, true)) {
       _system = system
-      ActorSystemUtils.system = system
     } else {
       throw new IllegalStateException("setupActorSystem(system: ActorSystem) 函数只允许调用一次")
     }

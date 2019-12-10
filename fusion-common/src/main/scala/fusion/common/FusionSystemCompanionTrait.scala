@@ -14,38 +14,19 @@
  * limitations under the License.
  */
 
-package fusion.core.extension
+package fusion.common
 
-import akka.actor.ExtendedActorSystem
-import akka.actor.typed._
 import akka.actor.typed.receptionist.{ Receptionist, ServiceKey }
-import akka.http.scaladsl.model.HttpHeader
+import akka.actor.typed.scaladsl.AskPattern._
+import akka.actor.typed.{ ActorRef, ActorSystem, Behavior, Props }
 import akka.util.Timeout
-import com.typesafe.scalalogging.StrictLogging
-import fusion.common.FusionProtocol
-import fusion.common.extension.FusionCoordinatedShutdown
-import fusion.core.event.FusionEvents
-import fusion.core.extension.impl.FusionCoreImpl
-import fusion.core.setting.CoreSetting
-import helloscala.common.Configuration
 import helloscala.common.exception.HSInternalErrorException
 
 import scala.concurrent.duration.FiniteDuration
 import scala.concurrent.{ Await, Future }
 
-abstract class FusionCore extends Extension with StrictLogging {
-  def name: String
-  val setting: CoreSetting
-  val events: FusionEvents
-  val shutdowns: FusionCoordinatedShutdown
-  val currentXService: HttpHeader
-  def fusionGuardian: ActorRef[FusionProtocol.Command]
-  def configuration: Configuration
-  def fusionSystem: ActorSystem[FusionProtocol.Command]
-  def classicSystem: ExtendedActorSystem
-
-  def spawnActor[REF](behavior: Behavior[REF], name: String, props: Props)(
-      implicit timeout: Timeout): Future[ActorRef[REF]]
+trait FusionSystemCompanionTrait {
+  def system: ActorSystem[FusionProtocol.Command]
 
   def spawnActor[REF](behavior: Behavior[REF], name: String)(implicit timeout: Timeout): Future[ActorRef[REF]] =
     spawnActor(behavior, name, Props.empty)
@@ -64,18 +45,42 @@ abstract class FusionCore extends Extension with StrictLogging {
     Await.result(spawnActor(behavior, name, props), duration)
   }
 
-  def receptionistFind[T](serviceKey: ServiceKey[T], timeout: FiniteDuration)(
-      func: Receptionist.Listing => ActorRef[T]): ActorRef[T]
+  def spawnActor[REF](behavior: Behavior[REF], name: String, props: Props)(
+      implicit timeout: Timeout): Future[ActorRef[REF]] = {
+    implicit val scheduler = system.scheduler
+    system.ask(FusionProtocol.Spawn(behavior, name, props))
+  }
 
-  def receptionistFindSet[T](serviceKey: ServiceKey[T], timeout: FiniteDuration): Set[ActorRef[T]]
+  def receptionistFind[T](serviceKey: ServiceKey[T], timeout: FiniteDuration)(
+      func: Receptionist.Listing => ActorRef[T]): ActorRef[T] = {
+    implicit val ec = system.executionContext
+    implicit val scheduler = system.scheduler
+    implicit val t: Timeout = timeout
+    val f = system.receptionist
+      .ask[Receptionist.Listing] { replyTo =>
+        Receptionist.Find(serviceKey, replyTo)
+      }
+      //      .map { case ConfigManager.ConfigManagerServiceKey.Listing(refs) => refs.head }
+      .map(func)
+    Await.result(f, timeout)
+  }
+
+  def receptionistFindSet[T](serviceKey: ServiceKey[T], timeout: FiniteDuration): Set[ActorRef[T]] = {
+    implicit val ec = system.executionContext
+    implicit val t: Timeout = timeout
+    implicit val scheduler = system.scheduler
+    val f = system.receptionist.ask[Receptionist.Listing](Receptionist.Find(serviceKey)).map { listing =>
+      if (listing.isForKey(serviceKey)) {
+        listing.serviceInstances(serviceKey)
+      } else {
+        Set[ActorRef[T]]()
+      }
+    }
+    Await.result(f, timeout)
+  }
 
   def receptionistFindOne[T](serviceKey: ServiceKey[T], timeout: FiniteDuration): ActorRef[T] = {
     receptionistFindSet(serviceKey, timeout).headOption
       .getOrElse(throw HSInternalErrorException(s"$serviceKey not found!"))
   }
-}
-
-object FusionCore extends ExtensionId[FusionCore] {
-  override def createExtension(system: ActorSystem[_]): FusionCore = new FusionCoreImpl(system)
-  def get(system: ActorSystem[_]): FusionCore = apply(system)
 }

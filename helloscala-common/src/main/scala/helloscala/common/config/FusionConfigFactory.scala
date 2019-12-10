@@ -52,22 +52,16 @@ object FusionConfigFactory {
   private def arrangeAkkaConfig(originalConfig: Config, internalPath: String): Config = {
     val c = arrangeModuleConfig(originalConfig, internalPath, "akka")
     val name = c.getString(s"$internalPath.name")
-    val seedNodes = c
-      .getStringList("akka.cluster.seed-nodes")
-      .asScala
-      .filterNot(_.isEmpty)
-      .map {
-        case addr if !addr.startsWith("akka://") =>
-          val address = AddressFromURIString.parse(s"akka://$name@$addr")
-          require(
-            address.system == name,
-            s"Cluster ActorSystem name must equals be $name, but seed-node name is invalid, it si $addr.")
-          address
-        case addr => AddressFromURIString.parse(addr)
-      }
-      .toList
-    ConfigFactory
-      .parseString(s"""akka.cluster.seed-nodes = ${seedNodes.mkString("[\"", "\", \"", "\"]")}""".stripMargin)
-      .withFallback(c)
+    val seedNodes = c.getStringList("akka.cluster.seed-nodes").asScala.filterNot(_.isEmpty).map {
+      case addr if !addr.startsWith("akka://") =>
+        val address = AddressFromURIString.parse(s"akka://$name@$addr")
+        require(
+          address.system == name,
+          s"Cluster ActorSystem name must equals be $name, but seed-node name is invalid, it si $addr.")
+        address
+      case addr => AddressFromURIString.parse(addr)
+    }
+    val seedNodesStr = if (seedNodes.isEmpty) "[]" else seedNodes.mkString("[\"", "\", \"", "\"]")
+    ConfigFactory.parseString(s"""akka.cluster.seed-nodes = $seedNodesStr""".stripMargin).withFallback(c)
   }
 }

@@ -8,11 +8,13 @@ import "fusion/define.proto";
 
 option (scalapb.options) = {
   collection_type: "scala.collection.immutable.Seq"
+  import: "com.fasterxml.jackson.annotation.JsonIgnoreProperties"
 };
 
 message ServerStatusQuery {
 }
 message ServerStatusBO {
+    option (scalapb.message).annotations = "@JsonIgnoreProperties(Array(\"allFields\"))";
     int32 status = 1;
 }
 
@@ -21,43 +23,51 @@ message ServerStatusBO {
 ////////////////////////////////////////////////////////////////////////////////
 
 message ConfigQuery {
+    option (scalapb.message).annotations = "@JsonIgnoreProperties(Array(\"allFields\"))";
     string namespace = 1;
     repeated string data_ids = 2;
     string group_name = 3;
 }
 message ConfigItem {
+    option (scalapb.message).annotations = "@JsonIgnoreProperties(Array(\"allFields\"))";
     string namespace = 1;
     string data_id = 2;
     string group_name = 3;
     string content = 4;
 }
 message ConfigQueried {
+    option (scalapb.message).annotations = "@JsonIgnoreProperties(Array(\"allFields\"))";
     repeated ConfigItem configs = 1;
 }
 
 message ConfigPublish {
+    option (scalapb.message).annotations = "@JsonIgnoreProperties(Array(\"allFields\"))";
     string namespace = 1;
     string data_id = 2;
     string group_name = 3;
     string content = 4;
 }
 message ConfigPublished {
+    option (scalapb.message).annotations = "@JsonIgnoreProperties(Array(\"allFields\"))";
     string version = 1;
     google.protobuf.StringValue old_content = 2;
 }
 
 message ConfigRemove {
+    option (scalapb.message).annotations = "@JsonIgnoreProperties(Array(\"allFields\"))";
     string namespace = 1;
     string data_id = 2;
     string group_name = 3;
 }
 
 message ConfigChangeListen {
+    option (scalapb.message).annotations = "@JsonIgnoreProperties(Array(\"allFields\"))";
     string namespace = 1;
     string data_id = 2;
     string group_name = 3;
 }
 message ConfigChanged {
+    option (scalapb.message).annotations = "@JsonIgnoreProperties(Array(\"allFields\"))";
     string namespace = 1;
     string data_id = 2;
     string group_name = 3;
@@ -68,6 +78,7 @@ message ConfigChanged {
 }
 
 message ConfigReply {
+    option (scalapb.message).annotations = "@JsonIgnoreProperties(Array(\"allFields\"))";
     int32 status = 1;
     oneof data {
         ConfigQueried queried = 2;
@@ -80,25 +91,7 @@ message ConfigReply {
 ////////////////////////////////////////////////////////////////////////////////
 
 message InstanceRegister {
-    string namespace = 1;
-    string service_name = 2;
-    string group_name = 3;
-    string cluster_name = 4;
-    string ip = 5;
-    int32 port = 6;
-    // instance weight
-    double weight = 7;
-    // instance health status
-    bool healthy = 8;
-    // If instance is enabled to accept request
-    bool enabled = 9;
-    // If instance is ephemeral
-    bool ephemeral = 10;
-    // user extended attributes
-    map<string, string> metadata = 11;
-}
-
-message InstanceModify {
+    option (scalapb.message).annotations = "@JsonIgnoreProperties(Array(\"allFields\"))";
     string namespace = 1;
     string service_name = 2;
     string group_name = 3;
@@ -110,25 +103,42 @@ message InstanceModify {
     bool healthy = 7;
     // If instance is enabled to accept request
     bool enabled = 8;
-    // If instance is ephemeral
-    bool ephemeral = 9;
+    // user extended attributes
+    map<string, string> metadata = 9;
+}
+
+message InstanceModify {
+    option (scalapb.message).annotations = "@JsonIgnoreProperties(Array(\"allFields\"))";
+    string namespace = 1;
+    string service_name = 2;
+    string group_name = 3;
+    string ip = 4;
+    int32 port = 5;
+    // instance weight
+    double weight = 6;
+    // instance health status
+    bool healthy = 7;
+    // If instance is enabled to accept request
+    bool enabled = 8;
     // user extended attributes
     map<string, string> metadata = 10;
 }
-message InstanceModified {
+message InstanceModifyResult {
+    option (scalapb.message).annotations = "@JsonIgnoreProperties(Array(\"allFields\"))";
     int32 status = 1;
 }
 
 message InstanceRemove {
+    option (scalapb.message).annotations = "@JsonIgnoreProperties(Array(\"allFields\"))";
     string namespace = 1;
     string service_name = 2;
     string group_name = 3;
-    string cluster_name = 4;
-    string ip = 5;
-    int32 port = 6;
+    string ip = 4;
+    int32 port = 5;
 }
 
 message Instance {
+    option (scalapb.message).annotations = "@JsonIgnoreProperties(Array(\"allFields\"))";
     // unique id of this instance.
     string instance_id = 1;
     // Service information of instance
@@ -139,21 +149,18 @@ message Instance {
     string ip = 5;
     // instance port
     int32 port = 6;
-    // cluster information of instance
-    string cluster_name = 7;
     // instance weight
-    double weight = 8;
+    double weight = 7;
     // instance health status
-    bool healthy = 9;
+    bool healthy = 8;
     // If instance is enabled to accept request
-    bool enabled = 10;
-    // If instance is ephemeral
-    bool ephemeral = 11;
+    bool enabled = 9;
     // user extended attributes
-    map<string, string> metadata = 12;
+    map<string, string> metadata = 10;
 }
 
 message InstanceQuery {
+    option (scalapb.message).annotations = "@JsonIgnoreProperties(Array(\"allFields\"))";
     string namespace = 1;
     string service_name = 2;
     string group_name = 3;
@@ -161,13 +168,14 @@ message InstanceQuery {
     bool all_healthy = 4;
     // only return one healthy instance
     bool one_healthy = 5;
-    repeated string cluster_name = 6;
 }
-message InstanceQueried {
+message InstanceQueryResult {
+    option (scalapb.message).annotations = "@JsonIgnoreProperties(Array(\"allFields\"))";
     repeated Instance instances = 2;
 }
 
 message InstanceHeartbeat {
+    option (scalapb.message).annotations = "@JsonIgnoreProperties(Array(\"allFields\"))";
     string namespace = 1;
     string service_name = 2;
     string group_name = 3;
@@ -176,11 +184,10 @@ message InstanceHeartbeat {
 }
 
 message InstanceReply {
+    option (scalapb.message).annotations = "@JsonIgnoreProperties(Array(\"allFields\"))";
     int32 status = 1;
     oneof data {
-        InstanceQueried queried = 2;
-//        InstanceRegistered registered = 3;
-//        InstanceRemoved removed = 4;
-//        InstanceModified modified = 5;
+        InstanceQueryResult queried = 2;
+        InstanceModifyResult modified = 5;
     }
 }

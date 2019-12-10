@@ -76,9 +76,10 @@ trait ActorRefCompanion {
       if (StringUtils.isBlank(str)) ActorSystemUtils.system.deadLetters[T]
       else resolver.resolveActorRef[T](str)
     } { ref =>
-      ref.path.toStringWithoutAddress match {
-        case "/deadLetters" => ""
-        case _              => resolver.toSerializationFormat(ref)
+      //      resolver.toSerializationFormat(ref)
+      ref.path.elements match {
+        case List("deadLetters") => "" // resolver.toSerializationFormat(ActorSystemUtils.system.deadLetters[T])
+        case _                   => resolver.toSerializationFormat(ref)
       }
     }
   }
@@ -102,3 +103,5 @@ trait ActorRefCompanion {
 //    }
 //  }
 }
+
+object ActorRefCompanion extends ActorRefCompanion

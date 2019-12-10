@@ -16,11 +16,30 @@
 
 package fusion.discoveryx.server.route
 
-import akka.http.scaladsl.model.StatusCodes
-import akka.http.scaladsl.server.Route
-import fusion.discoveryx.DiscoveryX
+import akka.http.scaladsl.model.{ HttpRequest, HttpResponse, StatusCodes }
 import akka.http.scaladsl.server.Directives._
+import akka.http.scaladsl.server.Route
+import fusion.discoveryx.common.Constants
 
-class Routes(discoveryX: DiscoveryX) {
-  def route: Route = complete(StatusCodes.NotImplemented)
+import scala.concurrent.Future
+
+class Routes(grpcHandler: HttpRequest => Future[HttpResponse]) {
+  def route: Route =
+    pathPrefix("fusion" / Constants.DISCOVERYX / "v1") {
+      namingRoute ~
+      configRoute
+    } ~
+    extractRequest { request =>
+      onSuccess(grpcHandler(request)) { response =>
+        complete(response)
+      }
+    }
+
+  def namingRoute: Route = pathPrefix("naming") {
+    complete(StatusCodes.NotImplemented)
+  }
+
+  def configRoute: Route = pathPrefix("config") {
+    complete(StatusCodes.NotImplemented)
+  }
 }

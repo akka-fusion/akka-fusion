@@ -19,6 +19,7 @@ package akka.stream.alpakka.mqtt.streaming.scaladsl
 import java.util.concurrent.atomic.AtomicLong
 
 import akka.actor.ExtendedActorSystem
+import akka.actor.typed.Props
 import akka.actor.typed.internal.adapter.{ ActorRefAdapter, PropsAdapter }
 import akka.actor.typed.scaladsl.adapter._
 import akka.event.Logging
@@ -109,28 +110,28 @@ final class ActorMqttServerSession(settings: MqttSessionSettings)(
       system
         .asInstanceOf[ExtendedActorSystem]
         .systemActorOf(
-          PropsAdapter(() => RemotePacketRouter[Consumer.Event]),
+          PropsAdapter(() => RemotePacketRouter[Consumer.Event], Props.empty, false),
           "server-consumer-packet-id-allocator-" + serverSessionId))
   private val producerPacketRouter =
     ActorRefAdapter(
       system
         .asInstanceOf[ExtendedActorSystem]
         .systemActorOf(
-          PropsAdapter(() => LocalPacketRouter[Producer.Event]),
+          PropsAdapter(() => LocalPacketRouter[Producer.Event], Props.empty, false),
           "server-producer-packet-id-allocator-" + serverSessionId))
   private val publisherPacketRouter =
     ActorRefAdapter(
       system
         .asInstanceOf[ExtendedActorSystem]
         .systemActorOf(
-          PropsAdapter(() => RemotePacketRouter[Publisher.Event]),
+          PropsAdapter(() => RemotePacketRouter[Publisher.Event], Props.empty, false),
           "server-publisher-packet-id-allocator-" + serverSessionId))
   private val unpublisherPacketRouter =
     ActorRefAdapter(
       system
         .asInstanceOf[ExtendedActorSystem]
         .systemActorOf(
-          PropsAdapter(() => RemotePacketRouter[Unpublisher.Event]),
+          PropsAdapter(() => RemotePacketRouter[Unpublisher.Event], Props.empty, false),
           "server-unpublisher-packet-id-allocator-" + serverSessionId))
   private val serverConnector =
     ActorRefAdapter(
@@ -145,7 +146,9 @@ final class ActorMqttServerSession(settings: MqttSessionSettings)(
                 producerPacketRouter,
                 publisherPacketRouter,
                 unpublisherPacketRouter,
-                settings)),
+                settings),
+            Props.empty,
+            false),
           "server-connector-" + serverSessionId))
 
   import MqttCodec._

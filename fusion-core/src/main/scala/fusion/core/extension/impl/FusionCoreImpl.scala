@@ -34,6 +34,8 @@ import fusion.core.event.FusionEvents
 import fusion.core.extension.FusionCore
 import fusion.core.http.headers.`X-Service`
 import fusion.core.setting.CoreSetting
+import fusion.core.util.FusionUtils
+import fusion.protobuf.internal.ActorSystemUtils
 import helloscala.common.Configuration
 import helloscala.common.util.{ PidFile, Utils }
 
@@ -41,7 +43,7 @@ import scala.concurrent.{ Await, Future }
 import scala.concurrent.duration._
 import scala.util.control.NonFatal
 
-private[fusion] class FusionCoreImpl(val system: ActorSystem[Nothing]) extends FusionCore with StrictLogging {
+private[fusion] class FusionCoreImpl(val system: ActorSystem[_]) extends FusionCore with StrictLogging {
   override def name: String = system.name
   override val setting: CoreSetting = new CoreSetting(configuration)
   override val events = new FusionEvents()
@@ -50,6 +52,7 @@ private[fusion] class FusionCoreImpl(val system: ActorSystem[Nothing]) extends F
   implicit private val scheduler: Scheduler = system.scheduler
 
   //FusionUtils.setupActorSystem(system)
+  ActorSystemUtils.system = system
   writePidfile()
   System.setProperty(
     FusionConstants.NAME_PATH,
@@ -63,7 +66,7 @@ private[fusion] class FusionCoreImpl(val system: ActorSystem[Nothing]) extends F
 
   override def configuration: Configuration = _configuration
 
-  override val fusionGuardian: ActorRef[FusionProtocol.Command] = {
+  override def fusionGuardian: ActorRef[FusionProtocol.Command] = {
     system.toClassic
       .actorOf(
         PropsAdapter(

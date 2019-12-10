@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package fusion.discovery.server.naming
+package fusion.discoveryx.server.naming
 
-import akka.actor.typed.{ ActorRef, Behavior }
 import akka.actor.typed.scaladsl.Behaviors
+import akka.actor.typed.{ ActorRef, Behavior }
 import akka.cluster.sharding.typed.ShardingEnvelope
-import fusion.discovery.model.InstanceReply
+import fusion.discoveryx.model.InstanceReply
 import helloscala.common.IntStatus
 
 object NamingProxy {

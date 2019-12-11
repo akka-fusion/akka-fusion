@@ -27,6 +27,7 @@ import akka.util.Timeout
 import fusion.discoveryx.common.Headers
 import fusion.discoveryx.grpc.NamingServicePowerApi
 import fusion.discoveryx.model._
+import fusion.discoveryx.server.protocol._
 import helloscala.common.IntStatus
 import helloscala.common.util.StringUtils
 
@@ -49,7 +50,7 @@ class NamingServiceImpl(namingProxy: ActorRef[Namings.Command])(implicit system:
    * 添加实例
    */
   override def registerInstance(in: InstanceRegister, metadata: Metadata): Future[InstanceReply] = {
-    namingProxy.ask[InstanceReply](replyTo => Namings.RegisterInstance(in, replyTo)).recover {
+    namingProxy.ask[InstanceReply](replyTo => RegisterInstance(in, replyTo)).recover {
       case _: TimeoutException => InstanceReply(IntStatus.GATEWAY_TIMEOUT)
     }
   }
@@ -58,7 +59,7 @@ class NamingServiceImpl(namingProxy: ActorRef[Namings.Command])(implicit system:
    * 修改实例
    */
   override def modifyInstance(in: InstanceModify, metadata: Metadata): Future[InstanceReply] = {
-    namingProxy.ask[InstanceReply](replyTo => Namings.ModifyInstance(in, replyTo)).recover {
+    namingProxy.ask[InstanceReply](replyTo => ModifyInstance(in, replyTo)).recover {
       case _: TimeoutException => InstanceReply(IntStatus.GATEWAY_TIMEOUT)
     }
   }
@@ -67,7 +68,7 @@ class NamingServiceImpl(namingProxy: ActorRef[Namings.Command])(implicit system:
    * 删除实例
    */
   override def removeInstance(in: InstanceRemove, metadata: Metadata): Future[InstanceReply] = {
-    namingProxy.ask[InstanceReply](replyTo => Namings.RemoveInstance(in, replyTo)).recover {
+    namingProxy.ask[InstanceReply](replyTo => RemoveInstance(in, replyTo)).recover {
       case _: TimeoutException => InstanceReply(IntStatus.GATEWAY_TIMEOUT)
     }
   }
@@ -76,7 +77,7 @@ class NamingServiceImpl(namingProxy: ActorRef[Namings.Command])(implicit system:
    * 查询实例
    */
   override def queryInstance(in: InstanceQuery, metadata: Metadata): Future[InstanceReply] = {
-    namingProxy.ask[InstanceReply](replyTo => Namings.QueryInstance(in, replyTo)).recover {
+    namingProxy.ask[InstanceReply](replyTo => QueryInstance(in, replyTo)).recover {
       case _: TimeoutException => InstanceReply(IntStatus.GATEWAY_TIMEOUT)
     }
   }
@@ -89,16 +90,12 @@ class NamingServiceImpl(namingProxy: ActorRef[Namings.Command])(implicit system:
       serviceName <- metadata.getText(Headers.SERVICE_NAME)
     } yield {
       in.map { cmd =>
-        namingProxy ! Namings.Heartbeat(cmd, namespace, serviceName)
+        namingProxy ! Heartbeat(cmd, namespace, serviceName)
         ServerStatusBO(IntStatus.OK)
       }
     }).getOrElse {
       in.runWith(Sink.ignore)
       Source.single(ServerStatusBO(IntStatus.BAD_REQUEST))
     }
-  }
-
-  @inline private def checkHeartbeat(v: InstanceHeartbeat): Boolean = {
-    StringUtils.isNoneEmpty(v.instanceId)
   }
 }

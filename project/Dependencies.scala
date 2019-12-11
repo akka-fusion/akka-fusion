@@ -74,7 +74,6 @@ object Dependencies {
 
   val _akkaClusters = Seq(
     "com.typesafe.akka" %% "akka-cluster-typed" % versionAkka,
-    _akkaSerializationJackson,
     "com.typesafe.akka" %% "akka-cluster-sharding-typed" % versionAkka)
 
   val _akkaManagement =

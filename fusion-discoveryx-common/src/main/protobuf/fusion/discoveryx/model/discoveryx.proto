@@ -8,13 +8,11 @@ import "fusion/define.proto";
 
 option (scalapb.options) = {
   collection_type: "scala.collection.immutable.Seq"
-  import: "com.fasterxml.jackson.annotation.JsonIgnoreProperties"
 };
 
 message ServerStatusQuery {
 }
 message ServerStatusBO {
-    option (scalapb.message).annotations = "@JsonIgnoreProperties(Array(\"allFields\"))";
     int32 status = 1;
 }
 
@@ -23,51 +21,43 @@ message ServerStatusBO {
 ////////////////////////////////////////////////////////////////////////////////
 
 message ConfigQuery {
-    option (scalapb.message).annotations = "@JsonIgnoreProperties(Array(\"allFields\"))";
     string namespace = 1;
     repeated string data_ids = 2;
     string group_name = 3;
 }
 message ConfigItem {
-    option (scalapb.message).annotations = "@JsonIgnoreProperties(Array(\"allFields\"))";
     string namespace = 1;
     string data_id = 2;
     string group_name = 3;
     string content = 4;
 }
 message ConfigQueried {
-    option (scalapb.message).annotations = "@JsonIgnoreProperties(Array(\"allFields\"))";
     repeated ConfigItem configs = 1;
 }
 
 message ConfigPublish {
-    option (scalapb.message).annotations = "@JsonIgnoreProperties(Array(\"allFields\"))";
     string namespace = 1;
     string data_id = 2;
     string group_name = 3;
     string content = 4;
 }
 message ConfigPublished {
-    option (scalapb.message).annotations = "@JsonIgnoreProperties(Array(\"allFields\"))";
     string version = 1;
     google.protobuf.StringValue old_content = 2;
 }
 
 message ConfigRemove {
-    option (scalapb.message).annotations = "@JsonIgnoreProperties(Array(\"allFields\"))";
     string namespace = 1;
     string data_id = 2;
     string group_name = 3;
 }
 
 message ConfigChangeListen {
-    option (scalapb.message).annotations = "@JsonIgnoreProperties(Array(\"allFields\"))";
     string namespace = 1;
     string data_id = 2;
     string group_name = 3;
 }
 message ConfigChanged {
-    option (scalapb.message).annotations = "@JsonIgnoreProperties(Array(\"allFields\"))";
     string namespace = 1;
     string data_id = 2;
     string group_name = 3;
@@ -78,7 +68,6 @@ message ConfigChanged {
 }
 
 message ConfigReply {
-    option (scalapb.message).annotations = "@JsonIgnoreProperties(Array(\"allFields\"))";
     int32 status = 1;
     oneof data {
         ConfigQueried queried = 2;
@@ -91,7 +80,6 @@ message ConfigReply {
 ////////////////////////////////////////////////////////////////////////////////
 
 message InstanceRegister {
-    option (scalapb.message).annotations = "@JsonIgnoreProperties(Array(\"allFields\"))";
     string namespace = 1;
     string service_name = 2;
     string group_name = 3;
@@ -108,7 +96,6 @@ message InstanceRegister {
 }
 
 message InstanceModify {
-    option (scalapb.message).annotations = "@JsonIgnoreProperties(Array(\"allFields\"))";
     string namespace = 1;
     string service_name = 2;
     string group_name = 3;
@@ -123,13 +110,8 @@ message InstanceModify {
     // user extended attributes
     map<string, string> metadata = 10;
 }
-message InstanceModifyResult {
-    option (scalapb.message).annotations = "@JsonIgnoreProperties(Array(\"allFields\"))";
-    int32 status = 1;
-}
 
 message InstanceRemove {
-    option (scalapb.message).annotations = "@JsonIgnoreProperties(Array(\"allFields\"))";
     string namespace = 1;
     string service_name = 2;
     string group_name = 3;
@@ -138,7 +120,6 @@ message InstanceRemove {
 }
 
 message Instance {
-    option (scalapb.message).annotations = "@JsonIgnoreProperties(Array(\"allFields\"))";
     // unique id of this instance.
     string instance_id = 1;
     // Service information of instance
@@ -160,7 +141,6 @@ message Instance {
 }
 
 message InstanceQuery {
-    option (scalapb.message).annotations = "@JsonIgnoreProperties(Array(\"allFields\"))";
     string namespace = 1;
     string service_name = 2;
     string group_name = 3;
@@ -170,21 +150,18 @@ message InstanceQuery {
     bool one_healthy = 5;
 }
 message InstanceQueryResult {
-    option (scalapb.message).annotations = "@JsonIgnoreProperties(Array(\"allFields\"))";
     repeated Instance instances = 2;
 }
 
 message InstanceHeartbeat {
-    option (scalapb.message).annotations = "@JsonIgnoreProperties(Array(\"allFields\"))";
     string instance_id = 1;
 }
 
 message InstanceReply {
-    option (scalapb.message).annotations = "@JsonIgnoreProperties(Array(\"allFields\"))";
+
     int32 status = 1;
     oneof data {
         InstanceQueryResult queried = 2;
         Instance registered = 3;
-        InstanceModifyResult modified = 4;
     }
 }

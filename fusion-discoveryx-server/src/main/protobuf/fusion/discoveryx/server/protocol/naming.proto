@@ -1,0 +1,49 @@
+syntax = "proto3";
+package fusion.discoveryx.server.protocol;
+
+import "scalapb/scalapb.proto";
+import "fusion/define.proto";
+import "fusion/discoveryx/model/discoveryx.proto";
+
+option (scalapb.options) = {
+  collection_type: "scala.collection.immutable.Seq"
+  import: "akka.actor.typed.ActorRef"
+  import: "fusion.discoveryx.server.naming.Namings"
+  import: "fusion.protobuf.ActorRefCompanion._"
+};
+
+message NamingServiceKey {
+    string namespace = 1;
+    string serviceName = 2;
+}
+
+message RegisterInstance {
+    option (scalapb.message).extends = "Namings.ReplyCommand";
+    fusion.discoveryx.model.InstanceRegister in = 1 [(scalapb.field).no_box = true];
+    string reply_to = 2 [(scalapb.field).type = "ActorRef[fusion.discoveryx.model.InstanceReply]"];
+}
+
+message RemoveInstance {
+    option (scalapb.message).extends = "Namings.ReplyCommand";
+    fusion.discoveryx.model.InstanceRemove in = 1 [(scalapb.field).no_box = true];
+    string reply_to = 2 [(scalapb.field).type = "ActorRef[fusion.discoveryx.model.InstanceReply]"];
+}
+
+message ModifyInstance {
+    option (scalapb.message).extends = "Namings.ReplyCommand";
+    fusion.discoveryx.model.InstanceModify in = 1 [(scalapb.field).no_box = true];
+    string reply_to = 2 [(scalapb.field).type = "ActorRef[fusion.discoveryx.model.InstanceReply]"];
+}
+
+message QueryInstance {
+    option (scalapb.message).extends = "Namings.ReplyCommand";
+    fusion.discoveryx.model.InstanceQuery in = 1 [(scalapb.field).no_box = true];
+    string reply_to = 2 [(scalapb.field).type = "ActorRef[fusion.discoveryx.model.InstanceReply]"];
+}
+
+message Heartbeat {
+    option (scalapb.message).extends = "Namings.Command";
+    fusion.discoveryx.model.InstanceHeartbeat in = 1 [(scalapb.field).no_box = true];
+    string namespace = 2;
+    string service_name = 3;
+}

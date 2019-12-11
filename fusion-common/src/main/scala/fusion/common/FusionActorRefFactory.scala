@@ -25,7 +25,7 @@ import helloscala.common.exception.HSInternalErrorException
 import scala.concurrent.duration.FiniteDuration
 import scala.concurrent.{ Await, Future }
 
-trait FusionSystemCompanionTrait {
+trait FusionActorRefFactory {
   def system: ActorSystem[FusionProtocol.Command]
 
   def spawnActor[REF](behavior: Behavior[REF], name: String)(implicit timeout: Timeout): Future[ActorRef[REF]] =

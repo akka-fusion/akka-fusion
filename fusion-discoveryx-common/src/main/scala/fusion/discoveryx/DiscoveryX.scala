@@ -20,12 +20,12 @@ import akka.actor.typed.ActorSystem
 import akka.actor.typed.scaladsl.adapter._
 import akka.{ actor => classic }
 import com.typesafe.config.Config
-import fusion.common.{ FusionProtocol, FusionSystemCompanionTrait }
+import fusion.common.{ FusionProtocol, FusionActorRefFactory }
 import fusion.discoveryx.common.Constants
 import helloscala.common.config.FusionConfigFactory
 
 class DiscoveryX(val settings: DiscoveryXSettings, val config: Config, val system: ActorSystem[FusionProtocol.Command])
-    extends FusionSystemCompanionTrait {
+    extends FusionActorRefFactory {
   def classicSystem: classic.ActorSystem = system.toClassic
 }
 

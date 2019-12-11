@@ -164,7 +164,7 @@ lazy val fusionDiscoveryxFunctest = _project("fusion-discoveryx-functest")
     libraryDependencies ++= Seq(_akkaMultiNodeTestkit % Test) ++ _akkaHttps)
 
 lazy val fusionDiscoveryxServer = _project("fusion-discoveryx-server")
-  .enablePlugins(JavaAgent, AkkaGrpcPlugin)
+  .enablePlugins(JavaAgent, AkkaGrpcPlugin, JavaAppPackaging)
   .dependsOn(fusionCore, fusionProtobufV3, fusionDiscoveryxCommon, fusionTestkit % "test->test")
   .settings(
     javaAgents += _alpnAgent % "runtime;test",
@@ -173,10 +173,9 @@ lazy val fusionDiscoveryxServer = _project("fusion-discoveryx-server")
     libraryDependencies ++= Seq(_akkaPersistenceTyped) ++ _akkaHttps ++ _akkaClusters)
 
 lazy val fusionDiscoveryxClient = _project("fusion-discoveryx-client")
-  .enablePlugins(JavaAgent, AkkaGrpcPlugin)
+  .enablePlugins(AkkaGrpcPlugin)
   .dependsOn(fusionDiscoveryxCommon, fusionTestkit % "test->test")
   .settings(
-    javaAgents += _alpnAgent % "runtime;test",
     akkaGrpcCodeGeneratorSettings += "server_power_apis",
     akkaGrpcGeneratedSources := Seq(AkkaGrpc.Client),
     libraryDependencies ++= Seq())
@@ -184,10 +183,8 @@ lazy val fusionDiscoveryxClient = _project("fusion-discoveryx-client")
 lazy val fusionDiscoveryxCommon = _project("fusion-discoveryx-common")
   .enablePlugins(AkkaGrpcPlugin)
   .dependsOn(fusionTestkit % "test->test", fusionCommon)
-  .settings(
-    libraryDependencies ++= Seq(
-        _akkaSerializationJackson,
-        "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion % "protobuf"))
+  .settings(libraryDependencies ++= Seq(
+      "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion % "protobuf"))
 
 lazy val fusionActuatorCluster = _project("fusion-actuator-cluster")
   .dependsOn(fusionActuator, fusionTestkit % "test->test", fusionCore)
@@ -212,7 +209,7 @@ lazy val fusionSchedulerxFunctest = _project("fusion-schedulerx-functest")
   .settings(jvmOptions in MultiJvm := Seq("-Xmx512M"), libraryDependencies ++= Seq(_akkaMultiNodeTestkit % Test))
 
 lazy val fusionSchedulerxServer = _project("fusion-schedulerx-server")
-  .enablePlugins(AkkaGrpcPlugin, JavaAgent)
+  .enablePlugins(AkkaGrpcPlugin, JavaAgent, JavaAppPackaging)
   .dependsOn(fusionSchedulerxWorker, fusionSchedulerxCommon, fusionJdbc, fusionTestkit % "test->test")
   .settings(Publishing.noPublish)
   .settings(

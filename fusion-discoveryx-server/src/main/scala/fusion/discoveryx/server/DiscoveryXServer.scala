@@ -63,13 +63,7 @@ class DiscoveryXServer private (discoveryX: DiscoveryX) extends StrictLogging {
         Some(ConfigServiceHandler.partial(new ConfigServiceImpl(configManager)))
       } else None,
       if (namingSetting.enable) {
-        val shardRegion =
-          ClusterSharding(discoveryX.system).init(Entity(Namings.TypeKey)(entityContext =>
-            Namings(entityContext.entityId)))
-        val namingProxy: ActorRef[Namings.Command] = discoveryX.spawnActorSync(
-          Behaviors.supervise(NamingProxy(shardRegion)).onFailure(SupervisorStrategy.restart),
-          NamingProxy.NAME,
-          2.seconds)
+        val namingProxy = NamingProxy.create(discoveryX)
         Some(NamingServicePowerApiHandler.partial(new NamingServiceImpl(namingProxy)))
       } else None).flatten
     require(services.nonEmpty, "未找到任何 gRPC 服务")

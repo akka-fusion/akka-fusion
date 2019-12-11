@@ -24,15 +24,12 @@ import helloscala.common.IntStatus
 
 object NamingProxy {
   val NAME = "namingProxy"
-  //val NamingProxyServiceKey = ServiceKey[Namings.Command](NAME)
 
   def apply(shardRegion: ActorRef[ShardingEnvelope[Namings.Command]]): Behavior[Namings.Command] = Behaviors.setup {
     context =>
-      //context.system.receptionist ! Receptionist.Register(NamingProxyServiceKey, context.self)
-
       Behaviors.receiveMessagePartial {
-        case cmd @ Namings.Heartbeat(in) =>
-          Namings.NamingServiceKey.entityId(in.namespace, in.serviceName) match {
+        case cmd @ Namings.Heartbeat(_, namespace, serviceName) =>
+          Namings.NamingServiceKey.entityId(namespace, serviceName) match {
             case Right(entityId) => shardRegion ! ShardingEnvelope(entityId, cmd)
             case Left(errMsg)    => context.log.warn(s"Heartbeat error: $errMsg; cmd: $cmd")
           }

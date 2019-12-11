@@ -20,3 +20,10 @@ object Constants {
   val DISCOVERYX = "discoveryx"
   val NODE_SERVER = "server"
 }
+
+object Headers {
+  val NAMESPACE = "x-discoveryx-namespace"
+  val SERVICE_NAME = "x-discoveryx-service-name"
+  val IP = "x-discoveryx-ip"
+  val PORT = "x-discoveryx-port"
+}

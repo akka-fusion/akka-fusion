@@ -22,12 +22,14 @@ import fusion.discoveryx.model.InstanceHeartbeat
 import fusion.discoveryx.model.InstanceModify
 import fusion.discoveryx.model.InstanceQuery
 import Namings.NamingServiceKey
-import Namings.UNHEALTHY_CHECK_THRESHOLD_MILLIS
+import fusion.discoveryx.DiscoveryXUtils
 
-final private[discoveryx] class InternalInstance(private val underlying: Instance)
+final private[discoveryx] class InternalInstance(private val underlying: Instance, settings: NamingSettings)
     extends Ordered[InternalInstance]
     with Equals {
+  @transient private val UNHEALTHY_CHECK_THRESHOLD_MILLIS = settings.heartbeatInterval.toMillis + 2000
   @transient val instanceId: String = underlying.instanceId
+
   @transient var lastTickTimestamp: Long = System.currentTimeMillis()
 
   def healthy: Boolean = (System.currentTimeMillis() - lastTickTimestamp) < UNHEALTHY_CHECK_THRESHOLD_MILLIS
@@ -37,7 +39,7 @@ final private[discoveryx] class InternalInstance(private val underlying: Instanc
     this
   }
 
-  def withInstance(in: Instance): InternalInstance = new InternalInstance(in)
+  def withInstance(in: Instance): InternalInstance = new InternalInstance(in, settings)
 
   def toInstance: Instance = underlying.copy(healthy = healthy)
 
@@ -55,9 +57,13 @@ final private[discoveryx] class InternalInstance(private val underlying: Instanc
   }
 
   override def equals(obj: Any): Boolean = canEqual(obj)
+
+  override def toString =
+    s"InternalInstance(${underlying.instanceId}, ${underlying.namespace}, ${underlying.groupName}, ${underlying.serviceName}, ${underlying.ip}, ${underlying.port}, $healthy, $lastTickTimestamp)"
 }
 
-final private[discoveryx] class InternalService(namingServiceKey: NamingServiceKey) extends StrictLogging {
+final private[discoveryx] class InternalService(namingServiceKey: NamingServiceKey, settings: NamingSettings)
+    extends StrictLogging {
   private var curHealthyIdx = 0
   private var instances = Vector[InternalInstance]()
   private var instIds = Map[String, Int]() // instance id, insts index
@@ -73,8 +79,8 @@ final private[discoveryx] class InternalService(namingServiceKey: NamingServiceK
 
   def addInstance(inst: Instance): InternalService = {
     val items = instIds.get(inst.instanceId) match {
-      case Some(idx) => instances.updated(idx, new InternalInstance(inst))
-      case None      => new InternalInstance(inst) +: instances
+      case Some(idx) => instances.updated(idx, new InternalInstance(inst, settings))
+      case None      => new InternalInstance(inst, settings) +: instances
     }
     saveInstances(items)
     logger.debug(s"addInstance($inst) after; curHealthyIdx: $curHealthyIdx; instIds: $instIds; $instances")
@@ -82,7 +88,7 @@ final private[discoveryx] class InternalService(namingServiceKey: NamingServiceK
   }
 
   def modifyInstance(in: InstanceModify): Option[Instance] = {
-    val instId = Namings.makeInstanceId(in.ip, in.port, in.serviceName)
+    val instId = DiscoveryXUtils.makeInstanceId(in.serviceName, in.serviceName, in.ip, in.port)
     instIds.get(instId).map { idx =>
       val internal = instances(idx)
       val older = internal.toInstance
@@ -119,25 +125,26 @@ final private[discoveryx] class InternalService(namingServiceKey: NamingServiceK
       curHealthyIdx += 1
       Vector(ret)
     } else {
-      curHealthyIdx = 1
+      curHealthyIdx = if (healths.size == 1) 0 else 1
       Vector(healths.head)
     }
   }
 
   def processHeartbeat(in: InstanceHeartbeat): InternalService = {
-    val instId = Namings.makeInstanceId(in.ip, in.port, in.serviceName)
-    instIds.get(instId) match {
+    instIds.get(in.instanceId) match {
       case Some(idx) =>
-        instances(idx).refresh()
-      case None =>
-        val inst = Instance(instId, in.namespace, in.groupName, in.serviceName, in.ip, in.port, enabled = true)
-        saveInstances(new InternalInstance(inst) +: instances)
+        val inst = instances(idx).refresh()
+        logger.debug(s"Process heartbeat success, in: $in, instance: $inst")
+      case None => logger.warn(s"服务未注册，${in.instanceId}")
     }
     this
   }
 
-  def refreshHealthy(): InternalService = {
-    instances.foreach(_.refresh())
+  def checkHealthy(): InternalService = {
+    for (inst <- instances if !inst.healthy) {
+      // TODO alarm or remove unhealthy instance ?
+      logger.warn(s"Instance unhealthy, is $inst")
+    }
     this
   }
 

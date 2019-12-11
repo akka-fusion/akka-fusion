@@ -176,11 +176,7 @@ message InstanceQueryResult {
 
 message InstanceHeartbeat {
     option (scalapb.message).annotations = "@JsonIgnoreProperties(Array(\"allFields\"))";
-    string namespace = 1;
-    string service_name = 2;
-    string group_name = 3;
-    string ip = 4;
-    int32 port = 5;
+    string instance_id = 1;
 }
 
 message InstanceReply {
@@ -188,6 +184,7 @@ message InstanceReply {
     int32 status = 1;
     oneof data {
         InstanceQueryResult queried = 2;
-        InstanceModifyResult modified = 5;
+        Instance registered = 3;
+        InstanceModifyResult modified = 4;
     }
 }

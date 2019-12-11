@@ -164,30 +164,45 @@ lazy val fusionDiscoveryxFunctest = _project("fusion-discoveryx-functest")
     libraryDependencies ++= Seq(_akkaMultiNodeTestkit % Test) ++ _akkaHttps)
 
 lazy val fusionDiscoveryxServer = _project("fusion-discoveryx-server")
-  .enablePlugins(JavaAgent)
-  .dependsOn(fusionCore, fusionDiscoveryxClient, fusionDiscoveryxCommon, fusionTestkit % "test->test")
+  .enablePlugins(JavaAgent, AkkaGrpcPlugin)
+  .dependsOn(fusionCore, fusionProtobufV3, fusionDiscoveryxCommon, fusionTestkit % "test->test")
   .settings(
     javaAgents += _alpnAgent % "runtime;test",
+    akkaGrpcCodeGeneratorSettings += "server_power_apis",
+    akkaGrpcGeneratedSources := Seq(AkkaGrpc.Server),
     libraryDependencies ++= Seq(_akkaPersistenceTyped) ++ _akkaHttps ++ _akkaClusters)
 
 lazy val fusionDiscoveryxClient = _project("fusion-discoveryx-client")
+  .enablePlugins(JavaAgent, AkkaGrpcPlugin)
   .dependsOn(fusionDiscoveryxCommon, fusionTestkit % "test->test")
-  .settings(libraryDependencies ++= Seq())
+  .settings(
+    javaAgents += _alpnAgent % "runtime;test",
+    akkaGrpcCodeGeneratorSettings += "server_power_apis",
+    akkaGrpcGeneratedSources := Seq(AkkaGrpc.Client),
+    libraryDependencies ++= Seq())
 
-lazy val fusionDiscoveryxCommon =
-  _project("fusion-discoveryx-common")
-    .dependsOn(fusionTestkit % "test->test", fusionProtobufV3, fusionCommon)
-    .enablePlugins(AkkaGrpcPlugin)
-    .settings(
-      akkaGrpcCodeGeneratorSettings += "server_power_apis",
-      //akkaGrpcGeneratedSources := Seq(AkkaGrpc.Client),
-      libraryDependencies ++= Seq(
-          "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion % "protobuf",
-          _akkaHttp,
-          _akkaHttp2,
-          _akkaDiscovery,
-          _akkaGrpcRuntime,
-          _akkaSerializationJackson))
+lazy val fusionDiscoveryxCommon = _project("fusion-discoveryx-common")
+  .enablePlugins(AkkaGrpcPlugin)
+  .dependsOn(fusionTestkit % "test->test", fusionCommon)
+  .settings(
+    libraryDependencies ++= Seq(
+        _akkaSerializationJackson,
+        "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion % "protobuf"))
+
+lazy val fusionActuatorCluster = _project("fusion-actuator-cluster")
+  .dependsOn(fusionActuator, fusionTestkit % "test->test", fusionCore)
+  .settings(libraryDependencies ++= Seq(_akkaManagementClusterHttp))
+
+lazy val fusionActuator = _project("fusion-actuator")
+  .dependsOn(fusionJson, fusionDiscoveryClient, fusionTestkit % "test->test", fusionCore)
+  .settings(
+    libraryDependencies ++= Seq(
+        _akkaManagement,
+        _kamonStatusPage,
+        _kamonAkka,
+        _kamonAkkaHttp,
+        _kamonSystemMetrics,
+        _kamonLogback) ++ _akkaHttps)
 
 lazy val fusionSchedulerxFunctest = _project("fusion-schedulerx-functest")
   .enablePlugins(MultiJvmPlugin)
@@ -232,21 +247,6 @@ lazy val fusionSchedulerxCommon = _project("fusion-schedulerx-common")
 lazy val fusionJob = _project("fusion-job")
   .dependsOn(fusionJdbc, fusionTestkit % "test->test", fusionCore)
   .settings(libraryDependencies ++= Seq(_quartz))
-
-lazy val fusionActuatorCluster = _project("fusion-actuator-cluster")
-  .dependsOn(fusionActuator, fusionTestkit % "test->test", fusionCore)
-  .settings(libraryDependencies ++= Seq(_akkaManagementClusterHttp))
-
-lazy val fusionActuator = _project("fusion-actuator")
-  .dependsOn(fusionJson, fusionDiscoveryClient, fusionTestkit % "test->test", fusionCore)
-  .settings(
-    libraryDependencies ++= Seq(
-        _akkaManagement,
-        _kamonStatusPage,
-        _kamonAkka,
-        _kamonAkkaHttp,
-        _kamonSystemMetrics,
-        _kamonLogback) ++ _akkaHttps)
 
 lazy val fusionOauth = _project("fusion-oauth")
   .dependsOn(fusionHttpClient, fusionSecurity, fusionTestkit % "test->test", fusionCore)

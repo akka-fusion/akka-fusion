@@ -19,11 +19,13 @@ package fusion.discoveryx.server.naming
 import java.util.concurrent.TimeoutException
 
 import akka.NotUsed
-import akka.actor.typed.{ ActorRef, ActorSystem }
 import akka.actor.typed.scaladsl.AskPattern._
-import akka.stream.scaladsl.Source
+import akka.actor.typed.{ ActorRef, ActorSystem }
+import akka.grpc.scaladsl.Metadata
+import akka.stream.scaladsl.{ Sink, Source }
 import akka.util.Timeout
-import fusion.discoveryx.grpc.NamingService
+import fusion.discoveryx.common.Headers
+import fusion.discoveryx.grpc.NamingServicePowerApi
 import fusion.discoveryx.model._
 import helloscala.common.IntStatus
 import helloscala.common.util.StringUtils
@@ -31,21 +33,22 @@ import helloscala.common.util.StringUtils
 import scala.concurrent.Future
 import scala.concurrent.duration._
 
-class NamingServiceImpl(namingProxy: ActorRef[Namings.Command])(implicit system: ActorSystem[_]) extends NamingService {
+class NamingServiceImpl(namingProxy: ActorRef[Namings.Command])(implicit system: ActorSystem[_])
+    extends NamingServicePowerApi {
   import system.executionContext
   implicit private val timeout: Timeout = 5.seconds
 
   /**
    * 查询服务状态
    */
-  override def serverStatus(in: ServerStatusQuery): Future[ServerStatusBO] = {
+  override def serverStatus(in: ServerStatusQuery, metadata: Metadata): Future[ServerStatusBO] = {
     Future.successful(ServerStatusBO(IntStatus.OK))
   }
 
   /**
    * 添加实例
    */
-  override def registerInstance(in: InstanceRegister): Future[InstanceReply] = {
+  override def registerInstance(in: InstanceRegister, metadata: Metadata): Future[InstanceReply] = {
     namingProxy.ask[InstanceReply](replyTo => Namings.RegisterInstance(in, replyTo)).recover {
       case _: TimeoutException => InstanceReply(IntStatus.GATEWAY_TIMEOUT)
     }
@@ -54,7 +57,7 @@ class NamingServiceImpl(namingProxy: ActorRef[Namings.Command])(implicit system:
   /**
    * 修改实例
    */
-  override def modifyInstance(in: InstanceModify): Future[InstanceReply] = {
+  override def modifyInstance(in: InstanceModify, metadata: Metadata): Future[InstanceReply] = {
     namingProxy.ask[InstanceReply](replyTo => Namings.ModifyInstance(in, replyTo)).recover {
       case _: TimeoutException => InstanceReply(IntStatus.GATEWAY_TIMEOUT)
     }
@@ -63,7 +66,7 @@ class NamingServiceImpl(namingProxy: ActorRef[Namings.Command])(implicit system:
   /**
    * 删除实例
    */
-  override def removeInstance(in: InstanceRemove): Future[InstanceReply] = {
+  override def removeInstance(in: InstanceRemove, metadata: Metadata): Future[InstanceReply] = {
     namingProxy.ask[InstanceReply](replyTo => Namings.RemoveInstance(in, replyTo)).recover {
       case _: TimeoutException => InstanceReply(IntStatus.GATEWAY_TIMEOUT)
     }
@@ -72,25 +75,30 @@ class NamingServiceImpl(namingProxy: ActorRef[Namings.Command])(implicit system:
   /**
    * 查询实例
    */
-  override def queryInstance(in: InstanceQuery): Future[InstanceReply] = {
+  override def queryInstance(in: InstanceQuery, metadata: Metadata): Future[InstanceReply] = {
     namingProxy.ask[InstanceReply](replyTo => Namings.QueryInstance(in, replyTo)).recover {
       case _: TimeoutException => InstanceReply(IntStatus.GATEWAY_TIMEOUT)
     }
   }
 
-  override def heartbeat(in: Source[InstanceHeartbeat, NotUsed]): Source[ServerStatusBO, NotUsed] = {
-    in.map { cmd =>
-      if (checkHeartbeat(cmd)) {
-        namingProxy ! Namings.Heartbeat(cmd)
+  override def heartbeat(
+      in: Source[InstanceHeartbeat, NotUsed],
+      metadata: Metadata): Source[ServerStatusBO, NotUsed] = {
+    (for {
+      namespace <- metadata.getText(Headers.NAMESPACE)
+      serviceName <- metadata.getText(Headers.SERVICE_NAME)
+    } yield {
+      in.map { cmd =>
+        namingProxy ! Namings.Heartbeat(cmd, namespace, serviceName)
         ServerStatusBO(IntStatus.OK)
-      } else {
-        ServerStatusBO(IntStatus.BAD_REQUEST)
       }
+    }).getOrElse {
+      in.runWith(Sink.ignore)
+      Source.single(ServerStatusBO(IntStatus.BAD_REQUEST))
     }
   }
 
   @inline private def checkHeartbeat(v: InstanceHeartbeat): Boolean = {
-    StringUtils.isNoneBlank(v.namespace) && StringUtils.isNoneBlank(v.ip) && v.port > 0 &&
-    StringUtils.isNoneBlank(v.serviceName)
+    StringUtils.isNoneEmpty(v.instanceId)
   }
 }

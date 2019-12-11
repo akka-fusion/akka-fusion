@@ -63,7 +63,7 @@ final private[server] class InternalService(namingServiceKey: NamingServiceKey) 
   private var instIds = Map[String, Int]() // instance id, insts index
 
   def queryInstance(in: InstanceQuery): Vector[Instance] = {
-    logger.debug(s"queryInstance($in); curHealthyIdx: $curHealthyIdx; instIds: $instIds; $instances")
+    logger.debug(s"curHealthyIdx: $curHealthyIdx; queryInstance($in); instIds: $instIds; $instances")
     val selects =
       if (in.allHealthy) allHealthy()
       else if (in.oneHealthy) oneHealthy()
@@ -77,7 +77,7 @@ final private[server] class InternalService(namingServiceKey: NamingServiceKey) 
       case None      => new InternalInstance(inst) +: instances
     }
     saveInstances(items)
-    logger.debug(s"addInstance($inst) after; curHealthyIdx: $curHealthyIdx; instIds: $instIds; $instances")
+    logger.debug(s"addInstance($inst) after; curHealthyIdx: $curHealthyIdx; instIds: $instIds")
     this
   }
 

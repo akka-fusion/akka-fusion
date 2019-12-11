@@ -17,18 +17,3 @@ message ResultBO {
     map<string, string> data = 3;
     CommonStatus common_status = 4;
 }
-
-message ActorReference {
-    option (scalapb.message).no_box = false;
-    option (scalapb.message).extends = "fusion.protobuf.ActorReferenceTrait";
-    option (scalapb.message).companion_extends = "fusion.protobuf.ActorReferenceCompanion";
-    string serialized = 1;
-    google.protobuf.StringValue typ = 2;
-}
-
-//message ActorTypedReference {
-//    option (scalapb.message).no_box = false;
-//    option (scalapb.message).extends = "fusion.ActorTypedReferenceTrait";
-//    option (scalapb.message).companion_extends = "fusion.ActorTypedReferenceCompanion";
-//    string serialized = 1;
-//}

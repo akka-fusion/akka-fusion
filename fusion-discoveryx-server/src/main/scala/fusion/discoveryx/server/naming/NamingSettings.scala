@@ -16,10 +16,20 @@
 
 package fusion.discoveryx.server.naming
 
+import akka.actor.typed.ActorSystem
+import com.typesafe.config.Config
 import fusion.discoveryx.common.Constants
 import helloscala.common.Configuration
 
-final class NamingSetting(configuration: Configuration) {
+import scala.concurrent.duration.FiniteDuration
+
+final class NamingSettings(configuration: Configuration) {
   private val c = configuration.getConfiguration(s"${Constants.DISCOVERYX}.server.naming")
-  val enable = c.getBoolean("enable")
+  val enable: Boolean = c.getBoolean("enable")
+  val heartbeatInterval: FiniteDuration = c.get[FiniteDuration]("heartbeat-interval")
+}
+
+object NamingSettings {
+  def apply(system: ActorSystem[_]): NamingSettings = apply(system.settings.config)
+  def apply(config: Config): NamingSettings = new NamingSettings(Configuration(config))
 }

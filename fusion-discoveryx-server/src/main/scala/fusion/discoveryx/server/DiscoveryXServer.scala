@@ -29,10 +29,15 @@ import com.typesafe.config.{ Config, ConfigFactory }
 import com.typesafe.scalalogging.StrictLogging
 import fusion.core.extension.FusionCore
 import fusion.discoveryx.DiscoveryX
-import fusion.discoveryx.grpc.{ ConfigServiceHandler, NamingServiceHandler }
+import fusion.discoveryx.grpc.{
+  ConfigServiceHandler,
+  ConfigServicePowerApiHandler,
+  NamingServiceHandler,
+  NamingServicePowerApiHandler
+}
 import fusion.discoveryx.common.Constants
 import fusion.discoveryx.server.config.{ ConfigManager, ConfigServiceImpl, ConfigSetting }
-import fusion.discoveryx.server.naming.{ NamingProxy, NamingServiceImpl, NamingSetting, Namings }
+import fusion.discoveryx.server.naming.{ NamingProxy, NamingServiceImpl, NamingSettings, Namings }
 import fusion.discoveryx.server.route.Routes
 import helloscala.common.Configuration
 import helloscala.common.config.FusionConfigFactory
@@ -44,7 +49,7 @@ import scala.util.{ Failure, Success }
 class DiscoveryXServer private (discoveryX: DiscoveryX) extends StrictLogging {
   FusionCore(discoveryX.system)
   val configSetting = new ConfigSetting(Configuration(discoveryX.config))
-  val namingSetting = new NamingSetting(Configuration(discoveryX.config))
+  val namingSetting = new NamingSettings(Configuration(discoveryX.config))
   val grpcHandler: HttpRequest => Future[HttpResponse] = {
     implicit val system = discoveryX.system
     implicit val mat = SystemMaterializer(system).materializer
@@ -63,9 +68,9 @@ class DiscoveryXServer private (discoveryX: DiscoveryX) extends StrictLogging {
             Namings(entityContext.entityId)))
         val namingProxy: ActorRef[Namings.Command] = discoveryX.spawnActorSync(
           Behaviors.supervise(NamingProxy(shardRegion)).onFailure(SupervisorStrategy.restart),
-          ConfigManager.NAME,
+          NamingProxy.NAME,
           2.seconds)
-        Some(NamingServiceHandler.partial(new NamingServiceImpl(namingProxy)))
+        Some(NamingServicePowerApiHandler.partial(new NamingServiceImpl(namingProxy)))
       } else None).flatten
     require(services.nonEmpty, "未找到任何 gRPC 服务")
 

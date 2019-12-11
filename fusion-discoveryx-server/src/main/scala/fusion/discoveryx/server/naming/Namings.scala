@@ -16,12 +16,13 @@
 
 package fusion.discoveryx.server.naming
 
-import akka.actor.typed.{ ActorRef, Behavior }
 import akka.actor.typed.scaladsl.{ AbstractBehavior, ActorContext, Behaviors, TimerScheduler }
+import akka.actor.typed.{ ActorRef, Behavior }
 import akka.cluster.sharding.typed.scaladsl.EntityTypeKey
-import fusion.discoveryx.model._
-import Namings.NamingServiceKey
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import fusion.discoveryx.DiscoveryXUtils
+import fusion.discoveryx.model._
+import fusion.discoveryx.server.naming.Namings.NamingServiceKey
 import fusion.json.jackson.CborSerializable
 import helloscala.common.IntStatus
 import helloscala.common.exception.HSBadRequestException
@@ -30,8 +31,8 @@ import helloscala.common.util.StringUtils
 import scala.concurrent.duration._
 
 object Namings {
-  val HEALTH_CHECK_DURATION: FiniteDuration = 5.seconds
-  val UNHEALTHY_CHECK_THRESHOLD_MILLIS: Long = 30 * 1000L
+//  val HEALTH_CHECK_DURATION: FiniteDuration = 5.seconds
+//  val UNHEALTHY_CHECK_THRESHOLD_MILLIS: Long = 30 * 1000L
   val TypeKey: EntityTypeKey[Command] = EntityTypeKey[Command]("Naming")
 
   trait Command extends CborSerializable
@@ -66,7 +67,7 @@ object Namings {
     override def serviceName: String = in.serviceName
   }
 
-  case class Heartbeat(in: InstanceHeartbeat) extends Command
+  case class Heartbeat(in: InstanceHeartbeat, namespace: String, serviceName: String) extends Command
 
   case class NamingServiceKey(namespace: String, serviceName: String) extends CborSerializable
 
@@ -92,27 +93,6 @@ object Namings {
         s"${context.self} create child error. entityId invalid, need [namespace]_[serviceName] format."))
     Behaviors.withTimers(timers => new Namings(namingServiceKey, timers, context))
   }
-
-  def toInstance(in: InstanceRegister): Instance = {
-    Instance(
-      makeInstanceId(in.ip, in.port, in.serviceName),
-      in.namespace,
-      in.groupName,
-      in.serviceName,
-      in.ip,
-      in.port,
-      in.weight,
-      in.healthy,
-      in.enabled,
-      in.metadata)
-  }
-
-  def makeInstanceId(ip: String, port: Int, serviceName: String): String = {
-    require(StringUtils.isNoneBlank(ip), s"ip invalid, is: $ip")
-    require(port > 0, s"port invalid: is: $port")
-    require(StringUtils.isNoneBlank(serviceName), s"serviceName invalid, is: $serviceName")
-    s"$ip-$port-$serviceName"
-  }
 }
 
 class Namings private (
@@ -121,26 +101,27 @@ class Namings private (
     override protected val context: ActorContext[Namings.Command])
     extends AbstractBehavior[Namings.Command](context) {
   import Namings._
-  private val internalService = new InternalService(namingServiceKey)
+  private val settings = NamingSettings(context.system)
+  private val internalService = new InternalService(namingServiceKey, settings)
 
-  timers.startTimerWithFixedDelay(HealthCheckKey, HealthCheckKey, HEALTH_CHECK_DURATION)
+  timers.startTimerWithFixedDelay(HealthCheckKey, HealthCheckKey, settings.heartbeatInterval)
   context.log.debug(s"Namings started: $namingServiceKey")
 
   override def onMessage(msg: Namings.Command): Behavior[Namings.Command] = msg match {
-    case Heartbeat(in)                 => processHeartbeat(in)
-    case QueryInstance(in, replyTo)    => queryInstance(in, replyTo)
-    case RegisterInstance(in, replyTo) => registerInstance(in.copy(healthy = true), replyTo)
-    case RemoveInstance(in, replyTo)   => removeInstance(in, replyTo)
-    case ModifyInstance(in, replyTo)   => modifyInstance(in, replyTo)
-    case HealthCheckKey                => refresh()
+    case Heartbeat(in, namespace, serviceName) => processHeartbeat(in, namespace, serviceName)
+    case QueryInstance(in, replyTo)            => queryInstance(in, replyTo)
+    case RegisterInstance(in, replyTo)         => registerInstance(in.copy(healthy = true), replyTo)
+    case RemoveInstance(in, replyTo)           => removeInstance(in, replyTo)
+    case ModifyInstance(in, replyTo)           => modifyInstance(in, replyTo)
+    case HealthCheckKey                        => healthCheck()
   }
 
-  private def refresh(): Namings = {
-    internalService.refreshHealthy()
+  private def healthCheck(): Namings = {
+    internalService.checkHealthy()
     this
   }
 
-  private def processHeartbeat(in: InstanceHeartbeat): Namings = {
+  private def processHeartbeat(in: InstanceHeartbeat, namespace: String, serviceName: String): Namings = {
     internalService.processHeartbeat(in)
     this
   }
@@ -171,7 +152,7 @@ class Namings private (
   }
 
   private def removeInstance(in: InstanceRemove, replyTo: ActorRef[InstanceReply]): Namings = {
-    val instId = makeInstanceId(in.ip, in.port, in.serviceName)
+    val instId = DiscoveryXUtils.makeInstanceId(in.namespace, in.serviceName, in.ip, in.port)
     val status = if (internalService.removeInstance(instId)) IntStatus.OK else IntStatus.NOT_FOUND
     replyTo ! InstanceReply(status)
     this
@@ -179,8 +160,9 @@ class Namings private (
 
   private def registerInstance(in: InstanceRegister, replyTo: ActorRef[InstanceReply]): Namings = {
     val result = try {
-      internalService.addInstance(toInstance(in))
-      InstanceReply(IntStatus.OK)
+      val inst = DiscoveryXUtils.toInstance(in)
+      internalService.addInstance(inst)
+      InstanceReply(IntStatus.OK, InstanceReply.Data.Registered(inst))
     } catch {
       case _: IllegalArgumentException => InstanceReply(IntStatus.BAD_REQUEST)
     }

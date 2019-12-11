@@ -133,7 +133,7 @@ private[fusion] class FusionCoreImpl(val system: ActorSystem[_]) extends FusionC
             System.exit(-1)
         }
       case _ =>
-        logger.warn(s"-D${ConfigKeys.FUSION.PIDFILE} 未设置，将不写入 .pid 文件。")
+        logger.info(s"-D${ConfigKeys.FUSION.PIDFILE} 未设置，将不写入 .pid 文件。")
     }
   }
 }

@@ -14,10 +14,15 @@
  * limitations under the License.
  */
 
-package fusion.schedulerx.protocol
+package fusion.schedulerx.server.model
 
-case class CreateJobRequest(
+import java.time.OffsetDateTime
+
+import fusion.schedulerx.protocol.{ ExecuteMode, JobType }
+
+case class JobConfigInfo(
     namespace: String,
+    jobId: String,
     groupId: String,
     jobType: JobType,
     name: String,
@@ -32,9 +37,15 @@ case class CreateJobRequest(
     maxAttempt: Option[Int] = Some(0),
     // 错误重试间隔（秒）
     attemptInterval: Option[Int] = Some(30),
+    timeType: Option[Int] = Some(1),
     timeExpression: Option[String] = None,
-    // 超时（秒）
+    // Job执行超时（秒）
     timeout: Option[Long] = Some(7200),
-    // 超时是否杀死JOB？
-    timeoutKillEnable: Option[Boolean] = None,
-    tags: Map[String, String] = Map())
+    // 是否允许杀死JOB？
+    killEnable: Option[Boolean] = None,
+    // 第一次触发时间
+    triggerStartTime: Option[OffsetDateTime] = None,
+    // 最后一次触发时间
+    triggerEndTime: Option[OffsetDateTime] = None,
+    tags: Map[String, String] = Map(),
+    createdAt: OffsetDateTime = OffsetDateTime.now())

@@ -27,9 +27,9 @@ import akka.actor.typed.scaladsl.adapter._
 import akka.http.scaladsl.model.HttpHeader
 import akka.util.Timeout
 import com.typesafe.scalalogging.StrictLogging
-import fusion.common.FusionProtocol
 import fusion.common.constant.{ ConfigKeys, FusionConstants }
 import fusion.common.extension.FusionCoordinatedShutdown
+import fusion.common.{ ActorSystemUtils, FusionProtocol }
 import fusion.core.event.FusionEvents
 import fusion.core.extension.FusionCore
 import fusion.core.http.headers.`X-Service`
@@ -37,11 +37,11 @@ import fusion.core.setting.CoreSetting
 import helloscala.common.Configuration
 import helloscala.common.util.{ PidFile, Utils }
 
-import scala.concurrent.{ Await, Future }
 import scala.concurrent.duration._
+import scala.concurrent.{ Await, Future }
 import scala.util.control.NonFatal
 
-private[fusion] class FusionCoreImpl(val system: ActorSystem[Nothing]) extends FusionCore with StrictLogging {
+private[fusion] class FusionCoreImpl(val system: ActorSystem[_]) extends FusionCore with StrictLogging {
   override def name: String = system.name
   override val setting: CoreSetting = new CoreSetting(configuration)
   override val events = new FusionEvents()
@@ -50,6 +50,7 @@ private[fusion] class FusionCoreImpl(val system: ActorSystem[Nothing]) extends F
   implicit private val scheduler: Scheduler = system.scheduler
 
   //FusionUtils.setupActorSystem(system)
+  ActorSystemUtils.system = system
   writePidfile()
   System.setProperty(
     FusionConstants.NAME_PATH,
@@ -63,7 +64,7 @@ private[fusion] class FusionCoreImpl(val system: ActorSystem[Nothing]) extends F
 
   override def configuration: Configuration = _configuration
 
-  override val fusionGuardian: ActorRef[FusionProtocol.Command] = {
+  override def fusionGuardian: ActorRef[FusionProtocol.Command] = {
     system.toClassic
       .actorOf(
         PropsAdapter(
@@ -130,7 +131,7 @@ private[fusion] class FusionCoreImpl(val system: ActorSystem[Nothing]) extends F
             System.exit(-1)
         }
       case _ =>
-        logger.warn(s"-D${ConfigKeys.FUSION.PIDFILE} 未设置，将不写入 .pid 文件。")
+        logger.info(s"-D${ConfigKeys.FUSION.PIDFILE} 未设置，将不写入 .pid 文件。")
     }
   }
 }

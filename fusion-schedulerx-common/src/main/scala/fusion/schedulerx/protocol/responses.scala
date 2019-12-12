@@ -16,12 +16,17 @@
 
 package fusion.schedulerx.protocol
 
-import akka.actor.typed.ActorRef
 import fusion.json.jackson.CborSerializable
 
-object Worker {
-  trait Command extends CborSerializable
+trait Response extends CborSerializable
 
-  final case class RegistrationWorkerAck(broker: ActorRef[Broker.Command]) extends Command
-  final case class StartJob(jobInfo: JobInstanceDetail) extends Command
+case class ResponseResult(code: Int, message: String = "", data: Any = null) extends Response
+
+object ResponseResult {
+  val NotFound = error(404, "Not found.")
+  val OK = ok(null)
+  def ok(data: Any): ResponseResult = ResponseResult(200, "", data)
+  def ok(data: Any, message: String): ResponseResult = ResponseResult(200, message, data)
+  def error(code: Int): ResponseResult = ResponseResult(code)
+  def error(code: Int, message: String): ResponseResult = ResponseResult(code, message)
 }

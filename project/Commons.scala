@@ -1,14 +1,10 @@
-import de.heikoseeberger.sbtheader.HeaderPlugin.autoImport.HeaderLicense
-import de.heikoseeberger.sbtheader.HeaderPlugin.autoImport.headerLicense
+import com.typesafe.sbt.SbtNativePackager.autoImport.maintainer
+import de.heikoseeberger.sbtheader.HeaderPlugin.autoImport.{ HeaderLicense, headerLicense }
 import sbt.Keys._
 import sbt._
-import sbtassembly.AssemblyKeys.assemblyMergeStrategy
-import sbtassembly.MergeStrategy
-import sbtassembly.PathList
 
 object Commons {
-  import Environment.BuildEnv
-  import Environment.buildEnv
+  import Environment.{ BuildEnv, buildEnv }
 
   def basicSettings =
     Seq(
@@ -49,7 +45,18 @@ object Commons {
       fork in run := true,
       fork in Test := true,
       parallelExecution in Test := false,
-      libraryDependencies ++= Seq(Dependencies._scalatest % Test)) ++ Environment.settings // ++ Formatting.settings
+      libraryDependencies ++= Seq(Dependencies._scalatest % Test),
+      maintainer := "yangbajing <yang.xunjing@qq.com>",
+      scmInfo := Some(
+          ScmInfo(
+            url("https://github.com/akka-fusion/akka-fusion.git"),
+            "scm:git@github.com:akka-fusion/akka-fusion.git")),
+      developers := List(
+          Developer(
+            id = "yangbajing",
+            name = "Yang Jing",
+            email = "yang.xunjing@qq.com",
+            url = url("https://github.com/yangbajing")))) ++ Environment.settings // ++ Formatting.settings
 }
 
 object Publishing {
@@ -86,14 +93,11 @@ object Environment {
 
 object Packaging {
   // Good example https://github.com/typesafehub/activator/blob/master/project/Packaging.scala
-  import Environment.BuildEnv
-  import Environment.buildEnv
+  import Environment.{ BuildEnv, buildEnv }
   import com.typesafe.sbt.SbtNativePackager._
   import com.typesafe.sbt.packager.Keys._
-  import sbtassembly.AssemblyKeys.assembly
-  import sbtassembly.AssemblyKeys.assemblyMergeStrategy
-  import sbtassembly.MergeStrategy
-  import sbtassembly.PathList
+  import sbtassembly.AssemblyKeys.{ assembly, assemblyMergeStrategy }
+  import sbtassembly.{ MergeStrategy, PathList }
 
   // This is dirty, but play has stolen our keys, and we must mimc them here.
   val stage = TaskKey[File]("stage")

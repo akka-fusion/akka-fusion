@@ -14,22 +14,15 @@
  * limitations under the License.
  */
 
-package fusion.schedulerx.protocol
+package fusion.common
 
-import java.time.OffsetDateTime
+import java.util.Objects
 
-import scala.concurrent.duration._
+import akka.actor.typed.ActorSystem
 
-// Job实例数据
-case class JobInstanceData(
-    jobId: String,
-    instanceId: String,
-    name: String,
-    `type`: JobType,
-    schedulerTime: OffsetDateTime,
-    jarUrl: Option[String] = None,
-    mainClass: Option[String] = None,
-    codeContent: Option[String] = None,
-    timeout: FiniteDuration = 2.hours,
-    startTime: Option[OffsetDateTime] = None,
-    endTime: Option[OffsetDateTime] = None)
+private[fusion] object ActorSystemUtils {
+  private var _system: ActorSystem[_] = _
+
+  def system: ActorSystem[_] = Objects.requireNonNull(_system, "need ActorSystemUtils.system = v")
+  def system_=(v: ActorSystem[_]): Unit = _system = v
+}

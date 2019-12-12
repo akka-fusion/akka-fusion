@@ -14,15 +14,22 @@
  * limitations under the License.
  */
 
-package fusion.protobuf.internal
+package fusion.schedulerx.protocol
 
-import java.util.Objects
+import java.time.OffsetDateTime
 
-import akka.actor.typed.ActorSystem
+import scala.concurrent.duration._
 
-private[fusion] object ActorSystemUtils {
-  private var _system: ActorSystem[_] = _
-
-  def system: ActorSystem[_] = Objects.requireNonNull(_system, "need ActorSystemUtils.system = v")
-  def system_=(v: ActorSystem[_]): Unit = _system = v
-}
+// Job实例数据
+case class JobInstanceDetail(
+    jobId: String,
+    instanceId: String,
+    name: String,
+    `type`: JobType,
+    schedulerTime: OffsetDateTime,
+    jarUrl: Option[String] = None,
+    mainClass: Option[String] = None,
+    codeContent: Option[String] = None,
+    timeout: FiniteDuration = 2.hours,
+    startTime: Option[OffsetDateTime] = None,
+    endTime: Option[OffsetDateTime] = None)

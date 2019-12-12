@@ -32,6 +32,9 @@ trait JobContext {
   // Job参数，此Job的所有任务实例都会收到一样的作业参数
   def jobParameters: Map[String, String]
 
+  // 特定于某次实例的参数，一般通过控制台手动触发
+  def instanceParameters: Map[String, String]
+
   // 作业调度计划开始时间
   def schedulerTime: OffsetDateTime
 

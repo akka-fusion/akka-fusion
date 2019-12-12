@@ -18,35 +18,34 @@ package fusion.schedulerx.server
 
 import akka.actor.Address
 import akka.actor.typed.scaladsl.{ ActorContext, Behaviors, TimerScheduler }
-import akka.actor.typed.{ ActorRef, Behavior, PostStop, PreRestart, Terminated }
+import akka.actor.typed.{ Behavior, PostStop, PreRestart, Terminated }
 import akka.cluster.ClusterEvent.MemberEvent
+import akka.cluster.Member
 import akka.cluster.pubsub.{ DistributedPubSub, DistributedPubSubMediator }
-import akka.cluster.typed.{ Cluster, Subscribe }
-import akka.cluster.{ Member, MemberStatus }
 import akka.http.scaladsl.model.StatusCodes
-import akka.util.Timeout
-import fusion.json.jackson.CborSerializable
-import fusion.schedulerx.protocol.{ Broker, JobInstanceData, Worker }
-import fusion.schedulerx.server.model.JobEntity
+import fusion.schedulerx.protocol.{ Broker, JobInstanceDetail, Worker }
+import fusion.schedulerx.server.model.JobConfigInfo
 import fusion.schedulerx.server.protocol.{ BrokerInfo, BrokerReply, TriggerJob }
 import fusion.schedulerx.server.repository.BrokerRepository
-import fusion.schedulerx.{ NodeRoles, SchedulerXSettings, Topics }
+import fusion.schedulerx.{ Constants, SchedulerXSettings, Topics }
 import helloscala.common.util.Utils
 
 import scala.concurrent.duration._
 
 object BrokerImpl {
   trait InternalCommand extends Broker.Command
-  case class InitParameters(namespace: String, payload: BrokerInfo) extends Broker.CommandNS
-  private final case object InitSuccess extends InternalCommand
-  private final case class InitFailure(e: Throwable) extends InternalCommand
+  case class InitParameters(namespace: String, payload: BrokerInfo) extends Broker.Command
   private case class InternalClusterEvent(event: MemberEvent) extends InternalCommand
   private case class RemoveWorkerByAddress(address: Address) extends InternalCommand
 
-  def apply(brokerId: String, brokerSettings: BrokerSettings, settings: SchedulerXSettings): Behavior[Broker.Command] =
+  def apply(
+      brokerId: String,
+      brokerSettings: BrokerSettings,
+      settings: SchedulerXSettings,
+      brokerRepository: BrokerRepository): Behavior[Broker.Command] =
     Behaviors.setup(context =>
       Behaviors.withTimers { timers =>
-        new BrokerImpl(brokerId, brokerSettings, settings, timers, context).idle()
+        new BrokerImpl(brokerId, brokerSettings, settings, brokerRepository, timers, context).idle()
       })
 }
 
@@ -56,39 +55,21 @@ class BrokerImpl(
     brokerId: String,
     brokerSettings: BrokerSettings,
     settings: SchedulerXSettings,
+    brokerRepository: BrokerRepository,
     timers: TimerScheduler[Broker.Command],
     context: ActorContext[Broker.Command]) {
-  private val cluster = Cluster(context.system)
-  private val clusterAdapter = context.messageAdapter(msg => InternalClusterEvent(msg))
+  private var brokerInfo: BrokerInfo = _
   private val mediator = DistributedPubSub(context.system.toClassic).mediator
   private val workersData = new WorkersData(settings)
-  private val brokerRepository = BrokerRepository(context.system)
 
   mediator ! DistributedPubSubMediator.Subscribe(Topics.REGISTER_WORKER, context.self.toClassic)
-  cluster.subscriptions ! Subscribe(clusterAdapter, classOf[MemberEvent])
-  for (member <- cluster.state.members if member.status == MemberStatus.Up) {
-    if (member.roles(NodeRoles.WORKER)) {
-      context.self ! InitSuccess
-    }
-  }
 
   def idle(): Behavior[Broker.Command] =
     Behaviors.withStash(1024) { stash =>
       Behaviors.receiveMessage {
-        case InitSuccess =>
-          context.log.info(s"Init success, become to receive().")
+        case InitParameters(_, brokerInfo) =>
+          this.brokerInfo = brokerInfo
           stash.unstashAll(receive())
-
-        case InitFailure(e) =>
-          context.log.error(s"Init failure: $e")
-          Behaviors.stopped
-
-        case InternalClusterEvent(event) =>
-          val member = event.member
-          if (member.status == MemberStatus.Up && member.roles(NodeRoles.WORKER)) {
-            context.self ! InitSuccess
-          }
-          Behaviors.same
 
         case msg =>
           stash.stash(msg)
@@ -102,12 +83,12 @@ class BrokerImpl(
         case message: Broker.WorkerStatus =>
           workersData.update(message.status.workerId, message.status)
           context.log.info(s"workers size: ${workersData.size} $message")
-          receive()
+          Behaviors.same
 
         case TriggerJob(maybeWorker, jobEntity, replyTo) =>
           workersData.findAvailableWorkers(maybeWorker) match {
             case Right(worker) =>
-              val jobInstanceData = createJobInstanceData(jobEntity)
+              val jobInstanceData = createJobInstanceDetail(jobEntity)
               brokerRepository.saveJobInstance(jobInstanceData)
               worker ! Worker.StartJob(jobInstanceData)
               replyTo ! BrokerReply(StatusCodes.Accepted.intValue, "")
@@ -123,13 +104,15 @@ class BrokerImpl(
 
         case Broker.JobInstanceResult(instanceId, result, serverStatus) =>
           workersData.update(serverStatus.workerId, serverStatus)
-          brokerRepository.updateJobInstance(instanceId, result)
+          brokerRepository.completeJobInstance(instanceId, result)
           Behaviors.same
 
-        case Broker.RegisterWorker(counter, `brokerId`, workerId, worker) =>
-          context.log.info(s"The ${counter}th worker registration, worker id is $workerId.")
-          worker ! Worker.RegisterToBrokerAck(context.self)
-          context.watch(worker)
+        case Broker.RegistrationWorker(namespace, workerId, worker) =>
+          if (brokerId == namespace) {
+            context.log.info(s"Received worker re registration message, send ack to it. worker id is $workerId.")
+            worker ! Worker.RegistrationWorkerAck(context.self)
+            context.watch(worker)
+          }
           Behaviors.same
 
         case other =>
@@ -148,18 +131,18 @@ class BrokerImpl(
           Behaviors.same
       }
 
-  private def createJobInstanceData(jobEntity: JobEntity): JobInstanceData = {
+  private def createJobInstanceDetail(jobEntity: JobConfigInfo): JobInstanceDetail = {
     val schedulerTime = null
-    JobInstanceData(
-      jobEntity.id,
+    JobInstanceDetail(
+      jobEntity.jobId,
       Utils.timeBasedUuid().toString,
       jobEntity.name,
-      jobEntity.`type`,
+      jobEntity.jobType,
       schedulerTime,
       jobEntity.jarUrl,
-      jobEntity.mainClass,
+      jobEntity.className,
       jobEntity.codeContent,
-      jobEntity.timeout,
+      jobEntity.timeout.map(_.seconds).getOrElse(Constants.DEFAULT_TIMEOUT),
       None,
       None)
   }

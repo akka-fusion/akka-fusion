@@ -18,10 +18,10 @@ package fusion.schedulerx.server.protocol
 
 import akka.actor.typed.ActorRef
 import fusion.schedulerx.protocol.Broker
-import fusion.schedulerx.server.model.JobEntity
+import fusion.schedulerx.server.model.JobConfigInfo
 
 trait Command
 
-case class TriggerJob(workerId: Option[String], jobEntity: JobEntity, replyTo: ActorRef[BrokerReply])
+case class TriggerJob(workerId: Option[String], jobEntity: JobConfigInfo, replyTo: ActorRef[BrokerReply])
     extends Command
     with Broker.Command

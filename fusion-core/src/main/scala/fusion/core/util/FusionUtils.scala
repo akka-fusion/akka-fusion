@@ -23,7 +23,6 @@ import akka.actor.typed.{ ActorSystem, Behavior }
 import com.typesafe.config.Config
 import fusion.common.FusionProtocol
 import fusion.common.constant.FusionConstants
-import fusion.protobuf.internal.ActorSystemUtils
 import helloscala.common.Configuration
 
 object FusionUtils {
@@ -69,7 +68,6 @@ object FusionUtils {
   private[fusion] def setupActorSystem(system: ActorSystem[_]): Unit = {
     if (_isSetupSystem.compareAndSet(false, true)) {
       _system = system
-      ActorSystemUtils.system = system
     } else {
       throw new IllegalStateException("setupActorSystem(system: ActorSystem) 函数只允许调用一次")
     }

@@ -3,9 +3,9 @@ package fusion.schedulerx.functest
 import java.util.concurrent.TimeUnit
 
 import akka.remote.testconductor.RoleName
-import akka.remote.testkit.{MultiNodeConfig, STMultiNodeSpec, SchudulerXMultiNodeSpec}
+import akka.remote.testkit.{ MultiNodeConfig, STMultiNodeSpec, SchudulerXMultiNodeSpec }
 import com.typesafe.config.ConfigFactory
-import fusion.schedulerx.{SchedulerX, server}
+import fusion.schedulerx.{ SchedulerX, server }
 import fusion.schedulerx.server.SchedulerXBroker
 import fusion.schedulerx.worker.SchedulerXWorker
 
@@ -28,10 +28,10 @@ object SchedulerXMultiTestConfig extends MultiNodeConfig {
 
   for ((node, idx) <- brokers.zipWithIndex) {
     nodeConfig(node)(ConfigFactory.parseString(s"""schedulerx {
-         |  name = schedulerx
-         |  akka.remote.artery.canonical.port = ${9000 + idx}
-         |  akka.cluster.roles = [broker]
-         |}""".stripMargin))
+      |  name = schedulerx
+      |  akka.remote.artery.canonical.port = ${9000 + idx}
+      |  akka.cluster.roles = [broker]
+      |}""".stripMargin))
   }
 
   for ((node, idx) <- workers.zipWithIndex) {

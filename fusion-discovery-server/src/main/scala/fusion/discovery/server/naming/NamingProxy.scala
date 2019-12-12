@@ -16,11 +16,8 @@
 
 package fusion.discovery.server.naming
 
-import akka.actor.typed.receptionist.Receptionist
-import akka.actor.typed.receptionist.ServiceKey
+import akka.actor.typed.{ ActorRef, Behavior }
 import akka.actor.typed.scaladsl.Behaviors
-import akka.actor.typed.ActorRef
-import akka.actor.typed.Behavior
 import akka.cluster.sharding.typed.ShardingEnvelope
 import fusion.discovery.model.InstanceReply
 import helloscala.common.IntStatus
@@ -34,18 +31,18 @@ object NamingProxy {
       //context.system.receptionist ! Receptionist.Register(NamingProxyServiceKey, context.self)
 
       Behaviors.receiveMessagePartial {
+        case cmd @ Namings.Heartbeat(in) =>
+          Namings.NamingServiceKey.entityId(in.namespace, in.serviceName) match {
+            case Right(entityId) => shardRegion ! ShardingEnvelope(entityId, cmd)
+            case Left(errMsg)    => context.log.warn(s"Heartbeat error: $errMsg; cmd: $cmd")
+          }
+          Behaviors.same
         case cmd: Namings.ServiceCommand =>
           Namings.NamingServiceKey.entityId(cmd.namespace, cmd.serviceName) match {
             case Right(entityId) => shardRegion ! ShardingEnvelope(entityId, cmd)
             case Left(errMsg) =>
               context.log.debug(s"ServiceCommand error: $errMsg; cmd: $cmd")
               cmd.replyTo ! InstanceReply(IntStatus.BAD_REQUEST)
-          }
-          Behaviors.same
-        case cmd @ Namings.Heartbeat(in) =>
-          Namings.NamingServiceKey.entityId(in.namespace, in.serviceName) match {
-            case Right(entityId) => shardRegion ! ShardingEnvelope(entityId, cmd)
-            case Left(errMsg)    => context.log.warn(s"Heartbeat error: $errMsg; cmd: $cmd")
           }
           Behaviors.same
       }

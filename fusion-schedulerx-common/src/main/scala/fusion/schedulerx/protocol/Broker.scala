@@ -19,19 +19,13 @@ package fusion.schedulerx.protocol
 import java.time.OffsetDateTime
 
 import akka.actor.typed.ActorRef
-import akka.cluster.sharding.typed.scaladsl.EntityTypeKey
 import fusion.json.jackson.CborSerializable
 import fusion.schedulerx.job.ProcessResult
 
 object Broker {
   trait Command extends CborSerializable
 
-  trait CommandNS extends Command {
-    val namespace: String
-  }
-
-  case class RegisterWorker(counter: Long, namespace: String, workerId: String, worker: ActorRef[Worker.Command])
-      extends CommandNS
+  case class RegistrationWorker(namespace: String, workerId: String, worker: ActorRef[Worker.Command]) extends Command
 
   case class WorkerStatus(counter: Long, status: WorkerServiceStatus) extends Command
 
@@ -45,5 +39,11 @@ object Broker {
   case class JobInstanceResult(instanceId: String, result: ProcessResult, serverStatus: WorkerServiceStatus)
       extends Command
 
-  val TypeKey: EntityTypeKey[Command] = EntityTypeKey("Broker")
+  case class KillJobInstance(instanceId: String) extends Command
+
+  case class GetJobInstanceList(jobId: String, replyTo: ActorRef[JobInstanceList]) extends Command
+
+  case class JobInstanceList(instances: Seq[JobInstanceDetail])
+
+  case class GetJobInstance(jobId: String, replyTo: ActorRef[JobInstanceDetail]) extends Command
 }

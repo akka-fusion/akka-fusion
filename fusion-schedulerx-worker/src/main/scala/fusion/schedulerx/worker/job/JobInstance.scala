@@ -25,14 +25,13 @@ import akka.actor.typed._
 import akka.actor.typed.scaladsl.{ ActorContext, Behaviors, TimerScheduler }
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.{ HttpRequest, StatusCodes }
-import akka.serialization.jackson.JacksonObjectMapperProvider
 import akka.stream.scaladsl.{ FileIO, Source }
 import akka.util.ByteString
 import com.typesafe.config.ConfigFactory
 import fusion.common.FusionProtocol
 import fusion.json.jackson.Jackson
 import fusion.schedulerx.job.ProcessResult
-import fusion.schedulerx.protocol.{ JobInstanceData, JobType, Worker }
+import fusion.schedulerx.protocol.{ JobInstanceDetail, JobType, Worker }
 import fusion.schedulerx.worker.WorkerImpl
 import fusion.schedulerx.worker.job.internal.WorkerJobContextImpl
 import fusion.schedulerx.{ Constants, FileUtils, SchedulerXSettings }
@@ -46,7 +45,7 @@ object JobInstance {
   private case class JobResult(result: Try[ProcessResult]) extends JobCommand
   private case object JobTimeout extends JobCommand
 
-  def apply(worker: ActorRef[Worker.Command], instanceData: JobInstanceData): Behavior[JobCommand] =
+  def apply(worker: ActorRef[Worker.Command], instanceData: JobInstanceDetail): Behavior[JobCommand] =
     Behaviors.setup(context =>
       Behaviors.withTimers(timers => new JobInstance(worker, instanceData, timers, context).runJob(context.system)))
 }
@@ -54,7 +53,7 @@ object JobInstance {
 import fusion.schedulerx.worker.job.JobInstance._
 class JobInstance private (
     worker: ActorRef[Worker.Command],
-    instanceData: JobInstanceData,
+    instanceData: JobInstanceDetail,
     timers: TimerScheduler[JobCommand],
     context: ActorContext[JobCommand]) {
   private val settings = SchedulerXSettings(context.system.settings.config)
@@ -174,10 +173,12 @@ class JobInstance private (
   }
 
   private def createJobContext(): WorkerJobContextImpl = {
+    // TODO
     WorkerJobContextImpl(
       instanceData.instanceId,
       instanceData.name,
       instanceData.`type`,
+      Map(),
       Map(),
       Nil,
       instanceData.schedulerTime,

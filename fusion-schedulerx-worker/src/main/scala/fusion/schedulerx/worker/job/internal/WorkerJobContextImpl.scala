@@ -29,6 +29,7 @@ case class WorkerJobContextImpl(
     jobName: String,
     jobType: JobType,
     jobParameters: Map[String, String],
+    instanceParameters: Map[String, String],
     jobUpstreamData: Seq[TaskInstanceResult],
     schedulerTime: OffsetDateTime,
     beginScheduleTime: OffsetDateTime,

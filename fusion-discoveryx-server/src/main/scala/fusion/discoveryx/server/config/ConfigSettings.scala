@@ -14,29 +14,12 @@
  * limitations under the License.
  */
 
-package fusion.discoveryx.server
+package fusion.discoveryx.server.config
 
-import com.typesafe.config.ConfigFactory
 import fusion.discoveryx.common.Constants
-import helloscala.common.config.FusionConfigFactory
-import org.scalatest.{ Matchers, WordSpecLike }
+import helloscala.common.Configuration
 
-class DiscoveryXServerTest extends WordSpecLike with Matchers {
-  private val config =
-    FusionConfigFactory.arrangeConfig(ConfigFactory.load("application-test.conf"), Constants.DISCOVERYX)
-  private val xserver = DiscoveryXServer(config)
-
-  "DiscoveryXServerTest" should {
-    "namingSetting" in {
-      xserver.namingSettings
-    }
-
-    "configSetting" in {
-      xserver.configSettings
-    }
-
-    "start" in {
-      xserver.start()
-    }
-  }
+final class ConfigSettings(configuration: Configuration) {
+  private val c = configuration.getConfiguration(s"${Constants.DISCOVERYX}.server.config")
+  val enable = c.getBoolean("enable")
 }

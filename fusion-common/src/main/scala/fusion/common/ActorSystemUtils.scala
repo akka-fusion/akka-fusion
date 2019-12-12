@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fusion.protobuf.internal
+package fusion.common
 
 import java.util.Objects
 

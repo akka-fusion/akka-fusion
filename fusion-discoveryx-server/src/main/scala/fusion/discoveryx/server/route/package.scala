@@ -16,27 +16,12 @@
 
 package fusion.discoveryx.server
 
-import com.typesafe.config.ConfigFactory
-import fusion.discoveryx.common.Constants
-import helloscala.common.config.FusionConfigFactory
-import org.scalatest.{ Matchers, WordSpecLike }
+import akka.http.scaladsl.server.Directives._
+import akka.http.scaladsl.server.{ Directive, PathMatcher }
 
-class DiscoveryXServerTest extends WordSpecLike with Matchers {
-  private val config =
-    FusionConfigFactory.arrangeConfig(ConfigFactory.load("application-test.conf"), Constants.DISCOVERYX)
-  private val xserver = DiscoveryXServer(config)
-
-  "DiscoveryXServerTest" should {
-    "namingSetting" in {
-      xserver.namingSettings
-    }
-
-    "configSetting" in {
-      xserver.configSettings
-    }
-
-    "start" in {
-      xserver.start()
-    }
-  }
+package object route {
+  def pathPost[L](pm: PathMatcher[L]): Directive[L] = path(pm) & post
+  def pathGet[L](pm: PathMatcher[L]): Directive[L] = path(pm) & get
+  def pathPut[L](pm: PathMatcher[L]): Directive[L] = path(pm) & put
+  def pathDelete[L](pm: PathMatcher[L]): Directive[L] = path(pm) & delete
 }

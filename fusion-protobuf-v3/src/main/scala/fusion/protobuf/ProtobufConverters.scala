@@ -14,12 +14,9 @@
  * limitations under the License.
  */
 
-package fusion.core.util
+package fusion.protobuf
 
-import java.time.Instant
-import java.time.LocalDateTime
-import java.time.OffsetDateTime
-import java.time.ZoneOffset
+import java.time.{ Instant, LocalDateTime, OffsetDateTime, ZoneOffset }
 import java.util.concurrent.TimeUnit
 
 import com.google.protobuf.duration.Duration

@@ -1,0 +1,14 @@
+syntax = "proto3";
+package fusion.discoveryx.server.protocol;
+
+import "scalapb/scalapb.proto";
+import "fusion/define.proto";
+import "fusion/discoveryx/model/discoveryx.proto";
+
+option (scalapb.options) = {
+  collection_type: "scala.collection.immutable.Seq"
+  import: "akka.actor.typed.ActorRef"
+  import: "fusion.discoveryx.server.config.ConfigManager._"
+  import: "fusion.discoveryx.server.config.Configs._"
+  import: "fusion.protobuf.ActorRefCompanion._"
+};

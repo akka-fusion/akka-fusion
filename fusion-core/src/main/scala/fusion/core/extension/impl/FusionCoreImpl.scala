@@ -27,20 +27,18 @@ import akka.actor.typed.scaladsl.adapter._
 import akka.http.scaladsl.model.HttpHeader
 import akka.util.Timeout
 import com.typesafe.scalalogging.StrictLogging
-import fusion.common.FusionProtocol
 import fusion.common.constant.{ ConfigKeys, FusionConstants }
 import fusion.common.extension.FusionCoordinatedShutdown
+import fusion.common.{ ActorSystemUtils, FusionProtocol }
 import fusion.core.event.FusionEvents
 import fusion.core.extension.FusionCore
 import fusion.core.http.headers.`X-Service`
 import fusion.core.setting.CoreSetting
-import fusion.core.util.FusionUtils
-import fusion.protobuf.internal.ActorSystemUtils
 import helloscala.common.Configuration
 import helloscala.common.util.{ PidFile, Utils }
 
-import scala.concurrent.{ Await, Future }
 import scala.concurrent.duration._
+import scala.concurrent.{ Await, Future }
 import scala.util.control.NonFatal
 
 private[fusion] class FusionCoreImpl(val system: ActorSystem[_]) extends FusionCore with StrictLogging {

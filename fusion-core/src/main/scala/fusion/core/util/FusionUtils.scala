@@ -23,7 +23,6 @@ import akka.actor.typed.{ ActorSystem, Behavior }
 import com.typesafe.config.Config
 import fusion.common.FusionProtocol
 import fusion.common.constant.FusionConstants
-import fusion.protobuf.internal.ActorSystemUtils
 import helloscala.common.Configuration
 
 object FusionUtils {

@@ -28,7 +28,7 @@ import fusion.json.jackson.CborSerializable
 import scala.collection.immutable
 
 object ConfigManager {
-  sealed trait Command extends CborSerializable
+  sealed trait Command
 
   case class GetContent(
       namespace: String,

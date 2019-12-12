@@ -17,13 +17,11 @@
 package fusion.protobuf
 
 import akka.actor.ExtendedActorSystem
-import akka.actor.typed.ActorRef
-import akka.actor.typed.ActorRefResolver
+import akka.actor.typed.{ ActorRef, ActorRefResolver }
 import akka.actor.typed.scaladsl.adapter._
 import akka.serialization.Serialization
 import akka.{ actor => classic }
-import com.google.protobuf.wrappers.StringValue
-import fusion.protobuf.internal.ActorSystemUtils
+import fusion.common.ActorSystemUtils
 import helloscala.common.util.StringUtils
 import scalapb.TypeMapper
 

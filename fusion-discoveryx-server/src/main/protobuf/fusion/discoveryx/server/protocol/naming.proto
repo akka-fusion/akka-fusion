@@ -1,6 +1,7 @@
 syntax = "proto3";
 package fusion.discoveryx.server.protocol;
 
+import "google/protobuf/wrappers.proto";
 import "scalapb/scalapb.proto";
 import "fusion/define.proto";
 import "fusion/discoveryx/model/discoveryx.proto";
@@ -46,4 +47,47 @@ message Heartbeat {
     fusion.discoveryx.model.InstanceHeartbeat in = 1 [(scalapb.field).no_box = true];
     string namespace = 2;
     string service_name = 3;
+}
+
+message ServiceInfo {
+    string namespace = 1;
+    string service_name = 2;
+    repeated fusion.discoveryx.model.Instance instances = 3;
+}
+message QueryServiceInfo {
+    option (scalapb.message).extends = "Namings.Command";
+    string reply_to = 1 [(scalapb.field).type = "ActorRef[ServiceInfo]"];
+}
+
+// NamingsManager 使用
+
+// 通过 PubSub 发布 Namings 自身的 ActorRef，并注册到 NamingManager
+message NamingRegisterToManager {
+    option (scalapb.message).extends = "fusion.discoveryx.server.naming.NamingManager.Command";
+    string naming_ref = 1 [(scalapb.field).type = "ActorRef[Namings.Command]"];
+}
+
+message ListService {
+    string namespace = 1;
+    int32 page = 2;
+    int32 size = 3;
+    string service_name = 4;
+}
+message NamingManagerCommand {
+    option (scalapb.message).extends = "fusion.discoveryx.server.naming.NamingManager.Command";
+    string reply_to = 1 [(scalapb.field).type = "ActorRef[fusion.discoveryx.server.naming.NamingManager.Reply]"];
+    oneof cmd {
+        ListService list_service = 2;
+    }
+}
+
+message ListedService {
+    repeated ServiceInfo service_infos = 1;
+}
+message NamingResponse {
+    option (scalapb.message).extends = "fusion.discoveryx.server.naming.NamingManager.Reply";
+    int32 status = 1;
+    oneof data {
+        ListedService service_infos = 2;
+    }
 }

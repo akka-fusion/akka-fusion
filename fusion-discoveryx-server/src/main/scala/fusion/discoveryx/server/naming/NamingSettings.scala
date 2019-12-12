@@ -27,6 +27,12 @@ final class NamingSettings(configuration: Configuration) {
   private val c = configuration.getConfiguration(s"${Constants.DISCOVERYX}.server.naming")
   val enable: Boolean = c.getBoolean("enable")
   val heartbeatInterval: FiniteDuration = c.get[FiniteDuration]("heartbeat-interval")
+  val defaultPage: Int = c.getInt("default-page")
+  val defaultSize: Int = c.getInt("default-size")
+
+  def findSize(size: Int): Int = if (size < defaultSize) defaultSize else size
+
+  def findPage(page: Int): Int = if (page < defaultPage) defaultPage else page
 }
 
 object NamingSettings {

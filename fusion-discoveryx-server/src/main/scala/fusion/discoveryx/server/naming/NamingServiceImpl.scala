@@ -21,21 +21,24 @@ import java.util.concurrent.TimeoutException
 import akka.NotUsed
 import akka.actor.typed.scaladsl.AskPattern._
 import akka.actor.typed.{ ActorRef, ActorSystem }
+import akka.cluster.sharding.typed.ShardingEnvelope
 import akka.grpc.scaladsl.Metadata
-import akka.stream.scaladsl.{ Sink, Source }
+import akka.stream.scaladsl.Source
 import akka.util.Timeout
+import com.typesafe.scalalogging.StrictLogging
 import fusion.discoveryx.common.Headers
 import fusion.discoveryx.grpc.NamingServicePowerApi
 import fusion.discoveryx.model._
 import fusion.discoveryx.server.protocol._
 import helloscala.common.IntStatus
-import helloscala.common.util.StringUtils
+import helloscala.common.exception.HSBadRequestException
 
 import scala.concurrent.Future
 import scala.concurrent.duration._
 
-class NamingServiceImpl(namingProxy: ActorRef[Namings.Command])(implicit system: ActorSystem[_])
-    extends NamingServicePowerApi {
+class NamingServiceImpl(namingProxy: ActorRef[ShardingEnvelope[Namings.Command]])(implicit system: ActorSystem[_])
+    extends NamingServicePowerApi
+    with StrictLogging {
   import system.executionContext
   implicit private val timeout: Timeout = 5.seconds
 
@@ -50,7 +53,7 @@ class NamingServiceImpl(namingProxy: ActorRef[Namings.Command])(implicit system:
    * 添加实例
    */
   override def registerInstance(in: InstanceRegister, metadata: Metadata): Future[InstanceReply] = {
-    namingProxy.ask[InstanceReply](replyTo => RegisterInstance(in, replyTo)).recover {
+    namingProxy.ask[InstanceReply](replyTo => ShardingEnvelope(in.namespace, RegisterInstance(in, replyTo))).recover {
       case _: TimeoutException => InstanceReply(IntStatus.GATEWAY_TIMEOUT)
     }
   }
@@ -59,7 +62,7 @@ class NamingServiceImpl(namingProxy: ActorRef[Namings.Command])(implicit system:
    * 修改实例
    */
   override def modifyInstance(in: InstanceModify, metadata: Metadata): Future[InstanceReply] = {
-    namingProxy.ask[InstanceReply](replyTo => ModifyInstance(in, replyTo)).recover {
+    namingProxy.ask[InstanceReply](replyTo => ShardingEnvelope(in.namespace, ModifyInstance(in, replyTo))).recover {
       case _: TimeoutException => InstanceReply(IntStatus.GATEWAY_TIMEOUT)
     }
   }
@@ -68,7 +71,7 @@ class NamingServiceImpl(namingProxy: ActorRef[Namings.Command])(implicit system:
    * 删除实例
    */
   override def removeInstance(in: InstanceRemove, metadata: Metadata): Future[InstanceReply] = {
-    namingProxy.ask[InstanceReply](replyTo => RemoveInstance(in, replyTo)).recover {
+    namingProxy.ask[InstanceReply](replyTo => ShardingEnvelope(in.namespace, RemoveInstance(in, replyTo))).recover {
       case _: TimeoutException => InstanceReply(IntStatus.GATEWAY_TIMEOUT)
     }
   }
@@ -77,7 +80,7 @@ class NamingServiceImpl(namingProxy: ActorRef[Namings.Command])(implicit system:
    * 查询实例
    */
   override def queryInstance(in: InstanceQuery, metadata: Metadata): Future[InstanceReply] = {
-    namingProxy.ask[InstanceReply](replyTo => QueryInstance(in, replyTo)).recover {
+    namingProxy.ask[InstanceReply](replyTo => ShardingEnvelope(in.namespace, QueryInstance(in, replyTo))).recover {
       case _: TimeoutException => InstanceReply(IntStatus.GATEWAY_TIMEOUT)
     }
   }
@@ -85,17 +88,21 @@ class NamingServiceImpl(namingProxy: ActorRef[Namings.Command])(implicit system:
   override def heartbeat(
       in: Source[InstanceHeartbeat, NotUsed],
       metadata: Metadata): Source[ServerStatusBO, NotUsed] = {
-    (for {
-      namespace <- metadata.getText(Headers.NAMESPACE)
-      serviceName <- metadata.getText(Headers.SERVICE_NAME)
-    } yield {
+    try {
+      val namespace = metadata
+        .getText(Headers.NAMESPACE)
+        .getOrElse(throw HSBadRequestException(s"Request header missing, need '${Headers.NAMESPACE}'."))
+      val serviceName = metadata
+        .getText(Headers.SERVICE_NAME)
+        .getOrElse(throw HSBadRequestException(s"Request header missing, need '${Headers.SERVICE_NAME}'."))
       in.map { cmd =>
-        namingProxy ! Heartbeat(cmd, namespace, serviceName)
+        namingProxy ! ShardingEnvelope(namespace, Heartbeat(cmd, namespace, serviceName))
         ServerStatusBO(IntStatus.OK)
       }
-    }).getOrElse {
-      in.runWith(Sink.ignore)
-      Source.single(ServerStatusBO(IntStatus.BAD_REQUEST))
+    } catch {
+      case e: Exception =>
+        logger.warn(s"Receive heartbeat message error: $e")
+        Source.single(ServerStatusBO(IntStatus.BAD_REQUEST))
     }
   }
 }

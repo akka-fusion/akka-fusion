@@ -170,7 +170,7 @@ lazy val fusionDiscoveryxServer = _project("fusion-discoveryx-server")
     javaAgents += _alpnAgent % "runtime;test",
     akkaGrpcCodeGeneratorSettings += "server_power_apis",
     akkaGrpcGeneratedSources := Seq(AkkaGrpc.Server),
-    libraryDependencies ++= Seq(_akkaPersistenceTyped) ++ _akkaHttps ++ _akkaClusters)
+    libraryDependencies ++= Seq(_scalapbJson4s, _akkaPersistenceTyped) ++ _akkaHttps ++ _akkaClusters)
 
 lazy val fusionDiscoveryxClient = _project("fusion-discoveryx-client")
   .enablePlugins(AkkaGrpcPlugin)
@@ -260,7 +260,7 @@ lazy val fusionHttp = _project("fusion-http")
 lazy val fusionBoot = _project("fusion-boot").dependsOn(fusionTestkit % "test->test", fusionCore)
 
 lazy val fusionHttpClient = _project("fusion-http-client")
-  .dependsOn(fusionJson, fusionTestkit % "test->test", fusionCore)
+  .dependsOn(fusionProtobufV3, fusionJson, fusionTestkit % "test->test", fusionCore)
   .settings(libraryDependencies ++= Seq(
       "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion % "protobuf,test,provided") ++ _akkaHttps)
 
@@ -276,8 +276,8 @@ lazy val fusionJson = _project("fusion-json")
   .dependsOn(fusionTestkit % "test->test", helloscalaCommon)
   .settings(libraryDependencies ++= Seq(
       "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion % "protobuf,test,provided",
-      _akkaSerializationJackson,
       _akkaHttp,
+      _akkaSerializationJackson,
       _json4s))
 
 lazy val fusionLog = _project("fusion-log")
@@ -334,10 +334,14 @@ lazy val fusionTestkit = _project("fusion-testkit")
         _scalatest))
 
 lazy val fusionCore = _project("fusion-core")
-  .dependsOn(fusionProtobufV3, fusionCommon)
+  .dependsOn(fusionCommon)
   .settings(Publishing.publishing: _*)
   .settings(
-    libraryDependencies ++= Seq(_requests, _akkaTypedTestkit % Test, _akkaStreamTestkit % Test, _scalatest % Test))
+    libraryDependencies ++= Seq(
+        _akkaHttp % Provided,
+        _akkaTypedTestkit % Test,
+        _akkaStreamTestkit % Test,
+        _scalatest % Test))
 
 lazy val fusionProtobufV3 = _project("fusion-protobuf-v3")
   .enablePlugins(AkkaGrpcPlugin)

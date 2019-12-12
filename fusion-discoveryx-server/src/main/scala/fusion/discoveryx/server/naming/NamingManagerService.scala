@@ -14,12 +14,15 @@
  * limitations under the License.
  */
 
-package fusion.discoveryx.server.config
+package fusion.discoveryx.server.naming
 
-import fusion.discoveryx.common.Constants
-import helloscala.common.Configuration
+import akka.actor.typed.ActorRef
+import akka.cluster.sharding.typed.ShardingEnvelope
+import akka.http.scaladsl.server.Route
+import fusion.discoveryx.server.protocol.{ ListService, NamingResponse }
 
-final class ConfigSetting(configuration: Configuration) {
-  private val c = configuration.getConfiguration(s"${Constants.DISCOVERYX}.server.config")
-  val enable = c.getBoolean("enable")
+import scala.concurrent.Future
+
+class NamingManagerService(namingProxy: ActorRef[ShardingEnvelope[Namings.Command]]) {
+  def listService(cmd: ListService): Future[NamingResponse] = ???
 }

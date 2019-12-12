@@ -17,33 +17,22 @@
 package fusion.discoveryx.server.route
 
 import akka.http.scaladsl.model.headers.`Timeout-Access`
-import akka.http.scaladsl.model.{ HttpEntity, HttpRequest, HttpResponse, StatusCodes, Uri }
+import akka.http.scaladsl.model.{ HttpEntity, HttpRequest, Uri }
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import com.typesafe.scalalogging.StrictLogging
+import fusion.discoveryx.DiscoveryX
 import fusion.discoveryx.common.Constants
+import fusion.discoveryx.server.config.ConfigSettings
+import fusion.discoveryx.server.naming.NamingSettings
 
-import scala.concurrent.Future
-
-class Routes(grpcHandler: HttpRequest => Future[HttpResponse]) extends StrictLogging {
+class Routes(discoveryX: DiscoveryX, configSettings: ConfigSettings, namingSettings: NamingSettings)
+    extends StrictLogging {
   def route: Route =
     pathPrefix("fusion" / Constants.DISCOVERYX / "v1") {
-      namingRoute ~
-      configRoute
-    } ~
-    extractRequest { request =>
-      onSuccess(grpcHandler(request)) { response =>
-        complete(response)
-      }
-    }
-
-  def namingRoute: Route = pathPrefix("naming") {
-    complete(StatusCodes.NotImplemented)
-  }
-
-  def configRoute: Route = pathPrefix("config") {
-    complete(StatusCodes.NotImplemented)
-  }
+      new NamingRoute(discoveryX, namingSettings).route ~
+      new ConfigRoute(discoveryX, configSettings).route
+    } ~ new GrpcRoute(discoveryX, configSettings, namingSettings).route
 
   def logRequest = mapRequest { req =>
     curlLogging(req)

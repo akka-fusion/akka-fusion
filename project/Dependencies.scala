@@ -203,6 +203,8 @@ object Dependencies {
 
   val _json4s = ("org.json4s" %% "json4s-jackson" % "3.6.7").exclude("com.fasterxml.jackson.core", "jackson-databind")
 
+  val _scalapbJson4s = "com.thesamet.scalapb" %% "scalapb-json4s" % "0.10.0"
+
   val _circeGeneric = "io.circe" %% "circe-generic" % "0.12.2"
 
   val _scalapbCirce = "io.github.scalapb-json" %% "scalapb-circe" % "0.5.1"

@@ -19,6 +19,8 @@ package helloscala.common.exception
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import helloscala.common.IntStatus
 
+import scala.util.control.NoStackTrace
+
 @JsonIgnoreProperties(value = Array("suppressed", "localizedMessage", "stackTrace", "cause"))
 class HSException(
     val status: Int,
@@ -26,7 +28,8 @@ class HSException(
     val cause: Throwable,
     enableSuppression: Boolean,
     writableStackTrace: Boolean)
-    extends RuntimeException(msg, cause, enableSuppression, writableStackTrace) {
+    extends RuntimeException(msg, cause, enableSuppression, writableStackTrace)
+    with NoStackTrace {
   def httpStatus: Int = IntStatus.INTERNAL_ERROR
 
   val data: Object = null

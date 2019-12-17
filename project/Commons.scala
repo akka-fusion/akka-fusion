@@ -1,3 +1,4 @@
+import bintray.BintrayKeys._
 import com.typesafe.sbt.SbtNativePackager.autoImport.maintainer
 import de.heikoseeberger.sbtheader.HeaderPlugin.autoImport.{ HeaderLicense, headerLicense }
 import sbt.Keys._
@@ -8,13 +9,13 @@ object Commons {
 
   def basicSettings =
     Seq(
-      organization := "com.helloscala.fusion",
-      organizationName := "helloscala.com",
+      organization := "com.akka-fusion",
+      organizationName := "Akka Fusion",
       organizationHomepage := Some(url("https://github.com/akka-fusion")),
       homepage := Some(url("https://akka-fusion.github.io/akka-fusion")),
       startYear := Some(2019),
       licenses += ("Apache-2.0", new URL("https://www.apache.org/licenses/LICENSE-2.0.txt")),
-      headerLicense := Some(HeaderLicense.ALv2("2019", "helloscala.com")),
+      headerLicense := Some(HeaderLicense.ALv2("2019", "akka-fusion.com")),
       scalacOptions ++= {
         var list = Seq(
           "-encoding",
@@ -61,15 +62,12 @@ object Commons {
 
 object Publishing {
   lazy val publishing = Seq(
-    publishTo := (if (version.value.endsWith("-SNAPSHOT")) {
-                    Some("Helloscala_sbt-public_snapshot".at(
-                      "https://artifactory.hongkazhijia.com/artifactory/sbt-release;build.timestamp=" + new java.util.Date().getTime))
-                  } else {
-                    Some(
-                      "Helloscala_sbt-public_release".at(
-                        "https://artifactory.hongkazhijia.com/artifactory/libs-release"))
-                  }),
-    credentials += Credentials(Path.userHome / ".ivy2" / ".credentials_akka-fusion"))
+    bintrayOrganization := Some("akka-fusion"),
+    bintrayRepository := "maven",
+    scmInfo := Some(
+        ScmInfo(
+          url("https://github.com/akka-fusion/akka-fusion"),
+          "scm:git:git@github.com:akka-fusion/akka-fusion.git")))
 
   lazy val noPublish =
     Seq(publish := ((): Unit), publishLocal := ((): Unit), publishTo := None)

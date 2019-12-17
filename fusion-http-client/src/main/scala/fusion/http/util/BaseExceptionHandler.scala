@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019 akka-fusion.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,12 +18,9 @@ package fusion.http.util
 
 import java.util.concurrent.TimeoutException
 
-import akka.http.scaladsl.model.StatusCodes.InternalServerError
-import akka.http.scaladsl.model.StatusCodes.RequestEntityTooLarge
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.server.Directives._
-import akka.http.scaladsl.server.ExceptionHandler
-import akka.http.scaladsl.server.RequestContext
+import akka.http.scaladsl.server.{ ExceptionHandler, RequestContext }
 import com.typesafe.scalalogging.StrictLogging
 import fusion.http.exception.HttpResponseException
 import helloscala.common.exception.HSException
@@ -61,12 +58,12 @@ object BaseExceptionHandler extends StrictLogging {
 
           case e: EntityStreamSizeException =>
             logger.warn("请求实体太大", e)
-            jsonEntity(RequestEntityTooLarge, e.toString())
+            jsonEntity(StatusCodes.PayloadTooLarge, e.toString())
 
           case e: ExceptionWithErrorInfo =>
             val msg = e.info.format(ctx.settings.verboseErrorMessages)
             logger.warn(msg, e)
-            jsonEntity(InternalServerError, msg)
+            jsonEntity(StatusCodes.InternalServerError, msg)
 
           case _ =>
             logger.error(s"请求无法正常处理，URI[$uri]", ex)

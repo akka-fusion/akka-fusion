@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019 akka-fusion.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@
 package fusion.jdbc
 
 import akka.Done
-import akka.actor.CoordinatedShutdown
 import akka.actor.typed.ActorSystem
 import com.zaxxer.hikari.HikariDataSource
 import fusion.common.component.Components

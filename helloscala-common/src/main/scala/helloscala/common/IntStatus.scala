@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019 akka-fusion.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,4 +34,10 @@ object IntStatus {
   val BAD_GATEWAY = 502
   val SERVICE_UNAVAILABLE = 503
   val GATEWAY_TIMEOUT = 504
+
+  def isSuccess(status: Int): Boolean = status > 199 && status < 300
+  def isRedirection(status: Int): Boolean = status > 299 && status < 400
+  def isClientError(status: Int): Boolean = status > 399 && status < 500
+  def isServerError(status: Int): Boolean = status > 499
+  def isError(status: Int): Boolean = status > 299
 }

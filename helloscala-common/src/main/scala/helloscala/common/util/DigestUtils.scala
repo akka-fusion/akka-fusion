@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019 akka-fusion.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,16 +17,8 @@
 package helloscala.common.util
 
 import java.nio.charset.StandardCharsets
-import java.nio.file.Files
-import java.nio.file.Path
+import java.nio.file.{ Files, Path }
 import java.security.MessageDigest
-
-import akka.stream.Materializer
-import akka.stream.scaladsl.FileIO
-import akka.stream.scaladsl.Sink
-
-import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
 
 object MessageDigestAlgorithms {
   /**
@@ -134,13 +126,4 @@ object DigestUtils {
     _sha(path, digestSha512())
 
   def sha512Hex(path: Path): String = StringUtils.hex2Str(sha512(path))
-
-  def reactiveSha256Hex(path: Path)(implicit mat: Materializer, ec: ExecutionContext): Future[String] = {
-    reactiveSha256(path).map(bytes => StringUtils.hex2Str(bytes))
-  }
-
-  def reactiveSha256(path: Path)(implicit mat: Materializer, ec: ExecutionContext): Future[Array[Byte]] = {
-    val md = digestSha256()
-    FileIO.fromPath(path).map(bytes => md.update(bytes.asByteBuffer)).runWith(Sink.ignore).map(_ => md.digest())
-  }
 }

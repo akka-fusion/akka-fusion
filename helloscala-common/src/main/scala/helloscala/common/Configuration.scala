@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019 akka-fusion.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,20 +16,15 @@
 
 package helloscala.common
 
-import java.nio.file.Path
-import java.nio.file.Paths
+import java.nio.file.{ Path, Paths }
 import java.time.OffsetDateTime
-import java.util.Objects
-import java.util.Properties
+import java.util.{ Objects, Properties }
 
-import akka.actor.typed.ActorSystem
-import akka.{ actor => classic }
 import com.typesafe.config._
 import com.typesafe.config.impl.ConfigurationHelper
 import com.typesafe.scalalogging.StrictLogging
 import helloscala.common.exception.HSException
-import helloscala.common.util.StringUtils
-import helloscala.common.util.TimeUtils
+import helloscala.common.util.{ StringUtils, TimeUtils }
 
 import scala.collection.mutable
 import scala.concurrent.duration._
@@ -300,8 +295,6 @@ object Configuration extends StrictLogging {
     new Configuration(c.withFallback(ConfigFactory.load()).resolve())
   }
   def load(): Configuration = load(ConfigFactory.load())
-  def load(system: classic.ActorSystem): Configuration = load(system.settings.config)
-  def load(system: ActorSystem[_]): Configuration = load(system.settings.config)
   def load(props: Properties): Configuration = load(ConfigurationHelper.fromProperties(props))
 
   def parseString(content: String): Configuration = {

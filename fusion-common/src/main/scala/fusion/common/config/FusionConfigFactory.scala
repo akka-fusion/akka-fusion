@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019 akka-fusion.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package helloscala.common.config
+package fusion.common.config
 
 import akka.actor.AddressFromURIString
 import com.typesafe.config.{ Config, ConfigFactory }
@@ -22,6 +22,9 @@ import com.typesafe.config.{ Config, ConfigFactory }
 import scala.jdk.CollectionConverters._
 
 object FusionConfigFactory {
+  def arrangeConfig(internalPath: String, modules: Seq[String]): Config =
+    arrangeConfig(ConfigFactory.load(), internalPath, modules)
+
   def arrangeConfig(originalConfig: Config, internalPath: String): Config =
     arrangeConfig(originalConfig, internalPath, Nil)
 

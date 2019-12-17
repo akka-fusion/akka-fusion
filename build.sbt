@@ -56,7 +56,7 @@ lazy val root = Project(id = "akka-fusion", base = file("."))
     helloscalaCommon)
   .settings(Publishing.noPublish: _*)
   .settings(Environment.settings: _*)
-  .settings(aggregate in sonarScan := false)
+  .settings(aggregate in sonarScan := false, skip in publish := true)
 //.settings(
 //  addCommandAlias("fix", "all compile:scalafix test:scalafix"),
 //  addCommandAlias("fixCheck", "; compile:scalafix --check ; test:scalafix --check"))
@@ -187,7 +187,7 @@ lazy val fusionHttpClient = _project("fusion-http-client")
       "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion % "protobuf,test,provided") ++ _akkaHttps)
 
 lazy val fusionJsonCirce = _project("fusion-json-circe")
-  .dependsOn(fusionTestkit % "test->test", helloscalaCommon)
+  .dependsOn(fusionTestkit % "test->test", fusionCommon)
   .settings(libraryDependencies ++= Seq(
       "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion % "protobuf,test,provided",
       _akkaHttp,
@@ -195,7 +195,7 @@ lazy val fusionJsonCirce = _project("fusion-json-circe")
       _scalapbCirce))
 
 lazy val fusionJson = _project("fusion-json")
-  .dependsOn(fusionTestkit % "test->test", helloscalaCommon)
+  .dependsOn(fusionTestkit % "test->test", fusionCommon)
   .settings(libraryDependencies ++= Seq(
       "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion % "protobuf,test,provided",
       _akkaHttp,
@@ -300,21 +300,22 @@ lazy val fusionCommon = _project("fusion-common")
 //    buildInfoOptions += BuildInfoOption.BuildTime,
 //    buildInfoPackage := "fusion.version",
 //    buildInfoObject := "Version",
-    libraryDependencies ++= Seq(_akkaTypedTestkit % Test, _scalatest % Test) ++ _akkas)
+    libraryDependencies ++= Seq(
+        _akkaSerializationJackson % Provided,
+        _akkaTypedTestkit % Test,
+        _akkaStreamTestkit % Test,
+        _scalatest % Test) ++ _akkas)
 
 lazy val helloscalaCommon = _project("helloscala-common")
   .settings(Publishing.publishing: _*)
-  .settings(
-    libraryDependencies ++= Seq(
-        //_jacksonAnnotations,
-        _uuidGenerator,
-        "org.scala-lang" % "scala-library" % scalaVersion.value,
-        _akkaSerializationJackson % Provided,
-        _scalaCollectionCompat,
-        _scalaJava8Compat,
-        _akkaTypedTestkit % Test,
-        _akkaStreamTestkit % Test,
-        _scalatest % Test) ++ _akkas ++ _logs)
+  .settings(libraryDependencies ++= Seq(
+      _jacksonAnnotations % Provided,
+      _config,
+      _uuidGenerator,
+      "org.scala-lang" % "scala-library" % scalaVersion.value,
+      _scalaCollectionCompat,
+      _scalaJava8Compat,
+      _scalatest % Test) ++ _logs)
 
 def _project(name: String, _base: String = null) =
   Project(id = name, base = file(if (_base eq null) name else _base))

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019 akka-fusion.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -257,7 +257,7 @@ object TimeUtils extends StrictLogging {
         case Array(date, timezone) =>
           val (time, zone) = timezone.split("""[+-]""") match {
             case Array(timeStr, zoneStr) =>
-              (timeStr, zoneOffsetOf((if (timezone.indexOf('-') < 0) '+' else '-') + zoneStr))
+              (timeStr, zoneOffsetOf((if (timezone.indexOf('-') < 0) '+' else '-').toString + zoneStr))
             case Array(timeStr) => (timeStr, ZONE_CHINA_OFFSET)
             case _ =>
               throw new DateTimeException(s"$zdt 无有效的时区信息，推荐格式：yyyy-MM-dd HH:mm:ss[+Z]")

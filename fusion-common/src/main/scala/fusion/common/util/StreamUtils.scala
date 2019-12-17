@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019 akka-fusion.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,19 @@
  * limitations under the License.
  */
 
-package helloscala.common.util
+package fusion.common.util
+
+import java.nio.file.Path
 
 import akka.Done
 import akka.stream.Materializer
-import akka.stream.scaladsl.Sink
-import akka.stream.scaladsl.Source
+import akka.stream.scaladsl.{ FileIO, Sink, Source }
+import helloscala.common.util.DigestUtils.digestSha256
+import helloscala.common.util.StringUtils
 import org.reactivestreams.Publisher
 
 import scala.collection.immutable
-import scala.concurrent.Future
+import scala.concurrent.{ ExecutionContext, Future }
 
 object StreamUtils {
   def publishToHead[T](publisher: Publisher[T])(implicit mat: Materializer): Future[T] =
@@ -43,4 +46,13 @@ object StreamUtils {
 
   def sourceToPublishMultiple[T](source: Source[T, _])(implicit mat: Materializer): Publisher[T] =
     source.runWith(Sink.asPublisher(true))
+
+  def reactiveSha256Hex(path: Path)(implicit mat: Materializer, ec: ExecutionContext): Future[String] = {
+    reactiveSha256(path).map(bytes => StringUtils.hex2Str(bytes))
+  }
+
+  def reactiveSha256(path: Path)(implicit mat: Materializer, ec: ExecutionContext): Future[Array[Byte]] = {
+    val md = digestSha256()
+    FileIO.fromPath(path).map(bytes => md.update(bytes.asByteBuffer)).runWith(Sink.ignore).map(_ => md.digest())
+  }
 }

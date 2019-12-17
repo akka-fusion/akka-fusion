@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019 akka-fusion.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,36 +14,25 @@
  * limitations under the License.
  */
 
-package helloscala.common.util
+package fusion.common.util
 
 import java.nio.file.Paths
 
-import akka.testkit.TestKit
-import akka.{ actor => classic }
-import org.scalatest.BeforeAndAfterAll
+import akka.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
+import helloscala.common.util.DigestUtils
 import org.scalatest.FunSuiteLike
-import org.scalatest.MustMatchers
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
 
-class DigestUtilsTest
-    extends TestKit(classic.ActorSystem())
-    with FunSuiteLike
-    with BeforeAndAfterAll
-    with MustMatchers {
-  import system.dispatcher
-
-  val PROJECT_BASE = sys.props("user.dir")
+class StreamUtilsTest extends ScalaTestWithActorTestKit with FunSuiteLike {
+  private implicit val ec = system.executionContext
+  private val PROJECT_BASE = sys.props("user.dir")
 
   test("digest") {
-    fromPath(s"$PROJECT_BASE/README.md") mustBe fromPathFuture(s"$PROJECT_BASE/README.md")
+    fromPath(s"$PROJECT_BASE/README.md") shouldBe fromPathFuture(s"$PROJECT_BASE/README.md")
   }
 
   private def fromPath(path: String) = DigestUtils.sha256HexFromPath(Paths.get(path))
-  private def fromPathFuture(path: String) = Await.result(DigestUtils.reactiveSha256Hex(Paths.get(path)), 10.seconds)
-
-  override protected def afterAll(): Unit = {
-    system.dispatcher
-  }
+  private def fromPathFuture(path: String) = Await.result(StreamUtils.reactiveSha256Hex(Paths.get(path)), 10.seconds)
 }

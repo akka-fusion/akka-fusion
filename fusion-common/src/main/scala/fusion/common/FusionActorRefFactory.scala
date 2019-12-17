@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019 akka-fusion.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,9 +24,52 @@ import helloscala.common.exception.HSInternalErrorException
 
 import scala.concurrent.duration.FiniteDuration
 import scala.concurrent.{ Await, Future }
+import scala.concurrent.duration._
 
-trait FusionActorRefFactory {
+trait SpawnFactory {
+  def spawn[T](behavior: Behavior[T]): ActorRef[T]
+
+  /**
+   * See corresponding method on [[ActorTestKit]]
+   */
+  def spawn[T](behavior: Behavior[T], name: String): ActorRef[T]
+
+  /**
+   * See corresponding method on [[ActorTestKit]]
+   */
+  def spawn[T](behavior: Behavior[T], props: Props): ActorRef[T]
+
+  /**
+   * See corresponding method on [[ActorTestKit]]
+   */
+  def spawn[T](behavior: Behavior[T], name: String, props: Props): ActorRef[T]
+}
+
+trait FusionActorRefFactory extends SpawnFactory {
   def system: ActorSystem[FusionProtocol.Command]
+
+  override def spawn[T](behavior: Behavior[T]): ActorRef[T] = spawn(behavior, Props.empty)
+
+  /**
+   * See corresponding method on [[ActorTestKit]]
+   */
+  override def spawn[T](behavior: Behavior[T], name: String): ActorRef[T] = spawn(behavior, name, Props.empty)
+
+  /**
+   * See corresponding method on [[ActorTestKit]]
+   */
+  override def spawn[T](behavior: Behavior[T], props: Props): ActorRef[T] = {
+    implicit val timeout: Timeout = 5.seconds
+    implicit val scheduler = system.scheduler
+    val f = system.ask(FusionProtocol.Spawn(behavior, null, props))
+    Await.result(f, timeout.duration)
+  }
+
+  /**
+   * See corresponding method on [[ActorTestKit]]
+   */
+  override def spawn[T](behavior: Behavior[T], name: String, props: Props): ActorRef[T] =
+    spawnActorSync(behavior, name, props, 5.seconds)
 
   def spawnActor[REF](behavior: Behavior[REF], name: String)(implicit timeout: Timeout): Future[ActorRef[REF]] =
     spawnActor(behavior, name, Props.empty)

@@ -171,6 +171,8 @@ object Dependencies {
     "org.mongodb.scala" %% "mongo-scala-bson" % versionMongoScalaBson,
     "org.mongodb" % "mongodb-driver-reactivestreams" % versionMongoDriverReactivestreams)
 
+  val _jacksonAnnotations = "com.fasterxml.jackson.core" % "jackson-annotations" % "2.10.1"
+
   val _cassandras = Seq("com.datastax.oss" % "java-driver-core" % versionCassandra)
 
   val _elastic4ses = Seq(
@@ -193,6 +195,8 @@ object Dependencies {
     ("com.typesafe.akka" %% "akka-stream-kafka" % versionAlpakkaKafka)
       .exclude("com.typesafe.akka", "akka-stream")
       .cross(CrossVersion.binary))
+
+  val _config = "com.typesafe" % "config" % "1.4.0"
 
   val _neotypes = "com.dimafeng" %% "neotypes" % versionNeotypes
   val _neotypesAkkaStream = "com.dimafeng" %% "neotypes-akka-stream" % versionNeotypes

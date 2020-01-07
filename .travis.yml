@@ -1,0 +1,13 @@
+language: scala
+
+scala:
+  - "2.12.10"
+  - "2.13.1"
+
+branches:
+  only:
+    - develop
+
+script:
+  - sbt -jvm-opts .travis-jvmopts ";fusion-docs/paradox ;test:compile ;test"
+  - sbt -jvm-opts .travis-jvmopts ";++2.12.10 ;test:compile ;test"

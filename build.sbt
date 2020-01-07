@@ -26,6 +26,7 @@ ThisBuild / sonarUseExternalConfig := true
 
 lazy val root = Project(id = "akka-fusion", base = file("."))
   .aggregate(
+    fusionSbtPlugin,
     fusionBoot,
     fusionInjects,
     fusionMq,
@@ -104,6 +105,26 @@ lazy val fusionDocs = _project("fusion-docs")
         "scala.binary_version" -> scalaBinaryVersion.value,
         "scaladoc.akka.base_url" -> s"http://doc.akka.io/api/$versionAkka",
         "akka.version" -> versionAkka))
+
+lazy val fusionSbtPlugin = _project("fusion-sbt-plugin", "sbt-plugin")
+  .enablePlugins(SbtPlugin)
+  .dependsOn(codegen)
+  .settings(
+    sbtPlugin := true,
+    scalaVersion := versionScala212,
+    //scriptedBufferLog := false,
+    //crossSbtVersions := Seq("1.0.0"),
+    //crossScalaVersions := Seq(versionScala212),
+    //libraryDependencies ++= Seq("com.lightbend.akka.grpc" % "sbt-akka-grpc" % "0.7.3"),
+    publishMavenStyle := false)
+
+lazy val codegen = _project("codegen")
+  .enablePlugins(BuildInfoPlugin)
+  .settings(
+    scalaVersion := versionScala212,
+    crossScalaVersions := Seq(versionScala212, versionScala213),
+    //    buildInfoObject := "Version",
+    buildInfoPackage := "fusion.sbt.gen")
 
 lazy val fusionInjects = _project("fusion-injects")
   .dependsOn(fusionHttp, fusionDiscoveryClient, fusionTestkit % "test->test")
@@ -248,28 +269,8 @@ lazy val fusionProtobufV3 = _project("fusion-protobuf-v3")
 
 lazy val fusionCommon = _project("fusion-common")
   .dependsOn(helloscalaCommon)
-  //  .enablePlugins(BuildInfoPlugin)
   .settings(Publishing.publishing: _*)
   .settings(
-//    buildInfoKeys := Seq[BuildInfoKey](
-//        startYear,
-//        organization,
-//        organizationName,
-//        organizationHomepage,
-//        scalacOptions,
-//        javacOptions,
-//        version,
-//        scalaVersion,
-//        sbtVersion,
-//        sbtBinaryVersion,
-//        git.gitCurrentTags,
-//        git.gitDescribedVersion,
-//        git.gitCurrentBranch,
-//        git.gitHeadCommit,
-//        git.gitHeadCommitDate),
-//    buildInfoOptions += BuildInfoOption.BuildTime,
-//    buildInfoPackage := "fusion.version",
-//    buildInfoObject := "Version",
     libraryDependencies ++= Seq(
         _akkaSerializationJackson % Provided,
         _akkaTypedTestkit % Test,

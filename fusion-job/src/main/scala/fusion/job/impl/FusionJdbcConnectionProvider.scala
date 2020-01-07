@@ -24,7 +24,7 @@ import org.quartz.utils.ConnectionProvider
 class FusionJdbcConnectionProvider(dataSource: HikariDataSource) extends ConnectionProvider {
   override def getConnection: Connection = dataSource.getConnection
 
-  override def shutdown(): Unit = {}
+  override def shutdown(): Unit = { dataSource.close() }
 
   override def initialize(): Unit = {}
 }

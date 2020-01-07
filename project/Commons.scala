@@ -64,6 +64,13 @@ object Publishing {
   lazy val publishing = Seq(
     bintrayOrganization := Some("akka-fusion"),
     bintrayRepository := "maven",
+    maintainer := "yangbajing <yang.xunjing@qq.com>",
+    developers := List(
+        Developer(
+          id = "yangbajing",
+          name = "Yang Jing",
+          email = "yang.xunjing@qq.com",
+          url = url("https://github.com/yangbajing"))),
     scmInfo := Some(
         ScmInfo(
           url("https://github.com/akka-fusion/akka-fusion"),

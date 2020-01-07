@@ -199,7 +199,7 @@ akka-fusion/akka-fusion
 <ul style="display: none">
 <li class="md-nav__item md-version" id="project.version">
 <label class="md-nav__link" for="__version">
-<i class="md-icon" title="Version">label_outline</i> 2.0.0*
+<i class="md-icon" title="Version">label_outline</i> 2.0.2
 </label>
 </li>
 </ul>
@@ -230,7 +230,7 @@ akka-fusion/akka-fusion
 <p>Interceptor Chain在应用开发中是一个很常见的设计模式，Fusion提供了<code>HttpInterceptor</code>接口来支持拦截器链模式。</p>
 <p>Scala是一门面向对象和函数式编程相融合的一门语言，在函数式编程中可通过函数的嵌套和各种高级处理来实现拦截器链的功能。</p>
 <h2><a href="#应用拦截器链" name="应用拦截器链" class="anchor"><span class="anchor-link"></span></a>应用拦截器链</h2>
-<pre class="prettyprint"><a class="icon go-to-source" href="https://github.com/yangbajing/akka-fusion/tree/master/fusion-docs/src/main/scala/docs/core/HttpHandlerDoc.scala#L40-L54" target="_blank" title="Go to snippet source"></a><code class="language-scala">  trait HttpInterceptor {
+<pre class="prettyprint"><a class="icon go-to-source" href="https://github.com/akka-fusion/akka-fusion/tree/master/fusion-docs/src/main/scala/docs/core/HttpHandlerDoc.scala#L40-L54" target="_blank" title="Go to snippet source"></a><code class="language-scala">  trait HttpInterceptor {
     def filter(handler: HttpHandler): HttpHandler
   }
 
@@ -248,7 +248,7 @@ akka-fusion/akka-fusion
 <p>在<code>applyHttpInterceptorChain</code>函数中，对拦截器链<code>filters</code>应用<code>foldLeft</code>函数，即可非常优雅的应用每一个拦截器。</p>
 <h2><a href="#拦截器示例" name="拦截器示例" class="anchor"><span class="anchor-link"></span></a>拦截器示例</h2>
 <h3><a href="#拦截器示例-1-trace" name="拦截器示例-1-trace" class="anchor"><span class="anchor-link"></span></a>拦截器示例 1：trace</h3>
-<pre class="prettyprint"><a class="icon go-to-source" href="https://github.com/yangbajing/akka-fusion/tree/master/fusion-docs/src/main/scala/docs/core/HttpHandlerDoc.scala#L107-L125" target="_blank" title="Go to snippet source"></a><code class="language-scala">class TraceHttpInterceptor(system: classic.ActorSystem) extends HttpInterceptor {
+<pre class="prettyprint"><a class="icon go-to-source" href="https://github.com/akka-fusion/akka-fusion/tree/master/fusion-docs/src/main/scala/docs/core/HttpHandlerDoc.scala#L104-L122" target="_blank" title="Go to snippet source"></a><code class="language-scala">class TraceHttpInterceptor(system: classic.ActorSystem) extends HttpInterceptor {
   import system.dispatcher
 
   override def interceptor(route: Route): Route = { ctx =&gt;
@@ -269,8 +269,7 @@ akka-fusion/akka-fusion
 }</code></pre>
 <p><code>TraceHttpInterceptor</code>实现了给接收到的HTTP请求添加 <strong>trace id</strong> 的功能，这在微服务中监控调用链非常有用。</p>
 <h3><a href="#拦截器示例-2-不做任务处理" name="拦截器示例-2-不做任务处理" class="anchor"><span class="anchor-link"></span></a>拦截器示例 2：不做任务处理</h3>
-<pre class="prettyprint"><a class="icon go-to-source" href="https://github.com/yangbajing/akka-fusion/tree/master/fusion-docs/src/main/scala/docs/core/HttpHandlerDoc.scala#L98-L103" target="_blank" title="Go to snippet source"></a><code class="language-scala">class NothingHttpInterceptor extends HttpInterceptor {
-
+<pre class="prettyprint"><a class="icon go-to-source" href="https://github.com/akka-fusion/akka-fusion/tree/master/fusion-docs/src/main/scala/docs/core/HttpHandlerDoc.scala#L96-L100" target="_blank" title="Go to snippet source"></a><code class="language-scala">class NothingHttpInterceptor extends HttpInterceptor {
   override def interceptor(route: Route): Route = { ctx =&gt;
     route(ctx)
   }
@@ -278,8 +277,7 @@ akka-fusion/akka-fusion
 <p>直接返回<code>handler</code>，并不对HTTP请求过程做任务处理，就像 <code>NothingHttpIntercepter</code> 那样。你可以加入判断逻辑，</p>
 <h3><a href="#拦截器示例-3-终止调用链" name="拦截器示例-3-终止调用链" class="anchor"><span class="anchor-link"></span></a>拦截器示例 3：终止调用链</h3>
 <p>某个拦截器想终止调用链的执行，在转换函数中抛出一个异常即可：</p>
-<pre class="prettyprint"><a class="icon go-to-source" href="https://github.com/yangbajing/akka-fusion/tree/master/fusion-docs/src/main/scala/docs/core/HttpHandlerDoc.scala#L85-L92" target="_blank" title="Go to snippet source"></a><code class="language-scala">  class TerminationHttpInterceptor extends HttpInterceptor {
-
+<pre class="prettyprint"><a class="icon go-to-source" href="https://github.com/akka-fusion/akka-fusion/tree/master/fusion-docs/src/main/scala/docs/core/HttpHandlerDoc.scala#L85-L91" target="_blank" title="Go to snippet source"></a><code class="language-scala">  class TerminationHttpInterceptor extends HttpInterceptor {
     override def filter(handler: HttpHandler): HttpHandler = { req =&gt;
       //handler(req).flatMap(resp =&gt; Future.failed(HttpResponseException(resp)))
 //      handler(req).map(resp =&gt; throw HttpResponseException(resp))
@@ -288,13 +286,13 @@ akka-fusion/akka-fusion
   }</code></pre>
 </div>
 <div>
-<a href="https://github.com/yangbajing/akka-fusion/tree/master/fusion-docs/src/main/paradox/http/interceptor-chain.md" title="Edit this page" class="md-source-file md-edit">
+<a href="https://github.com/akka-fusion/akka-fusion/tree/master/fusion-docs/src/main/paradox/http/interceptor-chain.md" title="Edit this page" class="md-source-file md-edit">
 Edit this page
 </a>
 </div>
 <div class="print-only">
 <span class="md-source-file md-version">
-2.0.0*
+2.0.2
 </span>
 </div>
 </article>

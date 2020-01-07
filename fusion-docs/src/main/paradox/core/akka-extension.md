@@ -24,9 +24,9 @@ akka {
 
 akka-fusion在提供了 `FusionExtension` 帮助trait来构建Akka Extension。
 
-@@snip [FusionExtension.scala](../../../../../fusion-core/src/main/scala/fusion/core/extension/FusionExtension.scala) { #FusionExtension }
+@@snip [FusionExtension.scala](../../../../../fusion-common/src/main/scala/fusion/common/extension/FusionExtension.scala) { #FusionExtension }
 
-`FusionExtension`在默认`Extension`基础之上添加了`ActorSystem`引用，并通过`FusionCore`提供了`Configuration`（对Lightbend Config的增强包装）。
+`FusionExtension`在默认`Extension`基础之上添加了`ActorSystem[T]`和`akka.actor.ActorSystem`引用，提供了`Configuration`（对Lightbend Config的增强包装）。
 
 ## 通过Akka Extension来管理资源
 

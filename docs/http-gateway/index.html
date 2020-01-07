@@ -201,7 +201,7 @@ akka-fusion/akka-fusion
 <ul style="display: none">
 <li class="md-nav__item md-version" id="project.version">
 <label class="md-nav__link" for="__version">
-<i class="md-icon" title="Version">label_outline</i> 2.0.0*
+<i class="md-icon" title="Version">label_outline</i> 2.0.2
 </label>
 </li>
 </ul>
@@ -250,7 +250,7 @@ akka-fusion/akka-fusion
   <li><code>locations</code>：指定需要代理的地址</li>
 </ol>
 <h4><a href="#upstream" name="upstream" class="anchor"><span class="anchor-link"></span></a>upstream</h4>
-<pre class="prettyprint"><a class="icon go-to-source" href="https://github.com/yangbajing/akka-fusion/tree/master/fusion-http-gateway/src/main/resources/template.conf#L26-L41" target="_blank" title="Go to snippet source"></a><code class="language-conf">// 服务上游配置
+<pre class="prettyprint"><a class="icon go-to-source" href="https://github.com/akka-fusion/akka-fusion/tree/master/fusion-http-gateway/src/main/resources/template.conf#L26-L41" target="_blank" title="Go to snippet source"></a><code class="language-conf">// 服务上游配置
 upstreams {
   # 上游服务名
   account {
@@ -267,7 +267,7 @@ upstreams {
   }
 }</code></pre>
 <h4><a href="#location" name="location" class="anchor"><span class="anchor-link"></span></a>location</h4>
-<pre class="prettyprint"><a class="icon go-to-source" href="https://github.com/yangbajing/akka-fusion/tree/master/fusion-http-gateway/src/main/resources/template.conf#L45-L60" target="_blank" title="Go to snippet source"></a><code class="language-conf">// 代理地址
+<pre class="prettyprint"><a class="icon go-to-source" href="https://github.com/akka-fusion/akka-fusion/tree/master/fusion-http-gateway/src/main/resources/template.conf#L45-L60" target="_blank" title="Go to snippet source"></a><code class="language-conf">// 代理地址
 locations {
   &quot;/api/v4/account&quot; {
     # 上游服务名
@@ -315,13 +315,13 @@ final class CustomHttpGatewayComponent(id: String, system: ActorSystem)
 <p>这里我们使用 <code>validationSession</code> Directive来校验请求是否包含了有效的用户登录会话信息，<code>logging</code>指定记录HttpRequest、HttpResponse日志；可以看到，这里将请求、响应日志发送到了 Kafka 中，再由其它服务从 Kafka 里消费日志以对其进行进一步处理。</p>
 </div>
 <div>
-<a href="https://github.com/yangbajing/akka-fusion/tree/master/fusion-docs/src/main/paradox/http-gateway/index.md" title="Edit this page" class="md-source-file md-edit">
+<a href="https://github.com/akka-fusion/akka-fusion/tree/master/fusion-docs/src/main/paradox/http-gateway/index.md" title="Edit this page" class="md-source-file md-edit">
 Edit this page
 </a>
 </div>
 <div class="print-only">
 <span class="md-source-file md-version">
-2.0.0*
+2.0.2
 </span>
 </div>
 </article>

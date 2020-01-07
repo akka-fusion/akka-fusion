@@ -4,49 +4,52 @@ object Dependencies {
   val versionScala212 = "2.12.10"
   val versionScala213 = "2.13.1"
   val versionScalaXml = "1.2.0"
-  val versionScalaCollectionCompat = "2.1.2"
+  val versionScalaCollectionCompat = "2.1.3"
   val versionJava8Compat = "0.9.0"
-  val versionScalameta = "4.2.3"
+  val versionScalameta = "4.2.5"
   val versionScalatest = "3.0.8"
   val versionAkka = "2.6.1"
-  val versionAkkaManagement = "1.0.4"
+  val versionAkkaManagement = "1.0.5"
   val versionAkkaHttp = "10.1.11"
-  val versionAkkaHttpCors = "0.4.1"
-  val versionAlpakka = "2.0.0-M1"
-  val versionAlpakkaKafka = "1.1.0"
-  val versionCassandra = "4.2.1"
-  val versionElastic4s = "6.7.3"
-  val versionConfig = "1.3.4"
+  val versionAkkaHttpCors = "0.4.2"
+  val versionAlpakka = "2.0.0-M2"
+  val versionAlpakkaKafka = "2.0.0-RC1"
+  val versionCassandra = "4.3.1"
+  val versionElastic4s = "6.7.4"
+  val versionConfig = "1.4.0"
+  val versionPureconfig = "0.12.2"
   val versionGuice = "4.2.2"
-  val versionNeotypes = "0.13.0"
-  val versionKamon = "2.0.1"
-  val versionKanela = "1.0.0"
+  val versionKamon = "2.0.4"
+  val versionKanela = "1.0.4"
   val versionUuidGenerator = "3.2.0"
-  val versionHanlp = "portable-1.7.4"
+  val versionHanlp = "portable-1.7.6"
   val versionSlick = "3.3.2"
-  val versionSlickPg = "0.18.0"
-  val versionPoi = "4.1.0"
-  val versionQuartz = "2.3.1"
-  val versionBcprovJdk15on = "1.62"
-  val versionNacos = "1.1.3"
+  val versionSlickPg = "0.18.1"
+  val versionPoi = "4.1.1"
+  val versionQuartz = "2.3.2"
+  val versionBcprovJdk15on = "1.64"
+  val versionNacos = "1.1.4"
   val versionJsch = "0.1.55"
   val versionJakartaMail = "1.6.4"
   val versionHikariCP = "3.4.1"
-  val versionMybatisPlus = "3.1.2"
-  val versionLombok = "1.18.8"
-  val versionMySQL = "8.0.16"
-  val versionPostgres = "42.2.8"
-  val versionRequests = "0.2.0"
-  val versionFastparse = "2.1.3"
-  val versionOsLib = "0.3.0"
-  val versionMongoScalaBson = "2.7.0"
-  val versionMongoDriverReactivestreams = "1.12.0"
-  val versionBson = "3.11.0"
-  val versionKafka = "2.1.1"
+  val versionMybatisPlus = "3.3.0"
+  val versionLombok = "1.18.10"
+  val versionMySQL = "8.0.18"
+  val versionPostgres = "42.2.9"
+  val versionRequests = "0.4.7"
+  val versionFastparse = "2.2.2"
+  val versionOsLib = "0.6.2"
+  val versionMongoScalaBson = "2.8.0"
+  val versionMongoDriverReactivestreams = "1.13.0"
+  val versionBson = "3.12.0"
+  val versionKafka = "2.4.0"
   val versionAlpnAgent = "2.0.9"
   val versionLogback = "1.2.3"
   val versionScalaLogging = "3.9.2"
-  val versionLogstashLogback = "6.2"
+  val versionLogstashLogback = "6.3"
+  val versionJwt = "4.2.0"
+  val versionJson4s = "3.6.7"
+  val versionScalapbJson4s = "0.10.0"
 
   val _scalameta = "org.scalameta" %% "scalameta" % versionScalameta
   val _scalaXml = ("org.scala-lang.modules" %% "scala-xml" % versionScalaXml).exclude("org.scala-lang", "scala-library")
@@ -68,7 +71,7 @@ object Dependencies {
   val _akkaStreamTestkit = "com.typesafe.akka" %% "akka-stream-testkit" % versionAkka
 
   val _akkas =
-    Seq("com.typesafe.akka" %% "akka-slf4j" % versionAkka, _akkaActorTyped, _akkaStreamTyped, _akkaDiscovery)
+    Seq("com.typesafe.akka" %% "akka-slf4j" % versionAkka, _akkaActorTyped, _akkaStreamTyped)
       .map(_.exclude("org.scala-lang.modules", "scala-java8-compat").cross(CrossVersion.binary))
   val _akkaMultiNodeTestkit = "com.typesafe.akka" %% "akka-multi-node-testkit" % versionAkka
 
@@ -196,18 +199,17 @@ object Dependencies {
       .exclude("com.typesafe.akka", "akka-stream")
       .cross(CrossVersion.binary))
 
-  val _config = "com.typesafe" % "config" % "1.4.0"
+  val _config = "com.typesafe" % "config" % versionConfig
 
-  val _neotypes = "com.dimafeng" %% "neotypes" % versionNeotypes
-  val _neotypesAkkaStream = "com.dimafeng" %% "neotypes-akka-stream" % versionNeotypes
-  val _pureconfig = "com.github.pureconfig" %% "pureconfig" % "0.11.1"
+//  val _pureconfig = "com.github.pureconfig" %% "pureconfig" % versionPureconfig
+
   val _hanlp = "com.hankcs" % "hanlp" % versionHanlp
   val _uuidGenerator = ("com.fasterxml.uuid" % "java-uuid-generator" % versionUuidGenerator).exclude("log4j", "log4j")
   val _guice = "com.google.inject" % "guice" % versionGuice
 
-  val _json4s = ("org.json4s" %% "json4s-jackson" % "3.6.7").exclude("com.fasterxml.jackson.core", "jackson-databind")
+  val _json4s = ("org.json4s" %% "json4s-jackson" % versionJson4s).exclude("com.fasterxml.jackson.core", "jackson-databind")
 
-  val _scalapbJson4s = "com.thesamet.scalapb" %% "scalapb-json4s" % "0.10.0"
+  val _scalapbJson4s = "com.thesamet.scalapb" %% "scalapb-json4s" % versionScalapbJson4s
 
   val _circeGeneric = "io.circe" %% "circe-generic" % "0.12.2"
 
@@ -217,12 +219,12 @@ object Dependencies {
 
   val _kamonStatusPage = "io.kamon" %% "kamon-status-page" % versionKamon
 
-  val _kamonAkka = ("io.kamon" %% "kamon-akka" % versionKamon)
+  val _kamonAkka = ("io.kamon" %% "kamon-akka" % "2.0.1")
     .excludeAll("com.typesafe.akka")
     .cross(CrossVersion.binary)
     .exclude("org.scala-lang", "scala-library")
 
-  val _kamonAkkaHttp = ("io.kamon" %% "kamon-akka-http" % versionKamon)
+  val _kamonAkkaHttp = ("io.kamon" %% "kamon-akka-http" % "2.0.3")
     .exclude("io.kamon", "kamon-akka-2.5")
     .cross(CrossVersion.binary)
     .exclude("com.typesafe.akka", "akka-http")
@@ -241,20 +243,19 @@ object Dependencies {
     .cross(CrossVersion.binary)
     .exclude("org.scala-lang", "scala-library")
 
-  val _oshiCore = "com.github.oshi" % "oshi-core" % "4.2.1"
+//  val _oshiCore = "com.github.oshi" % "oshi-core" % "4.3.0"
 
   val _kamonSystemMetrics =
-    ("io.kamon" %% "kamon-system-metrics" % versionKamon).exclude("org.scala-lang", "scala-library")
-  val _kamonPrometheus = "io.kamon" %% "kamon-prometheus" % versionKamon
-  val _kamonZipkin = "io.kamon" %% "kamon-zipkin" % versionKamon
-  val _kamonLogback = "io.kamon" %% "kamon-logback" % versionKamon
-  val _scopt = "com.github.scopt" %% "scopt" % "3.7.1"
+    ("io.kamon" %% "kamon-system-metrics" % "2.0.1").exclude("org.scala-lang", "scala-library")
+  val _kamonPrometheus = "io.kamon" %% "kamon-prometheus" % "2.0.1"
+  val _kamonZipkin = "io.kamon" %% "kamon-zipkin" % "2.0.0"
+  val _kamonLogback = "io.kamon" %% "kamon-logback" % "2.0.2"
   val _osLib = "com.lihaoyi" %% "os-lib" % versionOsLib
   val _requests = "com.lihaoyi" %% "requests" % versionRequests
   val _fastparse = "com.lihaoyi" %% "fastparse" % versionFastparse
-  val _shapeless = "com.chuusai" %% "shapeless" % "2.3.3"
-  val _jwt = "com.pauldijou" %% "jwt-core" % "4.1.0"
-  val _jwtJson4s = ("com.pauldijou" %% "jwt-json4s-jackson" % "4.2.0").excludeAll(ExclusionRule("org.json4s"))
+
+  val _jwt = "com.pauldijou" %% "jwt-core" % versionJwt
+  val _jwtJson4s = ("com.pauldijou" %% "jwt-json4s-jackson" % versionJwt).excludeAll(ExclusionRule("org.json4s"))
 
   val _slicks =
     Seq("com.typesafe.slick" %% "slick" % versionSlick, "com.typesafe.slick" %% "slick-testkit" % versionSlick % Test)

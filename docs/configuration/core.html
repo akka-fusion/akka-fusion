@@ -191,7 +191,7 @@ akka-fusion/akka-fusion
 <ul style="display: none">
 <li class="md-nav__item md-version" id="project.version">
 <label class="md-nav__link" for="__version">
-<i class="md-icon" title="Version">label_outline</i> 2.0.0*
+<i class="md-icon" title="Version">label_outline</i> 2.0.2
 </label>
 </li>
 </ul>
@@ -202,7 +202,7 @@ akka-fusion/akka-fusion
 <article class="md-content__inner md-typeset">
 <div class="md-content__searchable">
 <h1><a href="#fusion-core-配置" name="fusion-core-配置" class="anchor"><span class="anchor-link"></span></a>Fusion Core 配置</h1>
-<pre class="prettyprint"><a class="icon go-to-source" href="https://github.com/yangbajing/akka-fusion/tree/master/fusion-core/src/main/resources/reference.conf" target="_blank" title="Go to snippet source"></a><code class="language-conf">akka {
+<pre class="prettyprint"><a class="icon go-to-source" href="https://github.com/akka-fusion/akka-fusion/tree/master/fusion-core/src/main/resources/reference.conf" target="_blank" title="Go to snippet source"></a><code class="language-conf">akka {
   loglevel = INFO
   stdout-loglevel = INFO
   loggers = [&quot;akka.event.slf4j.Slf4jLogger&quot;]
@@ -217,11 +217,12 @@ akka-fusion/akka-fusion
 
     //allow-java-serialization = off
 
-    //serializers {
-      //java = &quot;com.twitter.chill.akka.AkkaSerializer&quot;
-      //kryo = &quot;com.twitter.chill.akka.AkkaSerializer&quot;
+    serializers {
       //proto = &quot;akka.remote.serialization.ProtobufSerializer&quot;
-    //}
+    }
+    serialization-bindings {
+      //&quot;scalabp.GeneratedMessage&quot; = proto
+    }
   }
   typed.library-extensions += fusion.core.extension.FusionCore
 }
@@ -242,13 +243,13 @@ fusion.default {
 }</code></pre>
 </div>
 <div>
-<a href="https://github.com/yangbajing/akka-fusion/tree/master/fusion-docs/src/main/paradox/configuration/core.md" title="Edit this page" class="md-source-file md-edit">
+<a href="https://github.com/akka-fusion/akka-fusion/tree/master/fusion-docs/src/main/paradox/configuration/core.md" title="Edit this page" class="md-source-file md-edit">
 Edit this page
 </a>
 </div>
 <div class="print-only">
 <span class="md-source-file md-version">
-2.0.0*
+2.0.2
 </span>
 </div>
 </article>

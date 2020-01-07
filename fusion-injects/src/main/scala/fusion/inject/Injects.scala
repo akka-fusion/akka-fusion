@@ -39,7 +39,7 @@ object Injects {
       .view
       .distinct
       .filter(s => StringUtils.isNoneBlank(s))
-      .map(t => Class.forName(t).newInstance().asInstanceOf[Module])
+      .map(t => Class.forName(t).getConstructor().newInstance().asInstanceOf[Module])
       .toVector
 
   /**

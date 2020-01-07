@@ -198,7 +198,7 @@ akka-fusion/akka-fusion
 <ul style="display: none">
 <li class="md-nav__item md-version" id="project.version">
 <label class="md-nav__link" for="__version">
-<i class="md-icon" title="Version">label_outline</i> 2.0.0*
+<i class="md-icon" title="Version">label_outline</i> 2.0.2
 </label>
 </li>
 </ul>
@@ -228,7 +228,7 @@ akka-fusion/akka-fusion
 <p>Akka Fusion基于Akka Extension机制提供了配置化的 <a href="https://github.com/brettwooldridge/HikariCP/blob/dev/src/main/java/com/zaxxer/hikari/HikariDataSource.java">HikariDataSource</a> 管理。 同时，提供了 <a href="../../../../../fusion-jdbc/src/main/scala/fusion/jdbc/JdbcTemplate.scala">JdbcTemplate</a> 来简化我们的JDBC编程工作。</p>
 <h2><a href="#示例" name="示例" class="anchor"><span class="anchor-link"></span></a>示例</h2>
 <p><strong><em>配置 src/main/resources/application.conf</em></strong></p>
-<pre class="prettyprint"><a class="icon go-to-source" href="https://github.com/yangbajing/akka-fusion/tree/master/fusion-jdbc/src/test/resources/sample/mysql.conf" target="_blank" title="Go to snippet source"></a><code class="language-conf">fusion.jdbc {
+<pre class="prettyprint"><a class="icon go-to-source" href="https://github.com/akka-fusion/akka-fusion/tree/master/fusion-jdbc/src/test/resources/sample/mysql.conf" target="_blank" title="Go to snippet source"></a><code class="language-conf">fusion.jdbc {
   default {
     poolName = &quot;fusion&quot;
     jdbcUrl = &quot;jdbc:mysql://localhost:3306/akka-fusion?useSSL=false&amp;autoReconnect=true&quot;
@@ -239,8 +239,8 @@ akka-fusion/akka-fusion
   }
 }</code></pre>
 <p><strong><em>测试代码</em></strong></p>
-<pre class="prettyprint"><a class="icon go-to-source" href="https://github.com/yangbajing/akka-fusion/tree/master/fusion-jdbc/src/test/scala/fusion/jdbc/JdbcTemplateTest.scala" target="_blank" title="Go to snippet source"></a><code class="language-scala">/*
- * Copyright 2019 helloscala.com
+<pre class="prettyprint"><a class="icon go-to-source" href="https://github.com/akka-fusion/akka-fusion/tree/master/fusion-jdbc/src/test/scala/fusion/jdbc/JdbcTemplateTest.scala" target="_blank" title="Go to snippet source"></a><code class="language-scala">/*
+ * Copyright 2019 akka-fusion.com
  *
  * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
  * you may not use this file except in compliance with the License.
@@ -316,17 +316,16 @@ class JdbcTemplateTest extends ScalaTestWithActorTestKit with FusionTestFunSuite
     system.terminate()
     Await.ready(system.whenTerminated, Duration.Inf)
   }
-
 }</code></pre>
 </div>
 <div>
-<a href="https://github.com/yangbajing/akka-fusion/tree/master/fusion-docs/src/main/paradox/jdbc/index.md" title="Edit this page" class="md-source-file md-edit">
+<a href="https://github.com/akka-fusion/akka-fusion/tree/master/fusion-docs/src/main/paradox/jdbc/index.md" title="Edit this page" class="md-source-file md-edit">
 Edit this page
 </a>
 </div>
 <div class="print-only">
 <span class="md-source-file md-version">
-2.0.0*
+2.0.2
 </span>
 </div>
 </article>

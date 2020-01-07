@@ -37,7 +37,6 @@ lazy val root = Project(id = "akka-fusion", base = file("."))
     fusionHttp,
     fusionHttpClient,
     fusionOauth,
-    fusionNeo4j,
     fusionKafka,
     fusionMongodb,
     fusionCassandra,
@@ -74,7 +73,6 @@ lazy val fusionDocs = _project("fusion-docs")
     fusionHttp,
     fusionHttpClient,
     fusionOauth,
-    fusionNeo4j,
     fusionKafka,
     fusionMongodb,
     fusionCassandra,
@@ -119,30 +117,6 @@ lazy val fusionMq = _project("fusion-mq")
   .dependsOn(fusionTestkit % "test->test", fusionCommon)
   .settings(
     libraryDependencies ++= Seq( /*_alpakkaMqttStreaming*/ ) ++ _akkaClusters ++ _akkaHttps ++ _cassandras ++ _akkaStreamKafkas)
-
-//lazy val fusionDiscoveryServer = _project("fusion-discovery-server")
-//  .enablePlugins(AkkaGrpcPlugin /*, MultiJvmPlugin*/, JavaAgent)
-//  .dependsOn(fusionJsonCirce, fusionDiscoveryClient, fusionHttp, fusionLog, fusionTestkit % "test->test", fusionCore)
-//  //  .settings(MultiJvmPlugin.multiJvmSettings: _*)
-//  .settings(Publishing.noPublish)
-//  .settings(Packaging.assemblySettings: _*)
-//  .settings(
-//    javaOptions in run ++= Seq("-Xms128m", "-Xmx1024m", "-Djava.library.path=./target/native"),
-//    javaAgents += _alpnAgent % "runtime;test",
-//    akkaGrpcCodeGeneratorSettings += "server_power_apis",
-//    libraryDependencies ++= Seq(
-//        "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion % "protobuf",
-//        "org.iq80.leveldb" % "leveldb" % "0.7",
-//        "org.fusesource.leveldbjni" % "leveldbjni-all" % "1.8",
-//        _akkaGrpcRuntime,
-//        _akkaSerializationJackson,
-//        _akkaPersistenceCassandra,
-//        _akkaPersistenceJdbc,
-//        _hikariCP,
-//        _postgresql,
-//        _akkaPersistenceTyped,
-//        _akkaMultiNodeTestkit % Test) ++ _akkaClusters)
-//  .configs(MultiJvm)
 
 lazy val fusionDiscoveryClient = _project("fusion-discovery-client")
   .dependsOn(fusionHttpClient, fusionTestkit % "test->test", fusionCore)
@@ -217,10 +191,6 @@ lazy val fusionElasticsearch = _project("fusion-elasticsearch")
 lazy val fusionKafka = _project("fusion-kafka")
   .dependsOn(fusionJson, fusionTestkit % "test->test", fusionCore)
   .settings(libraryDependencies ++= Seq() ++ _akkaStreamKafkas)
-
-lazy val fusionNeo4j = _project("fusion-neo4j")
-  .dependsOn(fusionTestkit % "test->test", fusionCore)
-  .settings(libraryDependencies ++= Seq(_neotypes))
 
 lazy val fusionSlick = _project("fusion-slick")
   .dependsOn(fusionJson, fusionJdbc, fusionTestkit % "test->test", fusionCore)

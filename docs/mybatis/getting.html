@@ -199,7 +199,7 @@ akka-fusion/akka-fusion
 <ul style="display: none">
 <li class="md-nav__item md-version" id="project.version">
 <label class="md-nav__link" for="__version">
-<i class="md-icon" title="Version">label_outline</i> 2.0.0*
+<i class="md-icon" title="Version">label_outline</i> 2.0.2
 </label>
 </li>
 </ul>
@@ -227,17 +227,16 @@ akka-fusion/akka-fusion
 <article class="md-content__inner md-typeset">
 <div class="md-content__searchable">
 <h1><a href="#起步" name="起步" class="anchor"><span class="anchor-link"></span></a>起步</h1>
-<h2><a href="#依赖" name="依赖" class="anchor"><span class="anchor-link"></span></a>依赖</h2><dl class="dependency"><dt>sbt</dt><dd><pre class="prettyprint"><code class="language-scala">libraryDependencies += "com.helloscala.fusion" %% "fusion-mybatis" % "2.0.0-SNAPSHOT"</code></pre></dd><dt>Maven</dt><dd><pre class="prettyprint"><code class="language-xml">&lt;dependency&gt;
+<h2><a href="#依赖" name="依赖" class="anchor"><span class="anchor-link"></span></a>依赖</h2><dl class="dependency"><dt>sbt</dt><dd><pre class="prettyprint"><code class="language-scala">libraryDependencies += "com.helloscala.fusion" %% "fusion-mybatis" % "2.0.2"</code></pre></dd><dt>Maven</dt><dd><pre class="prettyprint"><code class="language-xml">&lt;dependency&gt;
   &lt;groupId&gt;com.helloscala.fusion&lt;/groupId&gt;
-  &lt;artifactId&gt;fusion-mybatis_2.13&lt;/artifactId&gt;
-  &lt;version&gt;2.0.0-SNAPSHOT&lt;/version&gt;
+  &lt;artifactId&gt;fusion-mybatis_2.12&lt;/artifactId&gt;
+  &lt;version&gt;2.0.2&lt;/version&gt;
 &lt;/dependency&gt;</code></pre></dd><dt>Gradle</dt><dd><pre class="prettyprint"><code class="language-gradle">dependencies {
-  compile group: 'com.helloscala.fusion', name: 'fusion-mybatis_2.13', version: '2.0.0-SNAPSHOT'
+  compile group: 'com.helloscala.fusion', name: 'fusion-mybatis_2.12', version: '2.0.2'
 }</code></pre></dd></dl>
 <h2><a href="#示例" name="示例" class="anchor"><span class="anchor-link"></span></a>示例</h2>
 <p><code>FusionMyBatisTest</code> 演示了一个典型的 MyBatis 数据库操作。</p>
-<pre class="prettyprint"><a class="icon go-to-source" href="https://github.com/yangbajing/akka-fusion/tree/master/fusion-mybatis/src/test/scala/fusion/mybatis/FusionMybatisTest.scala#L29-L87" target="_blank" title="Go to snippet source"></a><code class="language-scala">class FusionMybatisTest extends ScalaTestWithActorTestKit with FusionTestFunSuite {
-
+<pre class="prettyprint"><a class="icon go-to-source" href="https://github.com/akka-fusion/akka-fusion/tree/master/fusion-mybatis/src/test/scala/fusion/mybatis/FusionMybatisTest.scala#L29-L85" target="_blank" title="Go to snippet source"></a><code class="language-scala">class FusionMybatisTest extends ScalaTestWithActorTestKit with FusionTestFunSuite {
   test(&quot;testSqlSession&quot;) {
     val sqlSessionFactory = FusionMybatis(system).component
     sqlSessionFactory should not be null
@@ -293,7 +292,6 @@ akka-fusion/akka-fusion
     })
     println(result)
   }
-
 }</code></pre>
 <p><code>FileMapper</code>实现了 <code>BaseMapper[T]</code> 接口，它是MyBatis-plus对MyBatis提供的增强：</p>
 <pre class="prettyprint"><code class="language-scala">trait FileMapper extends BaseMapper[CFile] {
@@ -301,7 +299,7 @@ akka-fusion/akka-fusion
 }
 </code></pre>
 <h3><a href="#cfile" name="cfile" class="anchor"><span class="anchor-link"></span></a><code>CFile</code></h3>
-<pre class="prettyprint"><a class="icon go-to-source" href="https://github.com/yangbajing/akka-fusion/tree/master/fusion-mybatis/src/test/scala/fusion/mybatis/model/CFile.scala#L24-L29" target="_blank" title="Go to snippet source"></a><code class="language-scala">case class CFile(
+<pre class="prettyprint"><a class="icon go-to-source" href="https://github.com/akka-fusion/akka-fusion/tree/master/fusion-mybatis/src/test/scala/fusion/mybatis/model/CFile.scala#L24-L29" target="_blank" title="Go to snippet source"></a><code class="language-scala">case class CFile(
     @BeanProperty var fileId: String = &quot;&quot;,
     @BeanProperty var fileSubject: String = &quot;&quot;,
     @BeanProperty var fileUrl: String = &quot;&quot;,
@@ -309,7 +307,7 @@ akka-fusion/akka-fusion
     @BeanProperty var tableAutoUptime: LocalDateTime = LocalDateTime.now())</code></pre>
 <h3><a href="#配置与初始化" name="配置与初始化" class="anchor"><span class="anchor-link"></span></a>配置与初始化</h3>
 <p><code>application.conf</code>文件中</p>
-<pre class="prettyprint"><a class="icon go-to-source" href="https://github.com/yangbajing/akka-fusion/tree/master/fusion-mybatis/src/test/resources/application.conf" target="_blank" title="Go to snippet source"></a><code class="language-conf">fusion.jdbc {
+<pre class="prettyprint"><a class="icon go-to-source" href="https://github.com/akka-fusion/akka-fusion/tree/master/fusion-mybatis/src/test/resources/application.conf" target="_blank" title="Go to snippet source"></a><code class="language-conf">fusion.jdbc {
   default {
     poolName = &quot;fusion&quot;
     jdbcUrl = &quot;jdbc:postgresql://localhost:55432/fusion_dev&quot;
@@ -331,13 +329,13 @@ fusion.mybatis {
 }</code></pre>
 </div>
 <div>
-<a href="https://github.com/yangbajing/akka-fusion/tree/master/fusion-docs/src/main/paradox/mybatis/getting.md" title="Edit this page" class="md-source-file md-edit">
+<a href="https://github.com/akka-fusion/akka-fusion/tree/master/fusion-docs/src/main/paradox/mybatis/getting.md" title="Edit this page" class="md-source-file md-edit">
 Edit this page
 </a>
 </div>
 <div class="print-only">
 <span class="md-source-file md-version">
-2.0.0*
+2.0.2
 </span>
 </div>
 </article>

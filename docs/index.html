@@ -194,7 +194,7 @@ akka-fusion/akka-fusion
 <ul style="display: none">
 <li class="md-nav__item md-version" id="project.version">
 <label class="md-nav__link" for="__version">
-<i class="md-icon" title="Version">label_outline</i> 2.0.0*
+<i class="md-icon" title="Version">label_outline</i> 2.0.2
 </label>
 </li>
 </ul>
@@ -228,8 +228,7 @@ akka-fusion/akka-fusion
 <p>Akka Fusion以Akka工具库为基础，为用户提供开箱及用的微服务、云应用框架。Akka Fusion集成了Scala/Akka社区各种优秀的开源组件， 让你可以快速开始你的微服务开发，就像Spring Boot、Spring Cloud一样。但Akka Fusion更加强大、易用、安全， 它具有完备的编译期检查，让你在开发阶段即可排除更多的错误。</p>
 <h2><a href="#快速开始" name="快速开始" class="anchor"><span class="anchor-link"></span></a>快速开始</h2>
 <p>代码：</p>
-<pre class="prettyprint"><a class="icon go-to-source" href="https://github.com/yangbajing/akka-fusion/tree/master/fusion-docs/src/main/scala/fusion/docs/sample/SampleApplication.scala#L29-L62" target="_blank" title="Go to snippet source"></a><code class="language-scala">object SampleApplication {
-
+<pre class="prettyprint"><a class="icon go-to-source" href="https://github.com/akka-fusion/akka-fusion/tree/master/fusion-docs/src/main/scala/fusion/docs/sample/SampleApplication.scala#L29-L59" target="_blank" title="Go to snippet source"></a><code class="language-scala">object SampleApplication {
   def main(args: Array[String]): Unit = {
     implicit val classicSystem = classic.ActorSystem()
     val system = ActorSystem.wrap(classicSystem)
@@ -242,7 +241,6 @@ akka-fusion/akka-fusion
 
 // Controller
 class SampleRoute(sampleService: SampleService) extends AbstractRoute {
-
   override def route: Route = pathGet(&quot;hello&quot;) {
     val pdm = (Symbol(&quot;hello&quot;), Symbol(&quot;year&quot;).as[Int].?(2019))
     parameters(pdm).as(SampleReq) { req =&gt;
@@ -257,7 +255,6 @@ case class SampleResp(hello: String, year: Int, language: String)
 
 // Service
 class SampleService()(implicit ec: ExecutionContext) {
-
   def hello(req: SampleReq): Future[SampleResp] = Future {
     SampleResp(req.hello, req.year, &quot;scala&quot;)
   }
@@ -334,13 +331,13 @@ Content-Length: 48
 </div>
 </div>
 <div>
-<a href="https://github.com/yangbajing/akka-fusion/tree/master/fusion-docs/src/main/paradox/index.md" title="Edit this page" class="md-source-file md-edit">
+<a href="https://github.com/akka-fusion/akka-fusion/tree/master/fusion-docs/src/main/paradox/index.md" title="Edit this page" class="md-source-file md-edit">
 Edit this page
 </a>
 </div>
 <div class="print-only">
 <span class="md-source-file md-version">
-2.0.0*
+2.0.2
 </span>
 </div>
 </article>

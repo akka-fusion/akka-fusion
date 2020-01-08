@@ -46,18 +46,7 @@ object Commons {
       fork in run := true,
       fork in Test := true,
       parallelExecution in Test := false,
-      libraryDependencies ++= Seq(Dependencies._scalatest % Test),
-      maintainer := "yangbajing <yang.xunjing@qq.com>",
-      scmInfo := Some(
-          ScmInfo(
-            url("https://github.com/akka-fusion/akka-fusion.git"),
-            "scm:git@github.com:akka-fusion/akka-fusion.git")),
-      developers := List(
-          Developer(
-            id = "yangbajing",
-            name = "Yang Jing",
-            email = "yang.xunjing@qq.com",
-            url = url("https://github.com/yangbajing")))) ++ Environment.settings // ++ Formatting.settings
+      libraryDependencies ++= Seq(Dependencies._scalatest % Test)) ++ Environment.settings // ++ Formatting.settings
 }
 
 object Publishing {

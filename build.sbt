@@ -94,7 +94,7 @@ lazy val fusionDocs = _project("fusion-docs")
         .withColor("indigo", "red")
         .withRepository(uri("https://github.com/akka-fusion/akka-fusion"))
         .withSocial(
-          uri("http://akka-fusion.github.io/akka-fusion/"),
+          uri("https://akka-fusion.github.io/akka-fusion/"),
           uri("https://github.com/akka-fusion"),
           uri("https://weibo.com/yangbajing"))
     },
@@ -103,7 +103,7 @@ lazy val fusionDocs = _project("fusion-docs")
         "version" -> version.value,
         "scala.version" -> scalaVersion.value,
         "scala.binary_version" -> scalaBinaryVersion.value,
-        "scaladoc.akka.base_url" -> s"http://doc.akka.io/api/$versionAkka",
+        "scaladoc.akka.base_url" -> s"https://doc.akka.io/api/$versionAkka",
         "akka.version" -> versionAkka))
 
 lazy val fusionSbtPlugin = _project("fusion-sbt-plugin", "sbt-plugin")
@@ -112,10 +112,8 @@ lazy val fusionSbtPlugin = _project("fusion-sbt-plugin", "sbt-plugin")
   .settings(
     sbtPlugin := true,
     scalaVersion := versionScala212,
-    //scriptedBufferLog := false,
-    //crossSbtVersions := Seq("1.0.0"),
-    //crossScalaVersions := Seq(versionScala212),
-    //libraryDependencies ++= Seq("com.lightbend.akka.grpc" % "sbt-akka-grpc" % "0.7.3"),
+    scriptedBufferLog := false,
+    crossScalaVersions := Seq(versionScala212),
     publishMavenStyle := false)
 
 lazy val codegen = _project("codegen")
@@ -123,7 +121,7 @@ lazy val codegen = _project("codegen")
   .settings(
     scalaVersion := versionScala212,
     crossScalaVersions := Seq(versionScala212, versionScala213),
-    //    buildInfoObject := "Version",
+    publishMavenStyle := false,
     buildInfoPackage := "fusion.sbt.gen")
 
 lazy val fusionInjects = _project("fusion-injects")

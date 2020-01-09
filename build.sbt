@@ -114,6 +114,7 @@ lazy val fusionSbtPlugin = _project("fusion-sbt-plugin", "sbt-plugin")
     scalaVersion := versionScala212,
     scriptedBufferLog := false,
     crossScalaVersions := Seq(versionScala212),
+    bintrayRepository := "ivy",
     publishMavenStyle := false)
 
 lazy val codegen = _project("codegen")
@@ -122,6 +123,8 @@ lazy val codegen = _project("codegen")
     scalaVersion := versionScala212,
     crossScalaVersions := Seq(versionScala212, versionScala213),
     publishMavenStyle := false,
+    scriptedBufferLog := false,
+    bintrayRepository := "ivy",
     buildInfoPackage := "fusion.sbt.gen")
 
 lazy val fusionInjects = _project("fusion-injects")

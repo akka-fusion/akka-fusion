@@ -18,9 +18,14 @@ package fusion.sbt
 
 import sbt.AutoPlugin
 
+object Fusion extends AutoPlugin {
+  val autoImport = FusionImport
+}
+
 object FusionPlugin extends AutoPlugin {
+  override def requires = Fusion
+
   trait Keys { _: autoImport.type =>
-    val dependencies = Dependencies
   }
 
   object autoImport extends Keys

@@ -18,6 +18,8 @@ buildInfoKeys := Seq[BuildInfoKey](
 import Dependencies._
 
 buildInfoKeys ++= Seq(
+  "versionScala212" -> versionScala212,
+  "versionScala213" -> versionScala213,
   "versionScalaXml" -> versionScalaXml,
   "versionScalaCollectionCompat" -> versionScalaCollectionCompat,
   "versionJava8Compat" -> versionJava8Compat,

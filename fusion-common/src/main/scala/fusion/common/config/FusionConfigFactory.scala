@@ -36,12 +36,10 @@ object FusionConfigFactory {
       if (originalConfig.hasPath(s"$internalPath.config-modules"))
         originalConfig.getStringList(s"$internalPath.config-modules").asScala ++ modules
       else modules
-    val config = items.distinct.foldLeft(originalConfig) {
+    items.distinct.foldLeft(originalConfig) {
       case (c, "akka") => arrangeAkkaConfig(c, internalPath)
       case (c, module) => arrangeModuleConfig(c, internalPath, module)
     }
-    println(config.getConfig("akka.actor.serialization-bindings").root())
-    config
   }
 
   private def arrangeModuleConfig(originalConfig: Config, internalPath: String, module: String): Config = {

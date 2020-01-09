@@ -29,19 +29,10 @@ import scala.concurrent.duration._
 trait SpawnFactory {
   def spawn[T](behavior: Behavior[T]): ActorRef[T]
 
-  /**
-   * See corresponding method on [[ActorTestKit]]
-   */
   def spawn[T](behavior: Behavior[T], name: String): ActorRef[T]
 
-  /**
-   * See corresponding method on [[ActorTestKit]]
-   */
   def spawn[T](behavior: Behavior[T], props: Props): ActorRef[T]
 
-  /**
-   * See corresponding method on [[ActorTestKit]]
-   */
   def spawn[T](behavior: Behavior[T], name: String, props: Props): ActorRef[T]
 }
 
@@ -50,14 +41,8 @@ trait FusionActorRefFactory extends SpawnFactory {
 
   override def spawn[T](behavior: Behavior[T]): ActorRef[T] = spawn(behavior, Props.empty)
 
-  /**
-   * See corresponding method on [[ActorTestKit]]
-   */
   override def spawn[T](behavior: Behavior[T], name: String): ActorRef[T] = spawn(behavior, name, Props.empty)
 
-  /**
-   * See corresponding method on [[ActorTestKit]]
-   */
   override def spawn[T](behavior: Behavior[T], props: Props): ActorRef[T] = {
     implicit val timeout: Timeout = 5.seconds
     implicit val scheduler = system.scheduler
@@ -65,9 +50,6 @@ trait FusionActorRefFactory extends SpawnFactory {
     Await.result(f, timeout.duration)
   }
 
-  /**
-   * See corresponding method on [[ActorTestKit]]
-   */
   override def spawn[T](behavior: Behavior[T], name: String, props: Props): ActorRef[T] =
     spawnActorSync(behavior, name, props, 5.seconds)
 

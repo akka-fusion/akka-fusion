@@ -26,6 +26,7 @@ ThisBuild / sonarUseExternalConfig := true
 
 lazy val root = Project(id = "akka-fusion", base = file("."))
   .aggregate(
+    fusionSbtPlugin,
     fusionBoot,
     fusionInjects,
     fusionMq,
@@ -93,7 +94,7 @@ lazy val fusionDocs = _project("fusion-docs")
         .withColor("indigo", "red")
         .withRepository(uri("https://github.com/akka-fusion/akka-fusion"))
         .withSocial(
-          uri("http://akka-fusion.github.io/akka-fusion/"),
+          uri("https://akka-fusion.github.io/akka-fusion/"),
           uri("https://github.com/akka-fusion"),
           uri("https://weibo.com/yangbajing"))
     },
@@ -102,8 +103,29 @@ lazy val fusionDocs = _project("fusion-docs")
         "version" -> version.value,
         "scala.version" -> scalaVersion.value,
         "scala.binary_version" -> scalaBinaryVersion.value,
-        "scaladoc.akka.base_url" -> s"http://doc.akka.io/api/$versionAkka",
+        "scaladoc.akka.base_url" -> s"https://doc.akka.io/api/$versionAkka",
         "akka.version" -> versionAkka))
+
+lazy val fusionSbtPlugin = _project("fusion-sbt-plugin", "sbt-plugin")
+  .enablePlugins(SbtPlugin)
+  .dependsOn(codegen)
+  .settings(
+    sbtPlugin := true,
+    scalaVersion := versionScala212,
+    scriptedBufferLog := false,
+    crossScalaVersions := Seq(versionScala212),
+    bintrayRepository := "ivy",
+    publishMavenStyle := false)
+
+lazy val codegen = _project("codegen")
+  .enablePlugins(BuildInfoPlugin)
+  .settings(
+    scalaVersion := versionScala212,
+    crossScalaVersions := Seq(versionScala212, versionScala213),
+    publishMavenStyle := false,
+    scriptedBufferLog := false,
+    bintrayRepository := "ivy",
+    buildInfoPackage := "fusion.sbt.gen")
 
 lazy val fusionInjects = _project("fusion-injects")
   .dependsOn(fusionHttp, fusionDiscoveryClient, fusionTestkit % "test->test")
@@ -248,28 +270,8 @@ lazy val fusionProtobufV3 = _project("fusion-protobuf-v3")
 
 lazy val fusionCommon = _project("fusion-common")
   .dependsOn(helloscalaCommon)
-  //  .enablePlugins(BuildInfoPlugin)
   .settings(Publishing.publishing: _*)
   .settings(
-//    buildInfoKeys := Seq[BuildInfoKey](
-//        startYear,
-//        organization,
-//        organizationName,
-//        organizationHomepage,
-//        scalacOptions,
-//        javacOptions,
-//        version,
-//        scalaVersion,
-//        sbtVersion,
-//        sbtBinaryVersion,
-//        git.gitCurrentTags,
-//        git.gitDescribedVersion,
-//        git.gitCurrentBranch,
-//        git.gitHeadCommit,
-//        git.gitHeadCommitDate),
-//    buildInfoOptions += BuildInfoOption.BuildTime,
-//    buildInfoPackage := "fusion.version",
-//    buildInfoObject := "Version",
     libraryDependencies ++= Seq(
         _akkaSerializationJackson % Provided,
         _akkaTypedTestkit % Test,

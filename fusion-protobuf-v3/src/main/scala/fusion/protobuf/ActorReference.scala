@@ -43,14 +43,14 @@ trait ActorReferenceTrait {
     ActorSystemUtils.system.toClassic.asInstanceOf[ExtendedActorSystem].provider.resolveActorRef(serialized)
 }
 
-trait ActorReferenceCompanion {
-  def fromTyped[T](ref: ActorRef[T])(implicit ev1: ClassTag[T]): fusion.ActorReference = {
-    fusion.ActorReference(
-      ActorRefResolver(ActorSystemUtils.system).toSerializationFormat(ref),
-      Some(ev1.runtimeClass.toString))
-  }
-  def fromClassic(ref: classic.ActorRef): String = Serialization.serializedActorPath(ref)
-}
+//trait ActorReferenceCompanion {
+//  def fromTyped[T](ref: ActorRef[T])(implicit ev1: ClassTag[T]): fusion.ActorReference = {
+//    fusion.ActorReference(
+//      ActorRefResolver(ActorSystemUtils.system).toSerializationFormat(ref),
+//      Some(ev1.runtimeClass.toString))
+//  }
+//  def fromClassic(ref: classic.ActorRef): String = Serialization.serializedActorPath(ref)
+//}
 
 trait ActorTypedReferenceTrait {
   def serialized: String

@@ -21,7 +21,7 @@ import java.time.OffsetDateTime
 import akka.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
 import com.zaxxer.hikari.HikariDataSource
 import fusion.jdbc.util.JdbcUtils
-import fusion.test.FusionTestFunSuite
+import fusion.test.FusionFunSuiteLike
 
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
@@ -41,7 +41,7 @@ class CFile {
 }
 
 // #JdbcTemplateTest
-class JdbcTemplateTest extends ScalaTestWithActorTestKit with FusionTestFunSuite {
+class JdbcTemplateTest extends ScalaTestWithActorTestKit with FusionFunSuiteLike {
   private def dataSource: HikariDataSource = FusionJdbc(system).component
   private def jdbcTemplate = JdbcTemplate(dataSource)
 

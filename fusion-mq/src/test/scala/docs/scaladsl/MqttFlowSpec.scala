@@ -16,22 +16,23 @@
 
 package docs.scaladsl
 
-import akka.{ Done, NotUsed }
 import akka.actor.ActorSystem
 import akka.actor.typed.scaladsl.Behaviors
 import akka.actor.typed.scaladsl.adapter._
+import akka.stream._
 import akka.stream.alpakka.mqtt.streaming._
 import akka.stream.alpakka.mqtt.streaming.scaladsl.{ ActorMqttClientSession, ActorMqttServerSession, Mqtt }
 import akka.stream.scaladsl.{ BroadcastHub, Flow, Keep, Sink, Source, SourceQueueWithComplete, Tcp }
 import akka.stream.testkit.scaladsl.StreamTestKit.assertAllStagesStopped
-import akka.stream._
 import akka.testkit.TestKit
 import akka.util.ByteString
+import akka.{ Done, NotUsed }
 import org.scalatest._
 import org.scalatest.concurrent.ScalaFutures
+import org.scalatest.wordspec.AnyWordSpecLike
 
-import scala.concurrent.{ ExecutionContext, Future, Promise }
 import scala.concurrent.duration._
+import scala.concurrent.{ ExecutionContext, Future, Promise }
 
 class UntypedMqttFlowSpec
     extends ParametrizedTestKit("untyped-flow-spec/flow", "typed-flow-spec/topic1", ActorSystem("UntypedMqttFlowSpec"))
@@ -45,7 +46,11 @@ class TypedMqttFlowSpec
 
 class ParametrizedTestKit(val clientId: String, val topic: String, system: ActorSystem) extends TestKit(system)
 
-trait MqttFlowSpec extends WordSpecLike with Matchers with BeforeAndAfterAll with ScalaFutures {
+trait MqttFlowSpec
+    extends AnyWordSpecLike
+    with org.scalatest.matchers.should.Matchers
+    with BeforeAndAfterAll
+    with ScalaFutures {
   self: ParametrizedTestKit =>
 
   private implicit val defaultPatience: PatienceConfig = PatienceConfig(timeout = 5.seconds, interval = 100.millis)
@@ -134,7 +139,6 @@ trait MqttFlowSpec extends WordSpecLike with Matchers with BeforeAndAfterAll wit
                 case Right(Event(publish @ Publish(flags, _, Some(packetId), _), _))
                     if flags.contains(ControlPacketFlags.RETAIN) =>
                   queue.offer(Command(PubAck(packetId)))
-                  import mat.executionContext
                   subscribed.future.foreach(_ => session ! Command(publish))
                 case _ => // Ignore everything else
               }

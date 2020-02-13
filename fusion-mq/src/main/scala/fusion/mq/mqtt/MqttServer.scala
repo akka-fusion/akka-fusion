@@ -20,19 +20,17 @@ import akka.actor.typed.ActorSystem
 import akka.actor.typed.scaladsl.Behaviors
 import akka.actor.typed.scaladsl.adapter._
 import akka.stream.alpakka.mqtt.streaming.MqttCodec.DecodeError
-import akka.stream.alpakka.mqtt.streaming.scaladsl.{ ActorMqttServerSession, Mqtt }
 import akka.stream.alpakka.mqtt.streaming._
-import akka.stream.scaladsl.{ BroadcastHub, Flow, Keep, Sink, Source, SourceQueueWithComplete, Tcp }
+import akka.stream.alpakka.mqtt.streaming.scaladsl.{ ActorMqttServerSession, Mqtt }
+import akka.stream.scaladsl.{ BroadcastHub, Keep, Sink, Source, SourceQueueWithComplete, Tcp }
 import akka.stream.{ KillSwitch, KillSwitches, OverflowStrategy }
 import akka.util.ByteString
-import akka.{ Done, NotUsed }
 import fusion.mq.FusionMQ
 
-import scala.concurrent.{ Future, Promise }
+import scala.concurrent.Future
 
 class MqttServer(system: ActorSystem[_]) extends Runnable with AutoCloseable {
   private implicit val classicSystem = system.toClassic
-  private implicit val ec = system.executionContext
   private var _binding: Option[Future[Tcp.ServerBinding]] = None
   private var _killSwitch: Option[KillSwitch] = None
   private val fusionMQ = FusionMQ(system)

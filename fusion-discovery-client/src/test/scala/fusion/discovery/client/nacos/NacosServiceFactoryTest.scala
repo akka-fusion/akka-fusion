@@ -19,18 +19,17 @@ package fusion.discovery.client.nacos
 import java.util.Properties
 
 import com.typesafe.config.ConfigFactory
-import fusion.test.FusionTestFunSuite
+import fusion.test.FusionFunSuiteLike
 import helloscala.common.Configuration
-import org.scalatest.MustMatchers
 
-class NacosServiceFactoryTest extends FusionTestFunSuite with MustMatchers {
+class NacosServiceFactoryTest extends FusionFunSuiteLike {
   // #NacosServiceFactoryTest
   test("通过serverAddr地址和namespace直接访问") {
     val configService = NacosServiceFactory.configService("localhost:8848", "5b764784-f457-46fb-96c6-4f086d5d0ce1")
     val confStr = configService.getConfig("fusion.file.app", NacosConstants.DEFAULT_GROUP, 3000)
-    confStr must not be empty
+    confStr should not be empty
     val config = ConfigFactory.parseString(confStr).resolve()
-    config.getString("fusion.name") mustBe "file-local"
+    config.getString("fusion.name") shouldBe "file-local"
   }
 
   test("通过Properties访问") {
@@ -40,10 +39,10 @@ class NacosServiceFactoryTest extends FusionTestFunSuite with MustMatchers {
 
     val configService = NacosServiceFactory.configService(props)
     val confStr = configService.getConfig("fusion.file.app", NacosConstants.DEFAULT_GROUP, 3000)
-    confStr must not be empty
+    confStr should not be empty
     ConfigFactory.invalidateCaches()
     val config = ConfigFactory.parseString(confStr).resolve()
-    config.getString("fusion.name") mustBe "file-local"
+    config.getString("fusion.name") shouldBe "file-local"
   }
 
   test("尝试发现配置，失败读本地配置") {
@@ -54,14 +53,14 @@ class NacosServiceFactoryTest extends FusionTestFunSuite with MustMatchers {
     props.put("fusion.discovery.nacos.dataId", "fusion.file.app")
 //    props.put("fusion.discovery.nacos.group", NacosConstants.DEFAULT_GROUP)
     val configuration = Configuration.fromDiscovery()
-    configuration.getString("fusion.name") mustBe "file-app"
+    configuration.getString("fusion.name") shouldBe "file-app"
   }
   // #NacosServiceFactoryTest
 
   test("config") {
-    ConfigFactory.load().hasPath("aaa.bbb") mustBe false
+    ConfigFactory.load().hasPath("aaa.bbb") shouldBe false
     sys.props.put("aaa.bbb", "ok")
     ConfigFactory.invalidateCaches()
-    ConfigFactory.load().getString("aaa.bbb") mustBe "ok"
+    ConfigFactory.load().getString("aaa.bbb") shouldBe "ok"
   }
 }

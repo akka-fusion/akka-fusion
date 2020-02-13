@@ -17,13 +17,12 @@
 package fusion.discovery.client.nacos
 
 import akka.actor.testkit.typed.scaladsl.LogCapturing
-import fusion.test.FusionTestFunSuite
+import fusion.test.FusionFunSuiteLike
 import helloscala.common.Configuration
-import org.scalatest.Matchers
 
 import scala.concurrent.duration._
 
-class ConfigurationTest extends FusionTestFunSuite with Matchers with LogCapturing {
+class ConfigurationTest extends FusionFunSuiteLike with LogCapturing {
   test("fusion.jdbc.default") {
     val configuration = Configuration.parseString("""akka.http {
   host-connection-pool {

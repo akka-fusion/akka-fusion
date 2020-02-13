@@ -18,10 +18,9 @@ package fusion.actuator.model
 
 import fusion.core.model.Health
 import fusion.json.jackson.Jackson
-import fusion.test.FusionTestWordSpec
-import org.scalatest.MustMatchers
+import fusion.test.FusionWordSpecLike
 
-class ModelTest extends FusionTestWordSpec with MustMatchers {
+class ModelTest extends FusionWordSpecLike {
   "model" must {
     "health" in {
       val health = Health(
@@ -31,7 +30,7 @@ class ModelTest extends FusionTestWordSpec with MustMatchers {
           "db" -> Health.up("database" -> "MySQL", "hello" -> 1),
           "refreshScope" -> Health.up()))
       val jsonStr = Jackson.prettyStringify(health)
-      jsonStr must include(""""total" : 316933124096""")
+      jsonStr should include(""""total" : 316933124096""")
     }
   }
 }

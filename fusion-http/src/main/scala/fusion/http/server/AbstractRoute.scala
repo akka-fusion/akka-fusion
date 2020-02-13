@@ -17,19 +17,16 @@
 package fusion.http.server
 
 import java.io.File
-import java.nio.charset.Charset
-import java.nio.charset.StandardCharsets
-import java.nio.file.Files
-import java.nio.file.Paths
+import java.nio.charset.{ Charset, StandardCharsets }
+import java.nio.file.{ Files, Paths }
 
-import akka.http.scaladsl.model.headers
-import akka.http.scaladsl.model._
+import akka.http.scaladsl.model.{ headers, _ }
 import akka.http.scaladsl.model.headers.CacheDirectives
-import akka.http.scaladsl.server.PathMatcher.Matched
-import akka.http.scaladsl.server.PathMatcher.Unmatched
+import akka.http.scaladsl.server.PathMatcher.{ Matched, Unmatched }
 import akka.http.scaladsl.server._
 import akka.http.scaladsl.server.directives.FileInfo
 import akka.http.scaladsl.unmarshalling.FromRequestUnmarshaller
+import akka.stream.scaladsl.{ FileIO, Sink, Source }
 import fusion.core.model.ApiResult
 import fusion.http.AkkaHttpSourceQueue
 import fusion.http.rejection.ForbiddenRejection
@@ -37,6 +34,7 @@ import fusion.http.util.HttpUtils
 import helloscala.common.exception.HSException
 
 import scala.annotation.tailrec
+import scala.collection.immutable
 import scala.concurrent.Future
 
 trait AbstractRoute extends Directives with HttpDirectives with FileDirectives {
@@ -189,6 +187,42 @@ trait AbstractRoute extends Directives with HttpDirectives with FileDirectives {
       val future = HttpUtils.hostRequest(request)(sourceQueue.httpSourceQueue, ctx.executionContext)
       onSuccess(future) { response =>
         complete(response)
+      }
+    }
+
+  /**
+   * Streams the bytes of the file submitted using multipart with the given field name into designated files on disk.
+   * If there is an error writing to disk the request will be failed with the thrown exception, if there is no such
+   * field the request will be rejected. Stored files are cleaned up on exit but not on failure.
+   *
+   * @group fileupload
+   */
+  def uploadedFiles(destFn: FileInfo => File): Directive1[immutable.Seq[(FileInfo, File)]] =
+    entity(as[Multipart.FormData]).flatMap { formData =>
+      extractRequestContext.flatMap { ctx =>
+        implicit val mat = ctx.materializer
+        implicit val ec = ctx.executionContext
+
+        val uploaded: Source[(FileInfo, File), Any] = formData.parts
+        //          .mapConcat { part =>
+        //            if (part.filename.isDefined && part.name == fieldName) part :: Nil
+        //            else {
+        //              part.entity.discardBytes()
+        //              Nil
+        //            }
+        //          }
+          .mapAsync(1) { part =>
+            val fileInfo = FileInfo(part.name, part.filename.get, part.entity.contentType)
+            val dest = destFn(fileInfo)
+
+            part.entity.dataBytes.runWith(FileIO.toPath(dest.toPath)).map { _ =>
+              (fileInfo, dest)
+            }
+          }
+
+        val uploadedF = uploaded.runWith(Sink.seq[(FileInfo, File)])
+
+        onSuccess(uploadedF)
       }
     }
 }

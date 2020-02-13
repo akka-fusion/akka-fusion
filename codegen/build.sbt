@@ -66,7 +66,5 @@ buildInfoKeys ++= Seq(
   "versionLogstashLogback" -> versionLogstashLogback,
   "versionJwt" -> versionJwt,
   "versionJson4s" -> versionJson4s,
-  "versionScalapbJson4s" -> versionScalapbJson4s,
-
   "versionScalapbJson4s" -> versionScalapbJson4s
 )

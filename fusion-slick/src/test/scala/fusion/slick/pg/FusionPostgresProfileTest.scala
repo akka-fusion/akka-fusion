@@ -23,7 +23,7 @@ import fusion.jdbc.FusionJdbc
 import fusion.jdbc.util.JdbcUtils
 import fusion.json.jackson.Jackson
 import fusion.slick.FusionPostgresProfile.api._
-import fusion.test.FusionTestFunSuite
+import fusion.test.FusionFunSuiteLike
 import helloscala.common.util.Utils
 
 case class Test(id: Int, name: String, sex: Option[Int], createdAt: LocalDateTime)
@@ -36,7 +36,7 @@ class TableTest(tag: Tag) extends Table[Test](tag, "t_test") {
   override def * = (id, name, sex, createdAt).mapTo[Test]
 }
 
-class FusionPostgresProfileTest extends ScalaTestWithActorTestKit with FusionTestFunSuite {
+class FusionPostgresProfileTest extends ScalaTestWithActorTestKit with FusionFunSuiteLike {
   test("init jdbc") {
     val dataSource = FusionJdbc(system).component
     Utils.using(dataSource.getConnection) { conn =>

@@ -16,14 +16,10 @@
 
 package fusion.elasticsearch.json4s
 
-import com.sksamuel.elastic4s.AggReader
-import com.sksamuel.elastic4s.Hit
-import com.sksamuel.elastic4s.HitReader
-import com.sksamuel.elastic4s.Indexable
+import com.sksamuel.elastic4s.{ AggReader, Hit, HitReader, Indexable }
 import com.sksamuel.exts.Logging
-import fusion.json.JsonUtils
-import org.json4s.Formats
-import org.json4s.Serialization
+import fusion.json.json4s.JsonUtils
+import org.json4s.{ Formats, Serialization }
 
 import scala.util.Try
 

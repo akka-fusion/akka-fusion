@@ -22,9 +22,9 @@ import akka.http.scaladsl.model.HttpRequest
 import akka.http.scaladsl.model.Uri
 import akka.http.scaladsl.server.Directives._
 import fusion.http.util.HttpUtils
-import fusion.test.FusionTestFunSuite
+import fusion.test.FusionFunSuiteLike
 
-class HttpServerTest extends ScalaTestWithActorTestKit with FusionTestFunSuite {
+class HttpServerTest extends ScalaTestWithActorTestKit with FusionFunSuiteLike {
   implicit private val classicSystem = system.toClassic
 
   private val route = path("hello") {

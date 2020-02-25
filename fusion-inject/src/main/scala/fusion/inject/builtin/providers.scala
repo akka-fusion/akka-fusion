@@ -22,7 +22,8 @@ import akka.{ actor => classic }
 import com.typesafe.config.Config
 import fusion.common.config.FusionConfigFactory
 import fusion.common.constant.FusionConstants
-import fusion.json.jackson.{ ScalaObjectMapper, ScalaObjectMapperExtension }
+import fusion.json.jackson.http.{ JacksonHttpHelper, JacksonSupport }
+import fusion.json.jackson.{ JacksonObjectMapperExtension, ScalaObjectMapper }
 import helloscala.common.Configuration
 import javax.inject.{ Inject, Provider, Singleton }
 
@@ -36,40 +37,57 @@ class ConfigurationProvider @Inject() () extends Provider[Configuration] {
 
 @Singleton
 class ConfigProvider @Inject() (configuration: Configuration) extends Provider[Config] {
-  override lazy val get: Config = configuration.underlying
+  override def get: Config = configuration.underlying
 }
 
 @Singleton
 class ActorSystemProvider @Inject() (config: Config) extends Provider[classic.ActorSystem] {
   override lazy val get: classic.ActorSystem = {
-    classic.ActorSystem(config.getString("akka-name"), config)
+    classic.ActorSystem(config.getString("fusion.akka-name"), config)
   }
 }
 
+final class TypedActorSystemWrapper(val system: ActorSystem[_])
+
 @Singleton
-class TypedActorSystemProvider @Inject() (system: classic.ActorSystem) extends Provider[ActorSystem[_]] {
+class TypedActorSystemProvider @Inject() (system: classic.ActorSystem) extends Provider[TypedActorSystemWrapper] {
   import akka.actor.typed.scaladsl.adapter._
-  override lazy val get: ActorSystem[_] = system.toTyped
+  override def get: TypedActorSystemWrapper = new TypedActorSystemWrapper(system.toTyped)
 }
 
 @Singleton
 class ExecutionContextExecutorProvider @Inject() (system: classic.ActorSystem)
     extends Provider[ExecutionContextExecutor] {
-  override lazy val get: ExecutionContextExecutor = system.dispatcher
+  override def get: ExecutionContextExecutor = system.dispatcher
 }
 
 @Singleton
 class MaterializerProvider @Inject() (system: classic.ActorSystem) extends Provider[Materializer] {
-  override lazy val get: Materializer = Materializer.matFromSystem(system)
+  override def get: Materializer = Materializer.matFromSystem(system)
 }
 
 @Singleton
 class SchedulerProvider @Inject() (system: classic.ActorSystem) extends Provider[Scheduler] {
   import akka.actor.typed.scaladsl.adapter._
-  override lazy val get: Scheduler = system.scheduler.toTyped
+  override def get: Scheduler = system.scheduler.toTyped
 }
 
 @Singleton
-class ScalaObjectMapperProvider @Inject() (system: ActorSystem[_]) extends Provider[ScalaObjectMapper] {
-  override lazy val get: ScalaObjectMapper = ScalaObjectMapperExtension(system).jsonObjectMapper
+class ScalaObjectMapperProvider @Inject() (system: classic.ActorSystem) extends Provider[ScalaObjectMapper] {
+  override def get: ScalaObjectMapper = JacksonObjectMapperExtension(system).objectMapperJson
+}
+
+@Singleton
+class CborObjectMapperProvider @Inject() (system: classic.ActorSystem) extends Provider[ScalaObjectMapper] {
+  override def get: ScalaObjectMapper = JacksonObjectMapperExtension(system).objectMapperCbor
+}
+
+@Singleton
+class JacksonSupportProvider @Inject() (system: classic.ActorSystem) extends Provider[JacksonSupport] {
+  override def get: JacksonSupport = JacksonObjectMapperExtension(system).jacksonSupport
+}
+
+@Singleton
+class JacksonHttpHelperProvider @Inject() (system: classic.ActorSystem) extends Provider[JacksonHttpHelper] {
+  override def get: JacksonHttpHelper = JacksonHttpHelper(system)
 }

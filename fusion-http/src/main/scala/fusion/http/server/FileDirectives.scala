@@ -16,8 +16,8 @@
 
 package fusion.http.server
 
-import java.io.IOException
-import java.nio.file.{ Files, Path }
+import java.io.{ File, IOException }
+import java.nio.file.{ Files, Path, Paths }
 
 import akka.http.scaladsl.model.Multipart
 import akka.http.scaladsl.server.Directives._
@@ -33,6 +33,12 @@ import scala.collection.immutable
 import scala.concurrent.Future
 
 trait FileDirectives {
+  def createTempFileFunc(
+      dir: java.nio.file.Path = Paths.get("/tmp"),
+      prefix: String = "fusion-",
+      suffix: String = ".tmp"): FileInfo => File =
+    fileInfo => Files.createTempFile(dir, fileInfo.fileName, suffix).toFile
+
   def uploadedMultiFile(tmpDirectory: Path): Directive1[immutable.Seq[(FileInfo, Path)]] =
     entity(as[Multipart.FormData])
       .flatMap { formData =>

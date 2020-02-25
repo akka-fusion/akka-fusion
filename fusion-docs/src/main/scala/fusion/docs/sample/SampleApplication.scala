@@ -16,21 +16,20 @@
 
 package fusion.docs.sample
 
-import akka.actor.typed.ActorSystem
+import akka.actor.ActorSystem
 import akka.http.scaladsl.server.Route
-import akka.{ actor => classic }
 import fusion.http.FusionHttpServer
 import fusion.http.server.AbstractRoute
+import fusion.json.jackson.JacksonObjectMapperExtension
+import fusion.json.jackson.http.JacksonSupport
 
-import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
+import scala.concurrent.{ ExecutionContext, Future }
 
 // #SampleApplication
 object SampleApplication {
   def main(args: Array[String]): Unit = {
-    implicit val classicSystem = classic.ActorSystem()
-    val system = ActorSystem.wrap(classicSystem)
-    implicit val ec = system.executionContext
+    implicit val system = ActorSystem()
+    implicit val ec = system.dispatcher
     val sampleService = new SampleService()
     val routes = new SampleRoute(sampleService)
     FusionHttpServer(system).component.startRouteSync(routes.route)
@@ -38,7 +37,9 @@ object SampleApplication {
 }
 
 // Controller
-class SampleRoute(sampleService: SampleService) extends AbstractRoute {
+class SampleRoute(sampleService: SampleService)(implicit system: ActorSystem) extends AbstractRoute {
+  override val jacksonSupport: JacksonSupport = JacksonObjectMapperExtension(system).jacksonSupport
+
   override def route: Route = pathGet("hello") {
     val pdm = (Symbol("hello"), Symbol("year").as[Int].?(2019))
     parameters(pdm).as(SampleReq) { req =>

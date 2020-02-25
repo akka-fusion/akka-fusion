@@ -33,6 +33,8 @@ import com.typesafe.scalalogging.StrictLogging
 import fusion.http.HttpSourceQueue
 import fusion.http.server.AbstractRoute
 import fusion.http.util.HttpUtils
+import fusion.json.jackson.JacksonObjectMapperExtension
+import fusion.json.jackson.http.JacksonSupport
 import helloscala.common.exception.HSBadGatewayException
 import helloscala.common.exception.HSServiceUnavailableException
 import helloscala.common.util.CollectionUtils
@@ -43,9 +45,10 @@ import scala.concurrent.duration._
 import scala.util.Failure
 import scala.util.Success
 
-abstract class HttpGatewayComponent(id: String, implicit val system: ExtendedActorSystem)
+abstract class HttpGatewayComponent(id: String)(implicit val system: ExtendedActorSystem)
     extends AbstractRoute
     with StrictLogging {
+  override val jacksonSupport: JacksonSupport = JacksonObjectMapperExtension(system).jacksonSupport
   implicit protected val materializer: Materializer = Materializer.matFromSystem(system)
   import system.dispatcher
   protected val httpSourceQueueMap = new ConcurrentHashMap[(String, Int), HttpSourceQueue]()

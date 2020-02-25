@@ -14,15 +14,18 @@
  * limitations under the License.
  */
 
-package fusion.common
+package fusion.inject
 
-import java.util.Objects
+import javax.inject.Named
 
-import akka.actor.ActorSystem
+import scala.reflect.ClassTag
 
-private[fusion] object ActorSystemUtils {
-  private var _system: ActorSystem = _
+trait InjectSupport {
+  def instance[T](implicit ev: ClassTag[T]): T
 
-  def system: ActorSystem = Objects.requireNonNull(_system, "need ActorSystemUtils.system = v")
-  def system_=(v: ActorSystem): Unit = _system = v
+  def instance[T](a: Named)(implicit ev: ClassTag[T]): T
+
+  def getInstance[T](c: Class[T]): T
+
+  def getInstance[T](c: Class[T], a: Named): T
 }

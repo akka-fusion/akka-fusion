@@ -35,7 +35,7 @@ import fusion.core.event.http.HttpBindingServerEvent
 import fusion.core.extension.FusionCore
 import fusion.http.constant.HttpConstants
 import fusion.http.interceptor.HttpInterceptor
-import fusion.http.server.AbstractRoute
+import fusion.http.server.BaseRoute
 import fusion.http.util.HttpUtils
 import helloscala.common.Configuration
 import helloscala.common.exception.HSInternalErrorException
@@ -80,7 +80,7 @@ final class HttpServer(val id: String, implicit val system: ExtendedActorSystem)
     startRouteAsync(route)
   }
 
-  def startAbstractRouteSync(route: AbstractRoute)(
+  def startBaseRouteSync(route: BaseRoute)(
       implicit
       rejectionHandler: RejectionHandler = createRejectionHandler(),
       exceptionHandler: ExceptionHandler = createExceptionHandler(),

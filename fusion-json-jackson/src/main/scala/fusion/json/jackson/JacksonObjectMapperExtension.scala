@@ -23,12 +23,16 @@ import akka.serialization.jackson.JacksonObjectMapperProvider
 import com.fasterxml.jackson.core.JsonFactory
 import com.fasterxml.jackson.dataformat.cbor.CBORFactory
 import fusion.common.extension.{ FusionExtension, FusionExtensionId }
+import fusion.json.jackson.http.{ JacksonSupport, JacksonSupportImpl }
 
-class ScalaObjectMapperExtension private (override val classicSystem: ExtendedActorSystem) extends FusionExtension {
-  private val objectMappers = new ConcurrentHashMap[String, ScalaObjectMapper]
+class JacksonObjectMapperExtension private (override val classicSystem: ExtendedActorSystem) extends FusionExtension {
+  private val objectMappers = new ConcurrentHashMap[String, ScalaObjectMapper]()
 
-  lazy val jsonObjectMapper: ScalaObjectMapper = getOrCreate("jackson-json", None)
-  lazy val cborObjectMapper: ScalaObjectMapper = getOrCreate("jackson-cbor", Some(new CBORFactory))
+  lazy val objectMapperCbor: ScalaObjectMapper = getOrCreate("jackson-cbor", Some(new CBORFactory))
+
+  val objectMapperJson: ScalaObjectMapper = getOrCreate("jackson-json", None)
+
+  val jacksonSupport: JacksonSupport = new JacksonSupportImpl()(objectMapperJson)
 
   private[fusion] def getOrCreate(bindingName: String, jsonFactory: Option[JsonFactory]): ScalaObjectMapper =
     objectMappers.computeIfAbsent(
@@ -36,7 +40,7 @@ class ScalaObjectMapperExtension private (override val classicSystem: ExtendedAc
       _ => new ScalaObjectMapper(JacksonObjectMapperProvider(classicSystem).getOrCreate(bindingName, jsonFactory)))
 }
 
-object ScalaObjectMapperExtension extends FusionExtensionId[ScalaObjectMapperExtension] {
-  override def createExtension(system: ExtendedActorSystem): ScalaObjectMapperExtension =
-    new ScalaObjectMapperExtension(system)
+object JacksonObjectMapperExtension extends FusionExtensionId[JacksonObjectMapperExtension] {
+  override def createExtension(system: ExtendedActorSystem): JacksonObjectMapperExtension =
+    new JacksonObjectMapperExtension(system)
 }

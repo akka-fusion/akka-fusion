@@ -18,9 +18,8 @@ package fusion.core.util
 
 import java.util.concurrent.atomic.AtomicLong
 
-import akka.actor.typed.{ ActorSystem, Behavior }
+import akka.actor.ActorSystem
 import com.typesafe.config.Config
-import fusion.common.FusionProtocol
 import fusion.common.constant.FusionConstants
 import helloscala.common.Configuration
 
@@ -29,34 +28,20 @@ object FusionUtils {
 
   def generateTraceId(): Long = _traceIdGenerator.incrementAndGet()
 
-  def createFromDiscovery(): ActorSystem[FusionProtocol.Command] = createActorSystem(Configuration.fromDiscovery())
+  def createFromDiscovery(): ActorSystem = createActorSystem(Configuration.fromDiscovery())
 
-  def createActorSystem(configuration: Configuration): ActorSystem[FusionProtocol.Command] =
+  def createActorSystem(configuration: Configuration): ActorSystem =
     createActorSystem(configuration.underlying)
 
-  def createActorSystem(config: Config): ActorSystem[FusionProtocol.Command] =
+  def createActorSystem(config: Config): ActorSystem =
     createActorSystem(getName(config), config)
 
-  def createActorSystem(name: String, config: Configuration): ActorSystem[FusionProtocol.Command] =
+  def createActorSystem(name: String, config: Configuration): ActorSystem =
     createActorSystem(name, config.underlying)
 
-  def createActorSystem(name: String, config: Config): ActorSystem[FusionProtocol.Command] = {
-    createActorSystem(FusionProtocol.behavior, getName(config), config)
-  }
-
-  def createActorSystem(
-      behavior: Behavior[FusionProtocol.Command],
-      config: Config): ActorSystem[FusionProtocol.Command] = {
-    createActorSystem(behavior, getName(config), config)
-  }
-
-  def createActorSystem(
-      behavior: Behavior[FusionProtocol.Command],
-      name: String,
-      config: Config): ActorSystem[FusionProtocol.Command] = {
-    ActorSystem(behavior, getName(config), config)
-  }
+  def createActorSystem(name: String, config: Config): ActorSystem = ActorSystem(name, config)
 
   @inline def getName(config: Config): String =
-    if (config.hasPath(FusionConstants.NAME_PATH)) config.getString(FusionConstants.NAME_PATH) else FusionConstants.NAME
+    if (config.hasPath(FusionConstants.AKKA_NAME_PATH)) config.getString(FusionConstants.AKKA_NAME_PATH)
+    else FusionConstants.FUSION
 }

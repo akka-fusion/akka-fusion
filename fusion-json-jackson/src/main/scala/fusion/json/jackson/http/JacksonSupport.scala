@@ -28,7 +28,6 @@ import akka.stream.scaladsl.{ Flow, Source }
 import akka.util.ByteString
 import com.fasterxml.jackson.core.`type`.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
-import fusion.json.jackson.Jackson
 
 import scala.collection.immutable.Seq
 import scala.concurrent.Future
@@ -42,11 +41,13 @@ import scala.util.control.NonFatal
 trait JacksonSupport {
   type SourceOf[A] = Source[A, _]
 
-  val unmarshallerContentTypes: Seq[ContentTypeRange] =
-    (mediaTypes :+ MediaTypes.`text/plain`).map(ContentTypeRange.apply)
+  implicit def objectMapper: ObjectMapper
 
   val mediaTypes: Seq[MediaType.WithFixedCharset] =
     List(MediaTypes.`application/json`)
+
+  val unmarshallerContentTypes: Seq[ContentTypeRange] =
+    (mediaTypes :+ MediaTypes.`text/plain`).map(ContentTypeRange.apply)
 
   private val jsonStringUnmarshaller =
     Unmarshaller.byteStringUnmarshaller.forContentTypes(unmarshallerContentTypes: _*).mapWithCharset {
@@ -88,22 +89,20 @@ trait JacksonSupport {
     Marshaller.oneOf(mediaTypes: _*)(sourceByteStringMarshaller)
 
   private def jsonSource[A](entitySource: SourceOf[A])(
-      implicit objectMapper: ObjectMapper = Jackson.defaultObjectMapper,
+      implicit objectMapper: ObjectMapper,
       support: JsonEntityStreamingSupport): SourceOf[ByteString] =
     entitySource.map(elem => ByteString(objectMapper.writeValueAsBytes(elem))).via(support.framingRenderer)
 
   /**
    * HTTP entity => `A`
    */
-  implicit def unmarshaller[A](
-      implicit ct: TypeTag[A],
-      objectMapper: ObjectMapper = Jackson.defaultObjectMapper): FromEntityUnmarshaller[A] =
+  implicit def unmarshaller[A](implicit ct: TypeTag[A], objectMapper: ObjectMapper): FromEntityUnmarshaller[A] =
     jsonStringUnmarshaller.map(data => objectMapper.readValue(data, typeReference[A]))
 
   /**
    * `A` => HTTP entity
    */
-  implicit def marshaller[A](implicit objectMapper: ObjectMapper = Jackson.defaultObjectMapper): ToEntityMarshaller[A] =
+  implicit def marshaller[A](implicit objectMapper: ObjectMapper): ToEntityMarshaller[A] =
     JacksonHelper.marshaller[A](objectMapper)
 
   /**
@@ -114,7 +113,7 @@ trait JacksonSupport {
    */
   implicit def fromByteStringUnmarshaller[A](
       implicit ct: TypeTag[A],
-      objectMapper: ObjectMapper = Jackson.defaultObjectMapper): Unmarshaller[ByteString, A] =
+      objectMapper: ObjectMapper): Unmarshaller[ByteString, A] =
     Unmarshaller { _ => bs =>
       Future.fromTry(Try(objectMapper.readValue(bs.toArray, typeReference[A])))
     }
@@ -127,7 +126,7 @@ trait JacksonSupport {
    */
   implicit def sourceUnmarshaller[A](
       implicit ct: TypeTag[A],
-      objectMapper: ObjectMapper = Jackson.defaultObjectMapper,
+      objectMapper: ObjectMapper,
       support: JsonEntityStreamingSupport = EntityStreamingSupport.json()): FromEntityUnmarshaller[SourceOf[A]] =
     Unmarshaller
       .withMaterializer[HttpEntity, SourceOf[A]] { implicit ec => implicit mat => entity =>
@@ -154,9 +153,11 @@ trait JacksonSupport {
    */
   implicit def sourceMarshaller[A](
       implicit ct: TypeTag[A],
-      objectMapper: ObjectMapper = Jackson.defaultObjectMapper,
+      objectMapper: ObjectMapper,
       support: JsonEntityStreamingSupport = EntityStreamingSupport.json()): ToEntityMarshaller[SourceOf[A]] =
     jsonSourceStringMarshaller.compose(jsonSource[A])
 }
 
-object JacksonSupport extends JacksonSupport
+class JacksonSupportImpl()(implicit override val objectMapper: ObjectMapper) extends JacksonSupport
+
+//object JacksonSupport extends JacksonSupport

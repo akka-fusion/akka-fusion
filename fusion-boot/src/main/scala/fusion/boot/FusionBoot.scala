@@ -14,12 +14,19 @@
  * limitations under the License.
  */
 
-package fusion.json.jackson
+package fusion.boot
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import akka.actor.ActorSystem
+import fusion.core.util.FusionUtils
 
-class ScalaObjectMapper(mapper: ObjectMapper)
-    extends ObjectMapper(mapper)
-    with com.fasterxml.jackson.module.scala.ScalaObjectMapper {
-  println(s"ScalaObjectMapper($mapper)")
+class FusionBoot private (system: ActorSystem) {
+  def run(): FusionBoot = {
+    this
+  }
+}
+
+object FusionBoot {
+  def apply(system: ActorSystem): FusionBoot = new FusionBoot(system)
+
+  def apply(): FusionBoot = apply(FusionUtils.createFromDiscovery())
 }

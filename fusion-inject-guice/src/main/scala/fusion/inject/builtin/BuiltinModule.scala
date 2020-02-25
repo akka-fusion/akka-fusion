@@ -14,17 +14,19 @@
  * limitations under the License.
  */
 
-package fusion.inject
+package fusion.inject.builtin
 
 import java.util.concurrent.Executor
-import akka.{ actor => classic }
+
 import akka.actor.typed.{ ActorSystem, Scheduler }
 import akka.stream.Materializer
 import akka.{ actor => classic }
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.inject.AbstractModule
-import fusion.inject.builtin._
-import fusion.json.jackson.ScalaObjectMapper
+import com.google.inject.name.Names
+import com.typesafe.config.Config
+import fusion.json.jackson.http.{ JacksonHttpHelper, JacksonSupport }
+import fusion.json.jackson.{ JacksonConstants, ScalaObjectMapper }
 import helloscala.common.Configuration
 
 import scala.concurrent.{ ExecutionContext, ExecutionContextExecutor }
@@ -32,18 +34,23 @@ import scala.concurrent.{ ExecutionContext, ExecutionContextExecutor }
 class BuiltinModule extends AbstractModule {
   override def configure(): Unit = {
     bind(classOf[Configuration]).toProvider(classOf[ConfigurationProvider])
+    bind(classOf[Config]).toProvider(classOf[ConfigProvider])
     bind(classOf[classic.ActorSystem]).toProvider(classOf[ActorSystemProvider])
-    bind(classOf[ActorSystem[_]]).toProvider(classOf[TypedActorSystemProvider])
+    bind(classOf[TypedActorSystemWrapper]).toProvider(classOf[TypedActorSystemProvider])
     bind(classOf[Materializer]).toProvider(classOf[MaterializerProvider])
     bind(classOf[ExecutionContextExecutor]).toProvider(classOf[ExecutionContextExecutorProvider])
     bind(classOf[ExecutionContext]).to(classOf[ExecutionContextExecutor])
     bind(classOf[Executor]).to(classOf[ExecutionContextExecutor])
     bind(classOf[Scheduler]).toProvider(classOf[SchedulerProvider])
     bind(classOf[ScalaObjectMapper]).toProvider(classOf[ScalaObjectMapperProvider])
+    bind(classOf[ScalaObjectMapper])
+      .annotatedWith(Names.named(JacksonConstants.JACKSON_JSON))
+      .to(classOf[ScalaObjectMapper])
     bind(classOf[ObjectMapper]).to(classOf[ScalaObjectMapper])
+    bind(classOf[ScalaObjectMapper])
+      .annotatedWith(Names.named(JacksonConstants.JACKSON_CBOR))
+      .toProvider(classOf[CborObjectMapperProvider])
+    bind(classOf[JacksonSupport]).toProvider(classOf[JacksonSupportProvider])
+    bind(classOf[JacksonHttpHelper]).toProvider(classOf[JacksonHttpHelperProvider])
   }
-
-//  def cborObjectMapper(system: ActorSystem[_]): ScalaObjectMapper = {
-//    ScalaReflectionException(system)
-//  }
 }

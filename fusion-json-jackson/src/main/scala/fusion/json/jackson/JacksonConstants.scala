@@ -16,10 +16,7 @@
 
 package fusion.json.jackson
 
-import com.fasterxml.jackson.databind.ObjectMapper
-
-class ScalaObjectMapper(mapper: ObjectMapper)
-    extends ObjectMapper(mapper)
-    with com.fasterxml.jackson.module.scala.ScalaObjectMapper {
-  println(s"ScalaObjectMapper($mapper)")
+object JacksonConstants {
+  val JACKSON_CBOR: String = "jackson-cbor"
+  val JACKSON_JSON: String = "jackson-json"
 }

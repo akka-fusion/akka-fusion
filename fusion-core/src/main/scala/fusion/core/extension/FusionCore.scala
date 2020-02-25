@@ -25,7 +25,7 @@ import akka.http.scaladsl.model.HttpHeader
 import com.typesafe.scalalogging.StrictLogging
 import fusion.common.constant.{ ConfigKeys, FusionConstants }
 import fusion.common.extension.{ FusionCoordinatedShutdown, FusionExtension, FusionExtensionId }
-import fusion.common.{ ActorSystemUtils, ReceptionistFactory, SpawnFactory }
+import fusion.common.{ ReceptionistFactory, SpawnFactory }
 import fusion.core.event.FusionEvents
 import fusion.core.http.headers.`X-Service`
 import fusion.core.setting.CoreSetting
@@ -47,14 +47,12 @@ final class FusionCore private (override val classicSystem: ExtendedActorSystem)
     `X-Service`(serviceName)
   }
 
-  //FusionUtils.setupActorSystem(system)
-  ActorSystemUtils.system = classicSystem
   writePidfile()
   System.setProperty(
     FusionConstants.NAME_PATH,
     if (classicSystem.settings.config.hasPath(FusionConstants.NAME_PATH))
       classicSystem.settings.config.getString(FusionConstants.NAME_PATH)
-    else FusionConstants.NAME)
+    else FusionConstants.FUSION)
 
   logger.info("FusionCore instanced!")
 

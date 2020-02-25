@@ -22,6 +22,8 @@ import akka.http.scaladsl.model._
 import akka.http.scaladsl.unmarshalling.Unmarshaller.UnsupportedContentTypeException
 import akka.http.scaladsl.unmarshalling.{ Unmarshal, Unmarshaller }
 import akka.stream.scaladsl.{ Sink, Source }
+import com.fasterxml.jackson.databind.ObjectMapper
+import fusion.json.jackson.JacksonObjectMapperExtension
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AsyncWordSpec
@@ -34,9 +36,9 @@ final case class Foo(bar: String) {
 }
 
 class JacksonSupportTest extends AsyncWordSpec with Matchers with BeforeAndAfterAll {
-  import JacksonSupport._
-
   private implicit val system = ActorSystem()
+  private val jacksonSupport = JacksonObjectMapperExtension(system).jacksonSupport
+  import jacksonSupport._
 
   "JacksonSupport" should {
     "should enable marshalling and unmarshalling of case classes" in {
@@ -98,6 +100,8 @@ class JacksonSupportTest extends AsyncWordSpec with Matchers with BeforeAndAfter
         MediaType.applicationWithFixedCharset("json-home", HttpCharsets.`UTF-8`, "json-home")
 
       final object CustomJacksonSupport extends JacksonSupport {
+        override implicit val objectMapper: ObjectMapper = JacksonObjectMapperExtension(system).objectMapperJson
+
         override val unmarshallerContentTypes = List(MediaTypes.`application/json`, `application/json-home`)
       }
       import CustomJacksonSupport._

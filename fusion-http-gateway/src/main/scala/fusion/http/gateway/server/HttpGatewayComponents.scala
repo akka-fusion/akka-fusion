@@ -35,7 +35,7 @@ class HttpGatewayComponents(system: ExtendedActorSystem)
         system.dynamicAccess
           .createInstanceFor[HttpGatewayComponent](fqcn, List(classOf[String] -> id, classOf[ActorSystem[_]] -> system))
           .getOrElse(throw new ExceptionInInitializerError(s"创建 HttpGatewayComponent 组件失败，fqdn: $fqcn"))
-      case _ => new HttpGatewayComponent(id, system) {}
+      case _ => new HttpGatewayComponent(id)(system) {}
     }
     comp
   }

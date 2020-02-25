@@ -28,7 +28,6 @@ lazy val root = Project(id = "akka-fusion", base = file("."))
   .aggregate(
 //    fusionSbtPlugin,
 //    codegen,
-    fusionBoot,
     fusionInjectGuice,
     fusionInject,
     fusionMq,
@@ -155,7 +154,7 @@ lazy val fusionActuatorCluster = _project("fusion-actuator-cluster")
   .settings(libraryDependencies ++= Seq(_akkaManagementClusterHttp))
 
 lazy val fusionActuator = _project("fusion-actuator")
-  .dependsOn(fusionJsonJackson, fusionDiscoveryClient, fusionTestkit % "test->test", fusionCore)
+  .dependsOn(fusionHttp, fusionTestkit % "test->test", fusionCore)
   .settings(
     libraryDependencies ++= Seq(
         _akkaManagement,
@@ -182,10 +181,8 @@ lazy val fusionCluster = _project("fusion-cluster")
   .settings(libraryDependencies ++= Seq(_akkaManagement, _akkaManagementClusterHttp) ++ _akkaClusters)
 
 lazy val fusionHttp = _project("fusion-http")
-  .dependsOn(fusionBoot, fusionHttpClient, fusionTestkit % "test->test", fusionCore)
+  .dependsOn(fusionHttpClient, fusionTestkit % "test->test", fusionCore)
   .settings(libraryDependencies ++= Seq(_akkaManagement))
-
-lazy val fusionBoot = _project("fusion-boot").dependsOn(fusionTestkit % "test->test", fusionCore)
 
 lazy val fusionHttpClient = _project("fusion-http-client")
   .dependsOn(fusionProtobufV3, fusionJsonJackson, fusionTestkit % "test->test", fusionCore)
@@ -260,6 +257,15 @@ lazy val fusionTestkit = _project("fusion-testkit")
         _akkaStreamTestkit,
         _scalatest))
 
+lazy val fusionProtobufV3 = _project("fusion-protobuf-v3")
+  .dependsOn(fusionCore)
+  .settings(Publishing.publishing: _*)
+  .settings(
+    libraryDependencies ++= Seq(
+        "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion % "protobuf,provided",
+        _akkaProtobufV3,
+        _akkaDiscovery))
+
 lazy val fusionCore = _project("fusion-core")
   .dependsOn(fusionCommon)
   .settings(Publishing.publishing: _*)
@@ -270,24 +276,16 @@ lazy val fusionCore = _project("fusion-core")
         _akkaStreamTestkit % Test,
         _scalatest % Test))
 
-lazy val fusionProtobufV3 = _project("fusion-protobuf-v3")
-  .dependsOn(fusionCommon)
-  .settings(Publishing.publishing: _*)
-  .settings(
-    libraryDependencies ++= Seq(
-        "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion % "protobuf,provided",
-        _akkaProtobufV3,
-        _akkaDiscovery))
-
-lazy val fusionCommon = _project("fusion-common")
-  .dependsOn(helloscalaCommon)
-  .settings(Publishing.publishing: _*)
-  .settings(
-    libraryDependencies ++= Seq(
-        _logbackClassic,
-        _akkaTypedTestkit % Test,
-        _akkaStreamTestkit % Test,
-        _scalatest % Test) ++ _akkas ++ _slf4js)
+lazy val fusionCommon =
+  _project("fusion-common")
+    .dependsOn(helloscalaCommon)
+    .settings(Publishing.publishing: _*)
+    .settings(
+      libraryDependencies ++= Seq(
+          _logbackClassic,
+          _akkaTypedTestkit % Test,
+          _akkaStreamTestkit % Test,
+          _scalatest % Test) ++ _akkas ++ _slf4js)
 
 lazy val helloscalaCommon = _project("helloscala-common")
   .settings(Publishing.publishing: _*)

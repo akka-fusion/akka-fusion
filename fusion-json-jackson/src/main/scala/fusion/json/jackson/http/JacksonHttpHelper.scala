@@ -16,20 +16,24 @@
 
 package fusion.json.jackson.http
 
+import akka.actor.ExtendedActorSystem
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.unmarshalling.Unmarshal
 import akka.stream.Materializer
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.{ ArrayNode, ObjectNode }
-import fusion.json.jackson.Jackson
-import fusion.json.jackson.http.JacksonSupport._
+import fusion.common.extension.{ FusionExtension, FusionExtensionId }
+import fusion.json.jackson.{ Jackson, JacksonObjectMapperExtension }
 import helloscala.common.IntStatus
 import helloscala.common.exception.{ HSException, HSHttpStatusException }
 
 import scala.concurrent.{ ExecutionContext, Future }
 import scala.reflect.runtime.universe._
 
-object JacksonHttpUtils {
+class JacksonHttpHelper private (override val classicSystem: ExtendedActorSystem) extends FusionExtension {
+  val jacksonSupport: JacksonSupport = JacksonObjectMapperExtension(classicSystem).jacksonSupport
+  import jacksonSupport._
+
   def httpEntity(v: Any): HttpEntity.Strict = HttpEntity(ContentTypes.`application/json`, Jackson.stringify(v))
 
   def mapObjectNode(response: HttpResponse)(implicit mat: Materializer): Future[ObjectNode] = {
@@ -98,4 +102,8 @@ object JacksonHttpUtils {
       case e: HSException => Future.successful(Left(e))
     }
   }
+}
+
+object JacksonHttpHelper extends FusionExtensionId[JacksonHttpHelper] {
+  override def createExtension(system: ExtendedActorSystem): JacksonHttpHelper = new JacksonHttpHelper(system)
 }

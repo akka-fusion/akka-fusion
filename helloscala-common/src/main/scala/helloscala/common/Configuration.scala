@@ -288,9 +288,12 @@ object Configuration extends StrictLogging {
   def load(config: Config): Configuration = {
     val c = ConfigFactory.defaultOverrides().withFallback(config)
     ConfigFactory.invalidateCaches()
-    new Configuration(c.withFallback(ConfigFactory.load()).resolve())
+    // TODO generateConfig() 需要？
+    new Configuration(c.withFallback(generateConfig()).resolve())
   }
-  def load(): Configuration = load(ConfigFactory.load())
+
+  def load(): Configuration = load(generateConfig())
+
   def load(props: Properties): Configuration = load(ConfigurationHelper.fromProperties(props))
 
   def parseString(content: String): Configuration = {
@@ -300,5 +303,25 @@ object Configuration extends StrictLogging {
   def configError(message: String, origin: Option[ConfigOrigin], me: Option[Throwable]): HSException = {
     val msg = origin.map(o => s"[$o] $message").getOrElse(message)
     me.map(e => new HSException(msg, e)).getOrElse(new HSException(msg))
+  }
+
+  def generateConfig(): Config = {
+    if (noConfigProperties()) {
+      val url = Thread.currentThread().getContextClassLoader.getResource("application-test.conf")
+      if (Objects.isNull(url)) ConfigFactory.load()
+      else {
+        logger.info(
+          "Resource file 'application-test.conf' found and didn't set config properties, use resource file 'application-test.conf'.")
+        ConfigFactory.load("application-test.conf")
+      }
+    } else ConfigFactory.load()
+  }
+
+  def noConfigProperties(): Boolean = {
+    var specified = 0
+    if (System.getProperty("config.resource") != null) specified += 1
+    if (System.getProperty("config.file") != null) specified += 1
+    if (System.getProperty("config.url") != null) specified += 1
+    specified == 0
   }
 }

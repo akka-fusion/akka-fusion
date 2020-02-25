@@ -17,13 +17,16 @@
 package fusion.actuator.route
 
 import akka.actor.ExtendedActorSystem
-import akka.http.scaladsl.server.Directives
 import akka.http.scaladsl.server.Route
+import fusion.http.server.AbstractRoute
+import fusion.json.jackson.JacksonObjectMapperExtension
+import fusion.json.jackson.http.JacksonSupport
 
-trait ActuatorRoute extends Directives {
+trait ActuatorRoute extends AbstractRoute {
   val system: ExtendedActorSystem
+  override val jacksonSupport: JacksonSupport = JacksonObjectMapperExtension(system).jacksonSupport
   val name: String
   def isTemplated: Boolean = false
+
   final def aroundRoute: Route = pathPrefix(name) { route }
-  def route: Route
 }

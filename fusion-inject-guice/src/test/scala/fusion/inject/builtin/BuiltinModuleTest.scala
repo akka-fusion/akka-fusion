@@ -14,12 +14,24 @@
  * limitations under the License.
  */
 
-package fusion.json.jackson
+package fusion.inject.builtin
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import fusion.inject.FusionInjector
+import fusion.json.jackson.http.JacksonSupport
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 
-class ScalaObjectMapper(mapper: ObjectMapper)
-    extends ObjectMapper(mapper)
-    with com.fasterxml.jackson.module.scala.ScalaObjectMapper {
-  println(s"ScalaObjectMapper($mapper)")
+class BuiltinModuleTest extends AnyFunSuite with Matchers {
+  val injector = new FusionInjector()
+
+  test("ObjectMapper") {
+    val objectMapper = injector.instance[ObjectMapper]
+    objectMapper.writeValueAsString(Map("name" -> "杨景")) shouldBe """{"name":"杨景"}"""
+  }
+
+  test("JacksonSupport") {
+    val jacksonSupport = injector.instance[JacksonSupport]
+    println(jacksonSupport)
+  }
 }

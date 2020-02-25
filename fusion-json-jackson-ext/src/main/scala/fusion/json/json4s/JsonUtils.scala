@@ -20,7 +20,6 @@ import java.io.OutputStream
 import java.util.TimeZone
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.scala.experimental.ScalaObjectMapper
 import fusion.json.jackson.Jackson
 import fusion.shared.scalapb.json4s.{ Parser, Printer }
 import org.json4s.JsonAST.JValue
@@ -35,7 +34,7 @@ object Json4sMethods extends JsonMethods {
 }
 
 trait JsonUtils extends JsonMethods {
-  override def mapper: ObjectMapper with ScalaObjectMapper = Jackson.defaultObjectMapper
+  override def mapper: ObjectMapper = Jackson.defaultObjectMapper
 
   def toJsonString(in: JsonInput, useBigDecimalForDouble: Boolean = false, useBigIntForLong: Boolean = true): String =
     compact(parse(in))

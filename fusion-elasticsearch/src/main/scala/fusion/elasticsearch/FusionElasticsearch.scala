@@ -17,7 +17,7 @@
 package fusion.elasticsearch
 
 import akka.Done
-import akka.actor.typed.ActorSystem
+import akka.actor.ExtendedActorSystem
 import com.sksamuel.elastic4s._
 import com.sksamuel.elastic4s.http.JavaClient
 import fusion.common.component.Components
@@ -27,7 +27,6 @@ import helloscala.common.Configuration
 import org.apache.http.client.config.RequestConfig
 import org.apache.http.impl.nio.client.HttpAsyncClientBuilder
 
-import scala.language.higherKinds
 import scala.concurrent.Future
 
 class FusionESClient(val underlying: ElasticClient, val config: Configuration) {
@@ -47,6 +46,7 @@ class FusionESClient(val underlying: ElasticClient, val config: Configuration) {
       executor: Executor[F],
       functor: Functor[F],
       handler: Handler[T, U]): F[Response[U]] = {
+    import scala.language.higherKinds
     val request = handler.build(t)
     val f = executor.exec(client, request)
     functor.map(f) { resp =>
@@ -60,7 +60,7 @@ class FusionESClient(val underlying: ElasticClient, val config: Configuration) {
   def close(): Unit = client.close()
 }
 
-class ElasticsearchComponents(system: ActorSystem[_])
+class ElasticsearchComponents(system: ExtendedActorSystem)
     extends Components[FusionESClient]("fusion.elasticsearch.default") {
   override def configuration: Configuration = FusionCore(system).configuration
 
@@ -90,17 +90,17 @@ class ElasticsearchComponents(system: ActorSystem[_])
     Future {
       c.close()
       Done
-    }(system.executionContext)
+    }(system.dispatcher)
 }
 
-class FusionElasticsearch private (override val system: ActorSystem[_]) extends FusionExtension {
-  val components = new ElasticsearchComponents(system)
-  FusionCoordinatedShutdown(system).beforeActorSystemTerminate("StopFusionElasticsearch") { () =>
-    components.closeAsync()(system.executionContext)
+class FusionElasticsearch private (override val classicSystem: ExtendedActorSystem) extends FusionExtension {
+  val components = new ElasticsearchComponents(classicSystem)
+  FusionCoordinatedShutdown(classicSystem).beforeActorSystemTerminate("StopFusionElasticsearch") { () =>
+    components.closeAsync()(classicSystem.dispatcher)
   }
   def component: FusionESClient = components.component
 }
 
 object FusionElasticsearch extends FusionExtensionId[FusionElasticsearch] {
-  override def createExtension(system: ActorSystem[_]): FusionElasticsearch = new FusionElasticsearch(system)
+  override def createExtension(system: ExtendedActorSystem): FusionElasticsearch = new FusionElasticsearch(system)
 }

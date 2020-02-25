@@ -17,11 +17,7 @@
 package fusion.actuator.route
 
 import akka.actor.ExtendedActorSystem
-import akka.actor.typed.ActorSystem
-import akka.http.scaladsl.model.ContentTypes
-import akka.http.scaladsl.model.HttpEntity
-import akka.http.scaladsl.model.HttpRequest
-import akka.http.scaladsl.model.Uri
+import akka.http.scaladsl.model.{ ContentTypes, HttpEntity, HttpRequest, Uri }
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import com.typesafe.scalalogging.StrictLogging
@@ -33,7 +29,7 @@ import scala.jdk.CollectionConverters._
 
 case class Item(href: String, templated: Boolean)
 
-class FusionActuatorRoute(system: ActorSystem[_], actuatorSetting: ActuatorSetting) extends StrictLogging {
+class FusionActuatorRoute(system: ExtendedActorSystem, actuatorSetting: ActuatorSetting) extends StrictLogging {
   private val components: Seq[ActuatorRoute] = system.settings.config
     .getStringList("fusion.actuator.routes")
     .asScala

@@ -18,11 +18,11 @@ package fusion.http.gateway.server
 
 import java.util.concurrent.atomic.AtomicInteger
 
-import akka.actor.typed.ActorSystem
-import akka.discovery.{ Discovery, ServiceDiscovery }
+import akka.actor.ExtendedActorSystem
 import akka.discovery.ServiceDiscovery.ResolvedTarget
-import akka.http.scaladsl.model.{ HttpProtocol, HttpProtocols, Uri }
+import akka.discovery.{ Discovery, ServiceDiscovery }
 import akka.http.scaladsl.model.headers.`Timeout-Access`
+import akka.http.scaladsl.model.{ HttpProtocol, HttpProtocols, Uri }
 import akka.pattern.CircuitBreaker
 import com.typesafe.config.{ ConfigFactory, ConfigMemorySize }
 import fusion.core.setting.CircuitBreakerSetting
@@ -70,15 +70,12 @@ final case class GatewayLocation(
   }
 }
 
-final class GatewaySetting(system: ActorSystem[_], prefix: String) {
-  import akka.actor.typed.scaladsl.adapter._
-
+final class GatewaySetting(system: ExtendedActorSystem, prefix: String) {
   private val configuration = Configuration(system.settings.config)
   private var _upstreams: immutable.Seq[GatewayUpstream] = _
   private var _locations: immutable.Seq[GatewayLocation] = _
   private var _defaultTimeout: FiniteDuration = _
   private val c = configuration.getConfiguration(prefix)
-  private val classicSystem = system.toClassic
 
   init()
 
@@ -98,7 +95,7 @@ final class GatewaySetting(system: ActorSystem[_], prefix: String) {
       if (circuitBreakerSetting.enable)
         Some(
           CircuitBreaker(
-            system.toClassic.scheduler,
+            system.scheduler,
             circuitBreakerSetting.maxFailures,
             circuitBreakerSetting.callTimeout,
             circuitBreakerSetting.resetTimeout))
@@ -112,8 +109,8 @@ final class GatewaySetting(system: ActorSystem[_], prefix: String) {
       val discovery = upstreamsConfig
         .get[Option[String]](s"$upstreamName.discovery-method")
         .orElse(upstreamsConfig.get[Option[String]](s"$upstreamName.discoveryMethod"))
-        .map(method => Discovery(classicSystem).loadServiceDiscovery(method))
-        .orElse(serviceName.map(_ => Discovery(classicSystem).discovery))
+        .map(method => Discovery(system).loadServiceDiscovery(method))
+        .orElse(serviceName.map(_ => Discovery(system).discovery))
       val targets = upstreamsConfig.getOrElse[Seq[String]](s"$upstreamName.targets", Nil).map(toResolvedTarget).toVector
       GatewayUpstream(upstreamName, serviceName, discovery, targets)
     }.toVector
@@ -137,7 +134,7 @@ final class GatewaySetting(system: ActorSystem[_], prefix: String) {
       val proxyTo = c.get[Option[String]]("proxy-to")
 
       val circuitBreaker = defaultCircuitBreaker.orElse(
-        CircuitBreakerSetting.getCircuitBreaker(classicSystem, s"$prefix.locations.$locationName.circuit-breaker"))
+        CircuitBreakerSetting.getCircuitBreaker(system, s"$prefix.locations.$locationName.circuit-breaker"))
 
       val notProxyHeaders = c.getOrElse("not-proxy-headers", Seq[String]()).toSet
       val routingSettings =
@@ -177,5 +174,5 @@ final class GatewaySetting(system: ActorSystem[_], prefix: String) {
 }
 
 object GatewaySetting {
-  def fromActorSystem(system: ActorSystem[_], prefix: String): GatewaySetting = new GatewaySetting(system, prefix)
+  def fromActorSystem(system: ExtendedActorSystem, prefix: String): GatewaySetting = new GatewaySetting(system, prefix)
 }

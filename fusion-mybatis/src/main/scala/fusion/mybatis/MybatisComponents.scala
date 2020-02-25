@@ -17,7 +17,7 @@
 package fusion.mybatis
 
 import akka.Done
-import akka.actor.typed.ActorSystem
+import akka.actor.ExtendedActorSystem
 import com.baomidou.mybatisplus.annotation.FieldStrategy
 import com.baomidou.mybatisplus.annotation.IdType
 import com.baomidou.mybatisplus.core.MybatisConfiguration
@@ -44,7 +44,7 @@ import scala.concurrent.Future
 import scala.util.Failure
 import scala.util.Success
 
-class MybatisComponents(system: ActorSystem[_])
+class MybatisComponents(system: ExtendedActorSystem)
     extends Components[FusionSqlSessionFactory](MybatisConstants.PATH_DEFAULT)
     with StrictLogging {
   def configuration: Configuration = Configuration(system.settings.config)

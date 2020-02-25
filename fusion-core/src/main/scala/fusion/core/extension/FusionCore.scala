@@ -16,66 +16,74 @@
 
 package fusion.core.extension
 
+import java.nio.file.Paths
+
 import akka.actor.ExtendedActorSystem
 import akka.actor.typed._
-import akka.actor.typed.receptionist.{ Receptionist, ServiceKey }
+import akka.actor.typed.scaladsl.adapter._
 import akka.http.scaladsl.model.HttpHeader
-import akka.util.Timeout
 import com.typesafe.scalalogging.StrictLogging
-import fusion.common.FusionProtocol
-import fusion.common.extension.FusionCoordinatedShutdown
+import fusion.common.constant.{ ConfigKeys, FusionConstants }
+import fusion.common.extension.{ FusionCoordinatedShutdown, FusionExtension, FusionExtensionId }
+import fusion.common.{ ActorSystemUtils, ReceptionistFactory, SpawnFactory }
 import fusion.core.event.FusionEvents
-import fusion.core.extension.impl.FusionCoreImpl
+import fusion.core.http.headers.`X-Service`
 import fusion.core.setting.CoreSetting
-import helloscala.common.Configuration
-import helloscala.common.exception.HSInternalErrorException
+import helloscala.common.util.{ PidFile, Utils }
 
-import scala.concurrent.duration.FiniteDuration
-import scala.concurrent.{ Await, Future }
+import scala.util.control.NonFatal
 
-abstract class FusionCore extends Extension with StrictLogging {
-  def name: String
-  val setting: CoreSetting
-  val events: FusionEvents
-  val shutdowns: FusionCoordinatedShutdown
-  val currentXService: HttpHeader
-  def fusionGuardian: ActorRef[FusionProtocol.Command]
-  def configuration: Configuration
-  def fusionSystem: ActorSystem[FusionProtocol.Command]
-  def classicSystem: ExtendedActorSystem
-
-  def spawnActor[REF](behavior: Behavior[REF], name: String, props: Props)(
-      implicit timeout: Timeout): Future[ActorRef[REF]]
-
-  def spawnActor[REF](behavior: Behavior[REF], name: String)(implicit timeout: Timeout): Future[ActorRef[REF]] =
-    spawnActor(behavior, name, Props.empty)
-
-  def spawnActorSync[REF](behavior: Behavior[REF], name: String, duration: FiniteDuration): ActorRef[REF] = {
-    implicit val timeout = Timeout(duration)
-    Await.result(spawnActor(behavior, name), duration)
+final class FusionCore private (override val classicSystem: ExtendedActorSystem)
+    extends FusionExtension
+    with SpawnFactory
+    with ReceptionistFactory
+    with StrictLogging {
+  val name: String = classicSystem.name
+  val setting: CoreSetting = new CoreSetting(configuration)
+  val events = new FusionEvents()
+  val shutdowns = new FusionCoordinatedShutdown(classicSystem)
+  val currentXService: HttpHeader = {
+    val serviceName = configuration.get[Option[String]]("fusion.discovery.nacos.serviceName").getOrElse(name)
+    `X-Service`(serviceName)
   }
 
-  def spawnActorSync[REF](
-      behavior: Behavior[REF],
-      name: String,
-      props: Props,
-      duration: FiniteDuration): ActorRef[REF] = {
-    implicit val timeout = Timeout(duration)
-    Await.result(spawnActor(behavior, name, props), duration)
-  }
+  //FusionUtils.setupActorSystem(system)
+  ActorSystemUtils.system = classicSystem
+  writePidfile()
+  System.setProperty(
+    FusionConstants.NAME_PATH,
+    if (classicSystem.settings.config.hasPath(FusionConstants.NAME_PATH))
+      classicSystem.settings.config.getString(FusionConstants.NAME_PATH)
+    else FusionConstants.NAME)
 
-  def receptionistFind[T](serviceKey: ServiceKey[T], timeout: FiniteDuration)(
-      func: Receptionist.Listing => ActorRef[T]): ActorRef[T]
+  logger.info("FusionCore instanced!")
 
-  def receptionistFindSet[T](serviceKey: ServiceKey[T], timeout: FiniteDuration): Set[ActorRef[T]]
+  override def spawn[T](behavior: Behavior[T], props: Props): ActorRef[T] =
+    classicSystem.spawnAnonymous(behavior, props)
 
-  def receptionistFindOne[T](serviceKey: ServiceKey[T], timeout: FiniteDuration): ActorRef[T] = {
-    receptionistFindSet(serviceKey, timeout).headOption
-      .getOrElse(throw HSInternalErrorException(s"$serviceKey not found!"))
+  override def spawn[T](behavior: Behavior[T], name: String, props: Props): ActorRef[T] =
+    classicSystem.spawn(behavior, name, props)
+
+  private def writePidfile(): Unit = {
+    val config = classicSystem.settings.config
+    val maybePidfile =
+      if (config.hasPath(ConfigKeys.FUSION.PIDFILE)) Utils.option(config.getString(ConfigKeys.FUSION.PIDFILE)) else None
+
+    maybePidfile match {
+      case Some(pidfile) =>
+        try {
+          PidFile(Utils.getPid).create(Paths.get(pidfile), deleteOnExit = true)
+        } catch {
+          case NonFatal(e) =>
+            logger.error(s"将进程ID写入文件：$pidfile 失败", e)
+            System.exit(-1)
+        }
+      case _ =>
+        logger.info(s"-D${ConfigKeys.FUSION.PIDFILE} 未设置，将不写入 .pid 文件。")
+    }
   }
 }
 
-object FusionCore extends ExtensionId[FusionCore] {
-  override def createExtension(system: ActorSystem[_]): FusionCore = new FusionCoreImpl(system)
-  def get(system: ActorSystem[_]): FusionCore = apply(system)
+object FusionCore extends FusionExtensionId[FusionCore] {
+  override def createExtension(system: ExtendedActorSystem): FusionCore = new FusionCore(system)
 }

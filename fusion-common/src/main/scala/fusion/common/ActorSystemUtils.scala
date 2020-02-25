@@ -18,11 +18,11 @@ package fusion.common
 
 import java.util.Objects
 
-import akka.actor.typed.ActorSystem
+import akka.actor.ActorSystem
 
 private[fusion] object ActorSystemUtils {
-  private var _system: ActorSystem[_] = _
+  private var _system: ActorSystem = _
 
-  def system: ActorSystem[_] = Objects.requireNonNull(_system, "need ActorSystemUtils.system = v")
-  def system_=(v: ActorSystem[_]): Unit = _system = v
+  def system: ActorSystem = Objects.requireNonNull(_system, "need ActorSystemUtils.system = v")
+  def system_=(v: ActorSystem): Unit = _system = v
 }

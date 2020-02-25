@@ -18,23 +18,25 @@ package fusion.json.jackson
 
 import java.util.Objects
 
-import com.fasterxml.jackson.annotation.JsonInclude
-import com.fasterxml.jackson.core.{ JsonParser, JsonProcessingException, TreeNode }
+import akka.actor.ActorSystem
+import akka.serialization.jackson.JacksonObjectMapperProvider
+import com.fasterxml.jackson.core.{ JsonProcessingException, TreeNode }
 import com.fasterxml.jackson.databind._
 import com.fasterxml.jackson.databind.introspect.{ Annotated, JacksonAnnotationIntrospector }
 import com.fasterxml.jackson.databind.node.{ ArrayNode, ObjectNode }
 import com.fasterxml.jackson.databind.ser.impl.{ SimpleBeanPropertyFilter, SimpleFilterProvider }
-import com.fasterxml.jackson.module.scala.experimental.ScalaObjectMapper
+import com.typesafe.config.ConfigFactory
 import com.typesafe.scalalogging.StrictLogging
 import helloscala.common.exception.HSBadRequestException
 import helloscala.common.util.Utils
 
+import scala.concurrent.ExecutionContext
 import scala.jdk.CollectionConverters._
 import scala.reflect.ClassTag
 import scala.util.control.NonFatal
 
 trait Jackson {
-  def defaultObjectMapper: ObjectMapper with ScalaObjectMapper
+  def defaultObjectMapper: ScalaObjectMapper
 
   def createObjectNode: ObjectNode = defaultObjectMapper.createObjectNode
 
@@ -88,12 +90,21 @@ trait Jackson {
 }
 
 object Jackson extends Jackson with StrictLogging {
-  private lazy val _defaultObjectMapper: ObjectMapper with ScalaObjectMapper = createObjectMapper
+  private lazy val _defaultObjectMapper: ScalaObjectMapper = createObjectMapper
 
-  implicit override def defaultObjectMapper: ObjectMapper with ScalaObjectMapper = _defaultObjectMapper
+  implicit override def defaultObjectMapper: ScalaObjectMapper = _defaultObjectMapper
 
-  private def createObjectMapper: ObjectMapper with ScalaObjectMapper = {
-    val mapper = new ObjectMapper() with ScalaObjectMapper
+  private def createObjectMapper: ScalaObjectMapper = {
+    val system = ActorSystem(
+      "local",
+      ConfigFactory.parseString("{akka.actor.provider = local}").withFallback(ConfigFactory.load()))
+    val mapper = JacksonObjectMapperProvider(system).getOrCreate("jackson-json", None)
+    system
+      .terminate()
+      .onComplete(value => logger.info(s"Jackson.createObjectMapper completed, return value is $value."))(
+        ExecutionContext.Implicits.global)
+
+//    val mapper = new ObjectMapper() with ScalaObjectMapper
     try {
       val FILTER_ID_CLASS = Class.forName("scalapb.GeneratedMessage")
       mapper
@@ -107,11 +118,12 @@ object Jackson extends Jackson with StrictLogging {
         })
     } catch {
       case NonFatal(e) => // do nothing
-        logger.warn(s"create ObjectMapper: ${e.toString}")
+        logger.info(s"Create ObjectMapper: ${e.toString}")
     }
 
     //new NumberSerializers.DoubleSerializer(classOf[Double])
 
+    /*
     mapper
       .findAndRegisterModules()
       .enable(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES)
@@ -128,7 +140,7 @@ object Jackson extends Jackson with StrictLogging {
       .setSerializationInclusion(JsonInclude.Include.NON_NULL)
     //      .setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"))
     //                    .enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY)
-
-    mapper
+     */
+    new ScalaObjectMapper(mapper)
   }
 }

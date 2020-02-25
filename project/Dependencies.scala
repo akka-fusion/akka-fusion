@@ -7,13 +7,15 @@ object Dependencies {
   val versionScalaCollectionCompat = "2.1.4"
   val versionJava8Compat = "0.9.0"
   val versionScalameta = "4.2.5"
-  val versionScalatest = "3.1.0"
-  val versionAkka = "2.6.3"
+  val versionScalatest = "3.1.1"
+  val versionAkka: String = sys.props.getOrElse("akka.version", "2.6.3")
   val versionAkkaManagement = "1.0.5"
   val versionAkkaHttp = "10.1.11"
   val versionAkkaHttpCors = "0.4.2"
-  val versionAlpakka = "2.0.0-M2"
-  val versionAlpakkaKafka = "2.0.1"
+  val versionAlpakka = "2.0.0-M3"
+  val versionAlpakkaKafka = "2.0.2"
+  val versionAkkaPersistenceCassandra = "0.102"
+  val versionAkkaPersistenceJdbc = "3.5.3"
   val versionCassandra = "4.3.1"
   val versionJackson = "2.10.2"
   val versionElastic4s = "7.3.5"
@@ -34,6 +36,7 @@ object Dependencies {
   val versionJakartaMail = "1.6.4"
   val versionHikariCP = "3.4.1"
   val versionMybatisPlus = "3.3.0"
+  val versionSlf4j = "1.7.30"
   val versionLombok = "1.18.12"
   val versionMySQL = "8.0.19"
   val versionPostgres = "42.2.10"
@@ -158,7 +161,7 @@ object Dependencies {
       .cross(CrossVersion.binary)
 
   val _akkaPersistenceCassandra =
-    ("com.typesafe.akka" %% "akka-persistence-cassandra" % "0.100")
+    ("com.typesafe.akka" %% "akka-persistence-cassandra" % versionAkkaPersistenceCassandra)
       .excludeAll(ExclusionRule("com.typesafe.akka"))
       .cross(CrossVersion.binary)
 
@@ -196,18 +199,18 @@ object Dependencies {
 
 //  val _pureconfig = "com.github.pureconfig" %% "pureconfig" % versionPureconfig
 
+  val _javaxInject = "javax.inject" % "javax.inject" % "1"
+
   val _hanlp = "com.hankcs" % "hanlp" % versionHanlp
   val _uuidGenerator = ("com.fasterxml.uuid" % "java-uuid-generator" % versionUuidGenerator).exclude("log4j", "log4j")
-  val _guice = "com.google.inject" % "guice" % versionGuice
+  val _guices = Seq(
+    "com.google.inject" % "guice" % versionGuice,
+    "com.google.inject.extensions" % "guice-assistedinject" % versionGuice)
 
   val _json4s =
     ("org.json4s" %% "json4s-jackson" % versionJson4s).exclude("com.fasterxml.jackson.core", "jackson-databind")
 
   val _scalapbJson4s = "com.thesamet.scalapb" %% "scalapb-json4s" % versionScalapbJson4s
-
-  val _circeGeneric = "io.circe" %% "circe-generic" % "0.12.2"
-
-  val _scalapbCirce = "io.github.scalapb-json" %% "scalapb-circe" % "0.5.1"
 
   val _kanelaAgent = "io.kamon" % "kanela-agent" % versionKanela % Provided
 
@@ -257,6 +260,7 @@ object Dependencies {
   val _pois = Seq("org.apache.poi" % "poi-scratchpad" % versionPoi, "org.apache.poi" % "poi-ooxml" % versionPoi)
   val _scalaLogging = "com.typesafe.scala-logging" %% "scala-logging" % versionScalaLogging
   val _logbackClassic = "ch.qos.logback" % "logback-classic" % versionLogback
+  val _slf4js = Seq("slf4j-api", "jul-to-slf4j", "jcl-over-slf4j").map("org.slf4j" % _ % versionSlf4j)
   val _logstashLogbackEncoder = "net.logstash.logback" % "logstash-logback-encoder" % versionLogstashLogback
   val _bcprovJdk15on = "org.bouncycastle" % "bcprov-jdk15on" % versionBcprovJdk15on
   val _quartz = ("org.quartz-scheduler" % "quartz" % versionQuartz).exclude("com.zaxxer", "HikariCP-java7")

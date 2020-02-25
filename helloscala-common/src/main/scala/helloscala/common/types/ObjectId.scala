@@ -22,6 +22,7 @@ import java.nio.charset.StandardCharsets
 import com.fasterxml.jackson.annotation.JsonIgnore
 import helloscala.common.util.{ DigestUtils, StringUtils }
 
+import scala.jdk.CollectionConverters._
 import scala.util.{ Failure, Try }
 
 /**
@@ -51,7 +52,7 @@ class ObjectId private (private val raw: Array[Byte]) extends Serializable with 
   override lazy val hashCode: Int = java.util.Arrays.hashCode(raw)
 
   /** The time of this BSONObjectId, in milliseconds */
-  def time: Long = this.timeSecond * 1000L
+  def timeMillis: Long = timeSecond * 1000L
 
   /** The time of this BSONObjectId, in seconds */
   def timeSecond: Int = ByteBuffer.wrap(raw.take(4)).getInt
@@ -97,13 +98,11 @@ object ObjectId {
 
     // Check java policies
     val permitted =
-      Try(System.getSecurityManager.checkPermission(new NetPermission("getNetworkInformation"))).toOption.exists(_ =>
-        true)
+      Try(System.getSecurityManager.checkPermission(new NetPermission("getNetworkInformation"))).toOption.isDefined
 
     if (validPlatform && permitted) {
       val networkInterfacesEnum = NetworkInterface.getNetworkInterfaces
-      val networkInterfaces =
-        scala.collection.JavaConverters.enumerationAsScalaIteratorConverter(networkInterfacesEnum).asScala
+      val networkInterfaces = networkInterfacesEnum.asScala
       val ha = networkInterfaces
         .find(ha =>
           Try(ha.getHardwareAddress).isSuccess && ha.getHardwareAddress != null && ha.getHardwareAddress.length == 6)

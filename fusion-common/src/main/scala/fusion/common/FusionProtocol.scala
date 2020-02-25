@@ -63,7 +63,7 @@ object FusionProtocol {
   }
 
   def behaviorMessagePartial(context: ActorContext[Command]): PartialFunction[Command, Behavior[Command]] = {
-    case msg => behaviorPartial(context, msg)
+    case msg => behaviorPartial(context -> msg)
   }
 
   val behaviorPartial: PartialFunction[(ActorContext[Command], Command), Behavior[Command]] = {

@@ -17,9 +17,8 @@
 package fusion.jackson.protobuf
 
 import com.fasterxml.jackson.core.Base64Variants
-import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node._
+import com.fasterxml.jackson.databind.{ JsonNode, ObjectMapper }
 import com.google.protobuf.ByteString
 import com.google.protobuf.descriptor.FieldDescriptorProto
 import com.google.protobuf.descriptor.FieldDescriptorProto.Type
@@ -27,15 +26,12 @@ import com.google.protobuf.duration.Duration
 import com.google.protobuf.field_mask.FieldMask
 import com.google.protobuf.struct.NullValue
 import com.google.protobuf.timestamp.Timestamp
-import fusion.json.Durations
-import fusion.json.JsonFormatException
-import fusion.json.Timestamps
 import fusion.json.jackson.Jackson
-import JacksonFormat.GenericCompanion
+import fusion.json.{ Durations, JsonFormatException, Timestamps }
 import helloscala.common.util.StringUtils
 import scalapb._
 import scalapb.descriptors._
-import Jackson.defaultObjectMapper
+
 import scala.jdk.CollectionConverters._
 import scala.reflect.ClassTag
 
@@ -86,8 +82,9 @@ object Parser {
 }
 
 class Parser private (config: Parser.ParserConfig)(implicit mapper: ObjectMapper) {
-  def this()(implicit mapper: ObjectMapper) =
+  def this()(implicit mapper: ObjectMapper) = {
     this(Parser.ParserConfig(isIgnoringUnknownFields = false, JacksonFormat.defaultRegistry, TypeRegistry.empty))
+  }
 
   def ignoringUnknownFields: Parser = new Parser(config.copy(isIgnoringUnknownFields = true))
 
@@ -220,6 +217,7 @@ class Parser private (config: Parser.ParserConfig)(implicit mapper: ObjectMapper
 
 object JacksonFormat {
   import com.google.protobuf.wrappers
+  import scala.language.existentials
 
   type GenericCompanion = GeneratedMessageCompanion[T] forSome { type T <: GeneratedMessage with Message[T] }
 
@@ -301,8 +299,8 @@ object JacksonFormat {
               throw new JsonFormatException(s"Unexpected value for ${cmp.scalaDescriptor.name}")))))
   }
 
-  val printer = new Printer()
-  val parser = new Parser()
+  val printer = new Printer()(Jackson.defaultObjectMapper)
+  val parser = new Parser()(Jackson.defaultObjectMapper)
 
   def toJsonString[A <: GeneratedMessage](m: A): String = printer.print(m)
 

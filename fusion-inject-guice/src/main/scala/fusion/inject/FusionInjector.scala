@@ -16,25 +16,22 @@
 
 package fusion.inject
 
-import com.google.inject.Guice
-import com.google.inject.Injector
-import com.google.inject.Key
-import com.google.inject.Module
+import com.google.inject.{ Guice, Injector, Key, Module, Stage }
 import com.typesafe.config.ConfigFactory
 import helloscala.common.util.StringUtils
 import javax.inject.Named
 
-import scala.jdk.CollectionConverters._
 import scala.collection.immutable
+import scala.jdk.CollectionConverters._
 import scala.reflect.ClassTag
 
-object Injects {
-  lazy val injector: Injector = Guice.createInjector(generateModules(): _*)
+object FusionInjector {
+  lazy val injector: Injector = Guice.createInjector(Stage.PRODUCTION, generateModules(): _*)
 
   private def generateModules(): immutable.Seq[Module] =
     ConfigFactory
       .load()
-      .getStringList("fusion.module")
+      .getStringList("fusion.inject.modules")
       .asScala
       .view
       .distinct
@@ -85,14 +82,14 @@ object Injects {
 }
 
 trait InjectSupport {
-  def instance[T](implicit ev: ClassTag[T]): T = Injects.instance[T]
+  def instance[T](implicit ev: ClassTag[T]): T = FusionInjector.instance[T]
 
   def instance[T](a: Named)(implicit ev: ClassTag[T]): T =
-    Injects.instance[T](a)
+    FusionInjector.instance[T](a)
 
-  def getInstance[T](c: Class[T]): T = Injects.getInstance(c)
+  def getInstance[T](c: Class[T]): T = FusionInjector.getInstance(c)
 
-  def getInstance[T](key: Key[T]): T = Injects.getInstance(key)
+  def getInstance[T](key: Key[T]): T = FusionInjector.getInstance(key)
 
-  def getInstance[T](c: Class[T], a: Named): T = Injects.getInstance(Key.get(c, a))
+  def getInstance[T](c: Class[T], a: Named): T = FusionInjector.getInstance(Key.get(c, a))
 }

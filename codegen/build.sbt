@@ -31,6 +31,8 @@ buildInfoKeys ++= Seq(
   "versionAkkaHttpCors" -> versionAkkaHttpCors,
   "versionAlpakka" -> versionAlpakka,
   "versionAlpakkaKafka" -> versionAlpakkaKafka,
+  "versionAkkaPersistenceCassandra" -> versionAkkaPersistenceCassandra,
+  "versionAkkaPersistenceJdbc" -> versionAkkaPersistenceJdbc,
   "versionCassandra" -> versionCassandra,
   "versionElastic4s" -> versionElastic4s,
   "versionConfig" -> versionConfig,
@@ -66,5 +68,4 @@ buildInfoKeys ++= Seq(
   "versionLogstashLogback" -> versionLogstashLogback,
   "versionJwt" -> versionJwt,
   "versionJson4s" -> versionJson4s,
-  "versionScalapbJson4s" -> versionScalapbJson4s
-)
+  "versionScalapbJson4s" -> versionScalapbJson4s)

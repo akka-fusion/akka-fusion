@@ -20,18 +20,14 @@ import akka.http.scaladsl.model._
 import akka.http.scaladsl.unmarshalling.Unmarshal
 import akka.stream.Materializer
 import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.node.ArrayNode
-import com.fasterxml.jackson.databind.node.ObjectNode
+import com.fasterxml.jackson.databind.node.{ ArrayNode, ObjectNode }
 import fusion.json.jackson.Jackson
 import fusion.json.jackson.http.JacksonSupport._
 import helloscala.common.IntStatus
-import helloscala.common.exception.HSException
-import helloscala.common.exception.HSHttpStatusException
+import helloscala.common.exception.{ HSException, HSHttpStatusException }
 
-import scala.jdk.CollectionConverters._
-import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
-import scala.reflect.ClassTag
+import scala.concurrent.{ ExecutionContext, Future }
+import scala.reflect.runtime.universe._
 
 object JacksonHttpUtils {
   def httpEntity(v: Any): HttpEntity.Strict = HttpEntity(ContentTypes.`application/json`, Jackson.stringify(v))
@@ -60,8 +56,7 @@ object JacksonHttpUtils {
     Unmarshal(entity).to[ArrayNode]
   }
 
-  def mapHttpResponse[R: ClassTag](response: HttpResponse)(implicit mat: Materializer): Future[R] = {
-    implicit val ec: ExecutionContext = mat.executionContext
+  def mapHttpResponse[R](response: HttpResponse)(implicit ct: TypeTag[R], mat: Materializer): Future[R] = {
     if (response.status.isSuccess()) {
       Unmarshal(response.entity).to[R]
     } else {
@@ -69,33 +64,10 @@ object JacksonHttpUtils {
     }
   }
 
-  def mapHttpResponseEither[R: ClassTag](response: HttpResponse)(
-      implicit mat: Materializer): Future[Either[HSException, R]] = {
+  def mapHttpResponseEither[R](
+      response: HttpResponse)(implicit ct: TypeTag[R], mat: Materializer): Future[Either[HSException, R]] = {
     implicit val ec: ExecutionContext = mat.executionContext
     mapHttpResponse(response).map(Right(_)).recoverWith {
-      case e: HSException => Future.successful(Left(e))
-    }
-  }
-
-  def mapHttpResponseList[R](response: HttpResponse)(implicit ev1: ClassTag[R], mat: Materializer): Future[List[R]] = {
-    implicit val ec: ExecutionContext = mat.executionContext
-    if (response.status.isSuccess()) {
-      Unmarshal(response.entity)
-        .to[ArrayNode]
-        .map { array =>
-          array.asScala
-            .map(node => Jackson.defaultObjectMapper.treeToValue(node, ev1.runtimeClass).asInstanceOf[R])
-            .toList
-        }(if (ec eq null) mat.executionContext else ec)
-    } else {
-      mapHttpResponseError[List[R]](response)
-    }
-  }
-
-  def mapHttpResponseListEither[R](
-      response: HttpResponse)(implicit ev1: ClassTag[R], mat: Materializer): Future[Either[HSException, List[R]]] = {
-    implicit val ec: ExecutionContext = mat.executionContext
-    mapHttpResponseList(response).map(Right(_)).recoverWith {
       case e: HSException => Future.successful(Left(e))
     }
   }

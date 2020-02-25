@@ -17,7 +17,7 @@
 package fusion.cassandra
 
 import akka.Done
-import akka.actor.typed.ActorSystem
+import akka.actor.ExtendedActorSystem
 import com.datastax.oss.driver.api.core.CqlSession
 import com.datastax.oss.driver.internal.core.config.typesafe.DefaultDriverConfigLoader
 import com.typesafe.config.Config
@@ -28,7 +28,7 @@ import helloscala.common.Configuration
 
 import scala.concurrent.Future
 
-class CassandraComponents(system: ActorSystem[_])
+class CassandraComponents(system: ExtendedActorSystem)
     extends Components[CassandraSession]("fusion.data.cassandra.default")
     with StrictLogging {
   override def configuration: Configuration = Configuration(system.settings.config)
@@ -45,7 +45,7 @@ class CassandraComponents(system: ActorSystem[_])
   }
 
   override protected def componentClose(c: CassandraSession): Future[Done] = {
-    import system.executionContext
+    import system.dispatcher
     c.closeAsync().map(_ => Done)
   }
 
@@ -59,15 +59,15 @@ class CassandraComponents(system: ActorSystem[_])
   }
 }
 
-class FusionCassandra private (override val system: ActorSystem[_]) extends FusionExtension {
-  val components = new CassandraComponents(system)
-  FusionCoordinatedShutdown(system).beforeActorSystemTerminate("StopFusionCassandra") { () =>
-    components.closeAsync()(system.executionContext)
+class FusionCassandra private (override val classicSystem: ExtendedActorSystem) extends FusionExtension {
+  val components = new CassandraComponents(classicSystem)
+  FusionCoordinatedShutdown(classicSystem).beforeActorSystemTerminate("StopFusionCassandra") { () =>
+    components.closeAsync()(classicSystem.dispatcher)
   }
 
   def component: CassandraSession = components.component
 }
 
 object FusionCassandra extends FusionExtensionId[FusionCassandra] {
-  override def createExtension(system: ActorSystem[_]): FusionCassandra = new FusionCassandra(system)
+  override def createExtension(system: ExtendedActorSystem): FusionCassandra = new FusionCassandra(system)
 }

@@ -16,22 +16,21 @@
 
 package fusion.json.jackson
 
-import java.time.Instant
-import java.time.LocalDateTime
+import java.time.{ Instant, LocalDateTime }
 
 import com.fasterxml.jackson.databind.JsonNode
-import org.scalatest.FunSuite
-import org.scalatest.MustMatchers
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 
 import scala.collection.mutable
 
 case class Item(name: String, updatedAt: Option[Instant], now: LocalDateTime)
 
-class JacksonTest extends FunSuite with MustMatchers {
+class JacksonTest extends AnyFunSuite with Matchers {
   test("Instant") {
     val now = LocalDateTime.now()
-    val str = Jackson.stringify(Item("name", Some(Instant.ofEpochMilli(1554799028397L)), now))
-    str must startWith("""{"name":"name","updatedAt":1554799028397""")
+    val str = Jackson.stringify(Item("name", Some(Instant.parse("2019-04-09T08:37:08.397Z")), now))
+    str should startWith("""{"name":"name","updatedAt":"2019-04-09T08:37:08.397Z",""")
     println(str)
 
     val item = Jackson.defaultObjectMapper.readValue(str, classOf[Item])

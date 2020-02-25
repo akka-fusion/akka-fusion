@@ -17,11 +17,9 @@
 package docs.extension.customservice
 
 import akka.actor.typed.ActorSystem
-import akka.actor.typed.ExtensionId
-import fusion.common.extension.FusionExtension
+import fusion.common.extension.{ TypedExtension, TypedExtensionId }
 import helloscala.common.exception.HSUnauthorizedException
-import helloscala.common.util.DigestUtils
-import helloscala.common.util.StringUtils
+import helloscala.common.util.{ DigestUtils, StringUtils }
 
 import scala.concurrent.Future
 
@@ -39,21 +37,19 @@ class UserRepository {
 }
 
 // #CustomService
-class FileService private (val system: ActorSystem[_]) extends FusionExtension {
+class FileService private (override val typedSystem: ActorSystem[_]) extends TypedExtension {
   def findUrlById(fileId: String): Future[String] = Future.successful {
     s"http://localhost:9999/file/$fileId.png"
   }
 }
 
-object FileService extends ExtensionId[FileService] {
-//  override def createExtension(system: ExtendedActorSystem): FileService = new FileService(system)
-//  override def lookup(): ExtensionId[_ <: Extension] = FileService
+object FileService extends TypedExtensionId[FileService] {
   override def createExtension(system: ActorSystem[_]): FileService = new FileService(system)
 }
 
-class UserService private (val system: ActorSystem[_]) extends FusionExtension {
-  import system.executionContext
-  private val fileService = FileService(system)
+class UserService private (override val typedSystem: ActorSystem[_]) extends TypedExtension {
+  import typedSystem.executionContext
+  private val fileService = FileService(typedSystem)
   private val userRepository = new UserRepository()
 
   def findBOById(id: String): Future[UserBO] = {
@@ -69,13 +65,13 @@ class UserService private (val system: ActorSystem[_]) extends FusionExtension {
   }
 }
 
-object UserService extends ExtensionId[UserService] {
+object UserService extends TypedExtensionId[UserService] {
   override def createExtension(system: ActorSystem[_]): UserService = new UserService(system)
 }
 
-class LoginService private (val system: ActorSystem[_]) extends FusionExtension {
-  import system.executionContext
-  private val userService = UserService(system)
+class LoginService private (override val typedSystem: ActorSystem[_]) extends TypedExtension {
+  import typedSystem.executionContext
+  private val userService = UserService(typedSystem)
 
   def login(dto: LoginDTO): Future[LoginBO] = {
     userService.findByAccount(dto.account).map {
@@ -87,7 +83,7 @@ class LoginService private (val system: ActorSystem[_]) extends FusionExtension 
   }
 }
 
-object LoginService extends ExtensionId[LoginService] {
+object LoginService extends TypedExtensionId[LoginService] {
   override def createExtension(system: ActorSystem[_]): LoginService = new LoginService(system)
 }
 // #CustomService

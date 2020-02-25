@@ -17,6 +17,7 @@
 package fusion.http.gateway.server
 
 import akka.Done
+import akka.actor.ExtendedActorSystem
 import akka.actor.typed.ActorSystem
 import fusion.common.component.Components
 import fusion.core.extension.FusionCore
@@ -24,7 +25,7 @@ import helloscala.common.Configuration
 
 import scala.concurrent.Future
 
-class HttpGatewayComponents(system: ActorSystem[_])
+class HttpGatewayComponents(system: ExtendedActorSystem)
     extends Components[HttpGatewayComponent]("fusion.http.default.gateway") {
   override def configuration: Configuration = FusionCore(system).configuration
 

@@ -17,8 +17,8 @@
 package fusion.protobuf
 
 import akka.actor.ExtendedActorSystem
-import akka.actor.typed.{ ActorRef, ActorRefResolver }
 import akka.actor.typed.scaladsl.adapter._
+import akka.actor.typed.{ ActorRef, ActorRefResolver }
 import akka.serialization.Serialization
 import akka.{ actor => classic }
 import fusion.common.ActorSystemUtils
@@ -35,12 +35,12 @@ trait ActorReferenceTrait {
     typ match {
       case None                                       => throw new IllegalStateException("typ is empty")
       case Some(tp) if ev1.runtimeClass.getName != tp => throw new IllegalArgumentException(s"$typ != $tp")
-      case _                                          => ActorRefResolver(ActorSystemUtils.system).resolveActorRef(serialized)
+      case _                                          => ActorRefResolver(ActorSystemUtils.system.toTyped).resolveActorRef(serialized)
     }
   }
 
   def toClassic: classic.ActorRef =
-    ActorSystemUtils.system.toClassic.asInstanceOf[ExtendedActorSystem].provider.resolveActorRef(serialized)
+    ActorSystemUtils.system.asInstanceOf[ExtendedActorSystem].provider.resolveActorRef(serialized)
 }
 
 //trait ActorReferenceCompanion {
@@ -55,23 +55,24 @@ trait ActorReferenceTrait {
 trait ActorTypedReferenceTrait {
   def serialized: String
 
-  def toTyped[T]: ActorRef[T] = ActorRefResolver(ActorSystemUtils.system).resolveActorRef(serialized)
+  def toTyped[T]: ActorRef[T] = ActorRefResolver(ActorSystemUtils.system.toTyped).resolveActorRef(serialized)
 
   def toClassic: classic.ActorRef =
-    ActorSystemUtils.system.toClassic.asInstanceOf[ExtendedActorSystem].provider.resolveActorRef(serialized)
+    ActorSystemUtils.system.asInstanceOf[ExtendedActorSystem].provider.resolveActorRef(serialized)
 }
 
 trait ActorTypedReferenceCompanion {
-  def fromTyped[T](ref: ActorRef[T]): String = ActorRefResolver(ActorSystemUtils.system).toSerializationFormat(ref)
+  def fromTyped[T](ref: ActorRef[T]): String =
+    ActorRefResolver(ActorSystemUtils.system.toTyped).toSerializationFormat(ref)
   def fromClassic(ref: classic.ActorRef): String = Serialization.serializedActorPath(ref)
 }
 
 trait ActorRefCompanion {
-  private def resolver: ActorRefResolver = ActorRefResolver(ActorSystemUtils.system)
+  private def resolver: ActorRefResolver = ActorRefResolver(ActorSystemUtils.system.toTyped)
 
   implicit def actorRefTypeMapper[T]: TypeMapper[String, ActorRef[T]] = {
     TypeMapper[String, ActorRef[T]] { str =>
-      if (StringUtils.isBlank(str)) ActorSystemUtils.system.deadLetters[T]
+      if (StringUtils.isBlank(str)) ActorSystemUtils.system.toTyped.deadLetters[T]
       else resolver.resolveActorRef[T](str)
     } { ref =>
       //      resolver.toSerializationFormat(ref)

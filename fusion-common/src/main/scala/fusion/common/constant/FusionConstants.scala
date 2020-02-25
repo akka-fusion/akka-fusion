@@ -22,8 +22,9 @@ object FusionConstants {
   val X_REQUEST_TIME = "X-Request-Time"
   val X_SPAN_TIME = "X-Span-Time"
   val HEADER_NAME = "Fusion-Server"
-  val NAME = "fusion"
-  val CONF_PATH = "fusion"
+  val FUSION: String = "fusion"
+  val NAME = FUSION
+  val CONF_PATH = FUSION
   val NAME_PATH = s"$CONF_PATH.name"
   val SERVER_HOST_PATH = s"$CONF_PATH.server.host"
   val SERVER_PORT_PATH = s"$CONF_PATH.server.port"

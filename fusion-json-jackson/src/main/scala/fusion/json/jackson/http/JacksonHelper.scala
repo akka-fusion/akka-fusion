@@ -27,10 +27,17 @@ import akka.http.javadsl.unmarshalling.Unmarshaller
 import akka.util.ByteString
 import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.scala.ScalaObjectMapper
 import fusion.json.jackson.Jackson
 
 object JacksonHelper {
   val empty = new java.util.HashMap[String, String]
+
+  private def scalaObjectMapper(objectMapper: ObjectMapper): ObjectMapper with ScalaObjectMapper = objectMapper match {
+    case value: ObjectMapper with ScalaObjectMapper => value
+    case _                                          => new fusion.json.jackson.ScalaObjectMapper(objectMapper)
+  }
+
   def marshaller[T]: Marshaller[T, RequestEntity] = marshaller(Jackson.defaultObjectMapper)
 
   def marshaller[T](mapper: ObjectMapper): Marshaller[T, RequestEntity] =

@@ -23,8 +23,8 @@ import fusion.common.component.Components
 import fusion.mail.constant.MailConstants
 import helloscala.common.Configuration
 
-import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 class MailComponents(val configuration: Configuration)
     extends Components[MailHelper](s"${MailConstants.CONF_ROOT}.default") {

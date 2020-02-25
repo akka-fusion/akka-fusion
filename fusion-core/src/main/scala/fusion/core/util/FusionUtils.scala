@@ -16,8 +16,7 @@
 
 package fusion.core.util
 
-import java.util.Objects
-import java.util.concurrent.atomic.{ AtomicBoolean, AtomicLong }
+import java.util.concurrent.atomic.AtomicLong
 
 import akka.actor.typed.{ ActorSystem, Behavior }
 import com.typesafe.config.Config
@@ -26,8 +25,6 @@ import fusion.common.constant.FusionConstants
 import helloscala.common.Configuration
 
 object FusionUtils {
-  private var _system: ActorSystem[_] = _
-  private val _isSetupSystem = new AtomicBoolean(false)
   private val _traceIdGenerator = new AtomicLong(0)
 
   def generateTraceId(): Long = _traceIdGenerator.incrementAndGet()
@@ -58,19 +55,6 @@ object FusionUtils {
       name: String,
       config: Config): ActorSystem[FusionProtocol.Command] = {
     ActorSystem(behavior, getName(config), config)
-  }
-
-  def actorSystem(): ActorSystem[_] = {
-    if (_isSetupSystem.get()) Objects.requireNonNull(_system)
-    else throw new NullPointerException("请调用 FusionCore(system) 设置全局 ActorSystem")
-  }
-
-  private[fusion] def setupActorSystem(system: ActorSystem[_]): Unit = {
-    if (_isSetupSystem.compareAndSet(false, true)) {
-      _system = system
-    } else {
-      throw new IllegalStateException("setupActorSystem(system: ActorSystem) 函数只允许调用一次")
-    }
   }
 
   @inline def getName(config: Config): String =

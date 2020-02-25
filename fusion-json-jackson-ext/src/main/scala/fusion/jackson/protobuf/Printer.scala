@@ -17,40 +17,14 @@
 package fusion.jackson.protobuf
 
 import com.fasterxml.jackson.core.Base64Variants
-import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.node.BigIntegerNode
-import com.fasterxml.jackson.databind.node.BooleanNode
-import com.fasterxml.jackson.databind.node.DecimalNode
-import com.fasterxml.jackson.databind.node.DoubleNode
-import com.fasterxml.jackson.databind.node.IntNode
-import com.fasterxml.jackson.databind.node.LongNode
-import com.fasterxml.jackson.databind.node.ObjectNode
-import com.fasterxml.jackson.databind.node.TextNode
+import com.fasterxml.jackson.databind.{ JsonNode, ObjectMapper }
+import com.fasterxml.jackson.databind.node._
 import com.google.protobuf.descriptor.FieldDescriptorProto
+import fusion.jackson.protobuf.JacksonFormat.GenericCompanion
 import fusion.json.JsonFormatException
 import fusion.json.jackson.Jackson
-import JacksonFormat.GenericCompanion
-import scalapb.GeneratedFileObject
-import scalapb.GeneratedMessage
-import scalapb.GeneratedMessageCompanion
-import scalapb.Message
-import scalapb.descriptors.FieldDescriptor
-import scalapb.descriptors.PBoolean
-import scalapb.descriptors.PByteString
-import scalapb.descriptors.PDouble
-import scalapb.descriptors.PEmpty
-import scalapb.descriptors.PEnum
-import scalapb.descriptors.PFloat
-import scalapb.descriptors.PInt
-import scalapb.descriptors.PLong
-import scalapb.descriptors.PMessage
-import scalapb.descriptors.PRepeated
-import scalapb.descriptors.PString
-import scalapb.descriptors.PValue
-import scalapb.descriptors.ScalaType
-
-import scala.collection.mutable
+import scalapb.{ GeneratedFileObject, GeneratedMessage, GeneratedMessageCompanion, Message }
+import scalapb.descriptors._
 
 /** TypeRegistry is used to map the @type field in Any messages to a ScalaPB generated message.
  *

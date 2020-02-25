@@ -1,3 +1,4 @@
+import Dependencies.{ versionScala212, versionScala213 }
 import bintray.BintrayKeys._
 import com.typesafe.sbt.SbtNativePackager.autoImport.maintainer
 import de.heikoseeberger.sbtheader.HeaderPlugin.autoImport.{ HeaderLicense, headerLicense }
@@ -16,6 +17,7 @@ object Commons {
       startYear := Some(2019),
       licenses += ("Apache-2.0", new URL("https://www.apache.org/licenses/LICENSE-2.0.txt")),
       headerLicense := Some(HeaderLicense.ALv2("2019", "akka-fusion.com")),
+      crossScalaVersions := Seq(versionScala212, versionScala213),
       scalacOptions ++= {
         var list = Seq(
           "-encoding",

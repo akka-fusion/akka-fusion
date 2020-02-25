@@ -21,21 +21,17 @@ import java.util.concurrent.TimeUnit
 import akka.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
 import akka.actor.typed.scaladsl.adapter._
 import akka.kafka.ProducerMessage.PassThroughResult
-import akka.kafka.ProducerMessage
-import akka.kafka.Subscriptions
+import akka.kafka.{ ProducerMessage, Subscriptions }
 import akka.kafka.scaladsl.Consumer.DrainingControl
-import akka.kafka.scaladsl.Consumer
-import akka.kafka.scaladsl.Producer
+import akka.kafka.scaladsl.{ Consumer, Producer }
 import akka.stream.Materializer
-import akka.stream.scaladsl.Keep
-import akka.stream.scaladsl.Sink
-import akka.stream.scaladsl.Source
+import akka.stream.scaladsl.{ Keep, Sink, Source }
 import fusion.json.jackson.Jackson
 import org.apache.kafka.clients.producer.ProducerRecord
-import org.scalatest.FunSuiteLike
+import org.scalatest.funsuite.AnyFunSuiteLike
 case class FileEntity(_id: String, hash: String, suffix: String, localPath: String)
 
-class KafkaTest extends ScalaTestWithActorTestKit with FunSuiteLike {
+class KafkaTest extends ScalaTestWithActorTestKit with AnyFunSuiteLike {
   implicit val classicSystem = system.toClassic
   implicit val mat = Materializer(classicSystem)
   val bootstrapServers = "192.168.31.98:9092"

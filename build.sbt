@@ -29,7 +29,8 @@ lazy val root = Project(id = "akka-fusion", base = file("."))
 //    fusionSbtPlugin,
 //    codegen,
     fusionBoot,
-    fusionInjects,
+    fusionInjectGuice,
+    fusionInject,
     fusionMq,
     fusionJob,
     fusionLog,
@@ -48,8 +49,8 @@ lazy val root = Project(id = "akka-fusion", base = file("."))
     fusionMybatis,
     fusionJdbc,
     fusionMail,
+    fusionJsonJacksonExt,
     fusionJsonJackson,
-    fusionJsonCirce,
     fusionSecurity,
     fusionTestkit,
     fusionCore,
@@ -66,7 +67,7 @@ lazy val root = Project(id = "akka-fusion", base = file("."))
 lazy val fusionDocs = _project("fusion-docs")
   .enablePlugins(ParadoxMaterialThemePlugin)
   .dependsOn(
-    fusionInjects,
+    fusionInjectGuice,
     fusionMq,
     fusionJob,
     fusionLog,
@@ -82,6 +83,7 @@ lazy val fusionDocs = _project("fusion-docs")
     fusionElasticsearch,
     fusionSlick,
     fusionMybatis,
+    fusionJsonJacksonExt,
     fusionJdbc,
     fusionMail,
     fusionSecurity,
@@ -114,24 +116,26 @@ lazy val fusionSbtPlugin = _project("fusion-sbt-plugin", "sbt-plugin")
   .settings(
     sbtPlugin := true,
     scalaVersion := versionScala212,
-    scriptedBufferLog := false,
-    crossScalaVersions := Seq(versionScala212),
     bintrayRepository := "ivy",
+    scriptedBufferLog := false,
     publishMavenStyle := false)
 
 lazy val codegen = _project("codegen")
   .enablePlugins(BuildInfoPlugin)
   .settings(
     scalaVersion := versionScala212,
-    crossScalaVersions := Seq(versionScala212, versionScala213),
-    publishMavenStyle := false,
-    scriptedBufferLog := false,
     bintrayRepository := "ivy",
+    scriptedBufferLog := false,
+    publishMavenStyle := false,
     buildInfoPackage := "fusion.sbt.gen")
 
-lazy val fusionInjects = _project("fusion-injects")
+lazy val fusionInjectGuice = _project("fusion-inject-guice")
+  .dependsOn(fusionInject, fusionTestkit % "test->test")
+  .settings(libraryDependencies ++= _guices)
+
+lazy val fusionInject = _project("fusion-inject")
   .dependsOn(fusionHttp, fusionDiscoveryClient, fusionTestkit % "test->test")
-  .settings(libraryDependencies ++= Seq(_guice))
+  .settings(libraryDependencies ++= Seq(_javaxInject))
 
 lazy val fusionHttpGateway = _project("fusion-http-gateway")
   .dependsOn(fusionHttp, fusionDiscoveryClient, fusionTestkit % "test->test", fusionCore)
@@ -188,13 +192,13 @@ lazy val fusionHttpClient = _project("fusion-http-client")
   .settings(libraryDependencies ++= Seq(
       "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion % "protobuf,test,provided") ++ _akkaHttps)
 
-lazy val fusionJsonCirce = _project("fusion-json-circe")
-  .dependsOn(fusionTestkit % "test->test", fusionCommon)
-  .settings(libraryDependencies ++= Seq(
-      "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion % "protobuf,test,provided",
-      _akkaHttp,
-      _circeGeneric,
-      _scalapbCirce))
+//lazy val fusionJsonCirce = _project("fusion-json-circe")
+//  .dependsOn(fusionTestkit % "test->test", fusionCommon)
+//  .settings(libraryDependencies ++= Seq(
+//      "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion % "protobuf,test,provided",
+//      _akkaHttp,
+//      _circeGeneric,
+//      _scalapbCirce))
 
 lazy val fusionJsonJacksonExt = _project("fusion-json-jackson-ext")
   .dependsOn(fusionJsonJackson, fusionTestkit % "test->test")
@@ -281,10 +285,9 @@ lazy val fusionCommon = _project("fusion-common")
   .settings(
     libraryDependencies ++= Seq(
         _logbackClassic,
-        _akkaSerializationJackson % Provided,
         _akkaTypedTestkit % Test,
         _akkaStreamTestkit % Test,
-        _scalatest % Test) ++ _akkas)
+        _scalatest % Test) ++ _akkas ++ _slf4js)
 
 lazy val helloscalaCommon = _project("helloscala-common")
   .settings(Publishing.publishing: _*)

@@ -24,7 +24,7 @@ trait EnumTrait {
 
   @JsonIgnore @transient final val index: Int = companion.generateId()
 
-  protected val name: String = StringUtils.dropLast$(this.getClass.getSimpleName.toLowerCase)
+  protected val name: String = StringUtils.dropLast$(this.getClass.getSimpleName)
   protected val value = index
 
   def getName: String = name

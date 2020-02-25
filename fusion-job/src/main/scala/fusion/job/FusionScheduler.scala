@@ -19,26 +19,16 @@ package fusion.job
 import java.time.Instant
 import java.util.Date
 
-import scala.jdk.CollectionConverters._
-import akka.actor.typed.ActorSystem
+import org.quartz._
 import org.quartz.impl.matchers.GroupMatcher
-import org.quartz.Calendar
-import org.quartz.JobDataMap
-import org.quartz.JobDetail
-import org.quartz.JobExecutionContext
-import org.quartz.JobKey
-import org.quartz.ListenerManager
-import org.quartz.Scheduler
-import org.quartz.SchedulerContext
-import org.quartz.SchedulerMetaData
-import org.quartz.Trigger
-import org.quartz.TriggerKey
+
+import scala.jdk.CollectionConverters._
 
 object FusionScheduler {
-  def apply(scheduler: Scheduler, system: ActorSystem[_]): FusionScheduler = new FusionScheduler(scheduler, system)
+  def apply(scheduler: Scheduler): FusionScheduler = new FusionScheduler(scheduler)
 }
 
-final class FusionScheduler private (val scheduler: Scheduler, system: ActorSystem[_]) extends AutoCloseable {
+final class FusionScheduler private (val scheduler: Scheduler) extends AutoCloseable {
   scheduler.start()
 
   def getSchedulerName: String = scheduler.getSchedulerName

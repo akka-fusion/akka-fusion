@@ -18,10 +18,10 @@ package fusion.http.gateway.server
 
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeoutException
+import java.util.function.Consumer
 
 import akka.Done
-import akka.actor.typed.ActorSystem
-import akka.actor.typed.scaladsl.adapter._
+import akka.actor.ExtendedActorSystem
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.server.PathMatchers
 import akka.http.scaladsl.server.RequestContext
@@ -43,10 +43,11 @@ import scala.concurrent.duration._
 import scala.util.Failure
 import scala.util.Success
 
-abstract class HttpGatewayComponent(id: String, system: ActorSystem[_]) extends AbstractRoute with StrictLogging {
-  implicit protected def classicSystem = system.toClassic
-  implicit protected val materializer: Materializer = Materializer(classicSystem)
-  import system.executionContext
+abstract class HttpGatewayComponent(id: String, implicit val system: ExtendedActorSystem)
+    extends AbstractRoute
+    with StrictLogging {
+  implicit protected val materializer: Materializer = Materializer.matFromSystem(system)
+  import system.dispatcher
   protected val httpSourceQueueMap = new ConcurrentHashMap[(String, Int), HttpSourceQueue]()
   protected val gateway: GatewaySetting = GatewaySetting.fromActorSystem(system, id)
 
@@ -103,7 +104,7 @@ abstract class HttpGatewayComponent(id: String, system: ActorSystem[_]) extends 
   }
 
   protected def proxyOnUpstream(req: HttpRequest, location: GatewayLocation): Future[HttpResponse] = {
-    import system.executionContext
+    import system.dispatcher
     try {
       val uri = location.proxyToUri(req.uri)
       val requestF = findRealRequest(req, location, uri)
@@ -195,12 +196,13 @@ abstract class HttpGatewayComponent(id: String, system: ActorSystem[_]) extends 
 
   def closeAsync(): Future[Done] = {
     import akka.http.scaladsl.util.FastFuture._
-    import system.executionContext
+    import system.dispatcher
     var queues = List.empty[Future[Done]]
-    httpSourceQueueMap.forEachValue(4, queue => {
+    val consumer: Consumer[HttpSourceQueue] = queue => {
       queue.complete()
       queues ::= queue.watchCompletion()
-    })
+    }
+    httpSourceQueueMap.forEachValue(4, consumer)
     Future.sequence(queues).fast.map(_ => Done).fast.recover { case _ => Done }
   }
 }

@@ -16,14 +16,13 @@
 
 package fusion.mq
 
-import akka.actor.typed.{ ActorSystem, Extension, ExtensionId }
-import helloscala.common.Configuration
+import akka.actor.ExtendedActorSystem
+import fusion.common.extension.{ FusionExtension, FusionExtensionId }
 
-class FusionMQ private (system: ActorSystem[_]) extends Extension {
-  val configuration = Configuration(system.settings.config)
+class FusionMQ private (override val classicSystem: ExtendedActorSystem) extends FusionExtension {
   val settings = MqSettings(configuration)
 }
 
-object FusionMQ extends ExtensionId[FusionMQ] {
-  override def createExtension(system: ActorSystem[_]): FusionMQ = new FusionMQ(system)
+object FusionMQ extends FusionExtensionId[FusionMQ] {
+  override def createExtension(system: ExtendedActorSystem): FusionMQ = new FusionMQ(system)
 }

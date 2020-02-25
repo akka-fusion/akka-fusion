@@ -18,10 +18,20 @@ package fusion.common.config
 
 import akka.actor.AddressFromURIString
 import com.typesafe.config.{ Config, ConfigFactory }
+import helloscala.common.Configuration
 
 import scala.jdk.CollectionConverters._
 
 object FusionConfigFactory {
+  def arrangeConfig(originalConfig: Config): Config = {
+    if (originalConfig.hasPath("fusion.configuration")) {
+      val c = Configuration(originalConfig.getConfig("fusion.configuration"))
+      arrangeConfig(originalConfig, c.keys.head)
+    } else {
+      originalConfig
+    }
+  }
+
   def arrangeConfig(internalPath: String, modules: Seq[String]): Config =
     arrangeConfig(ConfigFactory.load(), internalPath, modules)
 

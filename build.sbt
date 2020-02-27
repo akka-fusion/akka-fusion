@@ -1,5 +1,5 @@
 import Commons._
-import Dependencies._
+import Dependencies.{ _json4s, _ }
 import Environment._
 
 ThisBuild / buildEnv := {
@@ -16,7 +16,7 @@ ThisBuild / buildEnv := {
     .getOrElse(BuildEnv.Developement)
 }
 
-ThisBuild / scalaVersion := versionScala213
+ThisBuild / scalaVersion := versionScala212
 
 ThisBuild / crossScalaVersions := Seq(versionScala212, versionScala213)
 
@@ -26,15 +26,16 @@ ThisBuild / sonarUseExternalConfig := true
 
 lazy val root = Project(id = "akka-fusion", base = file("."))
   .aggregate(
-    fusionSbtPlugin,
-    fusionBoot,
-    fusionInjects,
+    fusionInjectGuiceTestkit,
+    fusionInjectGuice,
+    fusionInject,
     fusionMq,
     fusionJob,
     fusionLog,
     fusionDiscoveryClient,
     fusionHttpGateway,
     fusionActuator,
+    fusionCluster,
     fusionHttp,
     fusionHttpClient,
     fusionOauth,
@@ -46,8 +47,8 @@ lazy val root = Project(id = "akka-fusion", base = file("."))
     fusionMybatis,
     fusionJdbc,
     fusionMail,
-    fusionJson,
-    fusionJsonCirce,
+    fusionJsonJacksonExt,
+    fusionJsonJackson,
     fusionSecurity,
     fusionTestkit,
     fusionCore,
@@ -64,14 +65,14 @@ lazy val root = Project(id = "akka-fusion", base = file("."))
 lazy val fusionDocs = _project("fusion-docs")
   .enablePlugins(ParadoxMaterialThemePlugin)
   .dependsOn(
-    fusionInjects,
+    fusionInjectGuice,
     fusionMq,
     fusionJob,
     fusionLog,
     fusionDiscoveryClient,
     fusionHttpGateway,
     fusionActuator,
-    fusionHttp,
+    fusionCluster,
     fusionHttpClient,
     fusionOauth,
     fusionKafka,
@@ -80,6 +81,7 @@ lazy val fusionDocs = _project("fusion-docs")
     fusionElasticsearch,
     fusionSlick,
     fusionMybatis,
+    fusionJsonJacksonExt,
     fusionJdbc,
     fusionMail,
     fusionSecurity,
@@ -112,24 +114,28 @@ lazy val fusionSbtPlugin = _project("fusion-sbt-plugin", "sbt-plugin")
   .settings(
     sbtPlugin := true,
     scalaVersion := versionScala212,
-    scriptedBufferLog := false,
-    crossScalaVersions := Seq(versionScala212),
     bintrayRepository := "ivy",
+    scriptedBufferLog := false,
     publishMavenStyle := false)
 
 lazy val codegen = _project("codegen")
   .enablePlugins(BuildInfoPlugin)
   .settings(
     scalaVersion := versionScala212,
-    crossScalaVersions := Seq(versionScala212, versionScala213),
-    publishMavenStyle := false,
-    scriptedBufferLog := false,
     bintrayRepository := "ivy",
+    scriptedBufferLog := false,
+    publishMavenStyle := false,
     buildInfoPackage := "fusion.sbt.gen")
 
-lazy val fusionInjects = _project("fusion-injects")
+lazy val fusionInjectGuiceTestkit = _project("fusion-inject-guice-testkit").dependsOn(fusionInjectGuice, fusionTestkit)
+
+lazy val fusionInjectGuice = _project("fusion-inject-guice")
+  .dependsOn(fusionInject, fusionTestkit % "test->test")
+  .settings(libraryDependencies ++= _guices)
+
+lazy val fusionInject = _project("fusion-inject")
   .dependsOn(fusionHttp, fusionDiscoveryClient, fusionTestkit % "test->test")
-  .settings(libraryDependencies ++= Seq(_guice))
+  .settings(libraryDependencies ++= Seq(_javaxInject))
 
 lazy val fusionHttpGateway = _project("fusion-http-gateway")
   .dependsOn(fusionHttp, fusionDiscoveryClient, fusionTestkit % "test->test", fusionCore)
@@ -149,7 +155,7 @@ lazy val fusionActuatorCluster = _project("fusion-actuator-cluster")
   .settings(libraryDependencies ++= Seq(_akkaManagementClusterHttp))
 
 lazy val fusionActuator = _project("fusion-actuator")
-  .dependsOn(fusionJson, fusionDiscoveryClient, fusionTestkit % "test->test", fusionCore)
+  .dependsOn(fusionHttp, fusionTestkit % "test->test", fusionCore)
   .settings(
     libraryDependencies ++= Seq(
         _akkaManagement,
@@ -164,39 +170,35 @@ lazy val fusionJob = _project("fusion-job")
   .settings(libraryDependencies ++= Seq(_quartz))
 
 lazy val fusionOauth = _project("fusion-oauth")
-  .dependsOn(fusionHttpClient, fusionSecurity, fusionTestkit % "test->test", fusionCore)
+  .dependsOn(fusionJsonJacksonExt, fusionHttpClient, fusionSecurity, fusionTestkit % "test->test", fusionCore)
   .settings(libraryDependencies ++= Seq(_jwt, _jwtJson4s))
 
 lazy val fusionMongodb = _project("fusion-mongodb")
   .dependsOn(fusionHttpClient, fusionTestkit % "test->test", fusionCore)
   .settings(libraryDependencies ++= _mongodbs)
 
+lazy val fusionCluster = _project("fusion-cluster")
+  .dependsOn(fusionTestkit % "test->test", fusionCore)
+  .settings(libraryDependencies ++= Seq(_akkaManagement, _akkaManagementClusterHttp) ++ _akkaClusters)
+
 lazy val fusionHttp = _project("fusion-http")
-  .dependsOn(fusionBoot, fusionHttpClient, fusionTestkit % "test->test", fusionCore)
+  .dependsOn(fusionHttpClient, fusionTestkit % "test->test", fusionCore)
   .settings(libraryDependencies ++= Seq(_akkaManagement))
 
-lazy val fusionBoot = _project("fusion-boot").dependsOn(fusionTestkit % "test->test", fusionCore)
-
 lazy val fusionHttpClient = _project("fusion-http-client")
-  .dependsOn(fusionProtobufV3, fusionJson, fusionTestkit % "test->test", fusionCore)
+  .dependsOn(fusionProtobufV3, fusionJsonJackson, fusionTestkit % "test->test", fusionCore)
   .settings(libraryDependencies ++= Seq(
       "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion % "protobuf,test,provided") ++ _akkaHttps)
 
-lazy val fusionJsonCirce = _project("fusion-json-circe")
-  .dependsOn(fusionTestkit % "test->test", fusionCommon)
+lazy val fusionJsonJacksonExt = _project("fusion-json-jackson-ext")
+  .dependsOn(fusionJsonJackson, fusionTestkit % "test->test")
   .settings(libraryDependencies ++= Seq(
       "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion % "protobuf,test,provided",
-      _akkaHttp,
-      _circeGeneric,
-      _scalapbCirce))
-
-lazy val fusionJson = _project("fusion-json")
-  .dependsOn(fusionTestkit % "test->test", fusionCommon)
-  .settings(libraryDependencies ++= Seq(
-      "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion % "protobuf,test,provided",
-      _akkaHttp,
-      _akkaSerializationJackson,
       _json4s))
+
+lazy val fusionJsonJackson = _project("fusion-json-jackson")
+  .dependsOn(fusionTestkit % "test->test", fusionCore)
+  .settings(libraryDependencies ++= Seq(_akkaHttp, _akkaSerializationJackson))
 
 lazy val fusionLog = _project("fusion-log")
   .dependsOn(fusionTestkit % "test->test", fusionCommon)
@@ -207,15 +209,15 @@ lazy val fusionCassandra = _project("fusion-cassandra")
   .settings(libraryDependencies ++= _cassandras)
 
 lazy val fusionElasticsearch = _project("fusion-elasticsearch")
-  .dependsOn(fusionJson, fusionTestkit % "test->test", fusionCore)
+  .dependsOn(fusionJsonJacksonExt, fusionTestkit % "test->test", fusionCore)
   .settings(libraryDependencies ++= _elastic4ses)
 
 lazy val fusionKafka = _project("fusion-kafka")
-  .dependsOn(fusionJson, fusionTestkit % "test->test", fusionCore)
+  .dependsOn(fusionJsonJackson, fusionTestkit % "test->test", fusionCore)
   .settings(libraryDependencies ++= Seq() ++ _akkaStreamKafkas)
 
 lazy val fusionSlick = _project("fusion-slick")
-  .dependsOn(fusionJson, fusionJdbc, fusionTestkit % "test->test", fusionCore)
+  .dependsOn(fusionJsonJackson, fusionJdbc, fusionTestkit % "test->test", fusionCore)
   .settings(libraryDependencies ++= Seq(_slickPg % Provided) ++ _slicks)
 
 lazy val fusionMybatis = _project("fusion-mybatis")
@@ -238,7 +240,7 @@ lazy val fusionSecurity = _project("fusion-security")
   .settings(libraryDependencies ++= Seq(_bcprovJdk15on))
 
 lazy val fusionTestkit = _project("fusion-testkit")
-  .dependsOn(fusionCommon)
+  .dependsOn(fusionCore)
   .settings(Publishing.publishing: _*)
   .settings(
     libraryDependencies ++= Seq(
@@ -246,6 +248,15 @@ lazy val fusionTestkit = _project("fusion-testkit")
         _akkaTypedTestkit,
         _akkaStreamTestkit,
         _scalatest))
+
+lazy val fusionProtobufV3 = _project("fusion-protobuf-v3")
+  .dependsOn(fusionCore)
+  .settings(Publishing.publishing: _*)
+  .settings(
+    libraryDependencies ++= Seq(
+        "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion % "protobuf,provided",
+        _akkaProtobufV3,
+        _akkaDiscovery))
 
 lazy val fusionCore = _project("fusion-core")
   .dependsOn(fusionCommon)
@@ -257,37 +268,33 @@ lazy val fusionCore = _project("fusion-core")
         _akkaStreamTestkit % Test,
         _scalatest % Test))
 
-lazy val fusionProtobufV3 = _project("fusion-protobuf-v3")
-  .enablePlugins(AkkaGrpcPlugin)
-  .dependsOn(fusionCommon)
-  .settings(Publishing.publishing: _*)
-  .settings(
-    libraryDependencies ++= Seq(
-        "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion % "protobuf,provided",
-        _akkaProtobufV3,
-        _akkaGrpcRuntime,
-        _akkaDiscovery))
-
-lazy val fusionCommon = _project("fusion-common")
-  .dependsOn(helloscalaCommon)
-  .settings(Publishing.publishing: _*)
-  .settings(
-    libraryDependencies ++= Seq(
-        _akkaSerializationJackson % Provided,
-        _akkaTypedTestkit % Test,
-        _akkaStreamTestkit % Test,
-        _scalatest % Test) ++ _akkas)
+lazy val fusionCommon =
+  _project("fusion-common")
+    .dependsOn(helloscalaCommon)
+    .settings(Publishing.publishing: _*)
+    .settings(
+      libraryDependencies ++= Seq(
+          _logbackClassic,
+          _akkaTypedTestkit % Test,
+          _akkaStreamTestkit % Test,
+          _scalatest % Test) ++ _akkas ++ _slf4js)
 
 lazy val helloscalaCommon = _project("helloscala-common")
   .settings(Publishing.publishing: _*)
-  .settings(libraryDependencies ++= Seq(
-      _jacksonAnnotations % Provided,
-      _config,
-      _uuidGenerator,
-      "org.scala-lang" % "scala-library" % scalaVersion.value,
-      _scalaCollectionCompat,
-      _scalaJava8Compat,
-      _scalatest % Test) ++ _logs)
+  .settings(
+    organization := "com.helloscala",
+    organizationName := "Helloscala",
+    organizationHomepage := Some(url("https://github.com/helloscala")),
+    homepage := Some(url("https://helloscala.github.io/helloscala-common")),
+    libraryDependencies ++= Seq(
+        _jacksonAnnotations % Provided,
+        _config,
+        _uuidGenerator,
+        "org.scala-lang" % "scala-library" % scalaVersion.value,
+        _scalaCollectionCompat,
+        _scalaJava8Compat,
+        _scalaLogging,
+        _scalatest % Test))
 
 def _project(name: String, _base: String = null) =
   Project(id = name, base = file(if (_base eq null) name else _base))

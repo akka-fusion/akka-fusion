@@ -22,11 +22,11 @@
 //import akka.http.scaladsl.model.headers.RawHeader
 //import akka.testkit.TestKit
 //import fusion.http.HttpHandler
-//import fusion.test.FusionTestFunSuite
+//import fusion.test.FusionFunSuiteLike
 //
 //import scala.concurrent.Future
 //
-//class HttpInterceptorTest extends TestKit(ActorSystem()) with FusionTestFunSuite {
+//class HttpInterceptorTest extends TestKit(ActorSystem()) with FusionFunSuiteLike {
 //  import system.dispatcher
 //
 //  test("testInterceptor") {

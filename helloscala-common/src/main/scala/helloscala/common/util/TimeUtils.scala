@@ -22,9 +22,11 @@ import java.util.Date
 import java.sql.{ Date => SQLDate }
 import java.sql.{ Time => SQLTime }
 import java.sql.{ Timestamp => SQLTimestamp }
+import java.util.concurrent.TimeUnit
 
 import com.typesafe.scalalogging.StrictLogging
 
+import scala.concurrent.duration.FiniteDuration
 import scala.util.Try
 import scala.util.control.NonFatal
 
@@ -357,5 +359,11 @@ object TimeUtils extends StrictLogging {
       val cost = Duration.between(start, end)
       logger.info(s"funcId: $fid end time: $end, cost: $cost")
     }
+  }
+
+  def toFiniteDuration(d: Double): FiniteDuration = {
+    val n = d.toLong
+    d.round
+    FiniteDuration(n, TimeUnit.NANOSECONDS).toCoarsest
   }
 }

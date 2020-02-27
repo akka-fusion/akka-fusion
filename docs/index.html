@@ -166,6 +166,10 @@ akka-fusion/akka-fusion
     <li><a href="data-kafka/producer.html" class="page">Kafka Producer</a></li>
     <li><a href="data-kafka/consumer.html" class="page">Kafka Consumer</a></li>
   </ul></li>
+  <li><a href="inject/index.html" class="page">依赖管理</a>
+  <ul>
+    <li><a href="inject/guice.html" class="page">使用 Guice 进行类依赖管理</a></li>
+  </ul></li>
   <li><a href="configuration/index.html" class="page">配置</a>
   <ul>
     <li><a href="configuration/core.html" class="page">Fusion Core 配置</a></li>
@@ -194,7 +198,7 @@ akka-fusion/akka-fusion
 <ul style="display: none">
 <li class="md-nav__item md-version" id="project.version">
 <label class="md-nav__link" for="__version">
-<i class="md-icon" title="Version">label_outline</i> 2.0.2
+<i class="md-icon" title="Version">label_outline</i> 2.0.4
 </label>
 </li>
 </ul>
@@ -228,11 +232,10 @@ akka-fusion/akka-fusion
 <p>Akka Fusion以Akka工具库为基础，为用户提供开箱及用的微服务、云应用框架。Akka Fusion集成了Scala/Akka社区各种优秀的开源组件， 让你可以快速开始你的微服务开发，就像Spring Boot、Spring Cloud一样。但Akka Fusion更加强大、易用、安全， 它具有完备的编译期检查，让你在开发阶段即可排除更多的错误。</p>
 <h2><a href="#快速开始" name="快速开始" class="anchor"><span class="anchor-link"></span></a>快速开始</h2>
 <p>代码：</p>
-<pre class="prettyprint"><a class="icon go-to-source" href="https://github.com/akka-fusion/akka-fusion/tree/master/fusion-docs/src/main/scala/fusion/docs/sample/SampleApplication.scala#L29-L59" target="_blank" title="Go to snippet source"></a><code class="language-scala">object SampleApplication {
+<pre class="prettyprint"><a class="icon go-to-source" href="https://github.com/akka-fusion/akka-fusion/tree/master/fusion-docs/src/main/scala/fusion/docs/sample/SampleApplication.scala#L29-L60" target="_blank" title="Go to snippet source"></a><code class="language-scala">object SampleApplication {
   def main(args: Array[String]): Unit = {
-    implicit val classicSystem = classic.ActorSystem()
-    val system = ActorSystem.wrap(classicSystem)
-    implicit val ec = system.executionContext
+    implicit val system = ActorSystem()
+    implicit val ec = system.dispatcher
     val sampleService = new SampleService()
     val routes = new SampleRoute(sampleService)
     FusionHttpServer(system).component.startRouteSync(routes.route)
@@ -240,7 +243,9 @@ akka-fusion/akka-fusion
 }
 
 // Controller
-class SampleRoute(sampleService: SampleService) extends AbstractRoute {
+class SampleRoute(sampleService: SampleService)(implicit system: ActorSystem) extends AbstractRoute {
+  override val jacksonSupport: JacksonSupport = JacksonObjectMapperExtension(system).jacksonSupport
+
   override def route: Route = pathGet(&quot;hello&quot;) {
     val pdm = (Symbol(&quot;hello&quot;), Symbol(&quot;year&quot;).as[Int].?(2019))
     parameters(pdm).as(SampleReq) { req =&gt;
@@ -315,6 +320,10 @@ Content-Length: 48
     <li><a href="data-kafka/producer.html" class="page">Kafka Producer</a></li>
     <li><a href="data-kafka/consumer.html" class="page">Kafka Consumer</a></li>
   </ul></li>
+  <li><a href="inject/index.html" class="page">依赖管理</a>
+  <ul>
+    <li><a href="inject/guice.html" class="page">使用 Guice 进行类依赖管理</a></li>
+  </ul></li>
   <li><a href="configuration/index.html" class="page">配置</a>
   <ul>
     <li><a href="configuration/core.html" class="page">Fusion Core 配置</a></li>
@@ -337,7 +346,7 @@ Edit this page
 </div>
 <div class="print-only">
 <span class="md-source-file md-version">
-2.0.2
+2.0.4
 </span>
 </div>
 </article>
@@ -372,7 +381,7 @@ and
 
 </div>
 <div class="md-footer-social">
-<a href="http://akka-fusion.github.io/akka-fusion/" class="md-footer-social__link fa fa-globe"></a><a href="https://github.com/akka-fusion" class="md-footer-social__link fa fa-github"></a><a href="https://weibo.com/yangbajing" class="md-footer-social__link fa fa-globe"></a>
+<a href="https://akka-fusion.github.io/akka-fusion/" class="md-footer-social__link fa fa-globe"></a><a href="https://github.com/akka-fusion" class="md-footer-social__link fa fa-github"></a><a href="https://weibo.com/yangbajing" class="md-footer-social__link fa fa-globe"></a>
 </div>
 
 </div>

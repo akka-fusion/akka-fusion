@@ -23,7 +23,7 @@ import akka.testkit.TestKit
 import akka.Done
 import akka.{ actor => classic }
 import com.typesafe.scalalogging.StrictLogging
-import fusion.test.FusionTestFunSuite
+import fusion.testkit.FusionFunSuiteLike
 import org.scalatest.BeforeAndAfterAll
 
 import scala.concurrent.Await
@@ -32,7 +32,7 @@ import scala.concurrent.duration.Duration
 
 class TerminateTest
     extends TestKit(classic.ActorSystem())
-    with FusionTestFunSuite
+    with FusionFunSuiteLike
     with BeforeAndAfterAll
     with StrictLogging {
   import system.dispatcher

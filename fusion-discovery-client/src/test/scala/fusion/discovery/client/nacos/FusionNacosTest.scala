@@ -19,19 +19,18 @@ package fusion.discovery.client.nacos
 import java.util.Properties
 import java.util.concurrent.TimeUnit
 
-import akka.{ actor => classic }
 import akka.actor.typed.scaladsl.adapter._
+import akka.{ actor => classic }
 import com.alibaba.nacos.api.NacosFactory
 import fusion.common.constant.PropKeys
 import fusion.discovery.DiscoveryUtils
-import fusion.test.FusionTestFunSuite
+import fusion.testkit.FusionFunSuiteLike
 import helloscala.common.Configuration
 import org.scalatest.BeforeAndAfterAll
-import org.scalatest.Matchers
 
 import scala.language.existentials
 
-class FusionNacosTest extends FusionTestFunSuite with Matchers with BeforeAndAfterAll {
+class FusionNacosTest extends FusionFunSuiteLike with BeforeAndAfterAll {
   private var system: classic.ActorSystem = _
 
   private val SERVER_ADDR = "localhost:8848"

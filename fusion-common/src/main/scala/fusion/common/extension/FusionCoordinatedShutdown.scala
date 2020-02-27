@@ -16,15 +16,14 @@
 
 package fusion.common.extension
 
+import akka.Done
 import akka.actor.CoordinatedShutdown.UnknownReason
-import akka.actor.typed.ActorSystem
-import akka.actor.{ Cancellable, CoordinatedShutdown }
-import akka.{ Done, actor => classic }
+import akka.actor.{ ActorSystem, Cancellable, CoordinatedShutdown }
 
 import scala.concurrent.Future
 
 class FusionCoordinatedShutdown(coordinatedShutdown: CoordinatedShutdown) {
-  def this(system: classic.ActorSystem) {
+  def this(system: ActorSystem) {
     this(CoordinatedShutdown(system))
   }
 
@@ -74,6 +73,5 @@ class FusionCoordinatedShutdown(coordinatedShutdown: CoordinatedShutdown) {
 }
 
 object FusionCoordinatedShutdown {
-  import akka.actor.typed.scaladsl.adapter._
-  def apply(system: ActorSystem[_]): FusionCoordinatedShutdown = new FusionCoordinatedShutdown(system.toClassic)
+  def apply(system: ActorSystem): FusionCoordinatedShutdown = new FusionCoordinatedShutdown(system)
 }

@@ -41,7 +41,7 @@ trait FusionPostgresProfile
     with FusionJdbcProfile {
   driver: ExPostgresProfile =>
 
-  def pgjson = "jsonb" // jsonb support is in postgres 9.4.0 onward; for 9.3.x use "json"
+  override val pgjson = "jsonb" // jsonb support is in postgres 9.4.0 onward; for 9.3.x use "json"
 
   // Add back `capabilities.insertOrUpdate` to enable native `upsert` support; for postgres 9.5+
   override protected def computeCapabilities: Set[Capability] =
@@ -128,4 +128,4 @@ trait FusionPostgresProfile
   }
 }
 
-object FusionPostgresProfile extends FusionPostgresProfile
+//object FusionPostgresProfile extends FusionPostgresProfile

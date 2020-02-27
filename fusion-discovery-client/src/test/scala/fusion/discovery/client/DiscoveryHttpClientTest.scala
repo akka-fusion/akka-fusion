@@ -18,10 +18,10 @@ package fusion.discovery.client
 
 import akka.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
 import akka.discovery.Discovery
-import fusion.test.FusionTestFunSuite
+import fusion.testkit.FusionFunSuiteLike
 import akka.actor.typed.scaladsl.adapter._
 
-class DiscoveryHttpClientTest extends ScalaTestWithActorTestKit with FusionTestFunSuite {
+class DiscoveryHttpClientTest extends ScalaTestWithActorTestKit with FusionFunSuiteLike {
   test("http client") {
     val discovery = Discovery(system.toClassic).discovery
     println(discovery)

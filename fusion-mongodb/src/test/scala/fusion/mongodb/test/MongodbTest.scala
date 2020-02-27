@@ -19,26 +19,22 @@ package fusion.mongodb.test
 import akka.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
 import akka.actor.typed.scaladsl.adapter._
 import akka.stream.Materializer
-import akka.stream.scaladsl.Sink
-import akka.stream.scaladsl.Source
-import com.mongodb.ConnectionString
-import com.mongodb.MongoClientSettings
-import com.mongodb.client.model.Filters
-import com.mongodb.client.model.ReplaceOptions
-import com.mongodb.reactivestreams.client.MongoClients
-import com.mongodb.reactivestreams.client.MongoCollection
+import akka.stream.scaladsl.{ Sink, Source }
+import com.mongodb.{ ConnectionString, MongoClientSettings }
+import com.mongodb.client.model.{ Filters, ReplaceOptions }
+import com.mongodb.reactivestreams.client.{ MongoClients, MongoCollection }
 import fusion.data.mongodb.MongoTemplate
 import org.bson.Document
 import org.bson.types.ObjectId
 import org.mongodb.scala.bson.codecs.Macros._
-import org.scalatest.FunSuiteLike
+import org.scalatest.funsuite.AnyFunSuiteLike
 
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
 
 case class FileEntity(_id: String, fileName: String, size: Long, localPath: String, hash: String)
 
-class MongodbTest extends ScalaTestWithActorTestKit with FunSuiteLike {
+class MongodbTest extends ScalaTestWithActorTestKit with AnyFunSuiteLike {
   implicit val classicSystem = system.toClassic
   implicit val materializer = Materializer(classicSystem)
 

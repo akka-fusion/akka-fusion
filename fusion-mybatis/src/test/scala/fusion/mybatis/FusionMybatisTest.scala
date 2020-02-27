@@ -23,10 +23,10 @@ import com.baomidou.mybatisplus.core.metadata.IPage
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page
 import fusion.mybatis.mapper.FileMapper
 import fusion.mybatis.model.CFile
-import fusion.test.FusionTestFunSuite
+import fusion.testkit.FusionFunSuiteLike
 
 // #FusionMybatisTest
-class FusionMybatisTest extends ScalaTestWithActorTestKit with FusionTestFunSuite {
+class FusionMybatisTest extends ScalaTestWithActorTestKit with FusionFunSuiteLike {
   test("testSqlSession") {
     val sqlSessionFactory = FusionMybatis(system).component
     sqlSessionFactory should not be null

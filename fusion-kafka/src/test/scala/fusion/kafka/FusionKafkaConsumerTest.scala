@@ -27,13 +27,13 @@ import akka.kafka.scaladsl.Consumer.DrainingControl
 import akka.stream.Materializer
 import akka.stream.scaladsl.Keep
 import akka.stream.scaladsl.Sink
-import fusion.test.FusionTestFunSuite
+import fusion.testkit.FusionFunSuiteLike
 import org.apache.kafka.clients.producer.ProducerRecord
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
 
-class FusionKafkaConsumerTest extends ScalaTestWithActorTestKit with FusionTestFunSuite {
+class FusionKafkaConsumerTest extends ScalaTestWithActorTestKit with FusionFunSuiteLike {
   implicit private def ec = system.executionContext
   implicit private val classicSystem = system.toClassic
   implicit private val mat = Materializer(classicSystem)

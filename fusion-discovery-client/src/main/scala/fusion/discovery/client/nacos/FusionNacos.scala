@@ -17,7 +17,7 @@
 package fusion.discovery.client.nacos
 
 import akka.Done
-import akka.actor.typed.ActorSystem
+import akka.actor.ExtendedActorSystem
 import com.typesafe.scalalogging.StrictLogging
 import fusion.common.component.Components
 import fusion.common.constant.FusionConstants
@@ -28,10 +28,9 @@ import helloscala.common.Configuration
 
 import scala.concurrent.Future
 
-final private[discovery] class NacosComponents(system: ActorSystem[_])
+final private[discovery] class NacosComponents(system: ExtendedActorSystem)
     extends Components[NacosDiscoveryComponent](DiscoveryUtils.methodConfPath) {
-  import system.executionContext
-
+  import system.dispatcher
   override protected def createComponent(id: String): NacosDiscoveryComponent =
     new NacosDiscoveryComponent(id, NacosPropertiesUtils.configProps(id), configuration.getConfiguration(id), system)
 
@@ -43,12 +42,14 @@ final private[discovery] class NacosComponents(system: ActorSystem[_])
   override def configuration: Configuration = Configuration(system.settings.config)
 }
 
-final class FusionNacos private (override val system: ActorSystem[_]) extends FusionExtension with StrictLogging {
-  val components = new NacosComponents(system)
+final class FusionNacos private (override val classicSystem: ExtendedActorSystem)
+    extends FusionExtension
+    with StrictLogging {
+  val components = new NacosComponents(classicSystem)
 
   def component: NacosDiscoveryComponent = components.component
-  FusionCore(system).shutdowns.serviceStop("StopFusionNacos") { () =>
-    components.closeAsync()(system.executionContext)
+  FusionCore(classicSystem).shutdowns.serviceStop("StopFusionNacos") { () =>
+    components.closeAsync()(classicSystem.dispatcher)
   }
 
   // XXX 将覆盖 Configration.fromDiscovery() 调用 Configuration.setServiceName() 设置的全局服务名
@@ -62,5 +63,5 @@ final class FusionNacos private (override val system: ActorSystem[_]) extends Fu
 }
 
 object FusionNacos extends FusionExtensionId[FusionNacos] {
-  override def createExtension(system: ActorSystem[_]): FusionNacos = new FusionNacos(system)
+  override def createExtension(system: ExtendedActorSystem): FusionNacos = new FusionNacos(system)
 }

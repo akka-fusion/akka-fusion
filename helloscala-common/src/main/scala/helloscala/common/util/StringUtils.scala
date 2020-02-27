@@ -41,6 +41,8 @@ object StringUtils {
   private val HEX_CHARS: Array[Char] = "0123456789abcdef".toCharArray
   private val HEX_CHAR_SETS = Set[Char]() ++ ('0' to '9') ++ ('a' to 'f') ++ ('A' to 'F')
 
+  @inline def capitalize(s: String): String = s.capitalize
+
   @inline def dropLast$(s: String): String = {
     if (s == null) s else if (s.last == '$') s.dropRight(1) else s
   }

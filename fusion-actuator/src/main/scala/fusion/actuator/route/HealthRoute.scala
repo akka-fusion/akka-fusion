@@ -20,9 +20,7 @@ import akka.actor.ExtendedActorSystem
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Route
 import com.typesafe.scalalogging.StrictLogging
-import fusion.core.model.Health
-import fusion.core.model.HealthComponent
-import fusion.json.jackson.http.JacksonHttpUtils
+import fusion.core.model.{ Health, HealthComponent }
 import helloscala.common.util.Utils
 
 import scala.jdk.CollectionConverters._
@@ -44,12 +42,12 @@ final class HealthRoute(val system: ExtendedActorSystem) extends ActuatorRoute w
 
   def route: Route =
     pathEndOrSingleSlash {
-      complete(JacksonHttpUtils.httpEntity(Health.up(healths.map { case (k, v) => k -> v.health }.toMap)))
+      objectComplete(Health.up(healths.map { case (k, v) => k -> v.health }))
     } ~
     pathPrefix(Segment) { comp =>
       pathEndOrSingleSlash {
         healths.get(comp) match {
-          case Some(health) => complete(JacksonHttpUtils.httpEntity(health))
+          case Some(health) => objectComplete(health)
           case _            => complete(StatusCodes.NotFound)
         }
       } ~
@@ -59,7 +57,7 @@ final class HealthRoute(val system: ExtendedActorSystem) extends ActuatorRoute w
           case _                             => None
         }
         maybe match {
-          case Some(v) => complete(JacksonHttpUtils.httpEntity(v))
+          case Some(v) => objectComplete(v)
           case _       => complete(StatusCodes.NotFound)
         }
       }

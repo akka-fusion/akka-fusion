@@ -17,7 +17,7 @@
 package fusion.data.mongodb.extension
 
 import akka.Done
-import akka.actor.typed.ActorSystem
+import akka.actor.ExtendedActorSystem
 import com.mongodb.reactivestreams.client.MongoClients
 import com.mongodb.{ ConnectionString, MongoClientSettings, MongoDriverInformation }
 import fusion.common.component.Components
@@ -28,9 +28,9 @@ import helloscala.common.Configuration
 
 import scala.concurrent.Future
 
-final private[mongodb] class MongoComponents(system: ActorSystem[_])
+final private[mongodb] class MongoComponents(system: ExtendedActorSystem)
     extends Components[MongoTemplate](MongoConstants.PATH_DEFAULT) {
-  import system.executionContext
+  import system.dispatcher
   override def configuration: Configuration = Configuration(system.settings.config)
 
   override protected def componentClose(c: MongoTemplate): Future[Done] = Future {
@@ -73,15 +73,15 @@ final private[mongodb] class MongoComponents(system: ActorSystem[_])
   }
 }
 
-final class FusionMongo private (override val system: ActorSystem[_]) extends FusionExtension {
-  val components = new MongoComponents(system)
-  FusionCoordinatedShutdown(system).beforeActorSystemTerminate("StopFusionMongo") { () =>
-    components.closeAsync()(system.executionContext)
+final class FusionMongo private (override val classicSystem: ExtendedActorSystem) extends FusionExtension {
+  val components = new MongoComponents(classicSystem)
+  FusionCoordinatedShutdown(classicSystem).beforeActorSystemTerminate("StopFusionMongo") { () =>
+    components.closeAsync()(classicSystem.dispatcher)
   }
 
   def mongoTemplate: MongoTemplate = components.component
 }
 
 object FusionMongo extends FusionExtensionId[FusionMongo] {
-  override def createExtension(system: ActorSystem[_]): FusionMongo = new FusionMongo(system)
+  override def createExtension(system: ExtendedActorSystem): FusionMongo = new FusionMongo(system)
 }

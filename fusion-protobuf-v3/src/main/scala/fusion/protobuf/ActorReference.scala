@@ -18,10 +18,9 @@ package fusion.protobuf
 
 import akka.actor.ExtendedActorSystem
 import akka.actor.typed.{ ActorRef, ActorRefResolver }
-import akka.actor.typed.scaladsl.adapter._
 import akka.serialization.Serialization
 import akka.{ actor => classic }
-import fusion.common.ActorSystemUtils
+import fusion.core.FusionApplication
 import helloscala.common.util.StringUtils
 import scalapb.TypeMapper
 
@@ -35,43 +34,45 @@ trait ActorReferenceTrait {
     typ match {
       case None                                       => throw new IllegalStateException("typ is empty")
       case Some(tp) if ev1.runtimeClass.getName != tp => throw new IllegalArgumentException(s"$typ != $tp")
-      case _                                          => ActorRefResolver(ActorSystemUtils.system).resolveActorRef(serialized)
+      case _ =>
+        ActorRefResolver(FusionApplication.application.typedSystem).resolveActorRef(serialized)
     }
   }
 
   def toClassic: classic.ActorRef =
-    ActorSystemUtils.system.toClassic.asInstanceOf[ExtendedActorSystem].provider.resolveActorRef(serialized)
+    FusionApplication.application.classicSystem.asInstanceOf[ExtendedActorSystem].provider.resolveActorRef(serialized)
 }
 
-trait ActorReferenceCompanion {
-  def fromTyped[T](ref: ActorRef[T])(implicit ev1: ClassTag[T]): fusion.ActorReference = {
-    fusion.ActorReference(
-      ActorRefResolver(ActorSystemUtils.system).toSerializationFormat(ref),
-      Some(ev1.runtimeClass.toString))
-  }
-  def fromClassic(ref: classic.ActorRef): String = Serialization.serializedActorPath(ref)
-}
+//trait ActorReferenceCompanion {
+//  def fromTyped[T](ref: ActorRef[T])(implicit ev1: ClassTag[T]): fusion.ActorReference = {
+//    fusion.ActorReference(
+//      ActorRefResolver(ActorSystemUtils.system).toSerializationFormat(ref),
+//      Some(ev1.runtimeClass.toString))
+//  }
+//  def fromClassic(ref: classic.ActorRef): String = Serialization.serializedActorPath(ref)
+//}
 
 trait ActorTypedReferenceTrait {
   def serialized: String
 
-  def toTyped[T]: ActorRef[T] = ActorRefResolver(ActorSystemUtils.system).resolveActorRef(serialized)
+  def toTyped[T]: ActorRef[T] = ActorRefResolver(FusionApplication.application.typedSystem).resolveActorRef(serialized)
 
   def toClassic: classic.ActorRef =
-    ActorSystemUtils.system.toClassic.asInstanceOf[ExtendedActorSystem].provider.resolveActorRef(serialized)
+    FusionApplication.application.classicSystem.asInstanceOf[ExtendedActorSystem].provider.resolveActorRef(serialized)
 }
 
 trait ActorTypedReferenceCompanion {
-  def fromTyped[T](ref: ActorRef[T]): String = ActorRefResolver(ActorSystemUtils.system).toSerializationFormat(ref)
+  def fromTyped[T](ref: ActorRef[T]): String =
+    ActorRefResolver(FusionApplication.application.typedSystem).toSerializationFormat(ref)
   def fromClassic(ref: classic.ActorRef): String = Serialization.serializedActorPath(ref)
 }
 
 trait ActorRefCompanion {
-  private def resolver: ActorRefResolver = ActorRefResolver(ActorSystemUtils.system)
+  private def resolver: ActorRefResolver = ActorRefResolver(FusionApplication.application.typedSystem)
 
   implicit def actorRefTypeMapper[T]: TypeMapper[String, ActorRef[T]] = {
     TypeMapper[String, ActorRef[T]] { str =>
-      if (StringUtils.isBlank(str)) ActorSystemUtils.system.deadLetters[T]
+      if (StringUtils.isBlank(str)) FusionApplication.application.typedSystem.deadLetters[T]
       else resolver.resolveActorRef[T](str)
     } { ref =>
       //      resolver.toSerializationFormat(ref)

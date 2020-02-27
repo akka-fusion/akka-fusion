@@ -19,10 +19,10 @@ package fusion.doc
 import java.nio.file.Paths
 
 import org.apache.poi.ss.usermodel.WorkbookFactory
-import org.scalatest.FunSuite
-import org.scalatest.MustMatchers
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 
-class ExcelUtilsTest extends FunSuite with MustMatchers {
+class ExcelUtilsTest extends AnyFunSuite with Matchers {
   test("render xlsx") {
     val wb = WorkbookFactory.create(
       Paths.get("/opt/Documents/Work/akka-fusion/weekly/ZSHK-中层工作周报表【2019.05.06-05.10】-杨景.xlsx").toFile)
@@ -33,6 +33,6 @@ class ExcelUtilsTest extends FunSuite with MustMatchers {
         println(s"row: ${row.num} ${row.mkLine("\t")}")
       }
     }
-    sheets must not be empty
+    sheets should not be empty
   }
 }

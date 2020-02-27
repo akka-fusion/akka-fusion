@@ -19,11 +19,11 @@ package fusion.mail
 import java.util.concurrent.TimeUnit
 
 import akka.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
-import fusion.test.FusionTestFunSuite
+import fusion.testkit.FusionFunSuiteLike
 import javax.mail.Message.RecipientType
 import org.scalatest.BeforeAndAfterAll
 
-class FusionMailTest extends ScalaTestWithActorTestKit with FusionTestFunSuite with BeforeAndAfterAll {
+class FusionMailTest extends ScalaTestWithActorTestKit with FusionFunSuiteLike with BeforeAndAfterAll {
   test("init") {
     val mailHelper = FusionMail(system).components.lookup("fusion.mail.wangyi")
 

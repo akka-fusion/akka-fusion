@@ -22,12 +22,11 @@ import akka.http.scaladsl.model.HttpHeader
 import akka.http.scaladsl.model.headers.RawHeader
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.testkit.ScalatestRouteTest
-import fusion.test.FusionTestFunSuite
-import org.scalatest.MustMatchers
+import fusion.testkit.FusionFunSuiteLike
 
 import scala.collection.immutable
 
-class HeaderTest extends FusionTestFunSuite with ScalatestRouteTest with MustMatchers {
+class HeaderTest extends FusionFunSuiteLike with ScalatestRouteTest {
   private val traceIdGenerator = new AtomicLong(0L)
 
   def generateXTraceId(headers: immutable.Seq[HttpHeader]): String =
@@ -41,10 +40,10 @@ class HeaderTest extends FusionTestFunSuite with ScalatestRouteTest with MustMat
       }
     }
     Get("test") ~> route ~> check {
-      headerValueByName("X-Trace-Id") mustBe "1"
+      headerValueByName("X-Trace-Id") shouldBe "1"
     }
     Get("test") ~> route ~> check {
-      headerValueByName("X-Trace-Id") mustBe "2"
+      headerValueByName("X-Trace-Id") shouldBe "2"
     }
   }
 }

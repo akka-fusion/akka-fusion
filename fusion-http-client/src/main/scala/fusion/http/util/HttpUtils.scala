@@ -17,53 +17,49 @@
 package fusion.http.util
 
 import java.io.InputStream
-import java.nio.charset.Charset
-import java.nio.charset.UnsupportedCharsetException
-import java.security.KeyStore
-import java.security.SecureRandom
+import java.nio.charset.{ Charset, UnsupportedCharsetException }
+import java.security.{ KeyStore, SecureRandom }
 
-import akka.http.scaladsl.Http
-import akka.http.scaladsl.HttpsConnectionContext
+import akka.http.scaladsl.marshalling.{ Marshal, Marshaller }
 import akka.http.scaladsl.model.Uri.Authority
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.model.headers.`Timeout-Access`
-import akka.http.scaladsl.server.Directive0
-import akka.http.scaladsl.server.Directives
+import akka.http.scaladsl.server.{ Directive0, Directives }
 import akka.http.scaladsl.unmarshalling.Unmarshal
-import akka.stream.Materializer
-import akka.stream.OverflowStrategy
-import akka.stream.QueueOfferResult
-import akka.stream.scaladsl.Keep
-import akka.stream.scaladsl.Sink
-import akka.stream.scaladsl.Source
+import akka.http.scaladsl.{ Http, HttpsConnectionContext }
+import akka.stream.scaladsl.{ Keep, Sink, Source }
+import akka.stream.{ Materializer, OverflowStrategy, QueueOfferResult }
 import akka.util.ByteString
 import akka.{ actor => classic }
-import com.typesafe.config.Config
-import com.typesafe.config.ConfigFactory
-import com.typesafe.scalalogging.Logger
-import com.typesafe.scalalogging.StrictLogging
+import com.typesafe.config.{ Config, ConfigFactory }
+import com.typesafe.scalalogging.{ Logger, StrictLogging }
 import fusion.common.constant.ConfigKeys
+import fusion.core.http.HttpSourceQueue
 import fusion.core.http.headers.`X-Trace-Id`
 import fusion.core.util.FusionUtils
-import fusion.http.HttpSourceQueue
-import fusion.json.jackson.Jackson
 import helloscala.common.util.StringUtils
-import javax.net.ssl.KeyManagerFactory
-import javax.net.ssl.SSLContext
-import javax.net.ssl.TrustManagerFactory
+import javax.net.ssl.{ KeyManagerFactory, SSLContext, TrustManagerFactory }
 
 import scala.collection.immutable
-import scala.concurrent.Await
-import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
-import scala.concurrent.Promise
 import scala.concurrent.duration._
+import scala.concurrent.{ Await, ExecutionContext, Future, Promise }
 import scala.jdk.CollectionConverters._
-import scala.util.Failure
-import scala.util.Success
 import scala.util.control.NonFatal
+import scala.util.{ Failure, Success }
 
-object HttpUtils extends StrictLogging {
+trait BaseHttpUtils {
+  def entityJson(status: StatusCode, msg: String): HttpEntity.Strict = entityJson(status.intValue(), msg)
+  def entityJson(status: Int, msg: String): HttpEntity.Strict = entityJson(s"""{"status":$status,"msg":"$msg"}""")
+  def entityJson(json: String): HttpEntity.Strict = HttpEntity(ContentTypes.`application/json`, json)
+
+  def jsonEntity(status: StatusCode, msg: String): (StatusCode, HttpEntity.Strict) =
+    status -> entityJson(s"""{"status":${status.intValue()},"msg":"$msg"}""")
+
+  def jsonResponse(status: StatusCode, msg: String): HttpResponse =
+    HttpResponse(status, entity = entityJson(s"""{"status":${status.intValue()},"msg":"$msg"}"""))
+}
+
+object HttpUtils extends BaseHttpUtils with StrictLogging {
   val AKKA_HTTP_ROUTES_DISPATCHER = "akka-http-routes-dispatcher"
 
   val DEFAULT_PORTS: Map[String, Int] =
@@ -85,6 +81,7 @@ object HttpUtils extends StrictLogging {
       "wss" -> 443,
       "imaps" -> 993,
       "nfs" -> 2049).withDefaultValue(-1)
+
   private[util] var customMediaTypes: Map[String, MediaType] = getDefaultMediaTypes(ConfigFactory.load())
 
   private def getDefaultMediaTypes(config: Config): Map[String, MediaType] = {
@@ -139,10 +136,6 @@ object HttpUtils extends StrictLogging {
 
   @inline def registerMediaType(mediaTypes: MediaType*): Unit = {
     customMediaTypes = customMediaTypes ++ mediaTypes.flatMap(mediaType => mediaType.fileExtensions.map(_ -> mediaType))
-  }
-
-  @inline def generateTraceHeader(): HttpHeader = {
-    `X-Trace-Id`(FusionUtils.generateTraceId().toString)
   }
 
   def dump(response: HttpResponse)(implicit mat: Materializer): Unit = {
@@ -324,51 +317,26 @@ object HttpUtils extends StrictLogging {
     hcc
   }
 
-  def buildRequest(
+  def hostRequest[A](
       method: HttpMethod,
       uri: Uri,
       params: Seq[(String, String)] = Nil,
-      data: AnyRef = null,
-      headers: immutable.Seq[HttpHeader] = Nil,
-      protocol: HttpProtocol = HttpProtocols.`HTTP/1.1`): HttpRequest = {
-    val entity = data match {
-      case null                    => HttpEntity.Empty
-      case entity: UniversalEntity => entity
-      case _                       => HttpEntity(ContentTypes.`application/json`, Jackson.stringify(data))
+      data: A = null,
+      headers: immutable.Seq[HttpHeader] = Nil)(
+      implicit httpSourceQueue: HttpSourceQueue,
+      m: Marshaller[A, RequestEntity],
+      ec: ExecutionContext): Future[HttpResponse] = {
+    val entityF = data match {
+      case null                  => Future.successful(HttpEntity.Empty)
+      case entity: RequestEntity => Future.successful(entity)
+      case _ =>
+        Marshal(data).to[RequestEntity]
     }
-    HttpRequest(method, uri.withQuery(Uri.Query(uri.query() ++ params: _*)), headers, entity, protocol)
+    entityF.flatMap { entity =>
+      val request = HttpRequest(method, uri.withQuery(Uri.Query(uri.query() ++ params: _*)), headers, entity)
+      hostRequest(request)
+    }
   }
-
-  /**
-   * 发送 Http 请求
-   *
-   * @param method   请求方法类型
-   * @param uri      请求地址
-   * @param params   请求URL查询参数
-   * @param data     请求数据（将备序列化成JSON）
-   * @param headers  请求头
-   * @param protocol HTTP协议版本
-   * @return HttpResponse
-   */
-  def singleRequest(
-      method: HttpMethod,
-      uri: Uri,
-      params: Seq[(String, String)] = Nil,
-      data: AnyRef = null,
-      headers: immutable.Seq[HttpHeader] = Nil,
-      protocol: HttpProtocol = HttpProtocols.`HTTP/1.1`)(implicit system: classic.ActorSystem): Future[HttpResponse] = {
-    val request = buildRequest(method, uri, params, data, headers, protocol)
-    singleRequest(request)
-  }
-
-  /**
-   * 发送 Http 请求
-   *
-   * @param request HttpRequest
-   * @return
-   */
-  def singleRequest(request: HttpRequest)(implicit system: classic.ActorSystem): Future[HttpResponse] =
-    Http().singleRequest(request)
 
   /**
    * 发送 Http 请求，使用 CachedHostConnectionPool。见：[[cachedHostConnectionPool()]]
@@ -391,44 +359,6 @@ object HttpUtils extends StrictLogging {
     }
   }
 
-  def hostRequest(
-      method: HttpMethod,
-      uri: Uri,
-      params: Seq[(String, String)] = Nil,
-      data: AnyRef = null,
-      headers: immutable.Seq[HttpHeader] = Nil)(
-      implicit httpSourceQueue: HttpSourceQueue,
-      ec: ExecutionContext): Future[HttpResponse] = {
-    val entity = if (data != null) {
-      data match {
-        case entity: RequestEntity => entity
-        case _ =>
-          HttpEntity(ContentTypes.`application/json`, Jackson.stringify(data))
-      }
-    } else {
-      HttpEntity.Empty
-    }
-    hostRequest(HttpRequest(method, uri.withQuery(Uri.Query(uri.query() ++ params: _*)), headers, entity))
-  }
-
-  def makeRequest(
-      method: HttpMethod,
-      uri: Uri,
-      params: Seq[(String, Any)] = Nil,
-      data: AnyRef = null,
-      headers: immutable.Seq[HttpHeader] = Nil): HttpRequest = {
-    val entity = if (data != null) {
-      data match {
-        case entity: MessageEntity => entity
-        case _                     => HttpEntity(ContentTypes.`application/json`, Jackson.stringify(data))
-      }
-    } else {
-      HttpEntity.Empty
-    }
-    val httpParams = params.map { case (key, value) => key -> value.toString }
-    HttpRequest(method, uri.withQuery(Uri.Query(httpParams: _*)), headers, entity)
-  }
-
   def toStrictEntity(response: HttpResponse)(implicit mat: Materializer): HttpEntity.Strict =
     toStrictEntity(response.entity)
 
@@ -442,18 +372,13 @@ object HttpUtils extends StrictLogging {
     Await.result(f, dr)
   }
 
-  def entityJson(status: StatusCode, msg: String): HttpEntity.Strict = entityJson(status.intValue(), msg)
-  def entityJson(status: Int, msg: String): HttpEntity.Strict = entityJson(s"""{"status":$status,"msg":"$msg"}""")
-  def entityJson(json: String): HttpEntity.Strict = HttpEntity(ContentTypes.`application/json`, json)
-
   def logRequest(logger: com.typesafe.scalalogging.Logger): Directive0 = {
     Directives.mapRequest { req =>
       curlLogging(req)(logger)
     }
   }
 
-  def curlLogging(req: HttpRequest)(implicit _log: Logger = null): HttpRequest = {
-    val log = if (null == _log) logger else _log
+  def curlLogging(req: HttpRequest)(implicit log: Logger): HttpRequest = {
     log.whenDebugEnabled {
       val entity = req.entity match {
         case HttpEntity.Empty => ""
@@ -461,16 +386,15 @@ object HttpUtils extends StrictLogging {
       }
       val headers = req.headers.filterNot(_.name() == `Timeout-Access`.name)
       log.debug(s"""HttpRequest
-                |${req.protocol.value} ${req.method.value} ${req.uri}
-                |search: ${toString(req.uri.query())}
-                |header: ${headers.mkString("\n        ")}$entity""".stripMargin)
+                   |${req.protocol.value} ${req.method.value} ${req.uri}
+                   |search: ${toString(req.uri.query())}
+                   |header: ${headers.mkString("\n        ")}$entity""".stripMargin)
     }
     req
   }
 
   def curlLoggingResponse(req: HttpRequest, resp: HttpResponse, printResponseEntity: Boolean = false)(
-      implicit _log: Logger = null): HttpResponse = {
-    val log = if (null == _log) logger else _log
+      implicit log: Logger): HttpResponse = {
     log.whenDebugEnabled {
       val sb = new StringBuilder
       sb.append("HttpResponse").append("\n")
@@ -489,11 +413,9 @@ object HttpUtils extends StrictLogging {
     resp
   }
 
-  def jsonEntity(status: StatusCode, msg: String): (StatusCode, HttpEntity.Strict) =
-    status -> HttpUtils.entityJson(s"""{"status":${status.intValue()},"msg":"$msg"}""")
-
-  def jsonResponse(status: StatusCode, msg: String): HttpResponse =
-    HttpResponse(status, entity = HttpUtils.entityJson(s"""{"status":${status.intValue()},"msg":"$msg"}"""))
+  @inline def generateTraceHeader(): HttpHeader = {
+    `X-Trace-Id`(FusionUtils.generateTraceId().toString)
+  }
 
   def toString(query: Uri.Query): String = query.map { case (name, value) => s"$name=$value" }.mkString("&")
 }

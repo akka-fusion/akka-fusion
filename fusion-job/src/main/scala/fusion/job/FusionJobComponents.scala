@@ -19,31 +19,24 @@ package fusion.job
 import java.util
 
 import akka.Done
-import akka.actor.typed.ActorSystem
+import akka.actor.ExtendedActorSystem
 import com.typesafe.scalalogging.StrictLogging
 import fusion.common.component.Components
 import fusion.jdbc.FusionJdbc
-import fusion.job.impl.FactoryHelper
-import fusion.job.impl.FusionJdbcConnectionProvider
+import fusion.job.impl.{ FactoryHelper, FusionJdbcConnectionProvider }
 import helloscala.common.Configuration
 import org.quartz._
-import org.quartz.impl.DefaultThreadExecutor
-import org.quartz.impl.DirectSchedulerFactory
-import org.quartz.impl.StdSchedulerFactory
 import org.quartz.impl.jdbcjobstore.JobStoreSupport
+import org.quartz.impl.{ DefaultThreadExecutor, DirectSchedulerFactory, StdSchedulerFactory }
 import org.quartz.simpl.RAMJobStore
-import org.quartz.spi.JobStore
-import org.quartz.spi.SchedulerPlugin
-import org.quartz.spi.ThreadExecutor
-import org.quartz.spi.ThreadPool
+import org.quartz.spi.{ JobStore, SchedulerPlugin, ThreadExecutor, ThreadPool }
 import org.quartz.utils.DBConnectionManager
 
-import scala.jdk.CollectionConverters._
 import scala.concurrent.Future
-import scala.util.Failure
-import scala.util.Success
+import scala.jdk.CollectionConverters._
+import scala.util.{ Failure, Success }
 
-class FusionJobComponents(system: ActorSystem[_])
+class FusionJobComponents(system: ExtendedActorSystem)
     extends Components[FusionScheduler]("fusion.job.default")
     with SchedulerFactory
     with StrictLogging {
@@ -52,15 +45,15 @@ class FusionJobComponents(system: ActorSystem[_])
   override def configuration: Configuration = Configuration(system.settings.config)
 
   override protected def createComponent(id: String): FusionScheduler = {
-    val c = configuration.getConfiguration(id).withFallback(configuration.getConfiguration("fusion.default.job"))
-    FusionScheduler(create(id, c), system)
+    val c = configuration.getConfiguration(id).withFallback(configuration.getConfiguration("""fusion.job."*""""))
+    FusionScheduler(create(id, c))
   }
 
   override protected def componentClose(c: FusionScheduler): Future[Done] =
     Future {
       c.close()
       Done
-    }(system.executionContext)
+    }(system.dispatcher)
 
   private def create(schedulerName: String, c: Configuration): Scheduler = {
     val helper = new FactoryHelper(c.getProperties(""))

@@ -20,58 +20,48 @@ import java.net.InetSocketAddress
 import java.util.Objects
 import java.util.concurrent.atomic.AtomicBoolean
 
+import akka.Done
 import akka.actor.ExtendedActorSystem
 import akka.actor.typed.ActorSystem
-import akka.actor.typed.scaladsl.adapter._
 import akka.http.FusionRoute
 import akka.http.scaladsl.Http.ServerBinding
-import akka.http.scaladsl.ConnectionContext
-import akka.http.scaladsl.Http
-import akka.http.scaladsl.HttpConnectionContext
-import akka.http.scaladsl.model.HttpRequest
-import akka.http.scaladsl.model.HttpResponse
-import akka.http.scaladsl.model.Uri
-import akka.http.scaladsl.server.ExceptionHandler
-import akka.http.scaladsl.server.RejectionHandler
-import akka.http.scaladsl.server.Route
+import akka.http.scaladsl.model.{ HttpRequest, HttpResponse, Uri }
+import akka.http.scaladsl.server.{ ExceptionHandler, RejectionHandler, Route }
+import akka.http.scaladsl.{ ConnectionContext, Http, HttpConnectionContext }
 import akka.stream.Materializer
-import akka.Done
-import akka.{ actor => classic }
 import com.typesafe.config.ConfigFactory
 import com.typesafe.scalalogging.StrictLogging
 import fusion.core.event.http.HttpBindingServerEvent
 import fusion.core.extension.FusionCore
+import fusion.core.http.HttpHandler
 import fusion.http.constant.HttpConstants
 import fusion.http.interceptor.HttpInterceptor
-import fusion.http.server.AbstractRoute
+import fusion.http.server.BaseRoute
 import fusion.http.util.HttpUtils
 import helloscala.common.Configuration
 import helloscala.common.exception.HSInternalErrorException
 import helloscala.common.util.NetworkUtils
 
-import scala.concurrent.Await
-import scala.concurrent.ExecutionContextExecutor
-import scala.concurrent.Future
 import scala.concurrent.duration._
-import scala.util.Failure
-import scala.util.Success
+import scala.concurrent.{ Await, ExecutionContextExecutor, Future }
+import scala.reflect.ClassTag
+import scala.util.{ Failure, Success, Try }
 
-final class HttpServer(val id: String, val system: ActorSystem[_]) extends StrictLogging with AutoCloseable {
-  implicit private def classicSystem: ExtendedActorSystem = system.toClassic.asInstanceOf[ExtendedActorSystem]
-  implicit private val mat: Materializer = Materializer(classicSystem)
+final class HttpServer(val id: String, implicit val system: ExtendedActorSystem)
+    extends StrictLogging
+    with AutoCloseable {
+  implicit private val mat: Materializer = Materializer.matFromSystem(system)
   implicit private def ec: ExecutionContextExecutor = mat.executionContext
   private val _isStarted = new AtomicBoolean(false)
   @volatile private var _isRunning = false
   private def dynamicAccess = system.dynamicAccess
 
   private val c = Configuration(
-    classicSystem.settings.config
-      .getConfig(id)
-      .withFallback(classicSystem.settings.config.getConfig("fusion.default.http")))
+    system.settings.config.getConfig(id).withFallback(system.settings.config.getConfig("fusion.default.http")))
   private var _schema: String = _
   private var _socketAddress: InetSocketAddress = _
   private var maybeEventualBinding = Option.empty[Future[ServerBinding]]
-  private val httpSetting = HttpSetting(c, system)
+  private val httpSetting = HttpSetting(c, system.settings.config)
   logger.debug("httpSetting: " + httpSetting)
 
   @throws(classOf[Exception])
@@ -92,7 +82,7 @@ final class HttpServer(val id: String, val system: ActorSystem[_]) extends Stric
     startRouteAsync(route)
   }
 
-  def startAbstractRouteSync(route: AbstractRoute)(
+  def startBaseRouteSync(route: BaseRoute)(
       implicit
       rejectionHandler: RejectionHandler = createRejectionHandler(),
       exceptionHandler: ExceptionHandler = createExceptionHandler(),
@@ -146,14 +136,7 @@ final class HttpServer(val id: String, val system: ActorSystem[_]) extends Stric
 
   private def createRejectionHandler(): RejectionHandler = {
     val clz = Class.forName(httpSetting.rejectionHandler)
-    val either = dynamicAccess
-      .createInstanceFor[RejectionHandler](clz, List(classOf[ActorSystem[_]] -> system))
-      .orElse(
-        dynamicAccess.createInstanceFor[RejectionHandler](clz, List(classOf[ExtendedActorSystem] -> classicSystem)))
-      .orElse(
-        dynamicAccess.createInstanceFor[RejectionHandler](clz, List(classOf[classic.ActorSystem] -> classicSystem)))
-      .orElse(classicSystem.dynamicAccess.createInstanceFor[RejectionHandler](clz, Nil))
-    either match {
+    createInstanceFor[RejectionHandler](clz) match {
       case Success(rejectionHandler) => rejectionHandler
       case Failure(e) =>
         throw new ExceptionInInitializerError(
@@ -163,14 +146,7 @@ final class HttpServer(val id: String, val system: ActorSystem[_]) extends Stric
 
   private def createExceptionHandler(): ExceptionHandler = {
     val clz = Class.forName(httpSetting.exceptionHandler)
-    val either = dynamicAccess
-      .createInstanceFor[ExceptionHandler.PF](clz, List(classOf[ActorSystem[_]] -> system))
-      .orElse(
-        dynamicAccess.createInstanceFor[ExceptionHandler.PF](clz, List(classOf[ExtendedActorSystem] -> classicSystem)))
-      .orElse(
-        dynamicAccess.createInstanceFor[ExceptionHandler.PF](clz, List(classOf[classic.ActorSystem] -> classicSystem)))
-      .orElse(classicSystem.dynamicAccess.createInstanceFor[ExceptionHandler.PF](clz, Nil))
-    either match {
+    createInstanceFor[ExceptionHandler.PF](clz) match {
       case Success(pf) => ExceptionHandler(pf)
       case Failure(e) =>
         throw new ExceptionInInitializerError(
@@ -180,14 +156,7 @@ final class HttpServer(val id: String, val system: ActorSystem[_]) extends Stric
 
   private def createHttpInterceptor(className: String): Option[HttpInterceptor] = {
     val clz = Class.forName(className)
-    val triedInterceptor = dynamicAccess
-      .createInstanceFor[HttpInterceptor](clz, List(classOf[ActorSystem[_]] -> system))
-      .orElse(
-        dynamicAccess.createInstanceFor[HttpInterceptor](clz, List(classOf[ExtendedActorSystem] -> classicSystem)))
-      .orElse(
-        dynamicAccess.createInstanceFor[HttpInterceptor](clz, List(classOf[classic.ActorSystem] -> classicSystem)))
-      .orElse(dynamicAccess.createInstanceFor[HttpInterceptor](clz, Nil))
-    triedInterceptor match {
+    createInstanceFor[HttpInterceptor](clz) match {
       case Success(v) => Some(v)
       case Failure(e) =>
         logger.error(s"实例化 HttpFilter 错误：$clz 不是有效的 ${classOf[HttpInterceptor]}", e)
@@ -287,5 +256,14 @@ final class HttpServer(val id: String, val system: ActorSystem[_]) extends Stric
   def buildUri(path: Uri.Path, query: Uri.Query = Uri.Query()): Uri = {
     val sa = socketAddress
     Uri(schema, authority = Uri.Authority(Uri.Host(sa.getAddress.getHostAddress), sa.getPort), path).withQuery(query)
+  }
+
+  private def createInstanceFor[T: ClassTag](clazz: Class[_]): Try[T] = {
+    import akka.actor.typed.scaladsl.adapter._
+    dynamicAccess
+      .createInstanceFor[T](clazz, List(classOf[ExtendedActorSystem] -> system))
+      .orElse(dynamicAccess.createInstanceFor[T](clazz, List(classOf[ActorSystem[Nothing]] -> system.toTyped)))
+      //      .orElse(dynamicAccess.createInstanceFor[T](clazz, List(classOf[classic.ActorSystem] -> system)))
+      .orElse(dynamicAccess.createInstanceFor[T](clazz, Nil))
   }
 }

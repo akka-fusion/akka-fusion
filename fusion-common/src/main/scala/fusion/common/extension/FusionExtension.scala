@@ -16,23 +16,22 @@
 
 package fusion.common.extension
 
-import akka.actor.ExtendedActorSystem
+import akka.actor.typed.ActorSystem
 import akka.actor.typed.scaladsl.adapter._
-import akka.actor.typed.{ ActorSystem, Extension, ExtensionId }
-import fusion.common.FusionProtocol
+import akka.actor.{ ExtendedActorSystem, Extension, ExtensionId, ExtensionIdProvider }
 import helloscala.common.Configuration
+
 // #FusionExtension
 trait FusionExtension extends Extension {
-  val system: ActorSystem[_]
+  val classicSystem: ExtendedActorSystem
 
-  def fusionSystem: ActorSystem[FusionProtocol.Command] = system.asInstanceOf[ActorSystem[FusionProtocol.Command]]
-
-  def classicSystem: ExtendedActorSystem = system.toClassic.asInstanceOf[ExtendedActorSystem]
-
-  def configuration: Configuration = Configuration(system.settings.config)
+  val configuration: Configuration = Configuration(classicSystem.settings.config)
+  def typedSystem: ActorSystem[_] = classicSystem.toTyped
 }
 // #FusionExtension
 
-trait FusionExtensionId[T <: FusionExtension] extends ExtensionId[T] {
+trait FusionExtensionId[T <: FusionExtension] extends ExtensionId[T] with ExtensionIdProvider {
   def get(system: ActorSystem[_]): T = apply(system)
+
+  override def lookup(): ExtensionId[_ <: Extension] = this
 }

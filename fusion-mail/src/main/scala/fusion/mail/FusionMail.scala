@@ -16,19 +16,18 @@
 
 package fusion.mail
 
-import akka.actor.typed.{ ActorSystem, ExtensionId }
-import fusion.common.extension.FusionExtension
+import akka.actor.ExtendedActorSystem
+import fusion.common.extension.{ FusionExtension, FusionExtensionId }
 import fusion.core.extension.FusionCore
-import helloscala.common.Configuration
 
-class FusionMail private (override val system: ActorSystem[_]) extends FusionExtension {
-  val components = new MailComponents(Configuration(system.settings.config))
+class FusionMail private (override val classicSystem: ExtendedActorSystem) extends FusionExtension {
+  val components = new MailComponents(configuration)
   def component: MailHelper = components.component
-  FusionCore(system).shutdowns.beforeActorSystemTerminate("StopFusionMail") { () =>
-    components.closeAsync()(system.executionContext)
+  FusionCore(classicSystem).shutdowns.beforeActorSystemTerminate("StopFusionMail") { () =>
+    components.closeAsync()(classicSystem.dispatcher)
   }
 }
 
-object FusionMail extends ExtensionId[FusionMail] {
-  override def createExtension(system: ActorSystem[_]): FusionMail = new FusionMail(system)
+object FusionMail extends FusionExtensionId[FusionMail] {
+  override def createExtension(system: ExtendedActorSystem): FusionMail = new FusionMail(system)
 }

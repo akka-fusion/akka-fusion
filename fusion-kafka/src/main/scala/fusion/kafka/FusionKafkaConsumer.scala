@@ -16,15 +16,15 @@
 
 package fusion.kafka
 
-import akka.actor.typed.ActorSystem
+import akka.actor.ExtendedActorSystem
 import akka.kafka.ConsumerSettings
 import fusion.common.extension.{ FusionExtension, FusionExtensionId }
 
-final class FusionKafkaConsumer private (val system: ActorSystem[_]) extends FusionExtension {
+final class FusionKafkaConsumer private (override val classicSystem: ExtendedActorSystem) extends FusionExtension {
   def consumer: ConsumerSettings[String, String] = consumers.component
-  val consumers = new ConsumerComponents(system)
+  val consumers = new ConsumerComponents(classicSystem)
 }
 
 object FusionKafkaConsumer extends FusionExtensionId[FusionKafkaConsumer] {
-  override def createExtension(system: ActorSystem[_]): FusionKafkaConsumer = new FusionKafkaConsumer(system)
+  override def createExtension(system: ExtendedActorSystem): FusionKafkaConsumer = new FusionKafkaConsumer(system)
 }

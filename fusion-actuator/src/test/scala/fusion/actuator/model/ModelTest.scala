@@ -16,12 +16,12 @@
 
 package fusion.actuator.model
 
+import akka.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
 import fusion.core.model.Health
-import fusion.json.jackson.Jackson
-import fusion.test.FusionTestWordSpec
-import org.scalatest.MustMatchers
+import fusion.json.jackson.JacksonObjectMapperExtension
+import fusion.testkit.FusionWordSpecLike
 
-class ModelTest extends FusionTestWordSpec with MustMatchers {
+class ModelTest extends ScalaTestWithActorTestKit with FusionWordSpecLike {
   "model" must {
     "health" in {
       val health = Health(
@@ -30,8 +30,8 @@ class ModelTest extends FusionTestWordSpec with MustMatchers {
           "diskSpace" -> Health.up("total" -> 316933124096L, "free" -> 124918386688L, "threshold" -> 10485760),
           "db" -> Health.up("database" -> "MySQL", "hello" -> 1),
           "refreshScope" -> Health.up()))
-      val jsonStr = Jackson.prettyStringify(health)
-      jsonStr must include(""""total" : 316933124096""")
+      val jsonStr = JacksonObjectMapperExtension(system).objectMapperJson.prettyStringify(health)
+      jsonStr should include(""""total" : 316933124096""")
     }
   }
 }

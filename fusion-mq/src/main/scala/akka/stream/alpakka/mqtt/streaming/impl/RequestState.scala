@@ -23,7 +23,6 @@ import akka.actor.typed.scaladsl.Behaviors
 import akka.annotation.InternalApi
 import akka.stream.{ Materializer, OverflowStrategy, QueueOfferResult }
 import akka.stream.scaladsl.{ BroadcastHub, Keep, Source, SourceQueueWithComplete }
-import akka.util.ByteString
 
 import scala.annotation.tailrec
 import scala.concurrent.Promise

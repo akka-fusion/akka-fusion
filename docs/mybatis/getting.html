@@ -171,6 +171,10 @@ akka-fusion/akka-fusion
     <li><a href="../data-kafka/producer.html" class="page">Kafka Producer</a></li>
     <li><a href="../data-kafka/consumer.html" class="page">Kafka Consumer</a></li>
   </ul></li>
+  <li><a href="../inject/index.html" class="page">依赖管理</a>
+  <ul>
+    <li><a href="../inject/guice.html" class="page">使用 Guice 进行类依赖管理</a></li>
+  </ul></li>
   <li><a href="../configuration/index.html" class="page">配置</a>
   <ul>
     <li><a href="../configuration/core.html" class="page">Fusion Core 配置</a></li>
@@ -199,7 +203,7 @@ akka-fusion/akka-fusion
 <ul style="display: none">
 <li class="md-nav__item md-version" id="project.version">
 <label class="md-nav__link" for="__version">
-<i class="md-icon" title="Version">label_outline</i> 2.0.2
+<i class="md-icon" title="Version">label_outline</i> 2.0.4
 </label>
 </li>
 </ul>
@@ -227,16 +231,16 @@ akka-fusion/akka-fusion
 <article class="md-content__inner md-typeset">
 <div class="md-content__searchable">
 <h1><a href="#起步" name="起步" class="anchor"><span class="anchor-link"></span></a>起步</h1>
-<h2><a href="#依赖" name="依赖" class="anchor"><span class="anchor-link"></span></a>依赖</h2><dl class="dependency"><dt>sbt</dt><dd><pre class="prettyprint"><code class="language-scala">libraryDependencies += "com.helloscala.fusion" %% "fusion-mybatis" % "2.0.2"</code></pre></dd><dt>Maven</dt><dd><pre class="prettyprint"><code class="language-xml">&lt;dependency&gt;
+<h2><a href="#依赖" name="依赖" class="anchor"><span class="anchor-link"></span></a>依赖</h2><dl class="dependency"><dt>sbt</dt><dd><pre class="prettyprint"><code class="language-scala">libraryDependencies += "com.helloscala.fusion" %% "fusion-mybatis" % "2.0.4"</code></pre></dd><dt>Maven</dt><dd><pre class="prettyprint"><code class="language-xml">&lt;dependency&gt;
   &lt;groupId&gt;com.helloscala.fusion&lt;/groupId&gt;
   &lt;artifactId&gt;fusion-mybatis_2.12&lt;/artifactId&gt;
-  &lt;version&gt;2.0.2&lt;/version&gt;
+  &lt;version&gt;2.0.4&lt;/version&gt;
 &lt;/dependency&gt;</code></pre></dd><dt>Gradle</dt><dd><pre class="prettyprint"><code class="language-gradle">dependencies {
-  compile group: 'com.helloscala.fusion', name: 'fusion-mybatis_2.12', version: '2.0.2'
+  compile group: 'com.helloscala.fusion', name: 'fusion-mybatis_2.12', version: '2.0.4'
 }</code></pre></dd></dl>
 <h2><a href="#示例" name="示例" class="anchor"><span class="anchor-link"></span></a>示例</h2>
 <p><code>FusionMyBatisTest</code> 演示了一个典型的 MyBatis 数据库操作。</p>
-<pre class="prettyprint"><a class="icon go-to-source" href="https://github.com/akka-fusion/akka-fusion/tree/master/fusion-mybatis/src/test/scala/fusion/mybatis/FusionMybatisTest.scala#L29-L85" target="_blank" title="Go to snippet source"></a><code class="language-scala">class FusionMybatisTest extends ScalaTestWithActorTestKit with FusionTestFunSuite {
+<pre class="prettyprint"><a class="icon go-to-source" href="https://github.com/akka-fusion/akka-fusion/tree/master/fusion-mybatis/src/test/scala/fusion/mybatis/FusionMybatisTest.scala#L29-L85" target="_blank" title="Go to snippet source"></a><code class="language-scala">class FusionMybatisTest extends ScalaTestWithActorTestKit with FusionFunSuiteLike {
   test(&quot;testSqlSession&quot;) {
     val sqlSessionFactory = FusionMybatis(system).component
     sqlSessionFactory should not be null
@@ -335,7 +339,7 @@ Edit this page
 </div>
 <div class="print-only">
 <span class="md-source-file md-version">
-2.0.2
+2.0.4
 </span>
 </div>
 </article>
@@ -383,7 +387,7 @@ and
 
 </div>
 <div class="md-footer-social">
-<a href="http://akka-fusion.github.io/akka-fusion/" class="md-footer-social__link fa fa-globe"></a><a href="https://github.com/akka-fusion" class="md-footer-social__link fa fa-github"></a><a href="https://weibo.com/yangbajing" class="md-footer-social__link fa fa-globe"></a>
+<a href="https://akka-fusion.github.io/akka-fusion/" class="md-footer-social__link fa fa-globe"></a><a href="https://github.com/akka-fusion" class="md-footer-social__link fa fa-github"></a><a href="https://weibo.com/yangbajing" class="md-footer-social__link fa fa-globe"></a>
 </div>
 
 </div>

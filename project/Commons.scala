@@ -53,7 +53,7 @@ object Commons {
 
 object Publishing {
   lazy val publishing = Seq(
-    bintrayOrganization := Some("akka-fusion"),
+    bintrayOrganization := Some("helloscala"),
     bintrayRepository := "maven",
     maintainer := "yangbajing <yang.xunjing@qq.com>",
     developers := List(

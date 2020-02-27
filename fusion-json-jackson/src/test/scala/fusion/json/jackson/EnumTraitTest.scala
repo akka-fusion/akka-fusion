@@ -16,12 +16,13 @@
 
 package fusion.json.jackson
 
+import akka.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
 import com.fasterxml.jackson.core.{ JsonParseException, JsonParser }
 import com.fasterxml.jackson.databind.DeserializationContext
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer
 import helloscala.common.util.{ EnumTrait, EnumTraitCompanion }
-import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.funsuite.AnyFunSuiteLike
 import org.scalatest.matchers.should.Matchers
 
 abstract class EnumTraitDeserHelper[A <: EnumTrait](cls: Class[A], comp: EnumTraitCompanion)
@@ -51,15 +52,16 @@ object OrgTypes extends EnumTraitCompanion {
   class EnumDeser extends EnumTraitDeserHelper(classOf[OrgType], self)
 }
 
-class EnumTraitTest extends AnyFunSuite with Matchers {
+class EnumTraitTest extends ScalaTestWithActorTestKit with AnyFunSuiteLike with Matchers {
+  private val objectMapper = JacksonObjectMapperExtension(system).objectMapperJson
   test("OrgType") {
     println(OrgTypes.values)
     println(OrgTypes.values.map(v => s"{index:${v.index}, value:${v.getValue}, name:${v.getName}}"))
-    println(Jackson.defaultObjectMapper.writeValueAsString(OrgTypes.valueNames))
+    println(objectMapper.writeValueAsString(OrgTypes.valueNames))
 
-    val jsonstring = Jackson.defaultObjectMapper.writeValueAsString(OrgTypes.values)
+    val jsonstring = objectMapper.writeValueAsString(OrgTypes.values)
     println(jsonstring)
-    val orgType = Jackson.defaultObjectMapper.readValue("1", classOf[OrgType])
+    val orgType = objectMapper.readValue("1", classOf[OrgType])
     println(orgType)
 
     orgType match {
@@ -71,12 +73,12 @@ class EnumTraitTest extends AnyFunSuite with Matchers {
   test("UserType") {
     println(UserType.values().toVector)
     println(UserType.values().toVector.map(_.toValueName))
-    println(Jackson.defaultObjectMapper.writeValueAsString(UserType.values().toVector.map(_.toValueName)))
+    println(objectMapper.writeValueAsString(UserType.values().toVector.map(_.toValueName)))
 
-    val jsonstring = Jackson.defaultObjectMapper.writeValueAsString(UserType.values())
+    val jsonstring = objectMapper.writeValueAsString(UserType.values())
     println(jsonstring)
 
-    val userType = Jackson.defaultObjectMapper.readValue("1", classOf[UserType])
+    val userType = objectMapper.readValue("1", classOf[UserType])
     println(userType)
     userType shouldBe UserType.NORMAL
 
@@ -84,7 +86,7 @@ class EnumTraitTest extends AnyFunSuite with Matchers {
       case UserType.NORMAL => println("normal")
     }
 
-    val userTypes = Jackson.defaultObjectMapper.readValue(jsonstring, classOf[Vector[UserType]])
+    val userTypes = objectMapper.readValue(jsonstring, classOf[Vector[UserType]])
     println(userTypes)
   }
 }

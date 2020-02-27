@@ -272,7 +272,7 @@ object Configuration extends StrictLogging {
       logger.info(s"使用本地配置，来自：$configFrom")
       Configuration.load()
     }
-    logger.info(s"合并后配置内容：${config.underlying}")
+    logger.trace(s"合并后配置内容：${config.underlying}")
     config
   }
   // #fromDiscovery

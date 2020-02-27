@@ -19,12 +19,19 @@ package fusion.slick.pg
 import java.time.LocalDateTime
 
 import akka.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
+import com.fasterxml.jackson.databind.ObjectMapper
 import fusion.jdbc.FusionJdbc
 import fusion.jdbc.util.JdbcUtils
-import fusion.json.jackson.Jackson
-import fusion.slick.FusionPostgresProfile.api._
-import fusion.test.FusionFunSuiteLike
+import fusion.slick.FusionPostgresProfile
+import fusion.testkit.FusionFunSuiteLike
 import helloscala.common.util.Utils
+
+object FusionPostgresProfile extends FusionPostgresProfile {
+  override def objectMapper: ObjectMapper = new ObjectMapper()
+}
+
+import fusion.slick.pg.FusionPostgresProfile.api._
+import fusion.slick.pg.FusionPostgresProfile.objectMapper
 
 case class Test(id: Int, name: String, sex: Option[Int], createdAt: LocalDateTime)
 
@@ -39,10 +46,10 @@ class TableTest(tag: Tag) extends Table[Test](tag, "t_test") {
 class FusionPostgresProfileTest extends ScalaTestWithActorTestKit with FusionFunSuiteLike {
   test("init jdbc") {
     val dataSource = FusionJdbc(system).component
-    Utils.using(dataSource.getConnection) { conn =>
+    Utils.using(dataSource.getConnection()) { conn =>
       val metaData = conn.getMetaData
       val info = JdbcUtils.getDatabaseInfo(metaData)
-      println(Jackson.prettyStringify(info))
+      println(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(info))
     }
   }
 

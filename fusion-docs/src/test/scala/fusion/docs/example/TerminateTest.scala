@@ -23,7 +23,7 @@ import akka.testkit.TestKit
 import akka.Done
 import akka.{ actor => classic }
 import com.typesafe.scalalogging.StrictLogging
-import fusion.test.FusionFunSuiteLike
+import fusion.testkit.FusionFunSuiteLike
 import org.scalatest.BeforeAndAfterAll
 
 import scala.concurrent.Await

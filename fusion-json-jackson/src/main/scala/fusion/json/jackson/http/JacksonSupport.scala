@@ -102,8 +102,10 @@ trait JacksonSupport {
   /**
    * `A` => HTTP entity
    */
-  implicit def marshaller[A](implicit objectMapper: ObjectMapper): ToEntityMarshaller[A] =
-    JacksonHelper.marshaller[A](objectMapper)
+  implicit def marshaller[A](implicit objectMapper: ObjectMapper): ToEntityMarshaller[A] = {
+    Marshaller.withFixedContentType(ContentTypes.`application/json`)(a =>
+      HttpEntity(ContentTypes.`application/json`, objectMapper.writeValueAsString(a)))
+  }
 
   /**
    * `ByteString` => `A`

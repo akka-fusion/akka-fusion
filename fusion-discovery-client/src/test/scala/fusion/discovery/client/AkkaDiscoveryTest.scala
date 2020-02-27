@@ -20,7 +20,7 @@ import akka.discovery.Discovery
 import akka.discovery.Lookup
 import akka.testkit.TestKit
 import akka.{ actor => classic }
-import fusion.test.FusionFunSuiteLike
+import fusion.testkit.FusionFunSuiteLike
 
 import scala.concurrent.Await
 import scala.concurrent.duration._

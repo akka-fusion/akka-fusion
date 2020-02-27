@@ -19,7 +19,7 @@ package fusion.discovery.client.nacos
 import java.util.Properties
 
 import com.typesafe.config.ConfigFactory
-import fusion.test.FusionFunSuiteLike
+import fusion.testkit.FusionFunSuiteLike
 import helloscala.common.Configuration
 
 class NacosServiceFactoryTest extends FusionFunSuiteLike {

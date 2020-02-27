@@ -26,8 +26,7 @@ ThisBuild / sonarUseExternalConfig := true
 
 lazy val root = Project(id = "akka-fusion", base = file("."))
   .aggregate(
-//    fusionSbtPlugin,
-//    codegen,
+    fusionInjectGuiceTestkit,
     fusionInjectGuice,
     fusionInject,
     fusionMq,
@@ -128,6 +127,8 @@ lazy val codegen = _project("codegen")
     publishMavenStyle := false,
     buildInfoPackage := "fusion.sbt.gen")
 
+lazy val fusionInjectGuiceTestkit = _project("fusion-inject-guice-testkit").dependsOn(fusionInjectGuice, fusionTestkit)
+
 lazy val fusionInjectGuice = _project("fusion-inject-guice")
   .dependsOn(fusionInject, fusionTestkit % "test->test")
   .settings(libraryDependencies ++= _guices)
@@ -189,23 +190,14 @@ lazy val fusionHttpClient = _project("fusion-http-client")
   .settings(libraryDependencies ++= Seq(
       "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion % "protobuf,test,provided") ++ _akkaHttps)
 
-//lazy val fusionJsonCirce = _project("fusion-json-circe")
-//  .dependsOn(fusionTestkit % "test->test", fusionCommon)
-//  .settings(libraryDependencies ++= Seq(
-//      "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion % "protobuf,test,provided",
-//      _akkaHttp,
-//      _circeGeneric,
-//      _scalapbCirce))
-
 lazy val fusionJsonJacksonExt = _project("fusion-json-jackson-ext")
   .dependsOn(fusionJsonJackson, fusionTestkit % "test->test")
   .settings(libraryDependencies ++= Seq(
       "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion % "protobuf,test,provided",
-      _json4s,
-      _akkaSerializationJackson))
+      _json4s))
 
 lazy val fusionJsonJackson = _project("fusion-json-jackson")
-  .dependsOn(fusionTestkit % "test->test", fusionCommon)
+  .dependsOn(fusionTestkit % "test->test", fusionCore)
   .settings(libraryDependencies ++= Seq(_akkaHttp, _akkaSerializationJackson))
 
 lazy val fusionLog = _project("fusion-log")
@@ -248,7 +240,7 @@ lazy val fusionSecurity = _project("fusion-security")
   .settings(libraryDependencies ++= Seq(_bcprovJdk15on))
 
 lazy val fusionTestkit = _project("fusion-testkit")
-  .dependsOn(fusionCommon)
+  .dependsOn(fusionCore)
   .settings(Publishing.publishing: _*)
   .settings(
     libraryDependencies ++= Seq(

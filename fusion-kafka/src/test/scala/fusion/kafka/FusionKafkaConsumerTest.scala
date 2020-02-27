@@ -27,7 +27,7 @@ import akka.kafka.scaladsl.Consumer.DrainingControl
 import akka.stream.Materializer
 import akka.stream.scaladsl.Keep
 import akka.stream.scaladsl.Sink
-import fusion.test.FusionFunSuiteLike
+import fusion.testkit.FusionFunSuiteLike
 import org.apache.kafka.clients.producer.ProducerRecord
 
 import scala.concurrent.Await

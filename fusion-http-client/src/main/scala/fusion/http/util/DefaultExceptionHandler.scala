@@ -16,11 +16,10 @@
 
 package fusion.http.util
 
-import akka.http.scaladsl.server.ExceptionHandler
-import akka.http.scaladsl.server.Route
+import akka.http.scaladsl.server.{ ExceptionHandler, Route }
 
-class DefaultExceptionHandler extends ExceptionHandler.PF {
-  private val pf = BaseExceptionHandler.exceptionHandlerPF
+final class DefaultExceptionHandler extends ExceptionHandler.PF {
+  private val pf = BaseExceptionBuilder.exceptionHandlerPF
 
   override def isDefinedAt(t: Throwable): Boolean = pf.isDefinedAt(t)
 

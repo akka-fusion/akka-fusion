@@ -21,5 +21,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 class ScalaObjectMapper(mapper: ObjectMapper)
     extends ObjectMapper(mapper)
     with com.fasterxml.jackson.module.scala.ScalaObjectMapper {
-  println(s"ScalaObjectMapper($mapper)")
+  def stringify(value: Any): String = writeValueAsString(value)
+
+  def prettyStringify(value: Any): String = writerWithDefaultPrettyPrinter().writeValueAsString(value)
 }

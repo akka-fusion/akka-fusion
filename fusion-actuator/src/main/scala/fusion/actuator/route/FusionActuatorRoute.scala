@@ -22,23 +22,20 @@ import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import com.typesafe.scalalogging.StrictLogging
 import fusion.actuator.setting.ActuatorSetting
-import fusion.json.jackson.Jackson
+import fusion.core.extension.FusionCore
+import fusion.json.jackson.JacksonObjectMapperExtension
 import helloscala.common.util.Utils
-
-import scala.jdk.CollectionConverters._
 
 case class Item(href: String, templated: Boolean)
 
 class FusionActuatorRoute(system: ExtendedActorSystem, actuatorSetting: ActuatorSetting) extends StrictLogging {
-  private val components: Seq[ActuatorRoute] = system.settings.config
-    .getStringList("fusion.actuator.routes")
-    .asScala
-    .flatMap { fqcn =>
+  private val objectMapper = JacksonObjectMapperExtension(system).objectMapperJson
+  private val components: Seq[ActuatorRoute] =
+    FusionCore(system).configuration.get[Seq[String]]("fusion.actuator.routes").flatMap { fqcn =>
       Utils.try2option(
         system.dynamicAccess.createInstanceFor[ActuatorRoute](fqcn, List(classOf[ExtendedActorSystem] -> system)),
         e => logger.error(s"创建实例失败，fqcn: $fqcn", e))
     }
-    .toSeq
 
   private val routes: Seq[Route] = components.map(_.aroundRoute)
 
@@ -55,7 +52,9 @@ class FusionActuatorRoute(system: ExtendedActorSystem, actuatorSetting: Actuator
       pathEndOrSingleSlash {
         extractRequest { request =>
           complete {
-            HttpEntity(ContentTypes.`application/json`, Jackson.stringify(Map("_links" -> links(request))))
+            HttpEntity(
+              ContentTypes.`application/json`,
+              objectMapper.writeValueAsString(Map("_links" -> links(request))))
           }
         }
       } ~

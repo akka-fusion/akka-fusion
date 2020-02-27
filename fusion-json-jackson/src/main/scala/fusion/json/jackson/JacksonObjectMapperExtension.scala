@@ -28,11 +28,11 @@ import fusion.json.jackson.http.{ JacksonSupport, JacksonSupportImpl }
 class JacksonObjectMapperExtension private (override val classicSystem: ExtendedActorSystem) extends FusionExtension {
   private val objectMappers = new ConcurrentHashMap[String, ScalaObjectMapper]()
 
-  lazy val objectMapperCbor: ScalaObjectMapper = getOrCreate("jackson-cbor", Some(new CBORFactory))
-
   val objectMapperJson: ScalaObjectMapper = getOrCreate("jackson-json", None)
 
   val jacksonSupport: JacksonSupport = new JacksonSupportImpl()(objectMapperJson)
+
+  lazy val objectMapperCbor: ScalaObjectMapper = getOrCreate("jackson-cbor", Some(new CBORFactory))
 
   private[fusion] def getOrCreate(bindingName: String, jsonFactory: Option[JsonFactory]): ScalaObjectMapper =
     objectMappers.computeIfAbsent(

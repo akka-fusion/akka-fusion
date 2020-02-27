@@ -17,19 +17,19 @@
 package fusion.http.server
 
 import akka.http.scaladsl.model.{ HttpResponse, ResponseEntity, StatusCode, StatusCodes }
-import akka.http.scaladsl.unmarshalling.FromRequestUnmarshaller
-
-import scala.reflect.runtime.universe._
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
+import akka.http.scaladsl.unmarshalling.FromRequestUnmarshaller
 import fusion.core.model.ApiResult
+import fusion.http.util.BaseHttpUtils
 import fusion.json.jackson.http.JacksonSupport
 import helloscala.common.exception.HSException
 
 import scala.annotation.tailrec
 import scala.concurrent.Future
+import scala.reflect.runtime.universe._
 
-trait JacksonDirectives {
+trait JacksonDirectives extends BaseHttpUtils {
   val jacksonSupport: JacksonSupport
 
   def jacksonAs[T](implicit ev: TypeTag[T]): FromRequestUnmarshaller[T] = {

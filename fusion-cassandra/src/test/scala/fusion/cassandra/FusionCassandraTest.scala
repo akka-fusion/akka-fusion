@@ -20,7 +20,7 @@ import java.time.Instant
 import java.time.LocalDate
 
 import akka.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
-import fusion.test.FusionFunSuiteLike
+import fusion.testkit.FusionFunSuiteLike
 
 class FusionCassandraTest extends ScalaTestWithActorTestKit with FusionFunSuiteLike {
   test("FusionCassandra") {

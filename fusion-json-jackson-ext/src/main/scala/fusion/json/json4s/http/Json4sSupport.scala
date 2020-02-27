@@ -31,9 +31,9 @@ import scala.concurrent.ExecutionContext
 /**
  * Automatic to and from JSON marshalling/unmarshalling using an in-scope *Json4s* protocol.
  *
- * Pretty printing is enabled if an implicit [[Json4sSupport.ShouldWritePretty.True]] is in scope.
+ * Pretty printing is enabled if an implicit [[Json4sSupports.ShouldWritePretty.True]] is in scope.
  */
-object Json4sSupport extends Json4sSupport {
+object Json4sSupports {
   sealed abstract class ShouldWritePretty
 
   final object ShouldWritePretty {
@@ -45,10 +45,12 @@ object Json4sSupport extends Json4sSupport {
 /**
  * Automatic to and from JSON marshalling/unmarshalling using an in-scope *Json4s* protocol.
  *
- * Pretty printing is enabled if an implicit [[Json4sSupport.ShouldWritePretty.True]] is in scope.
+ * Pretty printing is enabled if an implicit [[Json4sSupports.ShouldWritePretty.True]] is in scope.
  */
 trait Json4sSupport {
-  import Json4sSupport._
+  import Json4sSupports._
+
+  def jsonUtils: JsonUtils
 
   def unmarshallerContentTypes: Seq[ContentTypeRange] = mediaTypes.map(ContentTypeRange.apply)
 
@@ -70,8 +72,8 @@ trait Json4sSupport {
    * @return unmarshaller for `A`
    */
   implicit def unmarshaller[A: Manifest](
-      implicit serialization: Serialization = JsonUtils.serialization,
-      formats: Formats = JsonUtils.defaultFormats): FromEntityUnmarshaller[A] =
+      implicit serialization: Serialization = jsonUtils.serialization,
+      formats: Formats = jsonUtils.defaultFormats): FromEntityUnmarshaller[A] =
     jsonStringUnmarshaller.map(s => serialization.read(s)).recover(throwCause)
 
   /**
@@ -81,8 +83,8 @@ trait Json4sSupport {
    * @return marshaller for any `A` value
    */
   implicit def marshaller[A <: AnyRef](
-      implicit serialization: Serialization = JsonUtils.serialization,
-      formats: Formats = JsonUtils.defaultFormats,
+      implicit serialization: Serialization = jsonUtils.serialization,
+      formats: Formats = jsonUtils.defaultFormats,
       shouldWritePretty: ShouldWritePretty = ShouldWritePretty.False): ToEntityMarshaller[A] =
     shouldWritePretty match {
       case ShouldWritePretty.False =>

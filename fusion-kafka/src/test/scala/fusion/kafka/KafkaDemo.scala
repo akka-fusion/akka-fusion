@@ -17,16 +17,13 @@
 package fusion.kafka
 
 import akka.actor.typed.scaladsl.adapter._
-import akka.kafka.ProducerMessage
-import akka.kafka.Subscriptions
-import akka.kafka.scaladsl.Consumer
-import akka.kafka.scaladsl.Producer
-import akka.stream.Materializer
-import akka.stream.OverflowStrategy
-import akka.stream.scaladsl.Keep
-import akka.stream.scaladsl.Sink
-import akka.stream.scaladsl.Source
+import akka.kafka.{ ProducerMessage, Subscriptions }
+import akka.kafka.scaladsl.{ Consumer, Producer }
+import akka.stream.{ Materializer, OverflowStrategy }
+import akka.stream.scaladsl.{ Keep, Sink, Source }
 import akka.{ actor => classic }
+import com.fasterxml.jackson.databind.ObjectMapper
+import fusion.json.jackson.ScalaObjectMapper
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
@@ -36,10 +33,12 @@ object KafkaDemo extends App {
   implicit val system = classic.ActorSystem()
   implicit val mat = Materializer.matFromSystem(system)
   import system.dispatcher
+  private val objectMapper = new ScalaObjectMapper(new ObjectMapper())
+  private val kafkaUtils = new KafkaUtils(objectMapper)
 
   val (producerQueue, _) = Source
     .queue[String](128, OverflowStrategy.dropNew)
-    .map(str => ProducerMessage.single(KafkaUtils.stringProduceRecord("test", str)))
+    .map(str => ProducerMessage.single(kafkaUtils.stringProduceRecord("test", str)))
     .via(Producer.flexiFlow(FusionKafkaProducer(system.toTyped).producer))
     .toMat(Sink.foreach(result => println(result)))(Keep.both)
     .run()
@@ -52,7 +51,7 @@ object KafkaDemo extends App {
   Source(1 to 10)
     .map(_.toString)
     .throttle(1, 2.seconds)
-    .runForeach(producerQueue.offer(_))
+    .runForeach(producerQueue.offer)
     .onComplete(tryValue => println(s"producer send over: $tryValue"))
 
   StdIn.readLine()

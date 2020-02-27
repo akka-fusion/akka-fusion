@@ -16,15 +16,12 @@
 
 package docs.stream
 
-import akka.Done
-import akka.{ actor => classic }
-import akka.kafka.ConsumerSettings
-import akka.kafka.Subscriptions
+import akka.kafka.{ ConsumerSettings, Subscriptions }
 import akka.kafka.scaladsl.Consumer
 import akka.stream.Materializer
-import akka.stream.scaladsl.Sink
-import akka.stream.scaladsl.Source
-import fusion.json.jackson.Jackson
+import akka.stream.scaladsl.{ Sink, Source }
+import akka.{ Done, actor => classic }
+import fusion.json.jackson.JacksonObjectMapperExtension
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.common.serialization.StringDeserializer
 
@@ -100,7 +97,8 @@ object StreamExample {
       .withProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest")
     Consumer
       .plainSource(consumerSettings, Subscriptions.topics("message"))
-      .map(record => Jackson.convertValue[SendMessageByArea](record.value()))
+      .map(record =>
+        JacksonObjectMapperExtension(system).objectMapperJson.convertValue[SendMessageByArea](record.value()))
       .flatMapConcat { req =>
         Source
           .future(findOrgIdsByArea(req.area))

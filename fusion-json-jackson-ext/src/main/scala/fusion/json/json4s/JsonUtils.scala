@@ -19,8 +19,9 @@ package fusion.json.json4s
 import java.io.OutputStream
 import java.util.TimeZone
 
+import akka.actor.{ ActorSystem, ExtendedActorSystem, Extension, ExtensionId, ExtensionIdProvider }
 import com.fasterxml.jackson.databind.ObjectMapper
-import fusion.json.jackson.Jackson
+import fusion.json.jackson.JacksonObjectMapperExtension
 import fusion.shared.scalapb.json4s.{ Parser, Printer }
 import org.json4s.JsonAST.JValue
 import org.json4s.jackson.JsonMethods
@@ -29,13 +30,9 @@ import scalapb.{ GeneratedMessage, GeneratedMessageCompanion, Message }
 
 import scala.reflect.Manifest
 
-object Json4sMethods extends JsonMethods {
-  override def mapper: ObjectMapper = Jackson.defaultObjectMapper
-}
-
-trait JsonUtils extends JsonMethods {
-  override def mapper: ObjectMapper = Jackson.defaultObjectMapper
-
+class JsonUtils(system: ExtendedActorSystem) extends JsonMethods with Extension {
+  override def mapper: ObjectMapper = JacksonObjectMapperExtension(system).objectMapperJson
+  private val jsonUtils = JsonUtilsExtension(system)
   def toJsonString(in: JsonInput, useBigDecimalForDouble: Boolean = false, useBigIntForLong: Boolean = true): String =
     compact(parse(in))
 
@@ -48,8 +45,9 @@ trait JsonUtils extends JsonMethods {
   }
 
   object protobuf {
-    val printer: Printer = new Printer().includingDefaultValueFields.formattingEnumsAsNumber.formattingLongAsNumber
-    val parser: Parser = new Parser().ignoringUnknownFields
+    val printer: Printer =
+      new Printer(jsonUtils).includingDefaultValueFields.formattingEnumsAsNumber.formattingLongAsNumber
+    val parser: Parser = new Parser(jsonUtils).ignoringUnknownFields
 
     def toJsonString[A <: GeneratedMessage](m: A): String = compact(toJson(m))
 
@@ -123,4 +121,11 @@ trait JsonUtils extends JsonMethods {
   }
 }
 
-object JsonUtils extends JsonUtils
+object JsonUtils {
+  implicit def mapFromSystem(implicit system: ActorSystem): JsonUtils = JsonUtilsExtension(system)
+}
+
+object JsonUtilsExtension extends ExtensionId[JsonUtils] with ExtensionIdProvider {
+  override def createExtension(system: ExtendedActorSystem): JsonUtils = new JsonUtils(system)
+  override def lookup(): ExtensionId[_ <: Extension] = JsonUtilsExtension
+}

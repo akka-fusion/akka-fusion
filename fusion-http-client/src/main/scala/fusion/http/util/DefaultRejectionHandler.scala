@@ -16,9 +16,7 @@
 
 package fusion.http.util
 
-import akka.http.scaladsl.server.Rejection
-import akka.http.scaladsl.server.RejectionHandler
-import akka.http.scaladsl.server.Route
+import akka.http.scaladsl.server.{ Rejection, RejectionHandler, Route }
 import com.typesafe.scalalogging.StrictLogging
 
 import scala.collection.immutable

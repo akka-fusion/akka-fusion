@@ -17,27 +17,23 @@
 package fusion.discovery.client
 
 import java.util.concurrent.ConcurrentHashMap
-import scala.concurrent.duration._
-import akka.{ actor => classic }
+
 import akka.actor.typed.ActorSystem
 import akka.http.scaladsl.Http
-import akka.http.scaladsl.model.HttpRequest
-import akka.http.scaladsl.model.HttpResponse
-import akka.http.scaladsl.model.Uri
+import akka.http.scaladsl.model.{ HttpRequest, HttpResponse, Uri }
 import akka.pattern.CircuitBreaker
 import akka.stream.QueueOfferResult
+import akka.{ actor => classic }
 import com.typesafe.config.ConfigFactory
+import fusion.core.http.HttpSourceQueue
 import fusion.core.setting.CircuitBreakerSetting
-import fusion.http.HttpSourceQueue
 import fusion.http.client.HttpClient
 import fusion.http.util.HttpUtils
 import helloscala.common.Configuration
-import helloscala.common.exception.HSBadGatewayException
-import helloscala.common.exception.HSServiceUnavailableException
+import helloscala.common.exception.{ HSBadGatewayException, HSServiceUnavailableException }
 
-import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
-import scala.concurrent.Promise
+import scala.concurrent.duration._
+import scala.concurrent.{ ExecutionContext, Future, Promise }
 
 /**
  * {

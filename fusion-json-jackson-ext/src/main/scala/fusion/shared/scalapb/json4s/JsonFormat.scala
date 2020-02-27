@@ -17,6 +17,7 @@
 package fusion.shared.scalapb.json4s
 
 import _root_.scalapb.descriptors._
+import akka.actor.ActorSystem
 import com.fasterxml.jackson.core.Base64Variants
 import com.google.protobuf.ByteString
 import com.google.protobuf.descriptor.FieldDescriptorProto
@@ -25,14 +26,12 @@ import com.google.protobuf.duration.Duration
 import com.google.protobuf.field_mask.FieldMask
 import com.google.protobuf.struct.NullValue
 import com.google.protobuf.timestamp.Timestamp
-import fusion.json.Durations
-import fusion.json.JsonFormatException
-import fusion.json.NameUtils
-import fusion.json.Timestamps
+import fusion.json.{ Durations, JsonFormatException, NameUtils, Timestamps }
+import fusion.json.json4s.{ JsonUtils, JsonUtilsExtension }
 import fusion.shared.scalapb.json4s.JsonFormat.GenericCompanion
+import fusion.shared.scalapb.json4s.Printer.PrinterConfig
 import org.json4s.JsonAST._
-import org.json4s.Reader
-import org.json4s.Writer
+import org.json4s.{ Reader, Writer }
 import scalapb._
 
 import scala.collection.mutable
@@ -135,46 +134,26 @@ object Printer {
       typeRegistry = TypeRegistry.empty)
 }
 
-class Printer private (config: Printer.PrinterConfig) {
-  def this() = this(Printer.defaultConfig)
+class Printer private (jsonUtils: JsonUtils, config: PrinterConfig) {
+  def this(jsonUtils: JsonUtils) = this(jsonUtils, Printer.defaultConfig)
 
-  @deprecated("Use new Printer() and chain includingDefaultValueFields, preservingProtoFieldNames, etc.", "0.7.2")
-  def this(
-      includingDefaultValueFields: Boolean = false,
-      preservingProtoFieldNames: Boolean = false,
-      formattingLongAsNumber: Boolean = false,
-      formattingEnumsAsNumber: Boolean = false,
-      formatRegistry: FormatRegistry = JsonFormat.DefaultRegistry,
-      typeRegistry: TypeRegistry = TypeRegistry.empty) =
-    this(
-      Printer.PrinterConfig(
-        isIncludingDefaultValueFields = includingDefaultValueFields,
-        isPreservingProtoFieldNames = preservingProtoFieldNames,
-        isFormattingLongAsNumber = formattingLongAsNumber,
-        isFormattingEnumsAsNumber = formattingEnumsAsNumber,
-        formatRegistry = formatRegistry,
-        typeRegistry = typeRegistry))
+  def includingDefaultValueFields: Printer = new Printer(jsonUtils, config.copy(isIncludingDefaultValueFields = true))
 
-  def includingDefaultValueFields: Printer = new Printer(config.copy(isIncludingDefaultValueFields = true))
+  def preservingProtoFieldNames: Printer = new Printer(jsonUtils, config.copy(isPreservingProtoFieldNames = true))
 
-  def preservingProtoFieldNames: Printer = new Printer(config.copy(isPreservingProtoFieldNames = true))
+  def formattingLongAsNumber: Printer = new Printer(jsonUtils, config.copy(isFormattingLongAsNumber = true))
 
-  def formattingLongAsNumber: Printer = new Printer(config.copy(isFormattingLongAsNumber = true))
-
-  def formattingEnumsAsNumber: Printer = new Printer(config.copy(isFormattingEnumsAsNumber = true))
+  def formattingEnumsAsNumber: Printer = new Printer(jsonUtils, config.copy(isFormattingEnumsAsNumber = true))
 
   def withFormatRegistry(formatRegistry: FormatRegistry): Printer =
-    new Printer(config.copy(formatRegistry = formatRegistry))
+    new Printer(jsonUtils, config.copy(formatRegistry = formatRegistry))
 
   def withTypeRegistry(typeRegistry: TypeRegistry): Printer =
-    new Printer(config.copy(typeRegistry = typeRegistry))
+    new Printer(jsonUtils, config.copy(typeRegistry = typeRegistry))
 
   def typeRegistry: TypeRegistry = config.typeRegistry
 
-  def print[A](m: GeneratedMessage): String = {
-    import fusion.json.json4s.Json4sMethods._
-    compact(toJson(m))
-  }
+  def print[A](m: GeneratedMessage): String = jsonUtils.compact(toJson(m))
 
   private type FieldBuilder = mutable.Builder[JField, List[JField]]
 
@@ -299,35 +278,32 @@ object Parser {
       typeRegistry: TypeRegistry)
 }
 
-class Parser private (config: Parser.ParserConfig) {
-  def this() =
-    this(Parser.ParserConfig(isIgnoringUnknownFields = false, JsonFormat.DefaultRegistry, TypeRegistry.empty))
+class Parser private (jsonUtils: JsonUtils, config: Parser.ParserConfig) {
+  def this(jsonUtils: JsonUtils) =
+    this(
+      jsonUtils,
+      Parser.ParserConfig(isIgnoringUnknownFields = false, JsonFormat.DefaultRegistry, TypeRegistry.empty))
 
-  @deprecated("Use new Parser() and chain with usingTypeRegistry or formatRegistry", "0.7.1")
-  def this(
-      preservingProtoFieldNames: Boolean = false,
-      formatRegistry: FormatRegistry = JsonFormat.DefaultRegistry,
-      typeRegistry: TypeRegistry = TypeRegistry.empty) =
-    this(Parser.ParserConfig(isIgnoringUnknownFields = false, formatRegistry, typeRegistry))
+  def this(system: ActorSystem) =
+    this(
+      JsonUtilsExtension(system),
+      Parser.ParserConfig(isIgnoringUnknownFields = false, JsonFormat.DefaultRegistry, TypeRegistry.empty))
 
-  def ignoringUnknownFields: Parser = new Parser(config.copy(isIgnoringUnknownFields = true))
+  def ignoringUnknownFields: Parser = new Parser(jsonUtils, config.copy(isIgnoringUnknownFields = true))
 
   def withFormatRegistry(formatRegistry: FormatRegistry) =
-    new Parser(config.copy(formatRegistry = formatRegistry))
+    new Parser(jsonUtils, config.copy(formatRegistry = formatRegistry))
 
   def withTypeRegistry(typeRegistry: TypeRegistry) =
-    new Parser(config.copy(typeRegistry = typeRegistry))
+    new Parser(jsonUtils, config.copy(typeRegistry = typeRegistry))
 
   def typeRegistry: TypeRegistry = config.typeRegistry
 
-  def fromJsonString[A <: GeneratedMessage with Message[A]: GeneratedMessageCompanion](str: String): A = {
-    import fusion.json.json4s.Json4sMethods._
-    fromJson(parse(str, useBigDecimalForDouble = true))
-  }
+  def fromJsonString[A <: GeneratedMessage with Message[A]: GeneratedMessageCompanion](str: String): A =
+    fromJson(jsonUtils.parse(str, useBigDecimalForDouble = true))
 
-  def fromJson[A <: GeneratedMessage with Message[A]: GeneratedMessageCompanion](value: JValue): A = {
+  def fromJson[A <: GeneratedMessage with Message[A]: GeneratedMessageCompanion](value: JValue): A =
     fromJson(value, false)
-  }
 
   private[json4s] def fromJson[A <: GeneratedMessage with Message[A]](value: JValue, skipTypeUrl: Boolean)(
       implicit cmp: GeneratedMessageCompanion[A]): A = {
@@ -511,29 +487,34 @@ object JsonFormat {
               throw new JsonFormatException(s"Unexpected value for ${cmp.scalaDescriptor.name}")))))
   }
 
-  val printer = new Printer()
-  val parser = new Parser()
+  def printer(implicit jsonUtils: JsonUtils) = new Printer(jsonUtils)
 
-  def toJsonString[A <: GeneratedMessage](m: A): String = printer.print(m)
+  def parser(implicit jsonUtils: JsonUtils) = new Parser(jsonUtils)
 
-  def toJson[A <: GeneratedMessage](m: A): JValue = printer.toJson(m)
+  def toJsonString[A <: GeneratedMessage](m: A)(implicit jsonUtils: JsonUtils): String = printer.print(m)
 
-  def fromJson[A <: GeneratedMessage with Message[A]: GeneratedMessageCompanion](value: JValue): A = {
+  def toJson[A <: GeneratedMessage](m: A)(implicit jsonUtils: JsonUtils): JValue = printer.toJson(m)
+
+  def fromJson[A <: GeneratedMessage with Message[A]: GeneratedMessageCompanion](value: JValue)(
+      implicit jsonUtils: JsonUtils): A = {
     parser.fromJson(value)
   }
 
-  def fromJsonString[A <: GeneratedMessage with Message[A]: GeneratedMessageCompanion](str: String): A = {
+  def fromJsonString[A <: GeneratedMessage with Message[A]: GeneratedMessageCompanion](str: String)(
+      implicit jsonUtils: JsonUtils): A = {
     parser.fromJsonString(str)
   }
 
-  implicit def protoToReader[T <: GeneratedMessage with Message[T]: GeneratedMessageCompanion]: Reader[T] =
+  implicit def protoToReader[T <: GeneratedMessage with Message[T]: GeneratedMessageCompanion](
+      implicit jsonUtils: JsonUtils): Reader[T] =
     new Reader[T] {
       def read(value: JValue): T = parser.fromJson(value)
     }
 
-  implicit def protoToWriter[T <: GeneratedMessage with Message[T]]: Writer[T] = new Writer[T] {
-    def write(obj: T): JValue = printer.toJson(obj)
-  }
+  implicit def protoToWriter[T <: GeneratedMessage with Message[T]](implicit jsonUtils: JsonUtils): Writer[T] =
+    new Writer[T] {
+      def write(obj: T): JValue = printer.toJson(obj)
+    }
 
   def defaultValue(fd: FieldDescriptor): PValue = {
     require(fd.isOptional)

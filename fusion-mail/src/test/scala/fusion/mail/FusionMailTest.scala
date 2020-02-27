@@ -19,7 +19,7 @@ package fusion.mail
 import java.util.concurrent.TimeUnit
 
 import akka.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
-import fusion.test.FusionFunSuiteLike
+import fusion.testkit.FusionFunSuiteLike
 import javax.mail.Message.RecipientType
 import org.scalatest.BeforeAndAfterAll
 

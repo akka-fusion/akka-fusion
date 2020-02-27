@@ -24,7 +24,7 @@ import akka.{ actor => classic }
 import com.alibaba.nacos.api.NacosFactory
 import fusion.common.constant.PropKeys
 import fusion.discovery.DiscoveryUtils
-import fusion.test.FusionFunSuiteLike
+import fusion.testkit.FusionFunSuiteLike
 import helloscala.common.Configuration
 import org.scalatest.BeforeAndAfterAll
 

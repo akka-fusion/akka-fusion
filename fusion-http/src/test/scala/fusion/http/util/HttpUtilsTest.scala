@@ -22,8 +22,8 @@ import akka.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
 import akka.actor.typed.scaladsl.adapter._
 import akka.http.scaladsl.model.Uri.Authority
 import akka.stream.Materializer
-import fusion.http.HttpSourceQueue
-import fusion.test.FusionFunSuiteLike
+import fusion.core.http.HttpSourceQueue
+import fusion.testkit.FusionFunSuiteLike
 
 class HttpUtilsTest extends ScalaTestWithActorTestKit with FusionFunSuiteLike {
   implicit private def classicSystem = system.toClassic

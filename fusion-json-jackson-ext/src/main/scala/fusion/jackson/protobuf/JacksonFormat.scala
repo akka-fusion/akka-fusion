@@ -26,7 +26,6 @@ import com.google.protobuf.duration.Duration
 import com.google.protobuf.field_mask.FieldMask
 import com.google.protobuf.struct.NullValue
 import com.google.protobuf.timestamp.Timestamp
-import fusion.json.jackson.Jackson
 import fusion.json.{ Durations, JsonFormatException, Timestamps }
 import helloscala.common.util.StringUtils
 import scalapb._
@@ -217,6 +216,7 @@ class Parser private (config: Parser.ParserConfig)(implicit mapper: ObjectMapper
 
 object JacksonFormat {
   import com.google.protobuf.wrappers
+
   import scala.language.existentials
 
   type GenericCompanion = GeneratedMessageCompanion[T] forSome { type T <: GeneratedMessage with Message[T] }
@@ -299,18 +299,20 @@ object JacksonFormat {
               throw new JsonFormatException(s"Unexpected value for ${cmp.scalaDescriptor.name}")))))
   }
 
-  val printer = new Printer()(Jackson.defaultObjectMapper)
-  val parser = new Parser()(Jackson.defaultObjectMapper)
+  def printer(implicit objectMapper: ObjectMapper) = new Printer()
+  def parser(implicit objectMapper: ObjectMapper) = new Parser()
 
-  def toJsonString[A <: GeneratedMessage](m: A): String = printer.print(m)
+  def toJsonString[A <: GeneratedMessage](m: A)(implicit objectMapper: ObjectMapper): String = printer.print(m)
 
 //  def toJson[A <: GeneratedMessage](m: A): JsonNode = printer.toJson(m)
 
-  def fromJson[A <: GeneratedMessage with Message[A]: GeneratedMessageCompanion](value: JsonNode): A = {
+  def fromJson[A <: GeneratedMessage with Message[A]: GeneratedMessageCompanion](value: JsonNode)(
+      implicit objectMapper: ObjectMapper): A = {
     parser.fromJson(value)
   }
 
-  def fromJsonString[A <: GeneratedMessage with Message[A]: GeneratedMessageCompanion](str: String): A = {
+  def fromJsonString[A <: GeneratedMessage with Message[A]: GeneratedMessageCompanion](str: String)(
+      implicit objectMapper: ObjectMapper): A = {
     parser.fromJsonString(str)
   }
 

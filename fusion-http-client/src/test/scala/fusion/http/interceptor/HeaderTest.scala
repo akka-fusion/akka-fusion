@@ -22,7 +22,7 @@ import akka.http.scaladsl.model.HttpHeader
 import akka.http.scaladsl.model.headers.RawHeader
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.testkit.ScalatestRouteTest
-import fusion.test.FusionFunSuiteLike
+import fusion.testkit.FusionFunSuiteLike
 
 import scala.collection.immutable
 

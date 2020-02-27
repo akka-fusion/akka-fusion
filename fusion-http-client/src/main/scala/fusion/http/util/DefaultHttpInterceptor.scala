@@ -58,6 +58,6 @@ final class DefaultHttpInterceptor(system: ActorSystem[_]) extends HttpIntercept
     }
     val headers = core.currentXService +: resp.headers
     val response = resp.copy(headers = headers)
-    HttpUtils.curlLoggingResponse(request, response, true)(logger)
+    HttpUtils.curlLoggingResponse(request, response, printResponseEntity = true)(logger)
   }
 }

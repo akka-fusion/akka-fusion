@@ -16,14 +16,12 @@
 
 package fusion.slick.pg
 
-import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.NullNode
+import com.fasterxml.jackson.databind.{ JsonNode, ObjectMapper }
 import com.github.tminglei.slickpg.ExPostgresProfile
 import com.github.tminglei.slickpg.array.PgArrayJdbcTypes
 import com.github.tminglei.slickpg.json.PgJsonExtensions
-import com.github.tminglei.slickpg.utils.PgCommonJdbcTypes
-import com.github.tminglei.slickpg.utils.SimpleArrayUtils
-import fusion.json.jackson.Jackson
+import com.github.tminglei.slickpg.utils.{ PgCommonJdbcTypes, SimpleArrayUtils }
 import slick.jdbc._
 
 import scala.language.implicitConversions
@@ -36,6 +34,8 @@ trait PgJacksonJsonSupport extends PgJsonExtensions with PgCommonJdbcTypes {
   import driver.api._
 
   def pgjson: String
+
+  def objectMapper: ObjectMapper
 
   trait JacksonCodeGenSupport {
     driver match {
@@ -51,14 +51,14 @@ trait PgJacksonJsonSupport extends PgJsonExtensions with PgCommonJdbcTypes {
   trait JacksonImplicits extends JacksonCodeGenSupport {
     implicit val jacksonJsonTypeMapper: JdbcType[JsonNode] = new GenericJdbcType[JsonNode](
       pgjson,
-      v => Try(Jackson.defaultObjectMapper.readTree(v)).getOrElse(NullNode.instance),
-      v => Jackson.defaultObjectMapper.writeValueAsString(v))
+      v => Try(objectMapper.readTree(v)).getOrElse(NullNode.instance),
+      v => objectMapper.writeValueAsString(v))
 
     implicit val jacksonArrayTypeMapper: AdvancedArrayJdbcType[JsonNode] =
       new AdvancedArrayJdbcType[JsonNode](
         pgjson,
-        s => SimpleArrayUtils.fromString[JsonNode](jstr => Jackson.defaultObjectMapper.readTree(jstr))(s).orNull,
-        v => SimpleArrayUtils.mkString[JsonNode](jnode => Jackson.defaultObjectMapper.writeValueAsString(jnode))(v))
+        s => SimpleArrayUtils.fromString[JsonNode](jstr => objectMapper.readTree(jstr))(s).orNull,
+        v => SimpleArrayUtils.mkString[JsonNode](jnode => objectMapper.writeValueAsString(jnode))(v))
 
     implicit def jacksonJsonColumnExtensionMethods(c: Rep[JsonNode]): JsonColumnExtensionMethods[JsonNode, JsonNode] =
       new JsonColumnExtensionMethods[JsonNode, JsonNode](c)
@@ -75,16 +75,17 @@ trait PgJacksonJsonSupport extends PgJsonExtensions with PgCommonJdbcTypes {
       def nextJson(): JsonNode = nextJsonOption().getOrElse(NullNode.instance)
 
       def nextJsonOption(): Option[JsonNode] =
-        r.nextStringOption().map(s => Try(Jackson.readTree(s)).getOrElse(NullNode.instance))
+        r.nextStringOption().map(s => Try(objectMapper.readTree(s)).getOrElse(NullNode.instance))
     }
 
     implicit val getJacksonJson: GetResult[JsonNode] = mkGetResult(_.nextJson())
 
     implicit val getJacksonJsonOption: GetResult[Option[JsonNode]] = mkGetResult(_.nextJsonOption())
 
-    implicit val setJacksonJson: SetParameter[JsonNode] = mkSetParameter(pgjson, node => Jackson.stringify(node))
+    implicit val setJacksonJson: SetParameter[JsonNode] =
+      mkSetParameter(pgjson, node => objectMapper.writeValueAsString(node))
 
     implicit val setJacksonJsonOption: SetParameter[Option[JsonNode]] =
-      mkOptionSetParameter[JsonNode](pgjson, node => Jackson.stringify(node))
+      mkOptionSetParameter[JsonNode](pgjson, node => objectMapper.writeValueAsString(node))
   }
 }

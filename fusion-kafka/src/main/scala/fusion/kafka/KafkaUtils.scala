@@ -16,10 +16,10 @@
 
 package fusion.kafka
 
-import fusion.json.jackson.Jackson
+import com.fasterxml.jackson.databind.ObjectMapper
 import org.apache.kafka.clients.producer.ProducerRecord
 
-object KafkaUtils {
+class KafkaUtils(objectMapper: ObjectMapper) {
   def stringProduceRecord(topic: String, value: Any) =
-    new ProducerRecord[String, String](topic, Jackson.stringify(value))
+    new ProducerRecord[String, String](topic, objectMapper.writeValueAsString(value))
 }

@@ -17,7 +17,7 @@
 package fusion.discovery.client.nacos
 
 import akka.actor.testkit.typed.scaladsl.LogCapturing
-import fusion.test.FusionFunSuiteLike
+import fusion.testkit.FusionFunSuiteLike
 import helloscala.common.Configuration
 
 import scala.concurrent.duration._

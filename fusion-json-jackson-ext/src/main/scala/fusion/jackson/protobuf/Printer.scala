@@ -17,14 +17,13 @@
 package fusion.jackson.protobuf
 
 import com.fasterxml.jackson.core.Base64Variants
-import com.fasterxml.jackson.databind.{ JsonNode, ObjectMapper }
 import com.fasterxml.jackson.databind.node._
+import com.fasterxml.jackson.databind.{ JsonNode, ObjectMapper }
 import com.google.protobuf.descriptor.FieldDescriptorProto
 import fusion.jackson.protobuf.JacksonFormat.GenericCompanion
 import fusion.json.JsonFormatException
-import fusion.json.jackson.Jackson
-import scalapb.{ GeneratedFileObject, GeneratedMessage, GeneratedMessageCompanion, Message }
 import scalapb.descriptors._
+import scalapb.{ GeneratedFileObject, GeneratedMessage, GeneratedMessageCompanion, Message }
 
 /** TypeRegistry is used to map the @type field in Any messages to a ScalaPB generated message.
  *
@@ -32,7 +31,7 @@ import scalapb.descriptors._
  */
 case class TypeRegistry(
     companions: Map[String, GenericCompanion] = Map.empty,
-    private val filesSeen: Set[String] = Set.empty)(implicit mapper: ObjectMapper) {
+    private val filesSeen: Set[String] = Set.empty) {
   def addMessage[T <: GeneratedMessage with Message[T]](implicit cmp: GeneratedMessageCompanion[T]): TypeRegistry = {
     addMessageByCompanion(cmp)
   }
@@ -81,7 +80,7 @@ object Printer {
 object TypeRegistry {
   private val TypePrefix = "type.googleapis.com/"
 
-  def empty = TypeRegistry(Map.empty)(Jackson.defaultObjectMapper)
+  def empty = TypeRegistry(Map.empty)
 }
 
 class Printer private (config: Printer.PrinterConfig)(implicit mapper: ObjectMapper) {

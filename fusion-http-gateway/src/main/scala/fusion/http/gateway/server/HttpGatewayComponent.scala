@@ -16,34 +16,27 @@
 
 package fusion.http.gateway.server
 
-import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.TimeoutException
+import java.util.concurrent.{ ConcurrentHashMap, TimeoutException }
 import java.util.function.Consumer
 
 import akka.Done
 import akka.actor.ExtendedActorSystem
 import akka.http.scaladsl.model._
-import akka.http.scaladsl.server.PathMatchers
-import akka.http.scaladsl.server.RequestContext
-import akka.http.scaladsl.server.Route
+import akka.http.scaladsl.server.{ PathMatchers, RequestContext, Route }
 import akka.http.scaladsl.settings.RoutingSettings
-import akka.stream.Materializer
-import akka.stream.QueueOfferResult
+import akka.stream.{ Materializer, QueueOfferResult }
 import com.typesafe.scalalogging.StrictLogging
-import fusion.http.HttpSourceQueue
+import fusion.core.http.HttpSourceQueue
 import fusion.http.server.AbstractRoute
 import fusion.http.util.HttpUtils
 import fusion.json.jackson.JacksonObjectMapperExtension
 import fusion.json.jackson.http.JacksonSupport
-import helloscala.common.exception.HSBadGatewayException
-import helloscala.common.exception.HSServiceUnavailableException
+import helloscala.common.exception.{ HSBadGatewayException, HSServiceUnavailableException }
 import helloscala.common.util.CollectionUtils
 
-import scala.concurrent.Future
-import scala.concurrent.Promise
+import scala.concurrent.{ Future, Promise }
 import scala.concurrent.duration._
-import scala.util.Failure
-import scala.util.Success
+import scala.util.{ Failure, Success }
 
 abstract class HttpGatewayComponent(id: String)(implicit val system: ExtendedActorSystem)
     extends AbstractRoute

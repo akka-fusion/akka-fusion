@@ -20,18 +20,19 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.sksamuel.elastic4s.{ Hit, HitReader, Indexable }
 import com.sksamuel.exts.Logging
-import fusion.json.jackson.Jackson
 
 import scala.util.Try
 
 object ElasticJackson {
-  object Implicits extends Logging {
-    implicit def JacksonJsonIndexable[T](implicit mapper: ObjectMapper = Jackson.defaultObjectMapper): Indexable[T] =
+  trait Implicits extends Logging {
+    def objectMapper: ObjectMapper
+
+    implicit def JacksonJsonIndexable[T](implicit mapper: ObjectMapper = objectMapper): Indexable[T] =
       (t: T) => mapper.writeValueAsString(t)
 
     implicit def JacksonJsonHitReader[T](
         implicit manifest: Manifest[T],
-        mapper: ObjectMapper = Jackson.defaultObjectMapper): HitReader[T] =
+        mapper: ObjectMapper = objectMapper): HitReader[T] =
       (hit: Hit) =>
         Try {
           require(hit.sourceAsString != null)

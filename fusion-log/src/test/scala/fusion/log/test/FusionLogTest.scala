@@ -17,7 +17,7 @@
 package fusion.log.test
 
 import com.typesafe.scalalogging.StrictLogging
-import fusion.test.FusionFunSuiteLike
+import fusion.testkit.FusionFunSuiteLike
 import helloscala.common.exception.HSBadRequestException
 
 class FusionLogTest extends FusionFunSuiteLike with StrictLogging {

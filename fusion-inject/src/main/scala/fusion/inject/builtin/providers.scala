@@ -29,24 +29,6 @@ import javax.inject.{ Inject, Provider, Singleton }
 
 import scala.concurrent.ExecutionContextExecutor
 
-@Singleton
-class ConfigurationProvider @Inject() () extends Provider[Configuration] {
-  override lazy val get: Configuration = Configuration(
-    FusionConfigFactory.arrangeConfig(Configuration.fromDiscovery().underlying, FusionConstants.FUSION))
-}
-
-@Singleton
-class ConfigProvider @Inject() (configuration: Configuration) extends Provider[Config] {
-  override def get: Config = configuration.underlying
-}
-
-@Singleton
-class ActorSystemProvider @Inject() (config: Config) extends Provider[classic.ActorSystem] {
-  override lazy val get: classic.ActorSystem = {
-    classic.ActorSystem(config.getString("fusion.akka-name"), config)
-  }
-}
-
 final class TypedActorSystemWrapper(val system: ActorSystem[_])
 
 @Singleton

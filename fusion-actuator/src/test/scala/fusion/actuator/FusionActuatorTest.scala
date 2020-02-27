@@ -19,8 +19,8 @@ package fusion.actuator
 import akka.actor.typed.scaladsl.adapter._
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.testkit.ScalatestRouteTest
-import fusion.json.jackson.Jackson
-import fusion.test.FusionFunSuiteLike
+import fusion.json.jackson.JacksonObjectMapperExtension
+import fusion.testkit.FusionFunSuiteLike
 
 class FusionActuatorTest extends FusionFunSuiteLike with ScalatestRouteTest {
   test("route") {
@@ -30,7 +30,7 @@ class FusionActuatorTest extends FusionFunSuiteLike with ScalatestRouteTest {
     Get(s"/$contextPath/health") ~> route ~> check {
       status shouldBe StatusCodes.OK
       val text = responseAs[String]
-      val json = Jackson.readTree(text)
+      val json = JacksonObjectMapperExtension(system).objectMapperJson.readTree(text)
       text should not be empty
       json.hasNonNull("details") shouldBe true
     }

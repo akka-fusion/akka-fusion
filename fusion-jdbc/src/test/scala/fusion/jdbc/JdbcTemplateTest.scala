@@ -21,7 +21,7 @@ import java.time.OffsetDateTime
 import akka.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
 import com.zaxxer.hikari.HikariDataSource
 import fusion.jdbc.util.JdbcUtils
-import fusion.test.FusionFunSuiteLike
+import fusion.testkit.FusionFunSuiteLike
 
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration

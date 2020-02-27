@@ -17,7 +17,7 @@
 package fusion.discovery.http
 
 import akka.http.scaladsl.model.Uri
-import fusion.test.FusionFunSuiteLike
+import fusion.testkit.FusionFunSuiteLike
 
 class NacosHttpClientTest extends FusionFunSuiteLike {
   test("testUrl") {

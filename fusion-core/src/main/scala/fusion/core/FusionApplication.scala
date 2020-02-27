@@ -18,14 +18,16 @@ package fusion.core
 
 import java.util.Objects
 
+import akka.actor.ExtendedActorSystem
 import akka.actor.typed.ActorSystem
-import akka.{ actor => classic }
-import com.typesafe.config.{ Config, ConfigFactory }
+import com.typesafe.config.Config
 import fusion.common.{ ReceptionistFactory, SpawnFactory }
+import fusion.core
 import helloscala.common.Configuration
 
 trait ClassicApplication extends SpawnFactory {
-  def classicSystem: classic.ActorSystem
+  def classicSystem: akka.actor.ActorSystem = actorSystem
+  def actorSystem: ExtendedActorSystem
   def configuration: Configuration
   def config: Config
 }
@@ -50,12 +52,16 @@ object FusionApplication {
   }
 
   def start(): FusionApplication = {
-    val config = ConfigFactory.load()
+    val config = Configuration.generateConfig()
     val constructor = Thread
       .currentThread()
       .getContextClassLoader
       .loadClass(config.getString("fusion.application-loader"))
       .getConstructor()
-    constructor.newInstance().asInstanceOf[FusionApplication]
+
+    constructor
+      .newInstance()
+      .asInstanceOf[FusionApplicationLoader]
+      .load(new core.FusionApplicationLoader.Context(Configuration(config)))
   }
 }

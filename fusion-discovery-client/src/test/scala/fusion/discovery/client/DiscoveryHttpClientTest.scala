@@ -18,7 +18,7 @@ package fusion.discovery.client
 
 import akka.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
 import akka.discovery.Discovery
-import fusion.test.FusionFunSuiteLike
+import fusion.testkit.FusionFunSuiteLike
 import akka.actor.typed.scaladsl.adapter._
 
 class DiscoveryHttpClientTest extends ScalaTestWithActorTestKit with FusionFunSuiteLike {

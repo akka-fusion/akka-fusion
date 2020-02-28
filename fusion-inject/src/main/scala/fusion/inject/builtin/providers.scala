@@ -19,23 +19,11 @@ package fusion.inject.builtin
 import akka.actor.typed.{ ActorSystem, Scheduler }
 import akka.stream.Materializer
 import akka.{ actor => classic }
-import com.typesafe.config.Config
-import fusion.common.config.FusionConfigFactory
-import fusion.common.constant.FusionConstants
 import fusion.json.jackson.http.{ JacksonHttpHelper, JacksonSupport }
 import fusion.json.jackson.{ JacksonObjectMapperExtension, ScalaObjectMapper }
-import helloscala.common.Configuration
 import javax.inject.{ Inject, Provider, Singleton }
 
 import scala.concurrent.ExecutionContextExecutor
-
-final class TypedActorSystemWrapper(val system: ActorSystem[_])
-
-@Singleton
-class TypedActorSystemProvider @Inject() (system: classic.ActorSystem) extends Provider[TypedActorSystemWrapper] {
-  import akka.actor.typed.scaladsl.adapter._
-  override def get: TypedActorSystemWrapper = new TypedActorSystemWrapper(system.toTyped)
-}
 
 @Singleton
 class ExecutionContextExecutorProvider @Inject() (system: classic.ActorSystem)

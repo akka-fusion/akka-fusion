@@ -31,7 +31,6 @@ import scala.concurrent.{ ExecutionContext, ExecutionContextExecutor }
 
 class BuiltinModule extends AbstractModule {
   override def configure(): Unit = {
-    bind(classOf[TypedActorSystemWrapper]).toProvider(classOf[TypedActorSystemProvider])
     bind(classOf[Materializer]).toProvider(classOf[MaterializerProvider])
     bind(classOf[ExecutionContextExecutor]).toProvider(classOf[ExecutionContextExecutorProvider])
     bind(classOf[ExecutionContext]).to(classOf[ExecutionContextExecutor])

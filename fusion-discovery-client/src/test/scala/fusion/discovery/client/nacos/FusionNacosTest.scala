@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 akka-fusion.com
+ * Copyright 2019 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,8 +22,8 @@ import java.util.concurrent.TimeUnit
 import akka.actor.typed.scaladsl.adapter._
 import akka.{ actor => classic }
 import com.alibaba.nacos.api.NacosFactory
-import fusion.common.constant.PropKeys
 import fusion.discovery.DiscoveryUtils
+import fusion.discovery.constant.PropKeys
 import fusion.testkit.FusionFunSuiteLike
 import helloscala.common.Configuration
 import org.scalatest.BeforeAndAfterAll

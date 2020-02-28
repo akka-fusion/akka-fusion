@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 akka-fusion.com
+ * Copyright 2019 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,11 @@
 
 package fusion.core.setting
 
-import fusion.common.constant.FusionConstants
+import fusion.common.constant.{ FusionConstants, FusionKeys }
 import helloscala.common.Configuration
 
 class CoreSetting(configuration: Configuration) {
-  def name: String =
-    System.getProperty(FusionConstants.SERVICE_NAME_PATH, configuration.getString(FusionConstants.FUSION_NAME))
+//  def name: String =
+//    System.getProperty(FusionConstants.SERVICE_NAME_PATH, configuration.getString(FusionKeys.FUSION_NAME))
   def runMode = new RunMode(configuration)
 }

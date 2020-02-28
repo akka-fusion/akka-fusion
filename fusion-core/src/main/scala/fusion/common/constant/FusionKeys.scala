@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 akka-fusion.com
+ * Copyright 2019 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,20 +16,18 @@
 
 package fusion.common.constant
 
-object PropKeys {
-  val SERVER_ADDR = "serverAddr"
-  val NAMESPACE = "namespace"
-  val DATA_ID = "dataId"
-  val GROUP = "group"
-  val CLUSTER_NAME = "clusterName"
-  val TIMEOUT_MS = "timeoutMs"
+object FusionKeys {
+  val FUSION_NAME = "fusion.name"
+  val AKKA_NAME = "fusion.akka-name"
+  val PIDFILE = "fusion.pidfile"
+  val GLOBAL_APPLICATION_ENABLE = "fusion.global-application-enable"
+  val PROFILES_ACTIVE_PATH = "fusion.profiles.active"
 
-  val SERVICE_NAME = "serviceName"
-  val INSTANCE_IP = "instanceIp"
-  val INSTANCE_PORT = "instancePort"
-  val INSTANCE_WEIGHT = "instanceWeight"
-  val HEALTHY = "healthy"
-  val EPHEMERAL = "ephemeral"
-  val ENABLE = "enable"
-  val AUTO_REGISTER_INSTANCE = "autoRegisterInstance"
+  object CORE {
+    val CIRCUIT_BREAKER = "fusion.core.circuit-breaker"
+  }
+
+  object HTTP {
+    val CUSTOM_MEDIA_TYPES = "fusion.http.custom-media-type"
+  }
 }

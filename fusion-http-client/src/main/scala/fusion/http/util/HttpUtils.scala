@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 akka-fusion.com
+ * Copyright 2019 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@ import akka.util.ByteString
 import akka.{ actor => classic }
 import com.typesafe.config.{ Config, ConfigFactory }
 import com.typesafe.scalalogging.{ Logger, StrictLogging }
-import fusion.core.FusionKeys
+import fusion.common.constant.FusionKeys
 import fusion.core.http.HttpSourceQueue
 import fusion.core.http.headers.`X-Trace-Id`
 import fusion.core.util.FusionUtils

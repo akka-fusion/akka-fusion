@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 akka-fusion.com
+ * Copyright 2019 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ import akka.Done
 import akka.actor.ExtendedActorSystem
 import com.typesafe.scalalogging.StrictLogging
 import fusion.common.component.Components
-import fusion.common.constant.FusionConstants
+import fusion.common.constant.FusionKeys
 import fusion.common.extension.{ FusionExtension, FusionExtensionId }
 import fusion.core.extension.FusionCore
 import fusion.discovery.DiscoveryUtils
@@ -54,7 +54,8 @@ final class FusionNacos private (override val classicSystem: ExtendedActorSystem
 
   // XXX 将覆盖 Configration.fromDiscovery() 调用 Configuration.setServiceName() 设置的全局服务名
   component.properties.serviceName.foreach { serviceName =>
-    System.setProperty(FusionConstants.SERVICE_NAME_PATH, serviceName)
+    System.setProperty(FusionKeys.FUSION_NAME, serviceName)
+    System.setProperty(s"fusion.service.name", serviceName)
 //    System.setProperty(NacosConstants.DEFAULT_SERVER_NAME_PATH, serviceName)
   }
 

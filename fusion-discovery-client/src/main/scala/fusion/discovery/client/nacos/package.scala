@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 akka-fusion.com
+ * Copyright 2019 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ import com.alibaba.nacos.api.common.Constants
 import com.alibaba.nacos.api.naming.listener.{ Event, NamingEvent }
 import com.alibaba.nacos.api.naming.pojo.{ Instance, ListView, ServiceInfo }
 import com.typesafe.scalalogging.StrictLogging
-import fusion.common.constant.PropKeys._
+import fusion.discovery.constant.PropKeys._
 import fusion.discovery.model._
 import fusion.http.constant.HttpConstants
 import helloscala.common.util.{ AsBoolean, AsInt, AsLong, Utils }

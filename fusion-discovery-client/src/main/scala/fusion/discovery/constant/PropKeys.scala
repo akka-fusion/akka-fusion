@@ -14,16 +14,25 @@
  * limitations under the License.
  */
 
-package fusion.discovery.client
+package fusion.discovery.constant
 
-import akka.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
-import akka.discovery.Discovery
-import fusion.testkit.FusionFunSuiteLike
-import akka.actor.typed.scaladsl.adapter._
+/**
+ * Used by nacos or discoveryx.
+ */
+object PropKeys {
+  val SERVER_ADDR = "serverAddr"
+  val NAMESPACE = "namespace"
+  val DATA_ID = "dataId"
+  val GROUP = "group"
+  val CLUSTER_NAME = "clusterName"
+  val TIMEOUT_MS = "timeoutMs"
 
-class DiscoveryHttpClientTest extends ScalaTestWithActorTestKit with FusionFunSuiteLike {
-  test("http client") {
-    val discovery = Discovery(system.toClassic).discovery
-    println(discovery)
-  }
+  val SERVICE_NAME = "serviceName"
+  val INSTANCE_IP = "instanceIp"
+  val INSTANCE_PORT = "instancePort"
+  val INSTANCE_WEIGHT = "instanceWeight"
+  val HEALTHY = "healthy"
+  val EPHEMERAL = "ephemeral"
+  val ENABLE = "enable"
+  val AUTO_REGISTER_INSTANCE = "autoRegisterInstance"
 }

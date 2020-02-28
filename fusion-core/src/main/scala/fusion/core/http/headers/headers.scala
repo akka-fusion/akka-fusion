@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 akka-fusion.com
+ * Copyright 2019 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ import java.time.Instant
 
 import akka.http.scaladsl.model.headers.{ ModeledCustomHeader, ModeledCustomHeaderCompanion }
 import com.typesafe.scalalogging.StrictLogging
-import fusion.core.FusionKeys
+import fusion.common.constant.HttpKeys
 
 import scala.concurrent.duration.FiniteDuration
 import scala.util.Try
@@ -32,7 +32,7 @@ final class `X-Service`(override val value: String) extends ModeledCustomHeader[
 }
 
 object `X-Service` extends ModeledCustomHeaderCompanion[`X-Service`] {
-  override def name: String = FusionKeys.HTTP.X_SERVER
+  override def name: String = HttpKeys.X_SERVER
   override def parse(value: String): Try[`X-Service`] = Try(new `X-Service`(value))
 }
 
@@ -43,7 +43,7 @@ final class `X-Trace-Id`(override val value: String) extends ModeledCustomHeader
 }
 
 object `X-Trace-Id` extends ModeledCustomHeaderCompanion[`X-Trace-Id`] {
-  override def name: String = FusionKeys.HTTP.X_TRACE_NAME
+  override def name: String = HttpKeys.X_TRACE_NAME
   override def parse(value: String): Try[`X-Trace-Id`] = Try(new `X-Trace-Id`(value))
 }
 
@@ -55,7 +55,7 @@ final class `X-Request-Time`(val instant: Instant) extends ModeledCustomHeader[`
 }
 
 object `X-Request-Time` extends ModeledCustomHeaderCompanion[`X-Request-Time`] {
-  override def name: String = FusionKeys.HTTP.X_REQUEST_TIME
+  override def name: String = HttpKeys.X_REQUEST_TIME
   override def parse(value: String): Try[`X-Request-Time`] = Try(new `X-Request-Time`(Instant.parse(value)))
   def fromInstantNow() = `X-Request-Time`(Instant.now().toString)
 }
@@ -68,7 +68,7 @@ final class `X-Span-Time`(val duration: java.time.Duration) extends ModeledCusto
 }
 
 object `X-Span-Time` extends ModeledCustomHeaderCompanion[`X-Span-Time`] with StrictLogging {
-  override def name: String = FusionKeys.HTTP.X_SPAN_TIME
+  override def name: String = HttpKeys.X_SPAN_TIME
   override def parse(value: String): Try[`X-Span-Time`] = Try(new `X-Span-Time`(java.time.Duration.parse(value)))
 
   def apply(d: FiniteDuration): `X-Span-Time` = {

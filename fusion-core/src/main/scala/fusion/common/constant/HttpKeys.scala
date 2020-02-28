@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 akka-fusion.com
+ * Copyright 2019 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,21 +14,11 @@
  * limitations under the License.
  */
 
-package fusion.core
+package fusion.common.constant
 
-object FusionKeys {
-  val PIDFILE: String = "fusion.pidfile"
-
-  object CORE {
-    val CIRCUIT_BREAKER = "fusion.core.circuit-breaker"
-  }
-
-  object HTTP {
-    val X_SERVER = "X-Server"
-    val X_TRACE_NAME = "X-Trace-Id"
-    val X_REQUEST_TIME = "X-Request-Time"
-    val X_SPAN_TIME = "X-Span-Time"
-    val HEADER_NAME = "Fusion-Server"
-    val CUSTOM_MEDIA_TYPES = "fusion.http.custom-media-types"
-  }
+object HttpKeys {
+  val X_SERVER = "X-Server"
+  val X_TRACE_NAME = "X-Trace-Id"
+  val X_REQUEST_TIME = "X-Request-Time"
+  val X_SPAN_TIME = "X-Span-Time"
 }

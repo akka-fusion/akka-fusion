@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 akka-fusion.com
+ * Copyright 2019 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,14 +18,14 @@ package fusion.inject.guice
 
 import java.util.concurrent.atomic.AtomicBoolean
 
-import akka.actor.typed.scaladsl.adapter._
 import akka.actor.typed._
+import akka.actor.typed.scaladsl.adapter._
 import akka.actor.{ ExtendedActorSystem, Extension, ExtensionId, ExtensionIdProvider }
 import akka.util.Timeout
 import com.google.inject.Key
 import com.typesafe.config.Config
 import fusion.common.FusionProtocol
-import fusion.common.constant.FusionConstants
+import fusion.common.constant.FusionKeys
 import fusion.core.FusionApplication
 import fusion.inject.InjectSupport
 import helloscala.common.Configuration
@@ -41,7 +41,7 @@ trait GuiceApplication extends FusionApplication with InjectSupport with Extensi
 
   override lazy val configuration: Configuration = instance[Configuration]
 
-  if (configuration.getOrElse(FusionConstants.GLOBAL_APPLICATION_ENABLE, false)) {
+  if (configuration.getOrElse(FusionKeys.GLOBAL_APPLICATION_ENABLE, false)) {
     FusionApplication.setApplication(self)
   }
   GuiceApplication.setApplication(self)

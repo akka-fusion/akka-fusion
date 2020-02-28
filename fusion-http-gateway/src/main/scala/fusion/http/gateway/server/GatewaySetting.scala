@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 akka-fusion.com
+ * Copyright 2019 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ import akka.http.scaladsl.model.headers.`Timeout-Access`
 import akka.http.scaladsl.model.{ HttpProtocol, HttpProtocols, Uri }
 import akka.pattern.CircuitBreaker
 import com.typesafe.config.{ ConfigFactory, ConfigMemorySize }
-import fusion.core.FusionKeys
+import fusion.common.constant.FusionKeys
 import fusion.core.setting.CircuitBreakerSetting
 import helloscala.common.Configuration
 import helloscala.common.util.AsInt

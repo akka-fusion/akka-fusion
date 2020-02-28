@@ -36,7 +36,7 @@ trait SpawnFactory {
 }
 
 trait ReceptionistFactory {
-  def typedSystem: ActorSystem[_]
+  def typedSystem: ActorSystem[Nothing]
 
   def receptionistFind[T](serviceKey: ServiceKey[T], timeout: FiniteDuration)(
       func: Receptionist.Listing => ActorRef[T]): ActorRef[T] = {

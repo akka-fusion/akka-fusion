@@ -19,6 +19,7 @@ package fusion.common.config
 import akka.actor.AddressFromURIString
 import com.typesafe.config.{ Config, ConfigFactory }
 import helloscala.common.Configuration
+import helloscala.common.exception.HSConfigurationException
 
 import scala.jdk.CollectionConverters._
 
@@ -52,28 +53,27 @@ object FusionConfigFactory {
     }
   }
 
-  private def arrangeModuleConfig(originalConfig: Config, internalPath: String, module: String): Config = {
-    if (originalConfig.hasPath(s"$internalPath.$module")) {
-      ConfigFactory
-        .parseString(s"$module ${originalConfig.getConfig(s"$internalPath.$module").root().render()}")
-        .withFallback(originalConfig)
-    } else {
-      originalConfig
-    }
+  private def arrangeModuleConfig(c: Config, internalPath: String, module: String): Config = {
+    if (c.hasPath(s"$internalPath.$module")) {
+      val inner = c.getConfig(s"$internalPath.$module").root().render()
+      ConfigFactory.parseString(s"$module $inner").withFallback(c)
+    } else c
   }
 
   private def arrangeAkkaConfig(originalConfig: Config, internalPath: String): Config = {
     val c = arrangeModuleConfig(originalConfig, internalPath, "akka")
-    val name = c.getString(s"$internalPath.name")
+    val name =
+      if (c.hasPath(s"$internalPath.akka-name")) c.getString(s"$internalPath.akka-name")
+      else if (c.hasPath(s"$internalPath.name")) c.getString(s"$internalPath.name")
+      else
+        throw HSConfigurationException(
+          s"Configuration key '$internalPath.akka-name' or '$internalPath.name' not found.")
+
     val seedNodes = c.getStringList("akka.cluster.seed-nodes").asScala.filterNot(_.isEmpty).map {
-      case addr if !addr.startsWith("akka://") =>
-        val address = AddressFromURIString.parse(s"akka://$name@$addr")
-        require(
-          address.system == name,
-          s"Cluster ActorSystem name must equals be $name, but seed-node name is invalid, it si $addr.")
-        address
-      case addr => AddressFromURIString.parse(addr)
+      case addr if !addr.startsWith("akka://") => AddressFromURIString.parse(s"akka://$name@$addr")
+      case addr                                => AddressFromURIString.parse(addr)
     }
+
     val seedNodesStr = if (seedNodes.isEmpty) "[]" else seedNodes.mkString("[\"", "\", \"", "\"]")
     ConfigFactory.parseString(s"""akka.cluster.seed-nodes = $seedNodesStr""".stripMargin).withFallback(c)
   }

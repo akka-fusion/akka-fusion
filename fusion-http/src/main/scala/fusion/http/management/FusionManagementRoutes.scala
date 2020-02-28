@@ -17,11 +17,11 @@
 package fusion.http.management
 
 import akka.actor.ExtendedActorSystem
+import akka.fusion.AkkaUtils
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.management.scaladsl.{ ManagementRouteProvider, ManagementRouteProviderSettings }
-import fusion.common.constant.ConfigKeys
 import fusion.http.util.HttpUtils
 import helloscala.common.{ Configuration, IntStatus }
 
@@ -41,7 +41,7 @@ class FusionManagementRoutes(system: ExtendedActorSystem) extends ManagementRout
       Thread.sleep(d.toMillis)
       system.terminate()
       val atMost =
-        Configuration(system.settings.config).get[Duration](s"${ConfigKeys.AKKA_MANAGEMENT_FUSION}.terminate-timeout")
+        Configuration(system.settings.config).get[Duration](s"${AkkaUtils.AKKA_MANAGEMENT_FUSION}.terminate-timeout")
       Await.ready(system.whenTerminated, atMost)
     }).start()
     complete(HttpUtils.entityJson(s"""{"status":${IntStatus.OK},"msg":"$msg"}"""))

@@ -14,17 +14,19 @@
  * limitations under the License.
  */
 
-package fusion.common.constant
+package fusion.common.extension
 
-object ConfigKeys {
-  val AKKA_MANAGEMENT_FUSION = "akka.management.fusion"
-  val AKKA_MANAGEMENT_FUSION_ENABLE = "akka.management.fusion.enable"
+import akka.actor.typed.scaladsl.adapter._
+import akka.actor.typed.{ ActorSystem, Extension, ExtensionId }
+import akka.{ actor => classic }
+import helloscala.common.Configuration
 
-  object FUSION {
-    val PIDFILE: String = "fusion.pidfile"
-  }
+trait TypedExtension extends Extension {
+  val typedSystem: ActorSystem[Nothing]
+  val configuration: Configuration = Configuration(typedSystem.settings.config)
+  def classicSystem: classic.ActorSystem = typedSystem.toClassic
+}
 
-  object HTTP {
-    val CUSTOM_MEDIA_TYPES = "fusion.http.custom-media-types"
-  }
+trait TypedExtensionId[T <: Extension] extends ExtensionId[T] {
+  def apply(system: classic.ActorSystem): T = apply(system.toTyped)
 }

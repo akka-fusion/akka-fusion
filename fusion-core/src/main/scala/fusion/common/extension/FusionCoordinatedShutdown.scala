@@ -22,7 +22,7 @@ import akka.actor.{ ActorSystem, Cancellable, CoordinatedShutdown }
 
 import scala.concurrent.Future
 
-class FusionCoordinatedShutdown(coordinatedShutdown: CoordinatedShutdown) {
+private[fusion] class FusionCoordinatedShutdown(coordinatedShutdown: CoordinatedShutdown) {
   def this(system: ActorSystem) {
     this(CoordinatedShutdown(system))
   }
@@ -70,8 +70,4 @@ class FusionCoordinatedShutdown(coordinatedShutdown: CoordinatedShutdown) {
 
   def actorSystemTerminate(taskName: String)(task: () => Future[Done]): Unit =
     coordinatedShutdown.addTask(CoordinatedShutdown.PhaseActorSystemTerminate, taskName)(task)
-}
-
-object FusionCoordinatedShutdown {
-  def apply(system: ActorSystem): FusionCoordinatedShutdown = new FusionCoordinatedShutdown(system)
 }

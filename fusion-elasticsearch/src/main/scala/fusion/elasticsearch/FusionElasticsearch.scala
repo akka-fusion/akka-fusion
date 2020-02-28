@@ -21,7 +21,7 @@ import akka.actor.ExtendedActorSystem
 import com.sksamuel.elastic4s._
 import com.sksamuel.elastic4s.http.JavaClient
 import fusion.common.component.Components
-import fusion.common.extension.{ FusionCoordinatedShutdown, FusionExtension, FusionExtensionId }
+import fusion.common.extension.{ FusionExtension, FusionExtensionId }
 import fusion.core.extension.FusionCore
 import helloscala.common.Configuration
 import org.apache.http.client.config.RequestConfig
@@ -87,15 +87,15 @@ class ElasticsearchComponents(system: ExtendedActorSystem)
   }
 
   override protected def componentClose(c: FusionESClient): Future[Done] =
-    Future {
+    Future.successful {
       c.close()
       Done
-    }(system.dispatcher)
+    }
 }
 
 class FusionElasticsearch private (override val classicSystem: ExtendedActorSystem) extends FusionExtension {
   val components = new ElasticsearchComponents(classicSystem)
-  FusionCoordinatedShutdown(classicSystem).beforeActorSystemTerminate("StopFusionElasticsearch") { () =>
+  FusionCore(classicSystem).shutdowns.beforeActorSystemTerminate("StopFusionElasticsearch") { () =>
     components.closeAsync()(classicSystem.dispatcher)
   }
   def component: FusionESClient = components.component

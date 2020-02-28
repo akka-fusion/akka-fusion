@@ -14,19 +14,15 @@
  * limitations under the License.
  */
 
-package fusion.common.extension
+package fusion.common.constant
 
-import akka.actor.typed.scaladsl.adapter._
-import akka.actor.typed.{ ActorSystem, Extension, ExtensionId }
-import akka.{ actor => classic }
-import helloscala.common.Configuration
-
-trait TypedExtension extends Extension {
-  val typedSystem: ActorSystem[_]
-  val configuration: Configuration = Configuration(typedSystem.settings.config)
-  def classicSystem: classic.ActorSystem = typedSystem.toClassic
-}
-
-trait TypedExtensionId[T <: Extension] extends ExtensionId[T] {
-  def apply(system: classic.ActorSystem): T = apply(system.toTyped)
+object FusionConstants {
+  val FUSION: String = "fusion"
+  val FUSION_NAME = s"$FUSION.name"
+  val AKKA_NAME_PATH = s"$FUSION.akka-name"
+  val SERVER_HOST_PATH = s"$FUSION.server.host"
+  val SERVER_PORT_PATH = s"$FUSION.server.port"
+  val SERVICE_NAME_PATH = s"$FUSION.service.name"
+  val PROFILES_ACTIVE_PATH = s"$FUSION.profiles.active"
+  val GLOBAL_APPLICATION_ENABLE = s"$FUSION.global-application-enable"
 }

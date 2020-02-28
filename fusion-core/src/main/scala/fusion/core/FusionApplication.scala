@@ -19,22 +19,19 @@ package fusion.core
 import java.util.Objects
 
 import akka.actor.ExtendedActorSystem
-import akka.actor.typed.ActorSystem
 import com.typesafe.config.Config
 import fusion.common.{ ReceptionistFactory, SpawnFactory }
 import fusion.core
 import helloscala.common.Configuration
 
 trait ClassicApplication extends SpawnFactory {
-  def classicSystem: akka.actor.ActorSystem = actorSystem
-  def actorSystem: ExtendedActorSystem
+  def classicSystem: akka.actor.ActorSystem = extendedActorSystem
+  def extendedActorSystem: ExtendedActorSystem
   def configuration: Configuration
   def config: Config
 }
 
-trait TypedApplication extends ClassicApplication with ReceptionistFactory {
-  def typedSystem: ActorSystem[_]
-}
+trait TypedApplication extends ClassicApplication with ReceptionistFactory
 
 trait FusionApplication extends TypedApplication
 

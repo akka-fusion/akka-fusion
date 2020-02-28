@@ -25,6 +25,7 @@ import akka.http.scaladsl.model.headers.`Timeout-Access`
 import akka.http.scaladsl.model.{ HttpProtocol, HttpProtocols, Uri }
 import akka.pattern.CircuitBreaker
 import com.typesafe.config.{ ConfigFactory, ConfigMemorySize }
+import fusion.core.FusionKeys
 import fusion.core.setting.CircuitBreakerSetting
 import helloscala.common.Configuration
 import helloscala.common.util.AsInt
@@ -170,7 +171,7 @@ final class GatewaySetting(system: ExtendedActorSystem, prefix: String) {
     }
   }
 
-  private def deftCircuitBreakerConf = configuration.getConfiguration("fusion.default.circuit-breaker")
+  private def deftCircuitBreakerConf = configuration.getConfiguration(FusionKeys.CORE.CIRCUIT_BREAKER)
 }
 
 object GatewaySetting {

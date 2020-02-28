@@ -14,24 +14,21 @@
  * limitations under the License.
  */
 
-package fusion.mail
+package fusion.core
 
-import java.util.Properties
+object FusionKeys {
+  val PIDFILE: String = "fusion.pidfile"
 
-import akka.Done
-import fusion.common.component.Components
-import fusion.mail.constant.MailConstants
-import helloscala.common.Configuration
+  object CORE {
+    val CIRCUIT_BREAKER = "fusion.core.circuit-breaker"
+  }
 
-import scala.concurrent.Future
-
-class MailComponents(val configuration: Configuration)
-    extends Components[MailHelper](s"${MailConstants.CONF_ROOT}.default") {
-  override protected def createComponent(id: String): MailHelper =
-    new MailHelper(configuration.get[Properties](id), null)
-
-  override protected def componentClose(c: MailHelper): Future[Done] = Future.successful {
-    c.close()
-    Done
+  object HTTP {
+    val X_SERVER = "X-Server"
+    val X_TRACE_NAME = "X-Trace-Id"
+    val X_REQUEST_TIME = "X-Request-Time"
+    val X_SPAN_TIME = "X-Span-Time"
+    val HEADER_NAME = "Fusion-Server"
+    val CUSTOM_MEDIA_TYPES = "fusion.http.custom-media-types"
   }
 }

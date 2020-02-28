@@ -23,7 +23,8 @@ import com.datastax.oss.driver.internal.core.config.typesafe.DefaultDriverConfig
 import com.typesafe.config.Config
 import com.typesafe.scalalogging.StrictLogging
 import fusion.common.component.Components
-import fusion.common.extension.{ FusionCoordinatedShutdown, FusionExtension, FusionExtensionId }
+import fusion.common.extension.{ FusionExtension, FusionExtensionId }
+import fusion.core.extension.FusionCore
 import helloscala.common.Configuration
 
 import scala.concurrent.Future
@@ -61,7 +62,7 @@ class CassandraComponents(system: ExtendedActorSystem)
 
 class FusionCassandra private (override val classicSystem: ExtendedActorSystem) extends FusionExtension {
   val components = new CassandraComponents(classicSystem)
-  FusionCoordinatedShutdown(classicSystem).beforeActorSystemTerminate("StopFusionCassandra") { () =>
+  FusionCore(classicSystem).shutdowns.beforeActorSystemTerminate("StopFusionCassandra") { () =>
     components.closeAsync()(classicSystem.dispatcher)
   }
 

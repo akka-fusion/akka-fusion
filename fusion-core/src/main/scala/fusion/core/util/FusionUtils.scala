@@ -18,8 +18,9 @@ package fusion.core.util
 
 import java.util.concurrent.atomic.AtomicLong
 
-import akka.actor.ActorSystem
+import akka.actor.{ ActorSystem, typed }
 import com.typesafe.config.Config
+import fusion.common.FusionProtocol
 import fusion.common.constant.FusionConstants
 import helloscala.common.Configuration
 
@@ -29,6 +30,9 @@ object FusionUtils {
   def generateTraceId(): Long = _traceIdGenerator.incrementAndGet()
 
   def createFromDiscovery(): ActorSystem = createActorSystem(Configuration.fromDiscovery())
+
+  def createTypedActorSystem(configuration: Configuration): typed.ActorSystem[FusionProtocol.Command] =
+    akka.actor.typed.ActorSystem(FusionProtocol.behavior, getName(configuration.underlying))
 
   def createActorSystem(configuration: Configuration): ActorSystem =
     createActorSystem(configuration.underlying)

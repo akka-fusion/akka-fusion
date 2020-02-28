@@ -21,7 +21,6 @@ import fusion.sbt.gen.BuildInfo
 
 object FusionImport {
   val helloscalaCommon = component("helloscala-common")
-  val fusionCommon = component("fusion-common")
   val fusionProtobufV3 = component("fusion-protobuf-v3")
   val fusionCore = component("fusion-core")
   val fusionTestkit = component("fusion-testkit")

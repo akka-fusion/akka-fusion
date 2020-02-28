@@ -20,7 +20,8 @@ import akka.Done
 import akka.actor.ExtendedActorSystem
 import com.zaxxer.hikari.HikariDataSource
 import fusion.common.component.Components
-import fusion.common.extension.{ FusionCoordinatedShutdown, FusionExtension, FusionExtensionId }
+import fusion.common.extension.{ FusionExtension, FusionExtensionId }
+import fusion.core.extension.FusionCore
 import fusion.jdbc.constant.JdbcConstants
 import fusion.jdbc.util.JdbcUtils
 import helloscala.common.Configuration
@@ -45,7 +46,7 @@ final private[jdbc] class JdbcComponents(system: ExtendedActorSystem)
 // #FusionJdbc
 class FusionJdbc private (override val classicSystem: ExtendedActorSystem) extends FusionExtension {
   val components = new JdbcComponents(classicSystem)
-  FusionCoordinatedShutdown(classicSystem).beforeActorSystemTerminate("StopFusionJdbc") { () =>
+  FusionCore(classicSystem).shutdowns.beforeActorSystemTerminate("StopFusionJdbc") { () =>
     components.closeAsync()(classicSystem.dispatcher)
   }
   def component: HikariDataSource = components.component

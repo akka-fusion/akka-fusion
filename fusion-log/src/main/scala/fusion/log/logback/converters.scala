@@ -21,8 +21,7 @@ import java.net.InetAddress
 import ch.qos.logback.classic.pattern.ClassicConverter
 import ch.qos.logback.classic.spi.ILoggingEvent
 import fusion.common.constant.FusionConstants
-import helloscala.common.util.StringUtils
-import helloscala.common.util.Utils
+import helloscala.common.util.{ StringUtils, Utils }
 
 object Converters {
   val hosts = List(() => System.getProperty("fusion.http.default.server.host"), () => System.getProperty("server.host"))
@@ -32,7 +31,7 @@ object Converters {
   val serviceNames = List(
     () => System.getProperty(FusionConstants.SERVICE_NAME_PATH),
     () => System.getProperty("spring.application.name"),
-    () => System.getProperty(FusionConstants.NAME_PATH))
+    () => System.getProperty(FusionConstants.FUSION_NAME))
 
   val envs = List(
     () => System.getProperty(FusionConstants.PROFILES_ACTIVE_PATH),

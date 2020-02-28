@@ -24,6 +24,9 @@ import scala.concurrent.Await
 import scala.concurrent.duration._
 
 object AkkaUtils {
+  val AKKA_MANAGEMENT_FUSION = "akka.management.fusion"
+  val AKKA_MANAGEMENT_FUSION_ENABLE = "akka.management.fusion.enable"
+
   /**
    * Shut down an actor system and wait for termination.
    * On failure debug output will be logged about the remaining actors in the system.

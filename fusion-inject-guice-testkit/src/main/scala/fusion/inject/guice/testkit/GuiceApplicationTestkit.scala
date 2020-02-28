@@ -49,7 +49,7 @@ abstract class GuiceApplicationTestkit(val application: GuiceApplication)
 
   def configuration: Configuration = Configuration(config)
 
-  override def typedSystem: ActorSystem[_] = application.typedSystem
+  override def typedSystem: ActorSystem[Nothing] = application.typedSystem
 
   def classicSystem: classic.ActorSystem = application.classicSystem
 

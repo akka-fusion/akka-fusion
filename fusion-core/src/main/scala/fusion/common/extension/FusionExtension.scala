@@ -26,7 +26,7 @@ trait FusionExtension extends Extension {
   val classicSystem: ExtendedActorSystem
 
   val configuration: Configuration = Configuration(classicSystem.settings.config)
-  def typedSystem: ActorSystem[_] = classicSystem.toTyped
+  def typedSystem: ActorSystem[Nothing] = classicSystem.toTyped
 }
 // #FusionExtension
 

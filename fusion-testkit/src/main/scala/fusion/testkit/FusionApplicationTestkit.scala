@@ -45,7 +45,8 @@ abstract class FusionApplicationTestkit(val application: FusionApplication)
 
   def configuration: Configuration = Configuration(config)
 
-  override def typedSystem: ActorSystem[_] = application.typedSystem
+  override def typedSystem: ActorSystem[Nothing] = application.typedSystem
+
   def classicSystem: classic.ActorSystem = application.classicSystem
 
   override def spawn[T](behavior: Behavior[T], props: Props): ActorRef[T] = application.spawn(behavior, props)
@@ -53,7 +54,5 @@ abstract class FusionApplicationTestkit(val application: FusionApplication)
   override def spawn[T](behavior: Behavior[T], name: String, props: Props): ActorRef[T] =
     application.spawn(behavior, name, props)
 
-  override protected def afterAll(): Unit = {
-    AkkaUtils.shutdownActorSystem(application.classicSystem, 60.seconds)
-  }
+  override protected def afterAll(): Unit = AkkaUtils.shutdownActorSystem(application.classicSystem, 60.seconds)
 }

@@ -33,7 +33,7 @@ import akka.util.ByteString
 import akka.{ actor => classic }
 import com.typesafe.config.{ Config, ConfigFactory }
 import com.typesafe.scalalogging.{ Logger, StrictLogging }
-import fusion.common.constant.ConfigKeys
+import fusion.core.FusionKeys
 import fusion.core.http.HttpSourceQueue
 import fusion.core.http.headers.`X-Trace-Id`
 import fusion.core.util.FusionUtils
@@ -89,11 +89,11 @@ object HttpUtils extends BaseHttpUtils with StrictLogging {
       "compressible" -> MediaType.Compressible,
       "notcompressible" -> MediaType.NotCompressible,
       "gzipped" -> MediaType.Gzipped).withDefaultValue(MediaType.NotCompressible)
-    if (!config.hasPath(ConfigKeys.HTTP.CUSTOM_MEDIA_TYPES)) {
+    if (!config.hasPath(FusionKeys.HTTP.CUSTOM_MEDIA_TYPES)) {
       Map()
     } else {
       config
-        .getStringList(ConfigKeys.HTTP.CUSTOM_MEDIA_TYPES)
+        .getStringList(FusionKeys.HTTP.CUSTOM_MEDIA_TYPES)
         .asScala
         .flatMap { line =>
           try {
@@ -326,7 +326,7 @@ object HttpUtils extends BaseHttpUtils with StrictLogging {
       implicit httpSourceQueue: HttpSourceQueue,
       m: Marshaller[A, RequestEntity],
       ec: ExecutionContext): Future[HttpResponse] = {
-    val entityF = data match {
+    val entityF: Future[RequestEntity] = data match {
       case null                  => Future.successful(HttpEntity.Empty)
       case entity: RequestEntity => Future.successful(entity)
       case _ =>

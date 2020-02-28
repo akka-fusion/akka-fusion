@@ -17,18 +17,19 @@
 package fusion.inject.guice
 
 import akka.actor.ExtendedActorSystem
+import akka.actor.typed.ActorSystem
+import akka.{ actor => classic }
 import com.google.inject.AbstractModule
-import com.google.inject.name.Names
 import com.typesafe.config.Config
 import helloscala.common.Configuration
-import akka.actor.typed.scaladsl.adapter._
 
-class AkkaModule(configuration: Configuration, system: ExtendedActorSystem) extends AbstractModule {
+class AkkaModule(configuration: Configuration, system: classic.ActorSystem, typedSystem: ActorSystem[Nothing])
+    extends AbstractModule {
   override def configure(): Unit = {
-    bind(classOf[ExtendedActorSystem]).toInstance(system)
     bind(classOf[Configuration]).toInstance(configuration)
     bind(classOf[Config]).toInstance(configuration.underlying)
+    bind(classOf[ExtendedActorSystem]).toInstance(system.asInstanceOf[ExtendedActorSystem])
     bind(classOf[akka.actor.ActorSystem]).toInstance(system)
-    bind(classOf[akka.actor.typed.ActorSystem[Nothing]]).toInstance(system.toTyped)
+    bind(classOf[akka.actor.typed.ActorSystem[Nothing]]).toInstance(typedSystem)
   }
 }

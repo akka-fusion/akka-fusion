@@ -37,7 +37,7 @@ class UserRepository {
 }
 
 // #CustomService
-class FileService private (override val typedSystem: ActorSystem[_]) extends TypedExtension {
+class FileService private (override val typedSystem: ActorSystem[Nothing]) extends TypedExtension {
   def findUrlById(fileId: String): Future[String] = Future.successful {
     s"http://localhost:9999/file/$fileId.png"
   }
@@ -47,7 +47,7 @@ object FileService extends TypedExtensionId[FileService] {
   override def createExtension(system: ActorSystem[_]): FileService = new FileService(system)
 }
 
-class UserService private (override val typedSystem: ActorSystem[_]) extends TypedExtension {
+class UserService private (override val typedSystem: ActorSystem[Nothing]) extends TypedExtension {
   import typedSystem.executionContext
   private val fileService = FileService(typedSystem)
   private val userRepository = new UserRepository()
@@ -69,7 +69,7 @@ object UserService extends TypedExtensionId[UserService] {
   override def createExtension(system: ActorSystem[_]): UserService = new UserService(system)
 }
 
-class LoginService private (override val typedSystem: ActorSystem[_]) extends TypedExtension {
+class LoginService private (override val typedSystem: ActorSystem[Nothing]) extends TypedExtension {
   import typedSystem.executionContext
   private val userService = UserService(typedSystem)
 

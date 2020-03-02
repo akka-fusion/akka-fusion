@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 akka-fusion.com
+ * Copyright 2019 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,7 +49,7 @@ abstract class GuiceApplicationTestkit(val application: GuiceApplication)
 
   def configuration: Configuration = Configuration(config)
 
-  override def typedSystem: ActorSystem[_] = application.typedSystem
+  override def typedSystem: ActorSystem[Nothing] = application.typedSystem
 
   def classicSystem: classic.ActorSystem = application.classicSystem
 

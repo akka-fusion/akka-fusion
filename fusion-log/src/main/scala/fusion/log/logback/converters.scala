@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 akka-fusion.com
+ * Copyright 2019 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,9 +20,8 @@ import java.net.InetAddress
 
 import ch.qos.logback.classic.pattern.ClassicConverter
 import ch.qos.logback.classic.spi.ILoggingEvent
-import fusion.common.constant.FusionConstants
-import helloscala.common.util.StringUtils
-import helloscala.common.util.Utils
+import fusion.common.constant.FusionKeys
+import helloscala.common.util.{ StringUtils, Utils }
 
 object Converters {
   val hosts = List(() => System.getProperty("fusion.http.default.server.host"), () => System.getProperty("server.host"))
@@ -30,12 +29,12 @@ object Converters {
   val ports = List(() => System.getProperty("fusion.http.default.server.port"), () => System.getProperty("server.port"))
 
   val serviceNames = List(
-    () => System.getProperty(FusionConstants.SERVICE_NAME_PATH),
+    () => System.getProperty(FusionKeys.FUSION_NAME),
     () => System.getProperty("spring.application.name"),
-    () => System.getProperty(FusionConstants.NAME_PATH))
+    () => System.getProperty("fusion.service.name"))
 
   val envs = List(
-    () => System.getProperty(FusionConstants.PROFILES_ACTIVE_PATH),
+    () => System.getProperty(FusionKeys.PROFILES_ACTIVE_PATH),
     () => System.getProperty("spring.profiles.active"),
     () => System.getProperty("run.env"))
 

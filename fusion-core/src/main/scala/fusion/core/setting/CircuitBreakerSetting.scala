@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 akka-fusion.com
+ * Copyright 2019 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ package fusion.core.setting
 import akka.pattern.CircuitBreaker
 import akka.{ actor => classic }
 import com.typesafe.config.ConfigFactory
+import fusion.common.constant.FusionKeys
 import helloscala.common.Configuration
 
 import scala.concurrent.duration._
@@ -38,7 +39,7 @@ object CircuitBreakerSetting {
 
   def getCircuitBreaker(system: classic.ActorSystem, prefix: String): Option[CircuitBreaker] = {
     val configuration = Configuration(system.settings.config)
-    val deftCircuitBreakerConf = configuration.getConfiguration("fusion.default.circuit-breaker")
+    val deftCircuitBreakerConf = configuration.getConfiguration(FusionKeys.CORE.CIRCUIT_BREAKER)
     val c = configuration.getOrElse(prefix, Configuration(ConfigFactory.parseString("{}")))
     if (c.getOrElse("enable", false)) {
       val s = CircuitBreakerSetting(c.withFallback(deftCircuitBreakerConf))

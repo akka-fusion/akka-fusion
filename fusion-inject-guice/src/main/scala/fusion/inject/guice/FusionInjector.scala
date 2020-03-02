@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 akka-fusion.com
+ * Copyright 2019 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 
 package fusion.inject.guice
 
-import akka.actor.ExtendedActorSystem
 import com.google.inject._
 import helloscala.common.Configuration
 import helloscala.common.util.StringUtils
@@ -25,13 +24,13 @@ import javax.inject.Named
 import scala.collection.immutable
 import scala.reflect.ClassTag
 
-private[fusion] class FusionInjector(configuration: Configuration, system: ExtendedActorSystem) {
+private[fusion] class FusionInjector(configuration: Configuration, module: AbstractModule) {
   val injector: Injector = Guice.createInjector(Stage.PRODUCTION, generateModules(configuration): _*)
 
   private def generateModules(configuration: Configuration): immutable.Seq[Module] = {
     val disabled = configuration.get[Seq[String]]("fusion.inject.modules.disabled").toSet
     val cl = Thread.currentThread().getContextClassLoader
-    new AkkaModule(configuration, system) +: configuration
+    module +: configuration
       .get[Seq[String]]("fusion.inject.modules.enabled")
       .filter(s => StringUtils.isNoneBlank(s) && !disabled(s))
       .distinct

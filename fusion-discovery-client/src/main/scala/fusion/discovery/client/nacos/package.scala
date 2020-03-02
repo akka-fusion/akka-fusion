@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 akka-fusion.com
+ * Copyright 2019 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,24 +20,18 @@ import java.util.Properties
 import java.util.function.BiConsumer
 
 import com.alibaba.nacos.api.common.Constants
-import com.alibaba.nacos.api.naming.listener.Event
-import com.alibaba.nacos.api.naming.listener.NamingEvent
-import com.alibaba.nacos.api.naming.pojo.Instance
-import com.alibaba.nacos.api.naming.pojo.ListView
-import com.alibaba.nacos.api.naming.pojo.ServiceInfo
+import com.alibaba.nacos.api.naming.listener.{ Event, NamingEvent }
+import com.alibaba.nacos.api.naming.pojo.{ Instance, ListView, ServiceInfo }
 import com.typesafe.scalalogging.StrictLogging
+import fusion.discovery.constant.PropKeys._
 import fusion.discovery.model._
 import fusion.http.constant.HttpConstants
-import helloscala.common.util.AsBoolean
-import helloscala.common.util.AsInt
-import helloscala.common.util.AsLong
-import helloscala.common.util.Utils
+import helloscala.common.util.{ AsBoolean, AsInt, AsLong, Utils }
 
 import scala.jdk.CollectionConverters._
 
 package object nacos {
   implicit final class NacosDiscoveryProperties(underlying: Properties) extends Properties with StrictLogging {
-    import fusion.common.constant.PropKeys._
     underlying.forEach(new BiConsumer[AnyRef, AnyRef] {
       override def accept(t: AnyRef, u: AnyRef): Unit = put(t, u)
     })

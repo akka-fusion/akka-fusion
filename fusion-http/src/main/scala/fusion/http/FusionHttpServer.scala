@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 akka-fusion.com
+ * Copyright 2019 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,8 @@ package fusion.http
 import akka.Done
 import akka.actor.ExtendedActorSystem
 import fusion.common.component.Components
-import fusion.common.extension.{ FusionCoordinatedShutdown, FusionExtension, FusionExtensionId }
+import fusion.common.extension.{ FusionExtension, FusionExtensionId }
+import fusion.core.extension.FusionCore
 import fusion.http.constant.HttpConstants
 import helloscala.common.Configuration
 
@@ -35,7 +36,7 @@ private[http] class HttpServerComponents(system: ExtendedActorSystem)
 class FusionHttpServer private (override val classicSystem: ExtendedActorSystem) extends FusionExtension {
   val components = new HttpServerComponents(classicSystem)
   def component: HttpServer = components.component
-  FusionCoordinatedShutdown(classicSystem).serviceUnbind("StopFusionHttpServer") { () =>
+  FusionCore(classicSystem).shutdowns.serviceUnbind("StopFusionHttpServer") { () =>
     components.closeAsync()(classicSystem.dispatcher)
   }
 }

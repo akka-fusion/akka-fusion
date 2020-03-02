@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 akka-fusion.com
+ * Copyright 2019 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ import akka.actor.typed.ActorSystem
 import akka.http.scaladsl.model.{ HttpRequest, HttpResponse }
 import akka.http.scaladsl.server.{ Route, RouteResult }
 import com.typesafe.scalalogging.StrictLogging
-import fusion.common.constant.FusionConstants
+import fusion.common.constant.HttpKeys
 import fusion.core.extension.FusionCore
 import fusion.core.http.headers.{ `X-Request-Time`, `X-Service`, `X-Span-Time` }
 import fusion.http.interceptor.HttpInterceptor
@@ -35,7 +35,7 @@ final class DefaultHttpInterceptor(system: ActorSystem[_]) extends HttpIntercept
     val extHeaders = List(
       if (req.headers.exists(_.name() == `X-Request-Time`.name)) None
       else Some(`X-Request-Time`.fromInstantNow()),
-      if (req.headers.exists(header => header.name() == FusionConstants.X_TRACE_NAME)) None
+      if (req.headers.exists(header => header.name() == HttpKeys.X_TRACE_NAME)) None
       else Some(HttpUtils.generateTraceHeader())).flatten
     val request = req.copy(headers = extHeaders ++ req.headers)
     HttpUtils.curlLogging(request)(logger)

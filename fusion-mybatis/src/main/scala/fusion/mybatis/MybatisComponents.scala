@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 akka-fusion.com
+ * Copyright 2019 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,17 +18,17 @@ package fusion.mybatis
 
 import akka.Done
 import akka.actor.ExtendedActorSystem
-import com.baomidou.mybatisplus.annotation.FieldStrategy
-import com.baomidou.mybatisplus.annotation.IdType
-import com.baomidou.mybatisplus.core.MybatisConfiguration
-import com.baomidou.mybatisplus.core.MybatisSqlSessionFactoryBuilder
+import com.baomidou.mybatisplus.annotation.{ FieldStrategy, IdType }
+import com.baomidou.mybatisplus.core.{ MybatisConfiguration, MybatisSqlSessionFactoryBuilder }
 import com.baomidou.mybatisplus.core.config.GlobalConfig
 import com.baomidou.mybatisplus.core.config.GlobalConfig.DbConfig
 import com.baomidou.mybatisplus.core.incrementer.IKeyGenerator
-import com.baomidou.mybatisplus.extension.incrementer.DB2KeyGenerator
-import com.baomidou.mybatisplus.extension.incrementer.H2KeyGenerator
-import com.baomidou.mybatisplus.extension.incrementer.OracleKeyGenerator
-import com.baomidou.mybatisplus.extension.incrementer.PostgreKeyGenerator
+import com.baomidou.mybatisplus.extension.incrementer.{
+  DB2KeyGenerator,
+  H2KeyGenerator,
+  OracleKeyGenerator,
+  PostgreKeyGenerator
+}
 import com.typesafe.scalalogging.StrictLogging
 import fusion.common.component.Components
 import fusion.jdbc.FusionJdbc
@@ -41,8 +41,7 @@ import org.apache.ibatis.plugin.Interceptor
 import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory
 
 import scala.concurrent.Future
-import scala.util.Failure
-import scala.util.Success
+import scala.util.{ Failure, Success }
 
 class MybatisComponents(system: ExtendedActorSystem)
     extends Components[FusionSqlSessionFactory](MybatisConstants.PATH_DEFAULT)

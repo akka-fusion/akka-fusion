@@ -51,9 +51,8 @@ lazy val root = Project(id = "akka-fusion", base = file("."))
     fusionJsonJackson,
     fusionSecurity,
     fusionTestkit,
-    fusionCore,
     fusionProtobufV3,
-    fusionCommon,
+    fusionCore,
     helloscalaCommon)
   .settings(Publishing.noPublish: _*)
   .settings(Environment.settings: _*)
@@ -87,7 +86,6 @@ lazy val fusionDocs = _project("fusion-docs")
     fusionSecurity,
     fusionTestkit,
     fusionCore,
-    fusionCommon,
     helloscalaCommon)
   .settings(Publishing.noPublish: _*)
   .settings(
@@ -142,7 +140,7 @@ lazy val fusionHttpGateway = _project("fusion-http-gateway")
   .settings(libraryDependencies ++= Seq())
 
 lazy val fusionMq = _project("fusion-mq")
-  .dependsOn(fusionTestkit % "test->test", fusionCommon)
+  .dependsOn(fusionTestkit % "test->test", fusionCore)
   .settings(
     libraryDependencies ++= Seq( /*_alpakkaMqttStreaming*/ ) ++ _akkaClusters ++ _akkaHttps ++ _cassandras ++ _akkaStreamKafkas)
 
@@ -201,7 +199,7 @@ lazy val fusionJsonJackson = _project("fusion-json-jackson")
   .settings(libraryDependencies ++= Seq(_akkaHttp, _akkaSerializationJackson))
 
 lazy val fusionLog = _project("fusion-log")
-  .dependsOn(fusionTestkit % "test->test", fusionCommon)
+  .dependsOn(fusionTestkit % "test->test", fusionCore)
   .settings(libraryDependencies ++= Seq(_logstashLogbackEncoder))
 
 lazy val fusionCassandra = _project("fusion-cassandra")
@@ -225,7 +223,7 @@ lazy val fusionMybatis = _project("fusion-mybatis")
   .settings(libraryDependencies ++= Seq(_mybatisPlus, _lombok % Provided, _postgresql % Test, _mysql % Test))
 
 lazy val fusionJdbc = _project("fusion-jdbc")
-  .dependsOn(fusionTestkit % "test->test", fusionCommon)
+  .dependsOn(fusionTestkit % "test->test", fusionCore)
   .settings(libraryDependencies ++= Seq(_hikariCP, _postgresql % Test, _mysql % Test))
 
 lazy val fusionDoc =
@@ -259,25 +257,15 @@ lazy val fusionProtobufV3 = _project("fusion-protobuf-v3")
         _akkaDiscovery))
 
 lazy val fusionCore = _project("fusion-core")
-  .dependsOn(fusionCommon)
+  .dependsOn(helloscalaCommon)
   .settings(Publishing.publishing: _*)
   .settings(
     libraryDependencies ++= Seq(
         _akkaHttp % Provided,
+        _logbackClassic,
         _akkaTypedTestkit % Test,
         _akkaStreamTestkit % Test,
-        _scalatest % Test))
-
-lazy val fusionCommon =
-  _project("fusion-common")
-    .dependsOn(helloscalaCommon)
-    .settings(Publishing.publishing: _*)
-    .settings(
-      libraryDependencies ++= Seq(
-          _logbackClassic,
-          _akkaTypedTestkit % Test,
-          _akkaStreamTestkit % Test,
-          _scalatest % Test) ++ _akkas ++ _slf4js)
+        _scalatest % Test) ++ _akkas ++ _slf4js)
 
 lazy val helloscalaCommon = _project("helloscala-common")
   .settings(Publishing.publishing: _*)

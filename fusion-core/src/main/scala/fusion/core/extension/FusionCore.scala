@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 akka-fusion.com
+ * Copyright 2019 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ import akka.actor.typed._
 import akka.actor.typed.scaladsl.adapter._
 import akka.http.scaladsl.model.HttpHeader
 import com.typesafe.scalalogging.StrictLogging
-import fusion.common.constant.{ ConfigKeys, FusionConstants }
+import fusion.common.constant.{ FusionConstants, FusionKeys }
 import fusion.common.extension.{ FusionCoordinatedShutdown, FusionExtension, FusionExtensionId }
 import fusion.common.{ ReceptionistFactory, SpawnFactory }
 import fusion.core.event.FusionEvents
@@ -49,9 +49,9 @@ final class FusionCore private (override val classicSystem: ExtendedActorSystem)
 
   writePidfile()
   System.setProperty(
-    FusionConstants.NAME_PATH,
-    if (classicSystem.settings.config.hasPath(FusionConstants.NAME_PATH))
-      classicSystem.settings.config.getString(FusionConstants.NAME_PATH)
+    FusionKeys.FUSION_NAME,
+    if (classicSystem.settings.config.hasPath(FusionKeys.FUSION_NAME))
+      classicSystem.settings.config.getString(FusionKeys.FUSION_NAME)
     else FusionConstants.FUSION)
 
   logger.info("FusionCore instanced!")
@@ -65,7 +65,7 @@ final class FusionCore private (override val classicSystem: ExtendedActorSystem)
   private def writePidfile(): Unit = {
     val config = classicSystem.settings.config
     val maybePidfile =
-      if (config.hasPath(ConfigKeys.FUSION.PIDFILE)) Utils.option(config.getString(ConfigKeys.FUSION.PIDFILE)) else None
+      if (config.hasPath(FusionKeys.PIDFILE)) Utils.option(config.getString(FusionKeys.PIDFILE)) else None
 
     maybePidfile match {
       case Some(pidfile) =>
@@ -77,7 +77,7 @@ final class FusionCore private (override val classicSystem: ExtendedActorSystem)
             System.exit(-1)
         }
       case _ =>
-        logger.info(s"-D${ConfigKeys.FUSION.PIDFILE} 未设置，将不写入 .pid 文件。")
+        logger.info(s"-D${FusionKeys.PIDFILE} 未设置，将不写入 .pid 文件。")
     }
   }
 }

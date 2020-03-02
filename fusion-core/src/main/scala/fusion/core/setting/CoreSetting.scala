@@ -16,11 +16,8 @@
 
 package fusion.core.setting
 
-import fusion.common.constant.{ FusionConstants, FusionKeys }
 import helloscala.common.Configuration
 
 class CoreSetting(configuration: Configuration) {
-//  def name: String =
-//    System.getProperty(FusionConstants.SERVICE_NAME_PATH, configuration.getString(FusionKeys.FUSION_NAME))
   def runMode = new RunMode(configuration)
 }

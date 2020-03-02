@@ -20,28 +20,22 @@ import akka.Done
 import akka.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
 import akka.actor.typed.scaladsl.adapter._
 import akka.stream.ActorAttributes.SupervisionStrategy
-import akka.stream.Materializer
-import akka.stream.Attributes
-import akka.stream.Supervision
-import akka.stream.scaladsl.Flow
-import akka.stream.scaladsl.Sink
-import akka.stream.scaladsl.Source
+import akka.stream.{Attributes, Materializer, Supervision}
+import akka.stream.scaladsl.{Flow, Sink, Source}
 import com.mongodb.client.model.Filters
-import com.mongodb.client.model.geojson.Point
-import com.mongodb.client.model.geojson.Polygon
-import com.mongodb.client.model.geojson.Position
+import com.mongodb.client.model.geojson.{Point, Polygon, Position}
 import com.mongodb.reactivestreams.client._
 import fusion.data.mongodb.MongoTemplate
 import helloscala.common.util.Utils
 import org.bson.Document
 import org.mongodb.scala.bson.conversions.Bson
-import org.scalatest.FunSuiteLike
+import org.scalatest.funsuite.AnyFunSuiteLike
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.jdk.CollectionConverters._
 
-class MongodbGeoTest extends ScalaTestWithActorTestKit with FunSuiteLike {
+class MongodbGeoTest extends ScalaTestWithActorTestKit with AnyFunSuiteLike {
   private val IGNORE_KEYS = Set("location", "id")
   implicit private val classicSystem = system.toClassic
   implicit private val mat = Materializer(classicSystem)

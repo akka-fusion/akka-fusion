@@ -46,11 +46,24 @@ object Utils extends StrictLogging {
   private lazy val _timeBasedUuid = Generators.timeBasedGenerator(EthernetAddress.fromInterface())
   private lazy val _randomBasedUuid = Generators.randomBasedGenerator(new SecureRandom())
 
-  @tailrec
-  final def getValueFromFunctions[T](functions: Iterable[() => T], value: T, valueStopFunc: T => Boolean): T = {
-    if (valueStopFunc(value)) value
-    else if (functions.isEmpty) value
-    else getValueFromFunctions(functions.tail, functions.head(), valueStopFunc)
+  /**
+   *
+   * @param functions 函数列表
+   * @param defaultValue 默认值
+   * @param valueStopFunc 停止查找判断
+   * @return 成功valueStopFunc匹配的第一个值，否则返回 defaultValue
+   */
+  final def getValueFromFunctions[T](functions: Iterable[() => T], defaultValue: T, valueStopFunc: T => Boolean): T = {
+    @tailrec def valueFromFunctions(functions: Iterable[() => T]): T = {
+      if (functions.isEmpty) defaultValue
+      else {
+        val value = functions.head()
+        if (valueStopFunc(value)) value
+        else valueFromFunctions(functions.tail)
+      }
+    }
+
+    valueFromFunctions(functions)
   }
 
   def timeBasedUuid(): UUID = _timeBasedUuid.generate()

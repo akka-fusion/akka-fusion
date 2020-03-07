@@ -46,6 +46,7 @@ Content-Length: 48
 * [data-mongodb](data-mongodb/index.md)
 * [data-kafka](data-kafka/index.md)
 * [inject](inject/index.md)
+* [log](log/index.md)
 * [configuration](configuration/index.md)
 * [reactivemanifesto](reactivemanifesto.md)
 

@@ -22,7 +22,8 @@
                         "env": "%fusionEnv",
                         "thread": "%thread",
                         "logger": "%logger",
-                        "message": "%level [%thread] %logger %line - %message%n%exception",
+                        "akkaSource": "%X{akkaSource}",
+                        "message": "%level [%thread] %logger %line -\n%message",
                         "server": {
                             "host": "%fusionServerHost",
                             "port": "#asLong{%fusionServerPort}"
@@ -33,13 +34,9 @@
                 </pattern>
                 <callerData/>
                 <version/>
+                <!-- Printing StackTrace has an import on performance. -->
                 <!--<stackTrace/>-->
             </providers>
         </encoder>
     </appender>
-<!--    <appender name="ASYNC_FILE" class="ch.qos.logback.classic.AsyncAppender">-->
-<!--        <queueSize>1024</queueSize>-->
-<!--        <neverBlock>true</neverBlock>-->
-<!--        <appender-ref ref="FILE" />-->
-<!--    </appender>-->
 </included>

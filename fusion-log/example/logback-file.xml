@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="false">
+    <property name="fusion.log.logback.file" value="fusion-example"/>
+    <property name="fusion.log.logback.dir" value="${user.home}/logs"/>
+
+    <include resource="fusion/log/logback/defaults.xml"/>
+    <include resource="fusion/log/logback/file-appender.xml"/>
+    <include resource="fusion/log/logback/stdout-appender.xml"/>
+
+    <logger name="ch.qos" level="WARN"/>
+    <logger name="com.zaxxer" level="WARN"/>
+    <logger name="fusion" level="DEBUG"/>
+    <logger name="helloscala" level="DEBUG"/>
+
+    <root level="INFO">
+        <!-- <appender-ref ref="STDOUT"/> -->
+        <appender-ref ref="FILE"/>
+    </root>
+</configuration>

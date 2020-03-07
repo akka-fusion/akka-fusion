@@ -199,8 +199,8 @@ lazy val fusionJsonJackson = _project("fusion-json-jackson")
   .settings(libraryDependencies ++= Seq(_akkaHttp, _akkaSerializationJackson))
 
 lazy val fusionLog = _project("fusion-log")
-  .dependsOn(fusionTestkit % "test->test", fusionCore)
-  .settings(libraryDependencies ++= Seq(_logstashLogbackEncoder))
+  .dependsOn(fusionTestkit % "test->test", helloscalaCommon)
+  .settings(libraryDependencies ++= Seq(_logbackClassic, _logstashLogbackEncoder) ++ _slf4js)
 
 lazy val fusionCassandra = _project("fusion-cassandra")
   .dependsOn(fusionTestkit % "test->test", fusionCore)

@@ -260,7 +260,8 @@ object Dependencies {
   val _pois = Seq("org.apache.poi" % "poi-scratchpad" % versionPoi, "org.apache.poi" % "poi-ooxml" % versionPoi)
   val _scalaLogging = "com.typesafe.scala-logging" %% "scala-logging" % versionScalaLogging
   val _logbackClassic = "ch.qos.logback" % "logback-classic" % versionLogback
-  val _slf4js = Seq("slf4j-api", "jul-to-slf4j", "jcl-over-slf4j").map("org.slf4j" % _ % versionSlf4j)
+  val _slf4jApi = "org.slf4j" % "slf4j-api" % versionSlf4j
+  val _slf4js = _slf4jApi +: Seq("jul-to-slf4j", "jcl-over-slf4j").map("org.slf4j" % _ % versionSlf4j)
   val _logstashLogbackEncoder = "net.logstash.logback" % "logstash-logback-encoder" % versionLogstashLogback
   val _bcprovJdk15on = "org.bouncycastle" % "bcprov-jdk15on" % versionBcprovJdk15on
   val _quartz = ("org.quartz-scheduler" % "quartz" % versionQuartz).exclude("com.zaxxer", "HikariCP-java7")

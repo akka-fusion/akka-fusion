@@ -5,35 +5,6 @@
             <pattern>${fusion.log.logback.console-pattern:-%date{ISO8601} %-5level %thread %logger %X{akkaSource} %line - %msg%n%exception}</pattern>
         </encoder>
     </appender>
-    <appender name="STDOUT_JSON" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
-            <charset>UTF-8</charset>
-            <providers>
-                <mdc/>
-                <timestamp/>
-                <pattern>
-                    <pattern>
-                    {
-                        "level": "%level",
-                        "serviceName": "%fusionServiceName",
-                        "env": "%fusionEnv",
-                        "thread": "%thread",
-                        "logger": "%logger",
-                        "message": "%level [%thread] %logger %line - %message%n%exception",
-                        "server": {
-                            "host": "%fusionServerHost",
-                            "port": "#asLong{%fusionServerPort}"
-                        },
-                        "exception": "%exception"
-                    }
-                    </pattern>
-                </pattern>
-                <callerData/>
-                <version/>
-                <stackTrace/>
-            </providers>
-        </encoder>
-    </appender>
 <!--    <appender name="ASYNC_STDOUT" class="ch.qos.logback.classic.AsyncAppender">-->
 <!--        <queueSize>1024</queueSize>-->
 <!--        <neverBlock>true</neverBlock>-->

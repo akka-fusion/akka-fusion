@@ -20,27 +20,31 @@ import java.net.InetAddress
 
 import ch.qos.logback.classic.pattern.ClassicConverter
 import ch.qos.logback.classic.spi.ILoggingEvent
-import fusion.common.constant.FusionKeys
 import helloscala.common.util.{ StringUtils, Utils }
 
 object Converters {
-  val hosts = List(() => System.getProperty("fusion.http.default.server.host"), () => System.getProperty("server.host"))
+  val hosts = List(
+    () => System.getProperty("fusion.http.default.server.host"),
+    () => System.getProperty("http.host"), // spring
+    () => System.getProperty("server.host"))
 
-  val ports = List(() => System.getProperty("fusion.http.default.server.port"), () => System.getProperty("server.port"))
+  val ports = List(
+    () => System.getProperty("fusion.http.default.server.port"),
+    () => System.getProperty("http.port"), // spring
+    () => System.getProperty("server.port"))
 
   val serviceNames = List(
-    () => System.getProperty(FusionKeys.FUSION_NAME),
-    () => System.getProperty("spring.application.name"),
+    () => System.getProperty("fusion.name"),
+    () => System.getProperty("spring.application.name"), // spring
     () => System.getProperty("fusion.service.name"))
 
   val envs = List(
-    () => System.getProperty(FusionKeys.PROFILES_ACTIVE_PATH),
-    () => System.getProperty("spring.profiles.active"),
+    () => System.getProperty("fusion.profiles.active"),
+    () => System.getProperty("spring.profiles.active"), // spring
     () => System.getProperty("run.env"))
 
-  @inline final def valueFromFunctions(list: List[() => String], value: String): String = {
+  @inline final def valueFromFunctions(list: List[() => String], value: String): String =
     Utils.getValueFromFunctions[String](list, value, StringUtils.isNoneEmpty)
-  }
 }
 
 class LogHostNameConverter extends ClassicConverter {

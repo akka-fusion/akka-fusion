@@ -1,12 +1,12 @@
-import Dependencies.{versionScala212, versionScala213}
+import Dependencies.{ versionScala212, versionScala213 }
 import bintray.BintrayKeys._
 import com.typesafe.sbt.SbtNativePackager.autoImport.maintainer
-import de.heikoseeberger.sbtheader.HeaderPlugin.autoImport.{HeaderLicense, headerLicense}
+import de.heikoseeberger.sbtheader.HeaderPlugin.autoImport.{ HeaderLicense, headerLicense }
 import sbt.Keys._
 import sbt._
 
 object Commons {
-  import Environment.{BuildEnv, buildEnv}
+  import Environment.{ BuildEnv, buildEnv }
 
   def basicSettings =
     Seq(

@@ -33,14 +33,6 @@
 
 默认提供的 `FILE` logback 日志 **Appender** 为了方便 filebeat 读取并存储日志到 Elasticsearch，使用JSON格式输出日志。[file-appender.xml](#file-appender-xml) 可以查阅详细的配置及说明。
 
-应用日志使用logback，由程序启动命令参数指定日志文件。如：`-Dlogback.configurationFile=${__APP_PATH__}/logback.xml`。
-
-@@@warning { title=Spring }
-Spring 应用中需要删除`logback-spring.xml`文件而使用`logback.xml`（如果存在）。
-
-Spring 应用需要禁用 `LoggingSystem`，使用此命令行参数可禁用它：`-Dorg.springframework.boot.logging.LoggingSystem=none`。
-@@@
-
 ### 异步输出到文件
 
 添加一个 `AsyncAppender` 来包装 `RollingFileAppender`，即可以异步的方式写文件写入日志。
@@ -56,6 +48,47 @@ Spring 应用需要禁用 `LoggingSystem`，使用此命令行参数可禁用它
         <appender-ref ref="ASYNC_FILE"/>
     </root>
 ```
+
+## 在 Scala/Java 应用中使用
+
+应用日志使用 logback 输出，可由程序启动命令参数指定日志配置文件路径。如：`-Dlogback.configurationFile=${__APP_PATH__}/logback.xml`。
+
+在 Scala 应用中，可以使用 `StrictLogging` 或 `LazyLogging` 来引入 `Logger` 变量，这个特性由 [scala-logging](https://github.com/lightbend/scala-logging) 库提供。
+
+```scala
+class MyClass extends StrictLogging {
+  logger.debug(s"Some $expensive message!")
+  
+  logger.whenDebugEnabled {
+    println("This would only execute when the debug level is enabled.")
+    (1 to 10).foreach(x => println("Scala logging is great!"))
+  }
+}
+```
+
+可以看到，在代码里简单的 extends/with `StrictLogging` 这个 trait，就可以直接使用 `logger` 变量来调用它上面的各种日志方法。另外，也不在需要在日志消息里面使用 `{}` 来作为占位符来输出变量，可直接使用 Scala 的字符串插值特性。scala-logging 基于 Scala macros 提供了编译时扩展：
+
+```scala
+logger.debug(s"Some $expensive message!")
+```
+
+将在编译时被替换为：
+
+```scala
+if (logger.isDebugEnabled) logger.debug(s"Some $expensive message!")
+```
+
+## 在 Akka 应用中使用
+
+在 Akka 应用中使用需要配置
+
+## 在 Spring/ Spring Cloud 中使用
+
+@@@warning { title=Spring }
+Spring 应用中需要删除`logback-spring.xml`文件而使用`logback.xml`（如果存在）。
+
+Spring 应用需要禁用 `LoggingSystem`，使用此命令行参数可禁用它：`-Dorg.springframework.boot.logging.LoggingSystem=none`。
+@@@
 
 ## 自定义 encoder
 

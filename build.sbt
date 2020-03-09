@@ -240,12 +240,7 @@ lazy val fusionSecurity = _project("fusion-security")
 lazy val fusionTestkit = _project("fusion-testkit")
   .dependsOn(fusionCore)
   .settings(Publishing.publishing: _*)
-  .settings(
-    libraryDependencies ++= Seq(
-        "org.scala-lang" % "scala-reflect" % scalaVersion.value,
-        _akkaTypedTestkit,
-        _akkaStreamTestkit,
-        _scalatest))
+  .settings(libraryDependencies ++= Seq(_akkaTypedTestkit, _akkaStreamTestkit, _scalatest))
 
 lazy val fusionProtobufV3 = _project("fusion-protobuf-v3")
   .dependsOn(fusionCore)
@@ -277,11 +272,12 @@ lazy val helloscalaCommon = _project("helloscala-common")
     libraryDependencies ++= Seq(
         _jacksonAnnotations % Provided,
         _config,
+        _slf4jApi,
+        _scalaLogging,
         _uuidGenerator,
-        "org.scala-lang" % "scala-library" % scalaVersion.value,
+        "org.scala-lang" % "scala-reflect" % scalaVersion.value,
         _scalaCollectionCompat,
         _scalaJava8Compat,
-        _scalaLogging,
         _scalatest % Test))
 
 def _project(name: String, _base: String = null) =

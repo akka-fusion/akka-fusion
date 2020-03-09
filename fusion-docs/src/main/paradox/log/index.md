@@ -53,6 +53,8 @@
 
 应用日志使用 logback 输出，可由程序启动命令参数指定日志配置文件路径。如：`-Dlogback.configurationFile=${__APP_PATH__}/logback.xml`。
 
+### scala-logging
+
 在 Scala 应用中，可以使用 `StrictLogging` 或 `LazyLogging` 来引入 `Logger` 变量，这个特性由 [scala-logging](https://github.com/lightbend/scala-logging) 库提供。
 
 ```scala
@@ -80,15 +82,43 @@ if (logger.isDebugEnabled) logger.debug(s"Some $expensive message!")
 
 ## 在 Akka 应用中使用
 
-在 Akka 应用中使用需要配置
+Akka 有自己的日志级别配置项。所以，最好将 Akka 的日志级别配置与 slf4j 的日志级别保持一致，可以在 HOCON 里面通过以下配置设置 Akka 的日志级别：
+
+```hocon
+akka.loglevel = "DEBUG"
+```
+
+在 actor 中，可以通过 `ActorContext[T]` 上提供的 `log` 方法来使用 Akka 日志，它将使用 Akka 定义的日志组织
+
+当 `akka-actor-typed` 和 `akka-slf4j` 存在于类依赖路径上时，Akka 的事件日志处理 actor 将向 SLF4J 发送事件，并自动启用 `akka.event.slf4j.Slf4jLogger` 和 `akka.event.slf4j.Slf4jLoggingFilter` 类，而无需要任何配置。若需要手动配置 Akka 使用 SLF4J 输出日志，请确保如下配置，否则将使用默认日志输出到终端。
+
+```hocon
+akka {
+  loglevel = "DEBUG"
+  loggers = ["akka.event.slf4j.Slf4jLogger"]
+  logging-filter = "akka.event.slf4j.Slf4jLoggingFilter"
+}
+```
+
+@@@note { title=Tip }
+使用 actor 的过程中，死信消息会在 **INFO** 级别输出，通常情况下这都是正常的业务状态，可以通过配置抑制这类日志消息在输出几次后被关闭的输出以免干扰我们正常的日志内容。另外，在 ActorSystem 被关闭（`terminate`）时，actor 邮箱里被挂起的消息将被发送的死信邮箱，我们可以通过配置禁止在 **terminate** 期间输出死信日志。
+
+```hocon
+akka {
+  log-dead-letters = 10
+  log-dead-letters-during-shutdown = on
+}
+```
+@@@
 
 ## 在 Spring/ Spring Cloud 中使用
 
-@@@warning { title=Spring }
 Spring 应用中需要删除`logback-spring.xml`文件而使用`logback.xml`（如果存在）。
 
-Spring 应用需要禁用 `LoggingSystem`，使用此命令行参数可禁用它：`-Dorg.springframework.boot.logging.LoggingSystem=none`。
-@@@
+Spring 应用需要禁用 `LoggingSystem`，使用此命令行参数可禁用它：`-Dorg.springframework.boot.logging.LoggingSystem=none`。[点此访问自定义 Spring 日志的更多介绍](https://docs.spring.io/spring-boot/docs/current/reference/html/spring-boot-features.html#boot-features-custom-log-configuration)。
+
+Fusion Log 为日志提供了兼容 Spring Cloud 的参数以在日志输出中输出 Spring应用服务名、启动环境（模式）、IP地址、网络端口等信息。详细映射参数见： @ref[#default-xml](#defaults-xml)
+
 
 ## 自定义 encoder
 
@@ -110,20 +140,6 @@ Spring 应用需要禁用 `LoggingSystem`，使用此命令行参数可禁用它
         <appender-ref ref="console_custom"/>
     </root>
 </configuration>
-```
-
-## Filebeat 配置
-
-**filebeat.yml 参考配置如：**
-
-@@snip [logback-file.xml](../../../../../fusion-log/example/filebeat.yml)
-
-*注意是以下三行配置，使filebeat支持json格式日志文件*
-
-```
-  json:
-    keys_under_root: true
-    overwrite_keys: true
 ```
 
 ## 预置配置
@@ -161,3 +177,17 @@ Fusion Log 预定义了几个转换规则参数，可以在 Appender 的编码�
 @@snip [defaults.xml](../../../../../fusion-log/src/main/resources/fusion/log/logback/file-appender.xml)
 
 _通过 `LoggingEventCompositeJsonEncoder` 提供了 JSON 格式日志输出支持，它是 logstash 提供的一个 logback encoder 和 appender 库，在此可以查询更多详细：[https://github.com/logstash/logstash-logback-encoder](https://github.com/logstash/logstash-logback-encoder) 。_
+
+## Filebeat 配置
+
+**filebeat.yml 参考配置如：**
+
+@@snip [logback-file.xml](../../../../../fusion-log/example/filebeat.yml)
+
+*注意是以下三行配置，使filebeat支持json格式日志文件*
+
+```
+  json:
+    keys_under_root: true
+    overwrite_keys: true
+```

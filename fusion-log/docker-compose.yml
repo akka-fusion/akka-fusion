@@ -1,0 +1,34 @@
+version: '3'
+
+services:
+  hongka-elasticsearch:
+    container_name: hongka-elasticsearch
+    image: elasticsearch:6.8.6
+    #restart: on-failure
+    ports:
+      - 9200:9200
+      - 9300:9300
+    environment:
+      - discovery.type=single-node
+      - cluster.name=hongka-docker-es-cluster
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    networks:
+      - fusionlognet
+
+  hongka-kibana:
+    container_name: hongka-kibana
+    image: kibana:6.8.6
+    #restart: on-failure
+    ports:
+      - 5601:5601
+    environment:
+      SERVER_NAME: hongka-kibana
+      ELASTICSEARCH_HOSTS: http://hongka-elasticsearch:9200
+    networks:
+      - fusionlognet
+
+networks:
+  fusionlognet:

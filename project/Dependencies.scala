@@ -1,59 +1,59 @@
 import sbt._
 
 object Dependencies {
-  val versionScala212 = "2.12.10"
-  val versionScala213 = "2.13.1"
-  val versionScalaXml = "1.2.0"
-  val versionScalaCollectionCompat = "2.1.4"
-  val versionJava8Compat = "0.9.0"
-  val versionScalameta = "4.2.5"
+  val versionScala212 = "2.12.11"
+  val versionScala213 = "2.13.2"
+  val versionScalaXml = "1.3.0"
+  val versionScalaCollectionCompat = "2.1.6"
+  val versionJava8Compat = "0.9.1"
+  val versionScalameta = "4.3.10"
   val versionScalatest = "3.1.1"
-  val versionAkka: String = sys.props.getOrElse("akka.version", "2.6.3")
-  val versionAkkaManagement = "1.0.5"
+  val versionAkka: String = sys.props.getOrElse("akka.version", "2.6.5")
+  val versionAkkaManagement = "1.0.6"
   val versionAkkaHttp = "10.1.11"
-  val versionAkkaHttpCors = "0.4.2"
-  val versionAlpakka = "2.0.0-M3"
+  val versionAkkaHttpCors = "0.4.3"
+  val versionAlpakka = "2.0.0"
   val versionAlpakkaKafka = "2.0.2"
-  val versionAkkaPersistenceCassandra = "0.102"
+  val versionAkkaPersistenceCassandra = "1.0.0"
   val versionAkkaPersistenceJdbc = "3.5.3"
-  val versionCassandra = "4.3.1"
-  val versionJackson = "2.10.2"
-  val versionElastic4s = "7.3.5"
+  val versionCassandra = "4.6.0"
+  val versionJackson = "2.10.3"
+  val versionElastic4s = "7.6.1"
   val versionConfig = "1.4.0"
-  val versionPureconfig = "0.12.2"
-  val versionGuice = "4.2.2"
+  val versionPureconfig = "0.12.3"
+  val versionGuice = "4.2.3"
   val versionKamon = "2.0.4"
   val versionKanela = "1.0.4"
-  val versionUuidGenerator = "3.2.0"
+  val versionUuidGenerator = "4.0.1"
   val versionHanlp = "portable-1.7.6"
   val versionSlick = "3.3.2"
-  val versionSlickPg = "0.18.1"
-  val versionPoi = "4.1.1"
+  val versionSlickPg = "0.19.0"
+  val versionPoi = "4.1.2"
   val versionQuartz = "2.3.2"
-  val versionBcprovJdk15on = "1.64"
-  val versionNacos = "1.1.4"
+  val versionBcprovJdk15on = "1.65"
+  val versionNacos = "1.2.1"
   val versionJsch = "0.1.55"
-  val versionJakartaMail = "1.6.4"
-  val versionHikariCP = "3.4.1"
-  val versionMybatisPlus = "3.3.0"
+  val versionJakartaMail = "1.6.5"
+  val versionHikariCP = "3.4.3"
+  val versionMybatisPlus = "3.3.1"
   val versionSlf4j = "1.7.30"
   val versionLombok = "1.18.12"
-  val versionMySQL = "8.0.19"
-  val versionPostgres = "42.2.10"
-  val versionRequests = "0.5.1"
-  val versionFastparse = "2.2.4"
-  val versionOsLib = "0.6.3"
-  val versionMongoScalaBson = "2.8.0"
-  val versionMongoDriverReactivestreams = "1.13.0"
-  val versionBson = "3.12.0"
-  val versionKafka = "2.4.0"
-  val versionAlpnAgent = "2.0.9"
+  val versionMySQL = "8.0.20"
+  val versionPostgres = "42.2.12"
+  val versionRequests = "0.6.0"
+  val versionFastparse = "2.3.0"
+  val versionOsLib = "0.7.0"
+  val versionMongoScalaBson = "4.0.3"
+  val versionMongoDriverReactivestreams = "4.0.3"
+  val versionBson = "4.0.3"
+  val versionKafka = "2.4.1"
+  val versionAlpnAgent = "2.0.10"
   val versionLogback = "1.2.3"
   val versionScalaLogging = "3.9.2"
   val versionLogstashLogback = "6.3"
-  val versionJwt = "4.2.0"
-  val versionJson4s = "3.6.7"
-  val versionScalapbJson4s = "0.10.0"
+  val versionJwt = "4.3.0"
+  val versionJson4s = "3.6.8"
+  val versionScalapbJson4s = "0.10.1"
 
   val _scalameta = "org.scalameta" %% "scalameta" % versionScalameta
   val _scalaXml = ("org.scala-lang.modules" %% "scala-xml" % versionScalaXml).exclude("org.scala-lang", "scala-library")
@@ -191,8 +191,10 @@ object Dependencies {
       .cross(CrossVersion.binary)
 
   val _akkaStreamKafkas = Seq(
+    "org.apache.kafka" % "kafka-clients" % versionKafka,
     ("com.typesafe.akka" %% "akka-stream-kafka" % versionAlpakkaKafka)
       .exclude("com.typesafe.akka", "akka-stream")
+      .exclude("org.apache.kafka", "kafka-clients")
       .cross(CrossVersion.binary))
 
   val _config = "com.typesafe" % "config" % versionConfig
@@ -277,6 +279,5 @@ object Dependencies {
   val _bson = "org.mongodb" % "bson" % versionBson
   val _mssql = "com.microsoft.sqlserver" % "mssql-jdbc" % "6.4.0.jre8"
   val _commonsVfs = "org.apache.commons" % "commons-vfs2" % "2.2"
-  val _kafkaClients = "org.apache.kafka" % "kafka-clients" % versionKafka
   val _alpnAgent = "org.mortbay.jetty.alpn" % "jetty-alpn-agent" % versionAlpnAgent
 }

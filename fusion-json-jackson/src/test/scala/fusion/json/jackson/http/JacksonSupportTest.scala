@@ -28,19 +28,32 @@ import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AsyncWordSpec
 
-import scala.concurrent.Await
+import scala.concurrent.{ Await, Future }
 import scala.concurrent.duration._
 
 final case class Foo(bar: String) {
   require(bar startsWith "bar", "bar must start with 'bar'!")
 }
 
+final case class FinReq(id: Long, detail: List[Foo])
+
 class JacksonSupportTest extends AsyncWordSpec with Matchers with BeforeAndAfterAll {
   private implicit val system = ActorSystem()
   private val jacksonSupport = JacksonObjectMapperExtension(system).jacksonSupport
+  private val objectMapperJson = JacksonObjectMapperExtension(system).objectMapperJson
   import jacksonSupport._
 
   "JacksonSupport" should {
+    "test" in {
+      Future {
+        val jsonstr = """{"id":23,"detail":[{"bar":"bar哈哈哈"}]}"""
+        val bean = objectMapperJson.readValue[FinReq](jsonstr)
+        println(bean)
+        bean.detail.head shouldBe Foo("bar哈哈哈")
+        objectMapperJson.stringify(bean) shouldBe jsonstr
+      }
+    }
+
     "should enable marshalling and unmarshalling of case classes" in {
       val foo = Foo("bar")
       Marshal(foo).to[RequestEntity].flatMap(Unmarshal(_).to[Foo]).map(_ shouldBe foo)

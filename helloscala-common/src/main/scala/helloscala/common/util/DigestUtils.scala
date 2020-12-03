@@ -21,6 +21,7 @@ import java.nio.file.{ Files, Path }
 import java.security.MessageDigest
 
 object MessageDigestAlgorithms {
+
   /**
    * The MD5 message digest algorithm defined in RFC 1321.
    */

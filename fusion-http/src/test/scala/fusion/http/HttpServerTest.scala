@@ -27,8 +27,8 @@ class HttpServerTest extends ScalaTestWithActorTestKit with FusionFunSuiteLike {
   implicit private val classicSystem = system.toClassic
 
   private val route = path("hello") {
-      complete("hello")
-    } ~
+    complete("hello")
+  } ~
     path("404") {
       complete("404")
     }
@@ -38,9 +38,8 @@ class HttpServerTest extends ScalaTestWithActorTestKit with FusionFunSuiteLike {
     println(local.getAddress.getHostAddress)
     println(local.getHostName + " " + local.getAddress + " " + local.getHostString + " " + local.getPort)
     val request =
-      HttpRequest(
-        uri = Uri(s"http://${local.getHostString}:${local.getPort}/404")
-          .withQuery(Uri.Query("name" -> "羊八井", "age" -> 33.toString, "username" -> "yangbajing")))
+      HttpRequest(uri = Uri(s"http://${local.getHostString}:${local.getPort}/404")
+        .withQuery(Uri.Query("name" -> "羊八井", "age" -> 33.toString, "username" -> "yangbajing")))
     val response = Http().singleRequest(request).futureValue
     println(response)
   }

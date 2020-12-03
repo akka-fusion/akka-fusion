@@ -65,15 +65,14 @@ final class HttpServer(val id: String, implicit val system: ExtendedActorSystem)
   logger.debug("httpSetting: " + httpSetting)
 
   @throws(classOf[Exception])
-  def startHandlerSync(handler: HttpHandler)(
-      implicit
+  def startHandlerSync(handler: HttpHandler)(implicit
       rejectionHandler: RejectionHandler = createRejectionHandler(),
       exceptionHandler: ExceptionHandler = createExceptionHandler(),
       duration: Duration = 30.seconds): ServerBinding =
     Await.result(startHandlerAsync(handler), duration)
 
-  def startHandlerAsync(handler: HttpHandler)(
-      implicit rejectionHandler: RejectionHandler = createRejectionHandler(),
+  def startHandlerAsync(handler: HttpHandler)(implicit
+      rejectionHandler: RejectionHandler = createRejectionHandler(),
       exceptionHandler: ExceptionHandler = createExceptionHandler()): Future[ServerBinding] = {
     import akka.http.scaladsl.server.Directives._
     val route = extractRequest { request =>
@@ -82,8 +81,7 @@ final class HttpServer(val id: String, implicit val system: ExtendedActorSystem)
     startRouteAsync(route)
   }
 
-  def startBaseRouteSync(route: BaseRoute)(
-      implicit
+  def startBaseRouteSync(route: BaseRoute)(implicit
       rejectionHandler: RejectionHandler = createRejectionHandler(),
       exceptionHandler: ExceptionHandler = createExceptionHandler(),
       duration: Duration = 30.seconds): ServerBinding = {
@@ -91,16 +89,15 @@ final class HttpServer(val id: String, implicit val system: ExtendedActorSystem)
   }
 
   @throws(classOf[Exception])
-  def startRouteSync(route: Route)(
-      implicit
+  def startRouteSync(route: Route)(implicit
       rejectionHandler: RejectionHandler = createRejectionHandler(),
       exceptionHandler: ExceptionHandler = createExceptionHandler(),
       duration: Duration = 30.seconds): ServerBinding = {
     Await.result(startRouteAsync(route), duration)
   }
 
-  def startRouteAsync(_route: Route)(
-      implicit rejectionHandler: RejectionHandler = createRejectionHandler(),
+  def startRouteAsync(_route: Route)(implicit
+      rejectionHandler: RejectionHandler = createRejectionHandler(),
       exceptionHandler: ExceptionHandler = createExceptionHandler()): Future[ServerBinding] = {
     if (!_isStarted.compareAndSet(false, true)) {
       throw HSInternalErrorException("HttpServer只允许start一次")

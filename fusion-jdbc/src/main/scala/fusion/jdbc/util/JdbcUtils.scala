@@ -160,7 +160,8 @@ object JdbcUtils extends StrictLogging {
         value = rs.getLong(index)
       } else if (classOf[Float] == requiredType || classOf[java.lang.Float] == requiredType) {
         value = rs.getFloat(index)
-      } else if (classOf[Double] == requiredType || classOf[java.lang.Double] == requiredType || classOf[Number] == requiredType) {
+      } else if (classOf[Double] == requiredType || classOf[java.lang.Double] == requiredType || classOf[
+          Number] == requiredType) {
         value = rs.getDouble(index)
       } else {
         // Some unknown type desired -> rely on getObject.
@@ -291,51 +292,59 @@ object JdbcUtils extends StrictLogging {
     new PreparedStatementActionImpl(args, func)
 
   def preparedStatementActionUseUpdate(args: Iterable[Any]): PreparedStatementAction[Int] =
-    new PreparedStatementActionImpl(args, new PreparedStatementAction[Int] {
-      override def apply(pstmt: PreparedStatement): Int = {
-        setStatementParameters(pstmt, args)
-        pstmt.executeUpdate()
-      }
-    })
+    new PreparedStatementActionImpl(
+      args,
+      new PreparedStatementAction[Int] {
+        override def apply(pstmt: PreparedStatement): Int = {
+          setStatementParameters(pstmt, args)
+          pstmt.executeUpdate()
+        }
+      })
 
   def preparedStatementActionUseUpdate(
       args: Map[String, Any],
       paramIndex: Map[String, Int]): PreparedStatementAction[Int] =
-    new PreparedStatementActionImpl(args, new PreparedStatementAction[Int] {
-      override def apply(pstmt: PreparedStatement): Int = {
-        for ((param, index) <- paramIndex) {
-          setParameter(pstmt, index, args(param))
+    new PreparedStatementActionImpl(
+      args,
+      new PreparedStatementAction[Int] {
+        override def apply(pstmt: PreparedStatement): Int = {
+          for ((param, index) <- paramIndex) {
+            setParameter(pstmt, index, args(param))
+          }
+          pstmt.executeUpdate()
         }
-        pstmt.executeUpdate()
-      }
-    })
+      })
 
   def preparedStatementActionUseBatchUpdate(
       argsList: Iterable[Iterable[Any]]): PreparedStatementAction[scala.Array[Int]] =
-    new PreparedStatementActionImpl(argsList, new PreparedStatementAction[scala.Array[Int]] {
-      override def apply(pstmt: PreparedStatement): scala.Array[Int] = {
-        for (args <- argsList) {
-          setStatementParameters(pstmt, args)
-          pstmt.addBatch()
+    new PreparedStatementActionImpl(
+      argsList,
+      new PreparedStatementAction[scala.Array[Int]] {
+        override def apply(pstmt: PreparedStatement): scala.Array[Int] = {
+          for (args <- argsList) {
+            setStatementParameters(pstmt, args)
+            pstmt.addBatch()
+          }
+          pstmt.executeBatch()
         }
-        pstmt.executeBatch()
-      }
-    })
+      })
 
   def preparedStatementActionUseBatchUpdate(
       argsList: Iterable[Map[String, Any]],
       paramIndex: Map[String, Int]): PreparedStatementAction[scala.Array[Int]] =
-    new PreparedStatementActionImpl(argsList, new PreparedStatementAction[scala.Array[Int]] {
-      override def apply(pstmt: PreparedStatement): scala.Array[Int] = {
-        for (args <- argsList) {
-          for ((param, index) <- paramIndex) {
-            setParameter(pstmt, index, args(param))
+    new PreparedStatementActionImpl(
+      argsList,
+      new PreparedStatementAction[scala.Array[Int]] {
+        override def apply(pstmt: PreparedStatement): scala.Array[Int] = {
+          for (args <- argsList) {
+            for ((param, index) <- paramIndex) {
+              setParameter(pstmt, index, args(param))
+            }
+            pstmt.addBatch()
           }
-          pstmt.addBatch()
+          pstmt.executeBatch()
         }
-        pstmt.executeBatch()
-      }
-    })
+      })
 
   def setStatementParameters(
       pstmt: PreparedStatement,
@@ -581,8 +590,8 @@ object JdbcUtils extends StrictLogging {
     if (parameterTypes.nonEmpty) {
       val parameters = actionFunc match {
         case actionFuncImpl: PreparedStatementActionImpl[_] =>
-          parameterTypes.zip(actionFuncImpl.args).map {
-            case (paramType, value) => s"\t\t$paramType: $value"
+          parameterTypes.zip(actionFuncImpl.args).map { case (paramType, value) =>
+            s"\t\t$paramType: $value"
           }
         case _ =>
           parameterTypes.map(paramType => s"\t\t$paramType:")

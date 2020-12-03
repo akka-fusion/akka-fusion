@@ -25,6 +25,7 @@ object FusionProtocol {
   trait Command
 
   object Spawn {
+
     /**
      * Special factory to make using Spawn with ask easier
      */
@@ -57,9 +58,8 @@ object FusionProtocol {
   /**
    * Behavior implementing the [[FusionProtocol.Command]].
    */
-  val behavior: Behavior[Command] = Behaviors.receive {
-    case (ctx, t) =>
-      behaviorPartial.applyOrElse((ctx, t), (_: (ActorContext[Command], Command)) => Behaviors.unhandled[Command])
+  val behavior: Behavior[Command] = Behaviors.receive { case (ctx, t) =>
+    behaviorPartial.applyOrElse((ctx, t), (_: (ActorContext[Command], Command)) => Behaviors.unhandled[Command])
   }
 
   def behaviorMessagePartial(context: ActorContext[Command]): PartialFunction[Command, Behavior[Command]] = {

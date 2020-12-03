@@ -76,7 +76,8 @@ case class FormatRegistry(
   }
 }
 
-/** TypeRegistry is used to map the @type field in Any messages to a ScalaPB generated message.
+/**
+ * TypeRegistry is used to map the @type field in Any messages to a ScalaPB generated message.
  *
  * TypeRegistries are added to Printers and Parsers to enable printing and parsing of Any messages.
  */
@@ -211,10 +212,10 @@ class Printer private (jsonUtils: JsonUtils, config: PrinterConfig) {
         }
       case v =>
         if (config.isIncludingDefaultValueFields ||
-            !fd.isOptional ||
-            !fd.file.isProto3 ||
-            (v != JsonFormat.defaultValue(fd)) ||
-            fd.containingOneof.isDefined) {
+          !fd.isOptional ||
+          !fd.file.isProto3 ||
+          (v != JsonFormat.defaultValue(fd)) ||
+          fd.containingOneof.isDefined) {
           b += JField(name, serializeSingleValue(fd, v, config.isFormattingLongAsNumber))
         }
     }
@@ -242,10 +243,10 @@ class Printer private (jsonUtils: JsonUtils, config: PrinterConfig) {
   private def defaultJValue(fd: FieldDescriptor): JValue =
     serializeSingleValue(fd, JsonFormat.defaultValue(fd), config.isFormattingLongAsNumber)
 
-  private def unsignedInt(n: Int): Long = n & 0x00000000FFFFFFFFL
+  private def unsignedInt(n: Int): Long = n & 0x00000000ffffffffL
 
   private def unsignedLong(n: Long): BigInt =
-    if (n < 0) BigInt(n & 0x7FFFFFFFFFFFFFFFL).setBit(63) else BigInt(n)
+    if (n < 0) BigInt(n & 0x7fffffffffffffffL).setBit(63) else BigInt(n)
 
   private def formatLong(n: Long, protoType: FieldDescriptorProto.Type, formattingLongAsNumber: Boolean): JValue = {
     val v: BigInt = if (protoType.isTypeUint64 || protoType.isTypeFixed64) unsignedLong(n) else BigInt(n)
@@ -305,8 +306,8 @@ class Parser private (jsonUtils: JsonUtils, config: Parser.ParserConfig) {
   def fromJson[A <: GeneratedMessage with Message[A]: GeneratedMessageCompanion](value: JValue): A =
     fromJson(value, false)
 
-  private[json4s] def fromJson[A <: GeneratedMessage with Message[A]](value: JValue, skipTypeUrl: Boolean)(
-      implicit cmp: GeneratedMessageCompanion[A]): A = {
+  private[json4s] def fromJson[A <: GeneratedMessage with Message[A]](value: JValue, skipTypeUrl: Boolean)(implicit
+      cmp: GeneratedMessageCompanion[A]): A = {
     cmp.messageReads.read(fromJsonToPMessage(cmp, value, skipTypeUrl))
   }
 
@@ -318,24 +319,23 @@ class Parser private (jsonUtils: JsonUtils, config: Parser.ParserConfig) {
             val mapEntryDesc = fd.scalaType.asInstanceOf[ScalaType.Message].descriptor
             val keyDescriptor = mapEntryDesc.findFieldByNumber(1).get
             val valueDescriptor = mapEntryDesc.findFieldByNumber(2).get
-            PRepeated(vals.iterator.map {
-              case (key, jValue) =>
-                val keyObj = keyDescriptor.scalaType match {
-                  case ScalaType.Boolean => PBoolean(java.lang.Boolean.valueOf(key))
-                  case ScalaType.Double  => PDouble(java.lang.Double.valueOf(key))
-                  case ScalaType.Float   => PFloat(java.lang.Float.valueOf(key))
-                  case ScalaType.Int     => PInt(java.lang.Integer.valueOf(key))
-                  case ScalaType.Long    => PLong(java.lang.Long.valueOf(key))
-                  case ScalaType.String  => PString(key)
-                  case _                 => throw new RuntimeException(s"Unsupported type for key for ${fd.name}")
-                }
-                PMessage(
-                  Map(
-                    keyDescriptor -> keyObj,
-                    valueDescriptor -> parseSingleValue(
-                      cmp.messageCompanionForFieldNumber(fd.number),
-                      valueDescriptor,
-                      jValue)))
+            PRepeated(vals.iterator.map { case (key, jValue) =>
+              val keyObj = keyDescriptor.scalaType match {
+                case ScalaType.Boolean => PBoolean(java.lang.Boolean.valueOf(key))
+                case ScalaType.Double  => PDouble(java.lang.Double.valueOf(key))
+                case ScalaType.Float   => PFloat(java.lang.Float.valueOf(key))
+                case ScalaType.Int     => PInt(java.lang.Integer.valueOf(key))
+                case ScalaType.Long    => PLong(java.lang.Long.valueOf(key))
+                case ScalaType.String  => PString(key)
+                case _                 => throw new RuntimeException(s"Unsupported type for key for ${fd.name}")
+              }
+              PMessage(
+                Map(
+                  keyDescriptor -> keyObj,
+                  valueDescriptor -> parseSingleValue(
+                    cmp.messageCompanionForFieldNumber(fd.number),
+                    valueDescriptor,
+                    jValue)))
             }.toVector)
           case _ =>
             throw new JsonFormatException(
@@ -358,17 +358,15 @@ class Parser private (jsonUtils: JsonUtils, config: Parser.ParserConfig) {
           case JObject(fields) =>
             val fieldMap = JsonFormat.MemorizedFieldNameMap(cmp.scalaDescriptor)
             val valueMapBuilder = Map.newBuilder[FieldDescriptor, PValue]
-            fields.foreach {
-              case (name: String, jValue: JValue) =>
-                if (fieldMap.contains(name)) {
-                  if (jValue != JNull) {
-                    val fd = fieldMap(name)
-                    valueMapBuilder += (fd -> parseValue(fd, jValue))
-                  }
-                } else if (!config.isIgnoringUnknownFields && !(skipTypeUrl && name == "@type")) {
-                  throw new JsonFormatException(
-                    s"Cannot find field: ${name} in message ${cmp.scalaDescriptor.fullName}")
+            fields.foreach { case (name: String, jValue: JValue) =>
+              if (fieldMap.contains(name)) {
+                if (jValue != JNull) {
+                  val fd = fieldMap(name)
+                  valueMapBuilder += (fd -> parseValue(fd, jValue))
                 }
+              } else if (!config.isIgnoringUnknownFields && !(skipTypeUrl && name == "@type")) {
+                throw new JsonFormatException(s"Cannot find field: ${name} in message ${cmp.scalaDescriptor.fullName}")
+              }
             }
 
             PMessage(valueMapBuilder.result())
@@ -468,14 +466,14 @@ object JsonFormat {
     .registerWriter[com.google.protobuf.struct.ListValue](StructFormat.listValueWriter, StructFormat.listValueParser)
     .registerMessageFormatter[com.google.protobuf.any.Any](AnyFormat.anyWriter, AnyFormat.anyParser)
 
-  def primitiveWrapperWriter[T <: GeneratedMessage with Message[T]](
-      implicit cmp: GeneratedMessageCompanion[T]): ((Printer, T) => JValue) = {
+  def primitiveWrapperWriter[T <: GeneratedMessage with Message[T]](implicit
+      cmp: GeneratedMessageCompanion[T]): ((Printer, T) => JValue) = {
     val fieldDesc = cmp.scalaDescriptor.findFieldByNumber(1).get
     (printer, t) => printer.serializeSingleValue(fieldDesc, t.getField(fieldDesc), formattingLongAsNumber = false)
   }
 
-  def primitiveWrapperParser[T <: GeneratedMessage with Message[T]](
-      implicit cmp: GeneratedMessageCompanion[T]): ((Parser, JValue) => T) = {
+  def primitiveWrapperParser[T <: GeneratedMessage with Message[T]](implicit
+      cmp: GeneratedMessageCompanion[T]): ((Parser, JValue) => T) = {
     val fieldDesc = cmp.scalaDescriptor.findFieldByNumber(1).get
     (parser, jv) =>
       cmp.messageReads.read(
@@ -495,18 +493,18 @@ object JsonFormat {
 
   def toJson[A <: GeneratedMessage](m: A)(implicit jsonUtils: JsonUtils): JValue = printer.toJson(m)
 
-  def fromJson[A <: GeneratedMessage with Message[A]: GeneratedMessageCompanion](value: JValue)(
-      implicit jsonUtils: JsonUtils): A = {
+  def fromJson[A <: GeneratedMessage with Message[A]: GeneratedMessageCompanion](value: JValue)(implicit
+      jsonUtils: JsonUtils): A = {
     parser.fromJson(value)
   }
 
-  def fromJsonString[A <: GeneratedMessage with Message[A]: GeneratedMessageCompanion](str: String)(
-      implicit jsonUtils: JsonUtils): A = {
+  def fromJsonString[A <: GeneratedMessage with Message[A]: GeneratedMessageCompanion](str: String)(implicit
+      jsonUtils: JsonUtils): A = {
     parser.fromJsonString(str)
   }
 
-  implicit def protoToReader[T <: GeneratedMessage with Message[T]: GeneratedMessageCompanion](
-      implicit jsonUtils: JsonUtils): Reader[T] =
+  implicit def protoToReader[T <: GeneratedMessage with Message[T]: GeneratedMessageCompanion](implicit
+      jsonUtils: JsonUtils): Reader[T] =
     new Reader[T] {
       def read(value: JValue): T = parser.fromJson(value)
     }
@@ -620,7 +618,7 @@ object JsonFormat {
   def parseUint32(value: String): PValue = {
     try {
       val result = value.toLong
-      if (result < 0 || result > 0xFFFFFFFFL) throw new JsonFormatException(s"Out of range uint32 value: $value")
+      if (result < 0 || result > 0xffffffffL) throw new JsonFormatException(s"Out of range uint32 value: $value")
       return PInt(result.toInt)
     } catch {
       case e: JsonFormatException => throw e
@@ -628,7 +626,7 @@ object JsonFormat {
     }
     parseBigDecimal(value).toBigIntExact
       .map { intVal =>
-        if (intVal < 0 || intVal > 0xFFFFFFFFL) throw new JsonFormatException(s"Out of range uint32 value: $value")
+        if (intVal < 0 || intVal > 0xffffffffL) throw new JsonFormatException(s"Out of range uint32 value: $value")
         PLong(intVal.intValue)
       }
       .getOrElse {
@@ -677,7 +675,7 @@ object JsonFormat {
       try {
         val value = java.lang.Double.parseDouble(v)
         if ((value > Float.MaxValue * (1.0 + EPSILON)) ||
-            (value < -Float.MaxValue * (1.0 + EPSILON))) {
+          (value < -Float.MaxValue * (1.0 + EPSILON))) {
           throw new JsonFormatException("Out of range float value: " + value)
         }
         PFloat(value.toFloat)

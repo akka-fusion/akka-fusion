@@ -87,12 +87,11 @@ trait HttpDirectives {
   }
 
   def setNoCache: Directive0 =
-    mapResponseHeaders(
-      h =>
-        h ++
-        List(
-          headers.`Cache-Control`(CacheDirectives.`no-store`, CacheDirectives.`no-cache`),
-          headers.RawHeader("Pragma", "no-cache")))
+    mapResponseHeaders(h =>
+      h ++
+      List(
+        headers.`Cache-Control`(CacheDirectives.`no-store`, CacheDirectives.`no-cache`),
+        headers.RawHeader("Pragma", "no-cache")))
 
   def completeOk: Route = complete(HttpEntity.Empty)
 
@@ -143,13 +142,13 @@ trait HttpDirectives {
         implicit val ec = ctx.executionContext
 
         val uploaded: Source[(FileInfo, File), Any] = formData.parts
-        //          .mapConcat { part =>
-        //            if (part.filename.isDefined && part.name == fieldName) part :: Nil
-        //            else {
-        //              part.entity.discardBytes()
-        //              Nil
-        //            }
-        //          }
+          //          .mapConcat { part =>
+          //            if (part.filename.isDefined && part.name == fieldName) part :: Nil
+          //            else {
+          //              part.entity.discardBytes()
+          //              Nil
+          //            }
+          //          }
           .mapAsync(1) { part =>
             val fileInfo = FileInfo(part.name, part.filename.get, part.entity.contentType)
             val dest = destFn(fileInfo)

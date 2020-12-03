@@ -69,12 +69,11 @@ class JdbcSourceStage(dataSource: DataSource, creator: ConnectionPreparedStateme
         }
 
       override def postStop(): Unit =
-        maybeConn.foreach {
-          case (conn, autoCommit, stmt, rs) =>
-            JdbcUtils.closeResultSet(rs)
-            JdbcUtils.closeStatement(stmt)
-            conn.setAutoCommit(autoCommit)
-            JdbcUtils.closeConnection(conn)
+        maybeConn.foreach { case (conn, autoCommit, stmt, rs) =>
+          JdbcUtils.closeResultSet(rs)
+          JdbcUtils.closeStatement(stmt)
+          conn.setAutoCommit(autoCommit)
+          JdbcUtils.closeConnection(conn)
         }
     }
 }

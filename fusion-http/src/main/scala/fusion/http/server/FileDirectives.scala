@@ -92,29 +92,27 @@ trait FileDirectives {
   def uploadedShaFile(tmpDirectory: Path): Directive[(FileInfo, FileTemp)] =
     extractRequestContext.flatMap { ctx =>
       import ctx.{ executionContext, materializer }
-      uploadedOneFile.flatMap {
-        case (fileInfo, source) =>
-          val sha = DigestUtils.digestSha256()
-          val tmpPath = Files.createTempFile(tmpDirectory, "", "upload")
-          val uploadF = source
-            .map { bytes =>
-              sha.update(bytes.asByteBuffer)
-              bytes
-            }
-            .runWith(FileIO.toPath(tmpPath))
-            .map {
-              case result if result.count > 0L =>
-                val hash = StringUtils.toHexString(sha.digest())
-                (fileInfo, FileTemp(hash, result.count, tmpPath))
-              case _ =>
-                throw new IOException(s"未写入任何数据到文件：$tmpPath")
-            }
-            .recoverWith {
-              case e =>
-                Files.deleteIfExists(tmpPath)
-                throw e
-            }
-          onSuccess(uploadF)
+      uploadedOneFile.flatMap { case (fileInfo, source) =>
+        val sha = DigestUtils.digestSha256()
+        val tmpPath = Files.createTempFile(tmpDirectory, "", "upload")
+        val uploadF = source
+          .map { bytes =>
+            sha.update(bytes.asByteBuffer)
+            bytes
+          }
+          .runWith(FileIO.toPath(tmpPath))
+          .map {
+            case result if result.count > 0L =>
+              val hash = StringUtils.toHexString(sha.digest())
+              (fileInfo, FileTemp(hash, result.count, tmpPath))
+            case _ =>
+              throw new IOException(s"未写入任何数据到文件：$tmpPath")
+          }
+          .recoverWith { case e =>
+            Files.deleteIfExists(tmpPath)
+            throw e
+          }
+        onSuccess(uploadF)
       }
     }
 
@@ -122,9 +120,8 @@ trait FileDirectives {
     extractRequestContext.flatMap { ctx =>
       import ctx.{ executionContext, materializer }
       uploadedMultiFile(tmpDirectory).flatMap { list =>
-        val futures = list.map {
-          case (fileInfo, path) =>
-            StreamUtils.reactiveSha256Hex(path).map(hash => fileInfo -> FileTemp(hash, Files.size(path), path))
+        val futures = list.map { case (fileInfo, path) =>
+          StreamUtils.reactiveSha256Hex(path).map(hash => fileInfo -> FileTemp(hash, Files.size(path), path))
         }
         val seqF = Future.sequence(futures)
         onSuccess(seqF)

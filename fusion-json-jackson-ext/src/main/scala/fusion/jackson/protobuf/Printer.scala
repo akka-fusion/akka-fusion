@@ -25,7 +25,8 @@ import fusion.json.JsonFormatException
 import scalapb.descriptors._
 import scalapb.{ GeneratedFileObject, GeneratedMessage, GeneratedMessageCompanion, Message }
 
-/** TypeRegistry is used to map the @type field in Any messages to a ScalaPB generated message.
+/**
+ * TypeRegistry is used to map the @type field in Any messages to a ScalaPB generated message.
  *
  * TypeRegistries are added to Printers and Parsers to enable printing and parsing of Any messages.
  */
@@ -104,8 +105,8 @@ class Printer private (config: Printer.PrinterConfig)(implicit mapper: ObjectMap
 
   def print[A](m: GeneratedMessage): String = toJson(m).toString
 
-  private def serializeMessageField(fd: FieldDescriptor, name: String, value: Any, b: ObjectNode)(
-      implicit mapper: ObjectMapper): Unit = {
+  private def serializeMessageField(fd: FieldDescriptor, name: String, value: Any, b: ObjectNode)(implicit
+      mapper: ObjectMapper): Unit = {
     value match {
       case null =>
       // We are never printing empty optional messages to prevent infinite recursion.
@@ -149,8 +150,8 @@ class Printer private (config: Printer.PrinterConfig)(implicit mapper: ObjectMap
     }
   }
 
-  private def serializeNonMessageField(fd: FieldDescriptor, name: String, value: PValue, b: ObjectNode)(
-      implicit mapper: ObjectMapper): Unit = {
+  private def serializeNonMessageField(fd: FieldDescriptor, name: String, value: PValue, b: ObjectNode)(implicit
+      mapper: ObjectMapper): Unit = {
     value match {
       case PEmpty =>
         if (config.isIncludingDefaultValueFields && fd.containingOneof.isEmpty) {
@@ -164,10 +165,10 @@ class Printer private (config: Printer.PrinterConfig)(implicit mapper: ObjectMap
         }
       case v =>
         if (config.isIncludingDefaultValueFields ||
-            !fd.isOptional ||
-            !fd.file.isProto3 ||
-            (v != JacksonFormat.defaultValue(fd)) ||
-            fd.containingOneof.isDefined) {
+          !fd.isOptional ||
+          !fd.file.isProto3 ||
+          (v != JacksonFormat.defaultValue(fd)) ||
+          fd.containingOneof.isDefined) {
           b.set(name, serializeSingleValue(fd, v, config.isFormattingLongAsNumber))
         }
     }
@@ -194,10 +195,10 @@ class Printer private (config: Printer.PrinterConfig)(implicit mapper: ObjectMap
   private def defaultJValue(fd: FieldDescriptor): JsonNode =
     serializeSingleValue(fd, JacksonFormat.defaultValue(fd), config.isFormattingLongAsNumber)
 
-  private def unsignedInt(n: Int): Long = n & 0x00000000FFFFFFFFL
+  private def unsignedInt(n: Int): Long = n & 0x00000000ffffffffL
 
   private def unsignedLong(n: Long): BigInt =
-    if (n < 0) BigInt(n & 0x7FFFFFFFFFFFFFFFL).setBit(63) else BigInt(n)
+    if (n < 0) BigInt(n & 0x7fffffffffffffffL).setBit(63) else BigInt(n)
 
   private def formatLong(n: Long, protoType: FieldDescriptorProto.Type, formattingLongAsNumber: Boolean): JsonNode = {
     val v: BigInt = if (protoType.isTypeUint64 || protoType.isTypeFixed64) unsignedLong(n) else BigInt(n)

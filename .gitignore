@@ -101,5 +101,5 @@ logs/
 *.tmp
 *.bak
 !/sbt-dist/bin/
-
+.bsp/
 node_modules/

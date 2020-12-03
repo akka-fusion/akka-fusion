@@ -59,8 +59,8 @@ object PubSubs {
       func <- ins.subscribies.get(subId)
     } func(PubSubMessage(subId, topic, message))
 
-  def send(message: Any): Unit = ins.subscribies.foreach {
-    case (id, func) => func(PubSubMessage(id, "", message))
+  def send(message: Any): Unit = ins.subscribies.foreach { case (id, func) =>
+    func(PubSubMessage(id, "", message))
   }
 }
 

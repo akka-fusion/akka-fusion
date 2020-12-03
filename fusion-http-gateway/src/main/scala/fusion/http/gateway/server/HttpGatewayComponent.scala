@@ -117,11 +117,10 @@ abstract class HttpGatewayComponent(id: String)(implicit val system: ExtendedAct
               HttpResponse(StatusCodes.ServiceUnavailable, entity = HttpEntity(e.toString))
           }
         }
-        .recover {
-          case e =>
-            val msg = s"服务地址无效；${location.upstream}"
-            logger.error(msg, e)
-            HttpUtils.jsonResponse(StatusCodes.BadGateway, msg)
+        .recover { case e =>
+          val msg = s"服务地址无效；${location.upstream}"
+          logger.error(msg, e)
+          HttpUtils.jsonResponse(StatusCodes.BadGateway, msg)
         }
     } catch {
       case e: Throwable =>

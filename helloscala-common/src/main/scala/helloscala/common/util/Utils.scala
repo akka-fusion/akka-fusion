@@ -47,7 +47,6 @@ object Utils extends StrictLogging {
   private lazy val _randomBasedUuid = Generators.randomBasedGenerator(new SecureRandom())
 
   /**
-   *
    * @param functions 函数列表
    * @param defaultValue 默认值
    * @param valueStopFunc 停止查找判断

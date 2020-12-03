@@ -41,8 +41,7 @@ class SampleRoute(sampleService: SampleService)(implicit system: ActorSystem) ex
   override val jacksonSupport: JacksonSupport = JacksonObjectMapperExtension(system).jacksonSupport
 
   override def route: Route = pathGet("hello") {
-    val pdm = (Symbol("hello"), Symbol("year").as[Int].?(2019))
-    parameters(pdm).as(SampleReq) { req =>
+    parameters("hello", "year".as[Int].?(2019)).as(SampleReq) { req =>
       futureComplete(sampleService.hello(req))
     }
   }

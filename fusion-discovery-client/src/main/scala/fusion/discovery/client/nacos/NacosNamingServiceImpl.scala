@@ -139,17 +139,23 @@ class NacosNamingServiceImpl(props: NacosDiscoveryProperties, val underlying: JN
     underlying.subscribe(serviceName, (event: Event) => listener(event.toDiscoveryEvent))
 
   def subscribe(serviceName: String, clusters: Seq[String], listener: DiscoveryEvent => Unit): Unit =
-    underlying.subscribe(serviceName, clusters.asJava, new EventListener {
-      override def onEvent(event: Event): Unit = listener(event.toDiscoveryEvent)
-    })
+    underlying.subscribe(
+      serviceName,
+      clusters.asJava,
+      new EventListener {
+        override def onEvent(event: Event): Unit = listener(event.toDiscoveryEvent)
+      })
 
   def unsubscribe(serviceName: String, listener: DiscoveryEvent => Unit): Unit =
     underlying.unsubscribe(serviceName, event => listener(event.toDiscoveryEvent))
 
   def unsubscribe(serviceName: String, clusters: Seq[String], listener: DiscoveryEvent => Unit): Unit =
-    underlying.unsubscribe(serviceName, clusters.asJava, new EventListener {
-      override def onEvent(event: Event): Unit = listener(event.toDiscoveryEvent)
-    })
+    underlying.unsubscribe(
+      serviceName,
+      clusters.asJava,
+      new EventListener {
+        override def onEvent(event: Event): Unit = listener(event.toDiscoveryEvent)
+      })
 
   def getServicesOfServer(pageNo: Int, pageSize: Int): DiscoveryList[String] =
     underlying.getServicesOfServer(pageNo, pageSize).toDiscoveryList

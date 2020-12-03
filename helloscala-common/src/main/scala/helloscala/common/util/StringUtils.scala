@@ -69,8 +69,8 @@ object StringUtils {
     val hex = new Array[Char](2 * bytes.length)
     var i = 0
     while (i < bytes.length) {
-      hex(2 * i) = HEX_CHARS((bytes(i) & 0xF0) >>> 4)
-      hex(2 * i + 1) = HEX_CHARS(bytes(i) & 0x0F)
+      hex(2 * i) = HEX_CHARS((bytes(i) & 0xf0) >>> 4)
+      hex(2 * i + 1) = HEX_CHARS(bytes(i) & 0x0f)
       i = i + 1
     }
     new String(hex)
@@ -317,9 +317,9 @@ object StringUtils {
     val hexChars = new Array[Char](bytes.length * 2)
     var j = 0
     while (j < bytes.length) {
-      val v = bytes(j) & 0xFF
+      val v = bytes(j) & 0xff
       hexChars(j * 2) = HEX_CHARS(v >>> 4)
-      hexChars(j * 2 + 1) = HEX_CHARS(v & 0x0F)
+      hexChars(j * 2 + 1) = HEX_CHARS(v & 0x0f)
       j += 1
     }
     hexChars

@@ -30,8 +30,8 @@ object ElasticJackson {
     implicit def JacksonJsonIndexable[T](implicit mapper: ObjectMapper = objectMapper): Indexable[T] =
       (t: T) => mapper.writeValueAsString(t)
 
-    implicit def JacksonJsonHitReader[T](
-        implicit manifest: Manifest[T],
+    implicit def JacksonJsonHitReader[T](implicit
+        manifest: Manifest[T],
         mapper: ObjectMapper = objectMapper): HitReader[T] =
       (hit: Hit) =>
         Try {
@@ -45,8 +45,8 @@ object ElasticJackson {
           if (!node.has("_timestamp"))
             hit
               .sourceFieldOpt("_timestamp")
-              .collect {
-                case f => f.toString
+              .collect { case f =>
+                f.toString
               }
               .foreach(node.put("_timestamp", _))
           mapper.readValue(mapper.writeValueAsBytes(node), manifest.runtimeClass).asInstanceOf[T]

@@ -24,9 +24,12 @@ import fusion.discovery.client.FusionConfigService
 
 class NacosConfigServiceImpl(props: Properties, val underlying: JConfigService) extends FusionConfigService {
   override def addListener(dataId: String, group: String, listener: String => Unit): Unit =
-    underlying.addListener(dataId, group, new AbstractListener {
-      override def receiveConfigInfo(configInfo: String): Unit = listener(configInfo)
-    })
+    underlying.addListener(
+      dataId,
+      group,
+      new AbstractListener {
+        override def receiveConfigInfo(configInfo: String): Unit = listener(configInfo)
+      })
 
   /**
    * Remove listener
@@ -36,9 +39,12 @@ class NacosConfigServiceImpl(props: Properties, val underlying: JConfigService) 
    * @param listener listener
    */
   override def removeListener(dataId: String, group: String, listener: String => Unit): Unit =
-    underlying.removeListener(dataId, group, new AbstractListener {
-      override def receiveConfigInfo(configInfo: String): Unit = listener(configInfo)
-    })
+    underlying.removeListener(
+      dataId,
+      group,
+      new AbstractListener {
+        override def receiveConfigInfo(configInfo: String): Unit = listener(configInfo)
+      })
 
   override def getConfig(dataId: String, group: String, timeoutMs: Long): String =
     underlying.getConfig(dataId, group, timeoutMs)

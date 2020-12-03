@@ -89,8 +89,8 @@ class JacksonHttpHelper private (override val classicSystem: ExtendedActorSystem
       uri: Uri,
       params: Seq[(String, String)] = Nil,
       data: AnyRef = null,
-      headers: immutable.Seq[HttpHeader] = Nil)(
-      implicit httpSourceQueue: HttpSourceQueue,
+      headers: immutable.Seq[HttpHeader] = Nil)(implicit
+      httpSourceQueue: HttpSourceQueue,
       ec: ExecutionContext): Future[HttpResponse] = {
     val entity = if (data != null) {
       data match {
@@ -181,8 +181,8 @@ class JacksonHttpHelper private (override val classicSystem: ExtendedActorSystem
   def mapHttpResponseEither[R](
       response: HttpResponse)(implicit ct: TypeTag[R], mat: Materializer): Future[Either[HSException, R]] = {
     implicit val ec: ExecutionContext = mat.executionContext
-    mapHttpResponse(response).map(Right(_)).recoverWith {
-      case e: HSException => Future.successful(Left(e))
+    mapHttpResponse(response).map(Right(_)).recoverWith { case e: HSException =>
+      Future.successful(Left(e))
     }
   }
 
@@ -205,11 +205,11 @@ class JacksonHttpHelper private (override val classicSystem: ExtendedActorSystem
     }
   }
 
-  def mapHttpResponseErrorEither[R](response: HttpResponse)(
-      implicit mat: Materializer): Future[Either[HSException, R]] = {
+  def mapHttpResponseErrorEither[R](response: HttpResponse)(implicit
+      mat: Materializer): Future[Either[HSException, R]] = {
     implicit val ec: ExecutionContext = mat.executionContext
-    mapHttpResponseError(response).recoverWith {
-      case e: HSException => Future.successful(Left(e))
+    mapHttpResponseError(response).recoverWith { case e: HSException =>
+      Future.successful(Left(e))
     }
   }
 }

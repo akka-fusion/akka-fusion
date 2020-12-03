@@ -80,8 +80,8 @@ trait JdbcTemplate {
    * @param connection JDBC连接对象
    * @return 受影响的数据库行数量
    */
-  def updateBatch(sql: String, argsList: Iterable[Iterable[Any]])(
-      implicit connection: Connection = JdbcTemplate.EmptyConnection): Array[Int]
+  def updateBatch(sql: String, argsList: Iterable[Iterable[Any]])(implicit
+      connection: Connection = JdbcTemplate.EmptyConnection): Array[Int]
 
   /**
    * 通过命名参数执行修改
@@ -90,8 +90,8 @@ trait JdbcTemplate {
    * @param connection 隐式参数：JDBC Connection 对象
    * @return 受影响的数据库行数量
    */
-  def namedUpdate(sql: String, args: Map[String, Any])(
-      implicit connection: Connection = JdbcTemplate.EmptyConnection): Int
+  def namedUpdate(sql: String, args: Map[String, Any])(implicit
+      connection: Connection = JdbcTemplate.EmptyConnection): Int
 
   /**
    * 通过命名参数执行批量修改
@@ -100,8 +100,8 @@ trait JdbcTemplate {
    * @param connection 隐式参数：JDBC Connection 对象
    * @return 受影响的数据库行数量
    */
-  def namedUpdateBatch(sql: String, argsList: Iterable[Map[String, Any]])(
-      implicit connection: Connection = JdbcTemplate.EmptyConnection): Array[Int]
+  def namedUpdateBatch(sql: String, argsList: Iterable[Map[String, Any]])(implicit
+      connection: Connection = JdbcTemplate.EmptyConnection): Array[Int]
 
   /**
    * 获取匹配条件的记录行数量 Java API
@@ -128,32 +128,32 @@ trait JdbcTemplate {
    * @param connection 隐式参数：JDBC Connection 对象
    * @return 匹配条件的记录行数量
    */
-  def namedSize(sql: String, args: Map[String, Any])(
-      implicit connection: Connection = JdbcTemplate.EmptyConnection): Long
+  def namedSize(sql: String, args: Map[String, Any])(implicit
+      connection: Connection = JdbcTemplate.EmptyConnection): Long
 
-  def listForMap(sql: String, args: Seq[Any])(
-      implicit connection: Connection = JdbcTemplate.EmptyConnection): List[Map[String, Object]]
+  def listForMap(sql: String, args: Seq[Any])(implicit
+      connection: Connection = JdbcTemplate.EmptyConnection): List[Map[String, Object]]
 
-  def namedListForMap(sql: String, args: Map[String, Any])(
-      implicit connection: Connection = JdbcTemplate.EmptyConnection): List[Map[String, Object]]
+  def namedListForMap(sql: String, args: Map[String, Any])(implicit
+      connection: Connection = JdbcTemplate.EmptyConnection): List[Map[String, Object]]
 
-  def listForObject[R](sql: String, args: Seq[Any], rowMapper: ResultSet => R)(
-      implicit connection: Connection = JdbcTemplate.EmptyConnection): List[R]
+  def listForObject[R](sql: String, args: Seq[Any], rowMapper: ResultSet => R)(implicit
+      connection: Connection = JdbcTemplate.EmptyConnection): List[R]
 
-  def namedListForObject[R](sql: String, args: Map[String, Any], rowMapper: ResultSet => R)(
-      implicit connection: Connection = JdbcTemplate.EmptyConnection): List[R]
+  def namedListForObject[R](sql: String, args: Map[String, Any], rowMapper: ResultSet => R)(implicit
+      connection: Connection = JdbcTemplate.EmptyConnection): List[R]
 
-  def findForMap(sql: String, args: Seq[Any])(
-      implicit connection: Connection = JdbcTemplate.EmptyConnection): Option[Map[String, Object]]
+  def findForMap(sql: String, args: Seq[Any])(implicit
+      connection: Connection = JdbcTemplate.EmptyConnection): Option[Map[String, Object]]
 
-  def namedFindForMap(sql: String, args: Map[String, Any])(
-      implicit connection: Connection = JdbcTemplate.EmptyConnection): Option[Map[String, Object]]
+  def namedFindForMap(sql: String, args: Map[String, Any])(implicit
+      connection: Connection = JdbcTemplate.EmptyConnection): Option[Map[String, Object]]
 
-  def findForObject[R](sql: String, args: Seq[Any], rowMapper: ResultSet => R)(
-      implicit connection: Connection = JdbcTemplate.EmptyConnection): Option[R]
+  def findForObject[R](sql: String, args: Seq[Any], rowMapper: ResultSet => R)(implicit
+      connection: Connection = JdbcTemplate.EmptyConnection): Option[R]
 
-  def namedFindForObject[R](sql: String, args: Map[String, Any], rowMapper: ResultSet => R)(
-      implicit connection: Connection = JdbcTemplate.EmptyConnection): Option[R]
+  def namedFindForObject[R](sql: String, args: Map[String, Any], rowMapper: ResultSet => R)(implicit
+      connection: Connection = JdbcTemplate.EmptyConnection): Option[R]
 
   /**
    * 执行JDBC SQL语句。externalConn == null时，此函数将执行事物。否则由外部调用函数控制

@@ -27,6 +27,7 @@ object PidFile {
 }
 
 class PidFile(val pid: Long) {
+
   /**
    * Creates a new PidFile and writes the current process ID into the provided path
    *

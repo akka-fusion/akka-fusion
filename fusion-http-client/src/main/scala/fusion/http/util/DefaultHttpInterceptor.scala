@@ -43,9 +43,9 @@ final class DefaultHttpInterceptor(system: ActorSystem[_]) extends HttpIntercept
     resultF.map {
       case RouteResult.Complete(response) =>
         val headers = extHeaders
-            .find(_.name() == `X-Request-Time`.name)
-            .flatMap(h => `X-Span-Time`.fromXRequestTime(h.asInstanceOf[`X-Request-Time`]))
-            .toList ::: extHeaders ++ response.headers
+          .find(_.name() == `X-Request-Time`.name)
+          .flatMap(h => `X-Span-Time`.fromXRequestTime(h.asInstanceOf[`X-Request-Time`]))
+          .toList ::: extHeaders ++ response.headers
         RouteResult.Complete(processResponse(request, response.copy(headers = headers)))
       case RouteResult.Rejected(_) => throw HSInternalErrorException("error")
     }

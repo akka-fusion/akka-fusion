@@ -103,8 +103,8 @@ class Parser private (config: Parser.ParserConfig)(implicit mapper: ObjectMapper
     fromJson(value, false)
   }
 
-  def fromJson[A <: GeneratedMessage with Message[A]](value: JsonNode, skipTypeUrl: Boolean)(
-      implicit cmp: GeneratedMessageCompanion[A]): A = {
+  def fromJson[A <: GeneratedMessage with Message[A]](value: JsonNode, skipTypeUrl: Boolean)(implicit
+      cmp: GeneratedMessageCompanion[A]): A = {
     cmp.messageReads.read(fromJsonToPMessage(cmp, value, skipTypeUrl))
   }
 
@@ -280,14 +280,14 @@ object JacksonFormat {
     case _             => throw new JsonFormatException("Expected a string.")
   }
 
-  def primitiveWrapperWriter[T <: GeneratedMessage with Message[T]](
-      implicit cmp: GeneratedMessageCompanion[T]): (Printer, T) => JsonNode = {
+  def primitiveWrapperWriter[T <: GeneratedMessage with Message[T]](implicit
+      cmp: GeneratedMessageCompanion[T]): (Printer, T) => JsonNode = {
     val fieldDesc = cmp.scalaDescriptor.findFieldByNumber(1).get
     (printer, t) => printer.serializeSingleValue(fieldDesc, t.getField(fieldDesc), formattingLongAsNumber = false)
   }
 
-  def primitiveWrapperParser[T <: GeneratedMessage with Message[T]](
-      implicit cmp: GeneratedMessageCompanion[T]): (Parser, JsonNode) => T = {
+  def primitiveWrapperParser[T <: GeneratedMessage with Message[T]](implicit
+      cmp: GeneratedMessageCompanion[T]): (Parser, JsonNode) => T = {
     val fieldDesc = cmp.scalaDescriptor.findFieldByNumber(1).get
     (parser, jv) =>
       cmp.messageReads.read(
@@ -306,13 +306,13 @@ object JacksonFormat {
 
 //  def toJson[A <: GeneratedMessage](m: A): JsonNode = printer.toJson(m)
 
-  def fromJson[A <: GeneratedMessage with Message[A]: GeneratedMessageCompanion](value: JsonNode)(
-      implicit objectMapper: ObjectMapper): A = {
+  def fromJson[A <: GeneratedMessage with Message[A]: GeneratedMessageCompanion](value: JsonNode)(implicit
+      objectMapper: ObjectMapper): A = {
     parser.fromJson(value)
   }
 
-  def fromJsonString[A <: GeneratedMessage with Message[A]: GeneratedMessageCompanion](str: String)(
-      implicit objectMapper: ObjectMapper): A = {
+  def fromJsonString[A <: GeneratedMessage with Message[A]: GeneratedMessageCompanion](str: String)(implicit
+      objectMapper: ObjectMapper): A = {
     parser.fromJsonString(str)
   }
 
@@ -425,7 +425,7 @@ object JacksonFormat {
   def parseUint32(value: String): PValue = {
     try {
       val result = value.toLong
-      if (result < 0 || result > 0xFFFFFFFFL) throw new JsonFormatException(s"Out of range uint32 value: $value")
+      if (result < 0 || result > 0xffffffffL) throw new JsonFormatException(s"Out of range uint32 value: $value")
       return PInt(result.toInt)
     } catch {
       case e: JsonFormatException => throw e
@@ -433,7 +433,7 @@ object JacksonFormat {
     }
     parseBigDecimal(value).toBigIntExact
       .map { intVal =>
-        if (intVal < 0 || intVal > 0xFFFFFFFFL) throw new JsonFormatException(s"Out of range uint32 value: $value")
+        if (intVal < 0 || intVal > 0xffffffffL) throw new JsonFormatException(s"Out of range uint32 value: $value")
         PLong(intVal.intValue)
       }
       .getOrElse {
@@ -482,7 +482,7 @@ object JacksonFormat {
       try {
         val value = java.lang.Double.parseDouble(v)
         if ((value > Float.MaxValue * (1.0 + EPSILON)) ||
-            (value < -Float.MaxValue * (1.0 + EPSILON))) {
+          (value < -Float.MaxValue * (1.0 + EPSILON))) {
           throw new JsonFormatException("Out of range float value: " + value)
         }
         PFloat(value.toFloat)

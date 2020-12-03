@@ -29,6 +29,7 @@ import fusion.discovery.model.DiscoveryServiceInfo
 import scala.util.control.NonFatal
 
 trait FusionNamingService {
+
   /**
    * register a instance to service
    *
@@ -45,7 +46,6 @@ trait FusionNamingService {
    * @param ip          instance ip
    * @param port        instance port
    * @param clusterName instance cluster name
-   *
    */
   def registerInstance(serviceName: String, ip: String, port: Int, clusterName: String): DiscoveryInstance
 
@@ -54,7 +54,6 @@ trait FusionNamingService {
    *
    * @param serviceName name of service
    * @param instance    instance to register
-   *
    */
   def registerInstance(serviceName: String, instance: DiscoveryInstance): DiscoveryInstance
 
@@ -68,7 +67,6 @@ trait FusionNamingService {
    * @param serviceName name of service
    * @param ip          instance ip
    * @param port        instance port
-   *
    */
   def deregisterInstance(serviceName: String, ip: String, port: Int): Unit
 
@@ -79,7 +77,6 @@ trait FusionNamingService {
    * @param ip          instance ip
    * @param port        instance port
    * @param clusterName instance cluster name
-   *
    */
   def deregisterInstance(serviceName: String, ip: String, port: Int, clusterName: String): Unit
 
@@ -92,7 +89,6 @@ trait FusionNamingService {
    *
    * @param serviceName name of service
    * @return A list of instance
-   *
    */
   def getAllInstances(serviceName: String): Seq[DiscoveryInstance]
 
@@ -102,7 +98,6 @@ trait FusionNamingService {
    * @param serviceName name of service
    * @param subscribe   if subscribe the service
    * @return A list of instance
-   *
    */
   def getAllInstances(serviceName: String, subscribe: Boolean): Seq[DiscoveryInstance]
 
@@ -112,7 +107,6 @@ trait FusionNamingService {
    * @param serviceName name of service
    * @param clusters    list of cluster
    * @return A list of qualified instance
-   *
    */
   def getAllInstances(serviceName: String, clusters: Seq[String]): Seq[DiscoveryInstance]
 
@@ -123,7 +117,6 @@ trait FusionNamingService {
    * @param clusters    list of cluster
    * @param subscribe   if subscribe the service
    * @return A list of qualified instance
-   *
    */
   def getAllInstances(serviceName: String, clusters: Seq[String], subscribe: Boolean): Seq[DiscoveryInstance]
 
@@ -133,7 +126,6 @@ trait FusionNamingService {
    * @param serviceName name of service
    * @param healthy     a flag to indicate returning healthy or unhealthy instances
    * @return A qualified list of instance
-   *
    */
   def selectInstances(serviceName: String, healthy: Boolean): Seq[DiscoveryInstance]
 
@@ -144,7 +136,6 @@ trait FusionNamingService {
    * @param healthy     a flag to indicate returning healthy or unhealthy instances
    * @param subscribe   if subscribe the service
    * @return A qualified list of instance
-   *
    */
   def selectInstances(serviceName: String, healthy: Boolean, subscribe: Boolean): Seq[DiscoveryInstance]
 
@@ -155,7 +146,6 @@ trait FusionNamingService {
    * @param clusters    list of cluster
    * @param healthy     a flag to indicate returning healthy or unhealthy instances
    * @return A qualified list of instance
-   *
    */
   def selectInstances(serviceName: String, clusters: Seq[String], healthy: Boolean): Seq[DiscoveryInstance]
 
@@ -167,7 +157,6 @@ trait FusionNamingService {
    * @param healthy     a flag to indicate returning healthy or unhealthy instances
    * @param subscribe   if subscribe the service
    * @return A qualified list of instance
-   *
    */
   def selectInstances(
       serviceName: String,
@@ -180,7 +169,6 @@ trait FusionNamingService {
    *
    * @param serviceName name of service
    * @return qualified instance
-   *
    */
   def selectOneHealthyInstance(serviceName: String): DiscoveryInstance
 
@@ -190,7 +178,6 @@ trait FusionNamingService {
    * @param serviceName name of service
    * @param subscribe   if subscribe the service
    * @return qualified instance
-   *
    */
   def selectOneHealthyInstance(serviceName: String, subscribe: Boolean): DiscoveryInstance
 
@@ -200,7 +187,6 @@ trait FusionNamingService {
    * @param serviceName name of service
    * @param clusters    a list of clusters should the instance belongs to
    * @return qualified instance
-   *
    */
   def selectOneHealthyInstance(serviceName: String, clusters: Seq[String]): DiscoveryInstance
 
@@ -211,7 +197,6 @@ trait FusionNamingService {
    * @param clusters    a list of clusters should the instance belongs to
    * @param subscribe   if subscribe the service
    * @return qualified instance
-   *
    */
   def selectOneHealthyInstance(serviceName: String, clusters: Seq[String], subscribe: Boolean): DiscoveryInstance
 
@@ -220,7 +205,6 @@ trait FusionNamingService {
    *
    * @param serviceName name of service
    * @param listener    event listener
-   *
    */
   def subscribe(serviceName: String, listener: DiscoveryEvent => Unit): Unit
 
@@ -230,7 +214,6 @@ trait FusionNamingService {
    * @param serviceName name of service
    * @param clusters    list of cluster
    * @param listener    event listener
-   *
    */
   def subscribe(serviceName: String, clusters: Seq[String], listener: DiscoveryEvent => Unit): Unit
 
@@ -239,7 +222,6 @@ trait FusionNamingService {
    *
    * @param serviceName name of service
    * @param listener    event listener
-   *
    */
   def unsubscribe(serviceName: String, listener: DiscoveryEvent => Unit): Unit
 
@@ -249,7 +231,6 @@ trait FusionNamingService {
    * @param serviceName name of service
    * @param clusters    list of cluster
    * @param listener    event listener
-   *
    */
   def unsubscribe(serviceName: String, clusters: Seq[String], listener: DiscoveryEvent => Unit): Unit
 

@@ -26,8 +26,8 @@ import scala.util.Try
 object ElasticJson4s {
   trait Implicits extends Logging {
     def jsonUtils: JsonUtils
-    implicit def Json4sHitReader[T](
-        implicit mf: Manifest[T],
+    implicit def Json4sHitReader[T](implicit
+        mf: Manifest[T],
         formats: Formats = jsonUtils.defaultFormats,
         json4s: Serialization = jsonUtils.serialization): HitReader[T] =
       (hit: Hit) =>
@@ -35,8 +35,8 @@ object ElasticJson4s {
           json4s.read[T](hit.sourceAsString)
         }
 
-    implicit def Json4sAggReader[T](
-        implicit mf: Manifest[T],
+    implicit def Json4sAggReader[T](implicit
+        mf: Manifest[T],
         formats: Formats = jsonUtils.defaultFormats,
         json4s: Serialization = jsonUtils.serialization): AggReader[T] =
       (json: String) =>
@@ -44,8 +44,8 @@ object ElasticJson4s {
           json4s.read[T](json)
         }
 
-    implicit def Json4sIndexable[T <: AnyRef](
-        implicit formats: Formats = jsonUtils.defaultFormats,
+    implicit def Json4sIndexable[T <: AnyRef](implicit
+        formats: Formats = jsonUtils.defaultFormats,
         json4s: Serialization = jsonUtils.serialization): Indexable[T] =
       (t: T) => json4s.write(t)
   }

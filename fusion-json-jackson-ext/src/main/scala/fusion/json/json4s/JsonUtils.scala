@@ -68,12 +68,14 @@ class JsonUtils(system: ExtendedActorSystem) extends JsonMethods with Extension 
   object serialization extends Serialization {
     import java.io.{ Reader, Writer }
 
-    /** Serialize to String.
+    /**
+     * Serialize to String.
      */
     def write[A <: AnyRef](a: A)(implicit formats: Formats): String =
       mapper.writeValueAsString(Extraction.decompose(a)(formats))
 
-    /** Serialize to Writer.
+    /**
+     * Serialize to Writer.
      */
     def write[A <: AnyRef, W <: Writer](a: A, out: W)(implicit formats: Formats): W = {
       mapper.writeValue(out, Extraction.decompose(a)(formats))
@@ -84,31 +86,36 @@ class JsonUtils(system: ExtendedActorSystem) extends JsonMethods with Extension 
       mapper.writeValue(out, Extraction.decompose(a)(formats: Formats))
     }
 
-    /** Serialize to String (pretty format).
+    /**
+     * Serialize to String (pretty format).
      */
     def writePretty[A <: AnyRef](a: A)(implicit formats: Formats): String =
       mapper.writerWithDefaultPrettyPrinter.writeValueAsString(Extraction.decompose(a)(formats))
 
-    /** Serialize to Writer (pretty format).
+    /**
+     * Serialize to Writer (pretty format).
      */
     def writePretty[A <: AnyRef, W <: Writer](a: A, out: W)(implicit formats: Formats): W = {
       mapper.writerWithDefaultPrettyPrinter.writeValue(out, Extraction.decompose(a)(formats))
       out
     }
 
-    /** Deserialize from an JsonInput
+    /**
+     * Deserialize from an JsonInput
      */
     def read[A](json: JsonInput)(implicit formats: Formats, mf: Manifest[A]): A =
       parse(json, formats.wantsBigDecimal, formats.wantsBigInt).extract(formats, mf)
 
-    /** Deserialize from a Reader.
+    /**
+     * Deserialize from a Reader.
      */
     def read[A](in: Reader)(implicit formats: Formats, mf: Manifest[A]): A = {
       parse(in, formats.wantsBigDecimal, formats.wantsBigInt).extract(formats, mf)
     }
   }
 
-  /** Default date format is UTC time.
+  /**
+   * Default date format is UTC time.
    */
   implicit object defaultFormats extends DefaultFormats {
     private val UTC = TimeZone.getTimeZone("UTC")

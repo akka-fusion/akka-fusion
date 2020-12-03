@@ -71,8 +71,8 @@ trait Json4sSupport {
    * @tparam A type to decode
    * @return unmarshaller for `A`
    */
-  implicit def unmarshaller[A: Manifest](
-      implicit serialization: Serialization = jsonUtils.serialization,
+  implicit def unmarshaller[A: Manifest](implicit
+      serialization: Serialization = jsonUtils.serialization,
       formats: Formats = jsonUtils.defaultFormats): FromEntityUnmarshaller[A] =
     jsonStringUnmarshaller.map(s => serialization.read(s)).recover(throwCause)
 
@@ -82,8 +82,8 @@ trait Json4sSupport {
    * @tparam A type to encode, must be upper bounded by `AnyRef`
    * @return marshaller for any `A` value
    */
-  implicit def marshaller[A <: AnyRef](
-      implicit serialization: Serialization = jsonUtils.serialization,
+  implicit def marshaller[A <: AnyRef](implicit
+      serialization: Serialization = jsonUtils.serialization,
       formats: Formats = jsonUtils.defaultFormats,
       shouldWritePretty: ShouldWritePretty = ShouldWritePretty.False): ToEntityMarshaller[A] =
     shouldWritePretty match {

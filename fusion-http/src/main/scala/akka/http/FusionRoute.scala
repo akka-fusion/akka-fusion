@@ -27,11 +27,11 @@ import scala.concurrent.ExecutionContextExecutor
 import scala.concurrent.Future
 
 object FusionRoute {
+
   /**
    * Turns a `Route` into an async handler function.
    */
-  def asyncHandler(route: Route)(
-      implicit
+  def asyncHandler(route: Route)(implicit
       routingSettings: RoutingSettings,
       parserSettings: ParserSettings,
       materializer: Materializer,
@@ -45,11 +45,12 @@ object FusionRoute {
       val effectiveParserSettings = if (parserSettings ne null) parserSettings else ParserSettings(materializer.system)
       val sealedRoute = route
       request =>
-        sealedRoute(new RequestContextImpl(
-          request,
-          routingLog.requestLog(request),
-          routingSettings,
-          effectiveParserSettings)).fast.map {
+        sealedRoute(
+          new RequestContextImpl(
+            request,
+            routingLog.requestLog(request),
+            routingSettings,
+            effectiveParserSettings)).fast.map {
           case RouteResult.Complete(response) => response
           case RouteResult.Rejected(rejected) =>
             throw new IllegalStateException(s"Unhandled rejections '$rejected', unsealed RejectionHandler?!")

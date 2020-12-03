@@ -25,8 +25,8 @@ import helloscala.common.exception.HSBadGatewayException
 import scala.concurrent.Future
 import scala.util.Random
 
-private class AkkaDiscoveryHttpClient(val clientSetting: DiscoveryHttpClientSetting)(
-    implicit val classicSystem: classic.ActorSystem)
+private class AkkaDiscoveryHttpClient(val clientSetting: DiscoveryHttpClientSetting)(implicit
+    val classicSystem: classic.ActorSystem)
     extends DiscoveryHttpClient
     with StrictLogging {
   private val discovery =

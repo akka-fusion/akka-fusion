@@ -75,10 +75,9 @@ object BaseRejectionBuilder extends StrictLogging {
           complete(jsonEntity(NotFound, msg))
         }
       }
-      .handle {
-        case rejection =>
-          logger.info(rejection.toString)
-          complete(jsonEntity(BadRequest, rejection.toString))
+      .handle { case rejection =>
+        logger.info(rejection.toString)
+        complete(jsonEntity(BadRequest, rejection.toString))
       }
   // #rejectionBuilder
 

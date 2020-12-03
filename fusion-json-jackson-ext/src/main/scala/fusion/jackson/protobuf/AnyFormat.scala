@@ -25,26 +25,25 @@ import com.google.protobuf.any.{ Any => PBAny }
 import fusion.json.JsonFormatException
 
 object AnyFormat {
-  def anyWriter(implicit mapper: ObjectMapper): (Printer, PBAny) => JsonNode = {
-    case (printer, any) =>
-      // Find the companion so it can be used to JSON-serialize the message. Perhaps this can be circumvented by
-      // including the original GeneratedMessage with the Any (at least in memory).
-      val cmp = printer.typeRegistry
-        .findType(any.typeUrl)
-        .getOrElse(throw new IllegalStateException(
-          s"Unknown type ${any.typeUrl} in Any.  Add a TypeRegistry that supports this type to the Printer."))
+  def anyWriter(implicit mapper: ObjectMapper): (Printer, PBAny) => JsonNode = { case (printer, any) =>
+    // Find the companion so it can be used to JSON-serialize the message. Perhaps this can be circumvented by
+    // including the original GeneratedMessage with the Any (at least in memory).
+    val cmp = printer.typeRegistry
+      .findType(any.typeUrl)
+      .getOrElse(throw new IllegalStateException(
+        s"Unknown type ${any.typeUrl} in Any.  Add a TypeRegistry that supports this type to the Printer."))
 
-      // Unpack the message...
-      val message = any.unpack(cmp)
+    // Unpack the message...
+    val message = any.unpack(cmp)
 
-      // ... and add the @type marker to the resulting JSON
-      printer.toJson(message) match {
-        case fields: ObjectNode =>
-          fields.put("@type", any.typeUrl) // JObject(("@type" -> JString(any.typeUrl)) +: fields)
-        case value =>
-          // Safety net, this shouldn't happen
-          throw new IllegalStateException(s"Message of type ${any.typeUrl} emitted non-object JSON: $value")
-      }
+    // ... and add the @type marker to the resulting JSON
+    printer.toJson(message) match {
+      case fields: ObjectNode =>
+        fields.put("@type", any.typeUrl) // JObject(("@type" -> JString(any.typeUrl)) +: fields)
+      case value =>
+        // Safety net, this shouldn't happen
+        throw new IllegalStateException(s"Message of type ${any.typeUrl} emitted non-object JSON: $value")
+    }
   }
 
   val anyParser: (Parser, JsonNode) => PBAny = {

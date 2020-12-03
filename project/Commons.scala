@@ -57,15 +57,13 @@ object Publishing {
     bintrayRepository := "maven",
     maintainer := "yangbajing <yang.xunjing@qq.com>",
     developers := List(
-        Developer(
-          id = "yangbajing",
-          name = "Yang Jing",
-          email = "yang.xunjing@qq.com",
-          url = url("https://github.com/yangbajing"))),
+      Developer(
+        id = "yangbajing",
+        name = "Yang Jing",
+        email = "yang.xunjing@qq.com",
+        url = url("https://github.com/yangbajing"))),
     scmInfo := Some(
-        ScmInfo(
-          url("https://github.com/akka-fusion/akka-fusion"),
-          "scm:git:git@github.com:akka-fusion/akka-fusion.git")))
+      ScmInfo(url("https://github.com/akka-fusion/akka-fusion"), "scm:git:git@github.com:akka-fusion/akka-fusion.git")))
 
   lazy val noPublish =
     Seq(publish := ((): Unit), publishLocal := ((): Unit), publishTo := None)

@@ -88,8 +88,8 @@ trait JacksonSupport {
   private val jsonSourceStringMarshaller =
     Marshaller.oneOf(mediaTypes: _*)(sourceByteStringMarshaller)
 
-  private def jsonSource[A](entitySource: SourceOf[A])(
-      implicit objectMapper: ObjectMapper,
+  private def jsonSource[A](entitySource: SourceOf[A])(implicit
+      objectMapper: ObjectMapper,
       support: JsonEntityStreamingSupport): SourceOf[ByteString] =
     entitySource.map(elem => ByteString(objectMapper.writeValueAsBytes(elem))).via(support.framingRenderer)
 
@@ -113,8 +113,8 @@ trait JacksonSupport {
    * @tparam A type to decode
    * @return unmarshaller for any `A` value
    */
-  implicit def fromByteStringUnmarshaller[A](
-      implicit ct: TypeTag[A],
+  implicit def fromByteStringUnmarshaller[A](implicit
+      ct: TypeTag[A],
       objectMapper: ObjectMapper): Unmarshaller[ByteString, A] =
     Unmarshaller { _ => bs =>
       Future.fromTry(Try(objectMapper.readValue(bs.toArray, typeReference[A])))
@@ -126,8 +126,8 @@ trait JacksonSupport {
    * @tparam A type to decode
    * @return unmarshaller for `Source[A, _]`
    */
-  implicit def sourceUnmarshaller[A](
-      implicit ct: TypeTag[A],
+  implicit def sourceUnmarshaller[A](implicit
+      ct: TypeTag[A],
       objectMapper: ObjectMapper,
       support: JsonEntityStreamingSupport = EntityStreamingSupport.json()): FromEntityUnmarshaller[SourceOf[A]] =
     Unmarshaller
@@ -153,8 +153,8 @@ trait JacksonSupport {
    * @tparam A type to encode
    * @return marshaller for any `SourceOf[A]` value
    */
-  implicit def sourceMarshaller[A](
-      implicit ct: TypeTag[A],
+  implicit def sourceMarshaller[A](implicit
+      ct: TypeTag[A],
       objectMapper: ObjectMapper,
       support: JsonEntityStreamingSupport = EntityStreamingSupport.json()): ToEntityMarshaller[SourceOf[A]] =
     jsonSourceStringMarshaller.compose(jsonSource[A])

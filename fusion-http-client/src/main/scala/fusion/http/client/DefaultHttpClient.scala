@@ -31,6 +31,7 @@ import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
 class DefaultHttpClient private ()(implicit val classicSystem: classic.ActorSystem) extends HttpClient {
+
   /**
    * 发送 Http 请求
    *
@@ -48,8 +49,7 @@ class DefaultHttpClient private ()(implicit val classicSystem: classic.ActorSyst
       params: Seq[(String, String)] = Nil,
       entity: T = HttpEntity.Empty,
       headers: immutable.Seq[HttpHeader] = Nil,
-      protocol: HttpProtocol = HttpProtocols.`HTTP/1.1`)(
-      implicit
+      protocol: HttpProtocol = HttpProtocols.`HTTP/1.1`)(implicit
       m: Marshaller[T, RequestEntity],
       mat: Materializer,
       ec: ExecutionContext = null): Future[HttpResponse] = {

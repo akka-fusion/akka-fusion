@@ -41,11 +41,8 @@ class FusionESClient(val underlying: ElasticClient, val config: Configuration) {
   // Executes the given request type T, and returns an effect of Response[U]
   // where U is particular to the request type.
   // For example a search request will return a Response[SearchResponse].
-  def execute[T, U, F[_]](t: T)(
-      implicit
-      executor: Executor[F],
-      functor: Functor[F],
-      handler: Handler[T, U]): F[Response[U]] = {
+  def execute[T, U, F[_]](
+      t: T)(implicit executor: Executor[F], functor: Functor[F], handler: Handler[T, U]): F[Response[U]] = {
     import scala.language.higherKinds
     val request = handler.build(t)
     val f = executor.exec(client, request)
@@ -67,13 +64,16 @@ class ElasticsearchComponents(system: ExtendedActorSystem)
   override protected def createComponent(id: String): FusionESClient = {
     val c = configuration.getConfiguration(id)
     val props = ElasticProperties(c.getString("uri"))
-    val client = JavaClient(props, (requestConfigBuilder: RequestConfig.Builder) => {
-      c.get[Option[Configuration]]("request-config").foreach(customizeRequestConfigFunc(_, requestConfigBuilder))
-      requestConfigBuilder
-    }, (httpClientBuilder: HttpAsyncClientBuilder) => {
-      c.get[Option[Configuration]]("http-config").foreach(customizeHttpClientFunc(_, httpClientBuilder))
-      httpClientBuilder
-    })
+    val client = JavaClient(
+      props,
+      (requestConfigBuilder: RequestConfig.Builder) => {
+        c.get[Option[Configuration]]("request-config").foreach(customizeRequestConfigFunc(_, requestConfigBuilder))
+        requestConfigBuilder
+      },
+      (httpClientBuilder: HttpAsyncClientBuilder) => {
+        c.get[Option[Configuration]]("http-config").foreach(customizeHttpClientFunc(_, httpClientBuilder))
+        httpClientBuilder
+      })
     new FusionESClient(ElasticClient(client), c)
   }
 

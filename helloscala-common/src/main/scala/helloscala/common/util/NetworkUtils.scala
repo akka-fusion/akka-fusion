@@ -25,7 +25,7 @@ import java.net.NetworkInterface
 import scala.jdk.CollectionConverters._
 
 object NetworkUtils {
-  private val validNetworkNamePrefixes = List("eth", "enp", "wlp")
+  private val validNetworkNamePrefixes = List("eth", "enp", "wlp", "eno")
   def validNetworkName(name: String) = validNetworkNamePrefixes.exists(prefix => name.startsWith(prefix))
 
   def interfaces(): Vector[NetworkInterface] = NetworkInterface.getNetworkInterfaces.asScala.toVector

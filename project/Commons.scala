@@ -1,12 +1,13 @@
 import Dependencies.{ versionScala212, versionScala213 }
-import bintray.BintrayKeys._
+import bintray.BintrayKeys.{ bintrayOrganization, bintrayRepository }
+//import bintray.BintrayKeys._
 import com.typesafe.sbt.SbtNativePackager.autoImport.maintainer
-import de.heikoseeberger.sbtheader.HeaderPlugin.autoImport.{ HeaderLicense, headerLicense }
+import de.heikoseeberger.sbtheader.HeaderPlugin.autoImport.{ headerLicense, HeaderLicense }
 import sbt.Keys._
 import sbt._
 
 object Commons {
-  import Environment.{ BuildEnv, buildEnv }
+  import Environment.{ buildEnv, BuildEnv }
 
   def basicSettings =
     Seq(
@@ -44,7 +45,7 @@ object Commons {
       shellPrompt := { s =>
         Project.extract(s).currentProject.id + " > "
       },
-      resolvers += Resolver.bintrayRepo("akka", "snapshots"),
+      //resolvers += Resolver.bintrayRepo("akka", "snapshots"),
       fork in run := true,
       fork in Test := true,
       parallelExecution in Test := false,
@@ -52,18 +53,28 @@ object Commons {
 }
 
 object Publishing {
-  lazy val publishing = Seq(
-    bintrayOrganization := Some("helloscala"),
-    bintrayRepository := "maven",
-    maintainer := "yangbajing <yang.xunjing@qq.com>",
-    developers := List(
-      Developer(
-        id = "yangbajing",
-        name = "Yang Jing",
-        email = "yang.xunjing@qq.com",
-        url = url("https://github.com/yangbajing"))),
-    scmInfo := Some(
-      ScmInfo(url("https://github.com/akka-fusion/akka-fusion"), "scm:git:git@github.com:akka-fusion/akka-fusion.git")))
+  import Environment.{ buildEnv, BuildEnv }
+
+  lazy val publishing =
+    Seq(
+      publishTo := (if (version.value.endsWith("SNAPSHOT"))
+                      Some("Artifactory Realm".at(
+                        "https://jfrog-artifactory.quanguolian.xyz/artifactory/sbt;build.timestamp=" + new java.util.Date().getTime))
+                    else Some("fruits-sbt".at("https://jfrog-artifactory.quanguolian.xyz/artifactory/public-ivy"))),
+      credentials += Credentials(Path.userHome / ".sbt" / ".credentials_fruits"),
+//      bintrayOrganization := Some("artifactory"),
+//      bintrayRepository := "sbt",
+      maintainer := "yangbajing <yang.xunjing@qq.com>",
+      developers := List(
+          Developer(
+            id = "yangbajing",
+            name = "Yang Jing",
+            email = "yang.xunjing@qq.com",
+            url = url("https://github.com/yangbajing"))),
+      scmInfo := Some(
+          ScmInfo(
+            url("https://github.com/akka-fusion/akka-fusion"),
+            "scm:git:git@github.com:akka-fusion/akka-fusion.git")))
 
   lazy val noPublish =
     Seq(publish := ((): Unit), publishLocal := ((): Unit), publishTo := None)

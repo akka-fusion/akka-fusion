@@ -43,7 +43,7 @@ final class FusionCore private (override val classicSystem: ExtendedActorSystem)
   val events = new FusionEvents()
   val shutdowns = new FusionCoordinatedShutdown(classicSystem)
   val currentXService: HttpHeader = {
-    val serviceName = configuration.get[Option[String]]("fusion.discovery.nacos.serviceName").getOrElse(name)
+    val serviceName = configuration.get[Option[String]]("fusion.application.name").getOrElse(name)
     `X-Service`(serviceName)
   }
 

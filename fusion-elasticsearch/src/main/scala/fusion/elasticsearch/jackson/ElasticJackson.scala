@@ -18,12 +18,13 @@ package fusion.elasticsearch.jackson
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ObjectNode
-import com.sksamuel.elastic4s.{ Hit, HitReader, Indexable }
+import com.sksamuel.elastic4s.{Hit, HitReader, Indexable}
 import com.sksamuel.exts.Logging
 
 import scala.util.Try
 
 object ElasticJackson {
+
   trait Implicits extends Logging {
     def objectMapper: ObjectMapper
 
@@ -32,7 +33,8 @@ object ElasticJackson {
 
     implicit def JacksonJsonHitReader[T](implicit
         manifest: Manifest[T],
-        mapper: ObjectMapper = objectMapper): HitReader[T] =
+        mapper: ObjectMapper = objectMapper
+    ): HitReader[T] =
       (hit: Hit) =>
         Try {
           require(hit.sourceAsString != null)
@@ -45,8 +47,9 @@ object ElasticJackson {
           if (!node.has("_timestamp"))
             hit
               .sourceFieldOpt("_timestamp")
-              .collect { case f =>
-                f.toString
+              .collect {
+                case f =>
+                  f.toString
               }
               .foreach(node.put("_timestamp", _))
           mapper.readValue(mapper.writeValueAsBytes(node), manifest.runtimeClass).asInstanceOf[T]

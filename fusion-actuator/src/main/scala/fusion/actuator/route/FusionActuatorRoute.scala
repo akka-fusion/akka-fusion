@@ -17,7 +17,7 @@
 package fusion.actuator.route
 
 import akka.actor.ExtendedActorSystem
-import akka.http.scaladsl.model.{ ContentTypes, HttpEntity, HttpRequest, Uri }
+import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpRequest, Uri}
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import com.typesafe.scalalogging.StrictLogging
@@ -30,11 +30,13 @@ case class Item(href: String, templated: Boolean)
 
 class FusionActuatorRoute(system: ExtendedActorSystem, actuatorSetting: ActuatorSetting) extends StrictLogging {
   private val objectMapper = JacksonObjectMapperExtension(system).objectMapperJson
+
   private val components: Seq[ActuatorRoute] =
     FusionCore(system).configuration.get[Seq[String]]("fusion.actuator.routes").flatMap { fqcn =>
       Utils.try2option(
         system.dynamicAccess.createInstanceFor[ActuatorRoute](fqcn, List(classOf[ExtendedActorSystem] -> system)),
-        e => logger.error(s"创建实例失败，fqcn: $fqcn", e))
+        e => logger.error(s"创建实例失败，fqcn: $fqcn", e)
+      )
     }
 
   private val routes: Seq[Route] = components.map(_.aroundRoute)
@@ -54,10 +56,11 @@ class FusionActuatorRoute(system: ExtendedActorSystem, actuatorSetting: Actuator
           complete {
             HttpEntity(
               ContentTypes.`application/json`,
-              objectMapper.writeValueAsString(Map("_links" -> links(request))))
+              objectMapper.writeValueAsString(Map("_links" -> links(request)))
+            )
           }
         }
       } ~
-      concat(routes: _*)
+        concat(routes: _*)
     }
 }

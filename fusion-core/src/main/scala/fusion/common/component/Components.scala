@@ -63,8 +63,9 @@ abstract class Components[T](DEFAULT_ID: String) extends StrictLogging {
     other
   }
 
-  def closeAsync()(implicit ec: ExecutionContext): Future[Done] = synchronized {
-    Future.sequence(components.valuesIterator.map(componentClose).toList).map(_ => Done)
-  }
+  def closeAsync()(implicit ec: ExecutionContext): Future[Done] =
+    synchronized {
+      Future.sequence(components.valuesIterator.map(componentClose).toList).map(_ => Done)
+    }
 }
 // #Components

@@ -26,12 +26,12 @@ import com.google.protobuf.duration.Duration
 import com.google.protobuf.field_mask.FieldMask
 import com.google.protobuf.struct.NullValue
 import com.google.protobuf.timestamp.Timestamp
-import fusion.json.{ Durations, JsonFormatException, NameUtils, Timestamps }
-import fusion.json.json4s.{ JsonUtils, JsonUtilsExtension }
+import fusion.json.{Durations, JsonFormatException, NameUtils, Timestamps}
+import fusion.json.json4s.{JsonUtils, JsonUtilsExtension}
 import fusion.shared.scalapb.json4s.JsonFormat.GenericCompanion
 import fusion.shared.scalapb.json4s.Printer.PrinterConfig
 import org.json4s.JsonAST._
-import org.json4s.{ Reader, Writer }
+import org.json4s.{Reader, Writer}
 import scalapb._
 
 import scala.collection.mutable
@@ -43,15 +43,19 @@ case class Formatter[T](writer: (Printer, T) => JValue, parser: (Parser, JValue)
 case class FormatRegistry(
     messageFormatters: Map[Class[_], Formatter[_]] = Map.empty,
     enumFormatters: Map[EnumDescriptor, Formatter[EnumValueDescriptor]] = Map.empty,
-    registeredCompanions: Seq[GenericCompanion] = Seq.empty) {
+    registeredCompanions: Seq[GenericCompanion] = Seq.empty
+) {
+
   def registerMessageFormatter[T <: GeneratedMessage](writer: (Printer, T) => JValue, parser: (Parser, JValue) => T)(
-      implicit ct: ClassTag[T]): FormatRegistry = {
+      implicit ct: ClassTag[T]
+  ): FormatRegistry = {
     copy(messageFormatters = messageFormatters + (ct.runtimeClass -> Formatter(writer, parser)))
   }
 
   def registerEnumFormatter[E <: GeneratedEnum](
       writer: (Printer, EnumValueDescriptor) => JValue,
-      parser: (Parser, JValue) => EnumValueDescriptor)(implicit cmp: GeneratedEnumCompanion[E]): FormatRegistry = {
+      parser: (Parser, JValue) => EnumValueDescriptor
+  )(implicit cmp: GeneratedEnumCompanion[E]): FormatRegistry = {
     copy(enumFormatters = enumFormatters + (cmp.scalaDescriptor -> Formatter(writer, parser)))
   }
 
@@ -83,7 +87,9 @@ case class FormatRegistry(
  */
 case class TypeRegistry(
     companions: Map[String, GenericCompanion] = Map.empty,
-    private val filesSeen: Set[String] = Set.empty) {
+    private val filesSeen: Set[String] = Set.empty
+) {
+
   def addMessage[T <: GeneratedMessage with Message[T]](implicit cmp: GeneratedMessageCompanion[T]): TypeRegistry = {
     addMessageByCompanion(cmp)
   }
@@ -117,13 +123,15 @@ object TypeRegistry {
 }
 
 object Printer {
+
   final private case class PrinterConfig(
       isIncludingDefaultValueFields: Boolean,
       isPreservingProtoFieldNames: Boolean,
       isFormattingLongAsNumber: Boolean,
       isFormattingEnumsAsNumber: Boolean,
       formatRegistry: FormatRegistry,
-      typeRegistry: TypeRegistry)
+      typeRegistry: TypeRegistry
+  )
 
   private def defaultConfig =
     PrinterConfig(
@@ -132,7 +140,8 @@ object Printer {
       isFormattingLongAsNumber = false,
       isFormattingEnumsAsNumber = false,
       formatRegistry = JsonFormat.DefaultRegistry,
-      typeRegistry = TypeRegistry.empty)
+      typeRegistry = TypeRegistry.empty
+    )
 }
 
 class Printer private (jsonUtils: JsonUtils, config: PrinterConfig) {
@@ -189,7 +198,8 @@ class Printer private (jsonUtils: JsonUtils, config: PrinterConfig) {
                 serializeSingleValue(valueDescriptor, x.getField(valueDescriptor), config.isFormattingLongAsNumber)
               }
               key -> value
-            }.toSeq: _*))
+            }.toSeq: _*)
+          )
         } else {
           b += JField(name, JArray(xs.map(toJson).toList))
         }
@@ -211,11 +221,13 @@ class Printer private (jsonUtils: JsonUtils, config: PrinterConfig) {
           b += JField(name, JArray(xs.map(serializeSingleValue(fd, _, config.isFormattingLongAsNumber)).toList))
         }
       case v =>
-        if (config.isIncludingDefaultValueFields ||
+        if (
+          config.isIncludingDefaultValueFields ||
           !fd.isOptional ||
           !fd.file.isProto3 ||
           (v != JsonFormat.defaultValue(fd)) ||
-          fd.containingOneof.isDefined) {
+          fd.containingOneof.isDefined
+        ) {
           b += JField(name, serializeSingleValue(fd, v, config.isFormattingLongAsNumber))
         }
     }
@@ -253,42 +265,47 @@ class Printer private (jsonUtils: JsonUtils, config: PrinterConfig) {
     if (formattingLongAsNumber) JInt(v) else JString(v.toString())
   }
 
-  def serializeSingleValue(fd: FieldDescriptor, value: PValue, formattingLongAsNumber: Boolean): JValue = value match {
-    case PEnum(e) =>
-      config.formatRegistry.getEnumWriter(e.containingEnum) match {
-        case Some(writer) => writer(this, e)
-        case None         => if (config.isFormattingEnumsAsNumber) JInt(e.number) else JString(e.name)
-      }
-    case PInt(v) if fd.protoType.isTypeUint32  => JInt(unsignedInt(v))
-    case PInt(v) if fd.protoType.isTypeFixed32 => JInt(unsignedInt(v))
-    case PInt(v)                               => JInt(v)
-    case PLong(v)                              => formatLong(v, fd.protoType, formattingLongAsNumber)
-    case PDouble(v)                            => JDouble(v)
-    case PFloat(v)                             => if (!v.isNaN && !v.isInfinite) JDecimal(BigDecimal.decimal(v)) else JDouble(v)
-    case PBoolean(v)                           => JBool(v)
-    case PString(v)                            => JString(v)
-    case PByteString(v)                        => JString(Base64Variants.getDefaultVariant.encode(v.toByteArray))
-    case _: PMessage | PRepeated(_) | PEmpty   => throw new RuntimeException("Should not happen")
-  }
+  def serializeSingleValue(fd: FieldDescriptor, value: PValue, formattingLongAsNumber: Boolean): JValue =
+    value match {
+      case PEnum(e) =>
+        config.formatRegistry.getEnumWriter(e.containingEnum) match {
+          case Some(writer) => writer(this, e)
+          case None         => if (config.isFormattingEnumsAsNumber) JInt(e.number) else JString(e.name)
+        }
+      case PInt(v) if fd.protoType.isTypeUint32  => JInt(unsignedInt(v))
+      case PInt(v) if fd.protoType.isTypeFixed32 => JInt(unsignedInt(v))
+      case PInt(v)                               => JInt(v)
+      case PLong(v)                              => formatLong(v, fd.protoType, formattingLongAsNumber)
+      case PDouble(v)                            => JDouble(v)
+      case PFloat(v)                             => if (!v.isNaN && !v.isInfinite) JDecimal(BigDecimal.decimal(v)) else JDouble(v)
+      case PBoolean(v)                           => JBool(v)
+      case PString(v)                            => JString(v)
+      case PByteString(v)                        => JString(Base64Variants.getDefaultVariant.encode(v.toByteArray))
+      case _: PMessage | PRepeated(_) | PEmpty   => throw new RuntimeException("Should not happen")
+    }
 }
 
 object Parser {
+
   final private case class ParserConfig(
       isIgnoringUnknownFields: Boolean,
       formatRegistry: FormatRegistry,
-      typeRegistry: TypeRegistry)
+      typeRegistry: TypeRegistry
+  )
 }
 
 class Parser private (jsonUtils: JsonUtils, config: Parser.ParserConfig) {
   def this(jsonUtils: JsonUtils) =
     this(
       jsonUtils,
-      Parser.ParserConfig(isIgnoringUnknownFields = false, JsonFormat.DefaultRegistry, TypeRegistry.empty))
+      Parser.ParserConfig(isIgnoringUnknownFields = false, JsonFormat.DefaultRegistry, TypeRegistry.empty)
+    )
 
   def this(system: ActorSystem) =
     this(
       JsonUtilsExtension(system),
-      Parser.ParserConfig(isIgnoringUnknownFields = false, JsonFormat.DefaultRegistry, TypeRegistry.empty))
+      Parser.ParserConfig(isIgnoringUnknownFields = false, JsonFormat.DefaultRegistry, TypeRegistry.empty)
+    )
 
   def ignoringUnknownFields: Parser = new Parser(jsonUtils, config.copy(isIgnoringUnknownFields = true))
 
@@ -307,7 +324,8 @@ class Parser private (jsonUtils: JsonUtils, config: Parser.ParserConfig) {
     fromJson(value, false)
 
   private[json4s] def fromJson[A <: GeneratedMessage with Message[A]](value: JValue, skipTypeUrl: Boolean)(implicit
-      cmp: GeneratedMessageCompanion[A]): A = {
+      cmp: GeneratedMessageCompanion[A]
+  ): A = {
     cmp.messageReads.read(fromJsonToPMessage(cmp, value, skipTypeUrl))
   }
 
@@ -319,34 +337,40 @@ class Parser private (jsonUtils: JsonUtils, config: Parser.ParserConfig) {
             val mapEntryDesc = fd.scalaType.asInstanceOf[ScalaType.Message].descriptor
             val keyDescriptor = mapEntryDesc.findFieldByNumber(1).get
             val valueDescriptor = mapEntryDesc.findFieldByNumber(2).get
-            PRepeated(vals.iterator.map { case (key, jValue) =>
-              val keyObj = keyDescriptor.scalaType match {
-                case ScalaType.Boolean => PBoolean(java.lang.Boolean.valueOf(key))
-                case ScalaType.Double  => PDouble(java.lang.Double.valueOf(key))
-                case ScalaType.Float   => PFloat(java.lang.Float.valueOf(key))
-                case ScalaType.Int     => PInt(java.lang.Integer.valueOf(key))
-                case ScalaType.Long    => PLong(java.lang.Long.valueOf(key))
-                case ScalaType.String  => PString(key)
-                case _                 => throw new RuntimeException(s"Unsupported type for key for ${fd.name}")
-              }
-              PMessage(
-                Map(
-                  keyDescriptor -> keyObj,
-                  valueDescriptor -> parseSingleValue(
-                    cmp.messageCompanionForFieldNumber(fd.number),
-                    valueDescriptor,
-                    jValue)))
+            PRepeated(vals.iterator.map {
+              case (key, jValue) =>
+                val keyObj = keyDescriptor.scalaType match {
+                  case ScalaType.Boolean => PBoolean(java.lang.Boolean.valueOf(key))
+                  case ScalaType.Double  => PDouble(java.lang.Double.valueOf(key))
+                  case ScalaType.Float   => PFloat(java.lang.Float.valueOf(key))
+                  case ScalaType.Int     => PInt(java.lang.Integer.valueOf(key))
+                  case ScalaType.Long    => PLong(java.lang.Long.valueOf(key))
+                  case ScalaType.String  => PString(key)
+                  case _                 => throw new RuntimeException(s"Unsupported type for key for ${fd.name}")
+                }
+                PMessage(
+                  Map(
+                    keyDescriptor -> keyObj,
+                    valueDescriptor -> parseSingleValue(
+                      cmp.messageCompanionForFieldNumber(fd.number),
+                      valueDescriptor,
+                      jValue
+                    )
+                  )
+                )
             }.toVector)
           case _ =>
             throw new JsonFormatException(
-              s"Expected an object for map field ${fd.name} of ${fd.containingMessage.name}")
+              s"Expected an object for map field ${fd.name} of ${fd.containingMessage.name}"
+            )
         }
       } else if (fd.isRepeated) {
         value match {
           case JArray(vals) => PRepeated(vals.map(parseSingleValue(cmp, fd, _)).toVector)
           case _ =>
             throw new JsonFormatException(
-              s"Expected an array for repeated field ${fd.name} of ${fd.containingMessage.name}")
+              s"Expected an array for repeated field ${fd.name} of ${fd.containingMessage.name}"
+            )
         }
       } else parseSingleValue(cmp, fd, value)
     }
@@ -358,15 +382,18 @@ class Parser private (jsonUtils: JsonUtils, config: Parser.ParserConfig) {
           case JObject(fields) =>
             val fieldMap = JsonFormat.MemorizedFieldNameMap(cmp.scalaDescriptor)
             val valueMapBuilder = Map.newBuilder[FieldDescriptor, PValue]
-            fields.foreach { case (name: String, jValue: JValue) =>
-              if (fieldMap.contains(name)) {
-                if (jValue != JNull) {
-                  val fd = fieldMap(name)
-                  valueMapBuilder += (fd -> parseValue(fd, jValue))
+            fields.foreach {
+              case (name: String, jValue: JValue) =>
+                if (fieldMap.contains(name)) {
+                  if (jValue != JNull) {
+                    val fd = fieldMap(name)
+                    valueMapBuilder += (fd -> parseValue(fd, jValue))
+                  }
+                } else if (!config.isIgnoringUnknownFields && !(skipTypeUrl && name == "@type")) {
+                  throw new JsonFormatException(
+                    s"Cannot find field: ${name} in message ${cmp.scalaDescriptor.fullName}"
+                  )
                 }
-              } else if (!config.isIgnoringUnknownFields && !(skipTypeUrl && name == "@type")) {
-                throw new JsonFormatException(s"Cannot find field: ${name} in message ${cmp.scalaDescriptor.fullName}")
-              }
             }
 
             PMessage(valueMapBuilder.result())
@@ -376,38 +403,44 @@ class Parser private (jsonUtils: JsonUtils, config: Parser.ParserConfig) {
     }
   }
 
-  def defaultEnumParser(enumDescriptor: EnumDescriptor, value: JValue): EnumValueDescriptor = value match {
-    case JInt(v) =>
-      enumDescriptor
-        .findValueByNumber(v.toInt)
-        .getOrElse(
-          throw new JsonFormatException(s"Invalid enum value: ${v.toInt} for enum type: ${enumDescriptor.fullName}"))
-    case JString(s) =>
-      enumDescriptor.values
-        .find(_.name == s)
-        .getOrElse(throw new JsonFormatException(s"Unrecognized enum value '${s}'"))
-    case _ =>
-      throw new JsonFormatException(s"Unexpected value ($value) for enum ${enumDescriptor.fullName}")
-  }
+  def defaultEnumParser(enumDescriptor: EnumDescriptor, value: JValue): EnumValueDescriptor =
+    value match {
+      case JInt(v) =>
+        enumDescriptor
+          .findValueByNumber(v.toInt)
+          .getOrElse(
+            throw new JsonFormatException(s"Invalid enum value: ${v.toInt} for enum type: ${enumDescriptor.fullName}")
+          )
+      case JString(s) =>
+        enumDescriptor.values
+          .find(_.name == s)
+          .getOrElse(throw new JsonFormatException(s"Unrecognized enum value '${s}'"))
+      case _ =>
+        throw new JsonFormatException(s"Unexpected value ($value) for enum ${enumDescriptor.fullName}")
+    }
 
   protected def parseSingleValue(
       containerCompanion: GeneratedMessageCompanion[_],
       fd: FieldDescriptor,
-      value: JValue): PValue = fd.scalaType match {
-    case ScalaType.Enum(ed) =>
-      PEnum(config.formatRegistry.getEnumParser(ed) match {
-        case Some(parser) => parser(this, value)
-        case None         => defaultEnumParser(ed, value)
-      })
-    case ScalaType.Message(md) =>
-      fromJsonToPMessage(containerCompanion.messageCompanionForFieldNumber(fd.number), value, false)
-    case st =>
-      JsonFormat.parsePrimitive(
-        fd.protoType,
-        value,
-        throw new JsonFormatException(
-          s"Unexpected value ($value) for field ${fd.name} of ${fd.containingMessage.name}"))
-  }
+      value: JValue
+  ): PValue =
+    fd.scalaType match {
+      case ScalaType.Enum(ed) =>
+        PEnum(config.formatRegistry.getEnumParser(ed) match {
+          case Some(parser) => parser(this, value)
+          case None         => defaultEnumParser(ed, value)
+        })
+      case ScalaType.Message(md) =>
+        fromJsonToPMessage(containerCompanion.messageCompanionForFieldNumber(fd.number), value, false)
+      case st =>
+        JsonFormat.parsePrimitive(
+          fd.protoType,
+          value,
+          throw new JsonFormatException(
+            s"Unexpected value ($value) for field ${fd.name} of ${fd.containingMessage.name}"
+          )
+        )
+    }
 }
 
 object JsonFormat {
@@ -422,58 +455,68 @@ object JsonFormat {
         jv match {
           case JString(str) => Durations.parseDuration(str)
           case _            => throw new JsonFormatException("Expected a string.")
-        })
+        }
+    )
     .registerWriter(
       (t: Timestamp) => JString(Timestamps.writeTimestamp(t)),
       jv =>
         jv match {
           case JString(str) => Timestamps.parseTimestamp(str)
           case _            => throw new JsonFormatException("Expected a string.")
-        })
+        }
+    )
     .registerWriter(
       (m: FieldMask) => JString(FieldMaskUtil.toJsonString(m)),
       jv =>
         jv match {
           case JString(str) => FieldMaskUtil.fromJsonString(str)
           case _            => throw new JsonFormatException("Expected a string.")
-        })
+        }
+    )
     .registerMessageFormatter[wrappers.DoubleValue](
       primitiveWrapperWriter,
-      primitiveWrapperParser[wrappers.DoubleValue])
+      primitiveWrapperParser[wrappers.DoubleValue]
+    )
     .registerMessageFormatter[wrappers.FloatValue](primitiveWrapperWriter, primitiveWrapperParser[wrappers.FloatValue])
     .registerMessageFormatter[wrappers.Int32Value](primitiveWrapperWriter, primitiveWrapperParser[wrappers.Int32Value])
     .registerMessageFormatter[wrappers.Int64Value](primitiveWrapperWriter, primitiveWrapperParser[wrappers.Int64Value])
     .registerMessageFormatter[wrappers.UInt32Value](
       primitiveWrapperWriter,
-      primitiveWrapperParser[wrappers.UInt32Value])
+      primitiveWrapperParser[wrappers.UInt32Value]
+    )
     .registerMessageFormatter[wrappers.UInt64Value](
       primitiveWrapperWriter,
-      primitiveWrapperParser[wrappers.UInt64Value])
+      primitiveWrapperParser[wrappers.UInt64Value]
+    )
     .registerMessageFormatter[wrappers.BoolValue](primitiveWrapperWriter, primitiveWrapperParser[wrappers.BoolValue])
     .registerMessageFormatter[wrappers.BytesValue](primitiveWrapperWriter, primitiveWrapperParser[wrappers.BytesValue])
     .registerMessageFormatter[wrappers.StringValue](
       primitiveWrapperWriter,
-      primitiveWrapperParser[wrappers.StringValue])
+      primitiveWrapperParser[wrappers.StringValue]
+    )
     .registerEnumFormatter[NullValue](
       (_, _) => JNull,
       (parser, value) =>
         value match {
           case JNull => NullValue.NULL_VALUE.scalaValueDescriptor
           case _     => parser.defaultEnumParser(NullValue.scalaDescriptor, value)
-        })
+        }
+    )
     .registerWriter[com.google.protobuf.struct.Value](StructFormat.structValueWriter, StructFormat.structValueParser)
     .registerWriter[com.google.protobuf.struct.Struct](StructFormat.structWriter, StructFormat.structParser)
     .registerWriter[com.google.protobuf.struct.ListValue](StructFormat.listValueWriter, StructFormat.listValueParser)
     .registerMessageFormatter[com.google.protobuf.any.Any](AnyFormat.anyWriter, AnyFormat.anyParser)
 
   def primitiveWrapperWriter[T <: GeneratedMessage with Message[T]](implicit
-      cmp: GeneratedMessageCompanion[T]): ((Printer, T) => JValue) = {
+      cmp: GeneratedMessageCompanion[T]
+  ): ((Printer, T) => JValue) = {
     val fieldDesc = cmp.scalaDescriptor.findFieldByNumber(1).get
     (printer, t) => printer.serializeSingleValue(fieldDesc, t.getField(fieldDesc), formattingLongAsNumber = false)
   }
 
   def primitiveWrapperParser[T <: GeneratedMessage with Message[T]](implicit
-      cmp: GeneratedMessageCompanion[T]): ((Parser, JValue) => T) = {
+      cmp: GeneratedMessageCompanion[T]
+  ): ((Parser, JValue) => T) = {
     val fieldDesc = cmp.scalaDescriptor.findFieldByNumber(1).get
     (parser, jv) =>
       cmp.messageReads.read(
@@ -482,7 +525,11 @@ object JsonFormat {
             fieldDesc -> JsonFormat.parsePrimitive(
               fieldDesc.protoType,
               jv,
-              throw new JsonFormatException(s"Unexpected value for ${cmp.scalaDescriptor.name}")))))
+              throw new JsonFormatException(s"Unexpected value for ${cmp.scalaDescriptor.name}")
+            )
+          )
+        )
+      )
   }
 
   def printer(implicit jsonUtils: JsonUtils) = new Printer(jsonUtils)
@@ -493,18 +540,21 @@ object JsonFormat {
 
   def toJson[A <: GeneratedMessage](m: A)(implicit jsonUtils: JsonUtils): JValue = printer.toJson(m)
 
-  def fromJson[A <: GeneratedMessage with Message[A]: GeneratedMessageCompanion](value: JValue)(implicit
-      jsonUtils: JsonUtils): A = {
+  def fromJson[A <: GeneratedMessage with Message[A]: GeneratedMessageCompanion](
+      value: JValue
+  )(implicit jsonUtils: JsonUtils): A = {
     parser.fromJson(value)
   }
 
-  def fromJsonString[A <: GeneratedMessage with Message[A]: GeneratedMessageCompanion](str: String)(implicit
-      jsonUtils: JsonUtils): A = {
+  def fromJsonString[A <: GeneratedMessage with Message[A]: GeneratedMessageCompanion](
+      str: String
+  )(implicit jsonUtils: JsonUtils): A = {
     parser.fromJsonString(str)
   }
 
   implicit def protoToReader[T <: GeneratedMessage with Message[T]: GeneratedMessageCompanion](implicit
-      jsonUtils: JsonUtils): Reader[T] =
+      jsonUtils: JsonUtils
+  ): Reader[T] =
     new Reader[T] {
       def read(value: JValue): T = parser.fromJson(value)
     }
@@ -534,7 +584,8 @@ object JsonFormat {
       scalaType: ScalaType,
       protoType: FieldDescriptorProto.Type,
       value: JValue,
-      onError: => PValue): PValue =
+      onError: => PValue
+  ): PValue =
     parsePrimitive(protoType, value, onError)
 
   def parsePrimitive(protoType: FieldDescriptorProto.Type, value: JValue, onError: => PValue): PValue =
@@ -649,42 +700,46 @@ object JsonFormat {
       }
   }
 
-  def parseDouble(value: String): PDouble = value match {
-    case "NaN"       => PDouble(Double.NaN)
-    case "Infinity"  => PDouble(Double.PositiveInfinity)
-    case "-Infinity" => PDouble(Double.NegativeInfinity)
-    case v =>
-      try {
-        val bd = new java.math.BigDecimal(v)
-        if (bd.compareTo(MAX_DOUBLE) > 0 || bd.compareTo(MIN_DOUBLE) < 0) {
-          throw new JsonFormatException("Out of range double value: " + v)
+  def parseDouble(value: String): PDouble =
+    value match {
+      case "NaN"       => PDouble(Double.NaN)
+      case "Infinity"  => PDouble(Double.PositiveInfinity)
+      case "-Infinity" => PDouble(Double.NegativeInfinity)
+      case v =>
+        try {
+          val bd = new java.math.BigDecimal(v)
+          if (bd.compareTo(MAX_DOUBLE) > 0 || bd.compareTo(MIN_DOUBLE) < 0) {
+            throw new JsonFormatException("Out of range double value: " + v)
+          }
+          PDouble(bd.doubleValue)
+        } catch {
+          case e: JsonFormatException => throw e
+          case e: Exception =>
+            throw new JsonFormatException("Not a double value: " + v)
         }
-        PDouble(bd.doubleValue)
-      } catch {
-        case e: JsonFormatException => throw e
-        case e: Exception =>
-          throw new JsonFormatException("Not a double value: " + v)
-      }
-  }
+    }
 
-  def parseFloat(str: String): PFloat = str match {
-    case "NaN"       => PFloat(Float.NaN)
-    case "Infinity"  => PFloat(Float.PositiveInfinity)
-    case "-Infinity" => PFloat(Float.NegativeInfinity)
-    case v =>
-      try {
-        val value = java.lang.Double.parseDouble(v)
-        if ((value > Float.MaxValue * (1.0 + EPSILON)) ||
-          (value < -Float.MaxValue * (1.0 + EPSILON))) {
-          throw new JsonFormatException("Out of range float value: " + value)
+  def parseFloat(str: String): PFloat =
+    str match {
+      case "NaN"       => PFloat(Float.NaN)
+      case "Infinity"  => PFloat(Float.PositiveInfinity)
+      case "-Infinity" => PFloat(Float.NegativeInfinity)
+      case v =>
+        try {
+          val value = java.lang.Double.parseDouble(v)
+          if (
+            (value > Float.MaxValue * (1.0 + EPSILON)) ||
+            (value < -Float.MaxValue * (1.0 + EPSILON))
+          ) {
+            throw new JsonFormatException("Out of range float value: " + value)
+          }
+          PFloat(value.toFloat)
+        } catch {
+          case e: JsonFormatException => throw e
+          case e: Exception =>
+            throw new JsonFormatException("Not a float value: " + v)
         }
-        PFloat(value.toFloat)
-      } catch {
-        case e: JsonFormatException => throw e
-        case e: Exception =>
-          throw new JsonFormatException("Not a float value: " + v)
-      }
-  }
+    }
 
   def jsonName(fd: FieldDescriptor): String = {
     // protoc<3 doesn't know about json_name, so we fill it in if it's not populated.

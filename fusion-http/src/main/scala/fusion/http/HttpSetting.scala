@@ -17,7 +17,7 @@
 package fusion.http
 
 import com.typesafe.config.Config
-import com.typesafe.sslconfig.ssl.{ SSLConfigFactory, SSLConfigSettings }
+import com.typesafe.sslconfig.ssl.{SSLConfigFactory, SSLConfigSettings}
 import fusion.http.constant.HttpConstants
 import helloscala.common.Configuration
 
@@ -40,6 +40,7 @@ final class HttpSetting private (c: Configuration, config: Config) {
   }
 
   object server {
+
     def host: String =
       c.getOrElse("server.host", config.getString(HttpConstants.SERVER_HOST_PATH))
 

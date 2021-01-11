@@ -16,7 +16,7 @@
 
 package fusion.http.util
 
-import akka.http.scaladsl.server.{ ExceptionHandler, Route }
+import akka.http.scaladsl.server.{ExceptionHandler, Route}
 
 final class DefaultExceptionHandler extends ExceptionHandler.PF {
   private val pf = BaseExceptionBuilder.exceptionHandlerPF

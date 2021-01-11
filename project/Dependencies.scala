@@ -170,6 +170,8 @@ object Dependencies {
       .excludeAll(ExclusionRule("com.typesafe.akka"))
       .cross(CrossVersion.binary)
 
+  val _consulClient = "com.orbitz.consul" % "consul-client" % "1.4.2"
+
   val _mongodbs = Seq(
     "org.mongodb.scala" %% "mongo-scala-bson" % versionMongoScalaBson,
     "org.mongodb" % "mongodb-driver-reactivestreams" % versionMongoDriverReactivestreams)
@@ -196,6 +198,8 @@ object Dependencies {
       .exclude("com.typesafe.akka", "akka-stream")
       .exclude("org.apache.kafka", "kafka-clients")
       .cross(CrossVersion.binary))
+
+  val _akkaDiscoveryConsul = "com.lightbend.akka.discovery" %% "akka-discovery-consul" % versionAkkaManagement
 
   val _config = "com.typesafe" % "config" % versionConfig
 

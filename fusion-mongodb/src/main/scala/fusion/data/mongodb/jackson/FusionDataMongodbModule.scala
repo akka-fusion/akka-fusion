@@ -26,12 +26,14 @@ import com.fasterxml.jackson.module.scala.JacksonModule
 import org.bson.types.ObjectId
 
 private object ObjectIdSer extends JsonSerializer[ObjectId] {
+
   override def serialize(value: ObjectId, gen: JsonGenerator, serializers: SerializerProvider): Unit = {
     gen.writeString(value.toHexString)
   }
 }
 
 private object ObjectIdDeser extends JsonDeserializer[ObjectId] {
+
   override def deserialize(p: JsonParser, ctxt: DeserializationContext): ObjectId = {
     p.getValueAsString match {
       case null                         => ctxt.handleUnexpectedToken(classOf[ObjectId], p).asInstanceOf[ObjectId]
@@ -42,10 +44,12 @@ private object ObjectIdDeser extends JsonDeserializer[ObjectId] {
 }
 
 private object ObjectIdDeserializer extends Deserializers.Base {
+
   override def findBeanDeserializer(
       `type`: JavaType,
       config: DeserializationConfig,
-      beanDesc: BeanDescription): JsonDeserializer[_] = {
+      beanDesc: BeanDescription
+  ): JsonDeserializer[_] = {
     val rawClass = `type`.getRawClass
     if (OBJECT_ID.isAssignableFrom(rawClass)) ObjectIdDeser
     else super.findBeanDeserializer(`type`, config, beanDesc)
@@ -53,10 +57,12 @@ private object ObjectIdDeserializer extends Deserializers.Base {
 }
 
 private object ObjectIdSerializer extends Serializers.Base {
+
   override def findSerializer(
       config: SerializationConfig,
       `type`: JavaType,
-      beanDesc: BeanDescription): JsonSerializer[_] = {
+      beanDesc: BeanDescription
+  ): JsonSerializer[_] = {
     val rawClass = `type`.getRawClass
     if (OBJECT_ID.isAssignableFrom(rawClass)) ObjectIdSer
     else super.findSerializer(config, `type`, beanDesc)

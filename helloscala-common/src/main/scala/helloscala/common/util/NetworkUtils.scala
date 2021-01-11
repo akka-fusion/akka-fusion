@@ -32,7 +32,8 @@ object NetworkUtils {
 
   def onlineNetworkInterfaces() = {
     interfaces().filterNot(ni =>
-      ni.isLoopback || !ni.isUp || ni.isVirtual || ni.isPointToPoint || !validNetworkName(ni.getName))
+      ni.isLoopback || !ni.isUp || ni.isVirtual || ni.isPointToPoint || !validNetworkName(ni.getName)
+    )
   }
 
   def onlineInterfaceAddress(): Vector[InterfaceAddress] = {
@@ -43,9 +44,10 @@ object NetworkUtils {
     onlineInterfaceAddress().view.filter(ia => ia.getAddress.isInstanceOf[Inet4Address]).map(_.getAddress).headOption
   }
 
-  def toInetSocketAddress(address: String, defaultPort: Int): InetSocketAddress = address.split(':') match {
-    case Array(host, AsInt(port)) => InetSocketAddress.createUnresolved(host, port)
-    case Array(host)              => InetSocketAddress.createUnresolved(host, defaultPort)
-    case _                        => throw new ExceptionInInitializerError(s"无效的通信地址：$address")
-  }
+  def toInetSocketAddress(address: String, defaultPort: Int): InetSocketAddress =
+    address.split(':') match {
+      case Array(host, AsInt(port)) => InetSocketAddress.createUnresolved(host, port)
+      case Array(host)              => InetSocketAddress.createUnresolved(host, defaultPort)
+      case _                        => throw new ExceptionInInitializerError(s"无效的通信地址：$address")
+    }
 }

@@ -22,6 +22,7 @@ import com.typesafe.config.Config
 import com.typesafe.config.ConfigParseOptions
 
 object ConfigurationHelper {
+
   def fromProperties(props: Properties): Config =
     Parseable.newProperties(props, ConfigParseOptions.defaults()).parse().asInstanceOf[AbstractConfigObject].toConfig
 }

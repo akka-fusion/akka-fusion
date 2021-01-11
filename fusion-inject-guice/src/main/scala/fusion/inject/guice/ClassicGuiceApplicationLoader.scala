@@ -21,13 +21,15 @@ import akka.actor.typed.scaladsl.adapter._
 import fusion.common.config.FusionConfigFactory
 import fusion.common.constant.FusionConstants
 import fusion.core.util.FusionUtils
-import fusion.core.{ FusionApplication, FusionApplicationLoader }
+import fusion.core.{FusionApplication, FusionApplicationLoader}
 import helloscala.common.Configuration
 
 class ClassicGuiceApplicationLoader extends FusionApplicationLoader {
+
   override def load(context: FusionApplicationLoader.Context): FusionApplication = {
     val configuration = Configuration(
-      FusionConfigFactory.arrangeConfig(Configuration.fromDiscovery().underlying, FusionConstants.FUSION))
+      FusionConfigFactory.arrangeConfig(Configuration.fromDiscovery().underlying, FusionConstants.FUSION)
+    )
     val system = FusionUtils.createActorSystem(configuration).asInstanceOf[ExtendedActorSystem]
     val injector = new FusionInjector(configuration, new AkkaModule(configuration, system, system.toTyped))
     val application = new ClassicGuiceApplication(injector)
@@ -36,9 +38,11 @@ class ClassicGuiceApplicationLoader extends FusionApplicationLoader {
 }
 
 class TypedGuiceApplicationLoader extends FusionApplicationLoader {
+
   override def load(context: FusionApplicationLoader.Context): FusionApplication = {
     val configuration = Configuration(
-      FusionConfigFactory.arrangeConfig(Configuration.fromDiscovery().underlying, FusionConstants.FUSION))
+      FusionConfigFactory.arrangeConfig(Configuration.fromDiscovery().underlying, FusionConstants.FUSION)
+    )
     val system = FusionUtils.createTypedActorSystem(configuration)
     val injector = new FusionInjector(configuration, new AkkaModule(configuration, system.toClassic, system))
     val application = new TypedGuiceApplication(injector)

@@ -16,7 +16,7 @@
 
 package fusion.http.server
 
-import akka.http.scaladsl.server.{ Directives, Route }
+import akka.http.scaladsl.server.{Directives, Route}
 
 trait BaseRoute extends Directives {
   def route: Route

@@ -20,7 +20,7 @@ import akka.actor.ExtendedActorSystem
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Route
 import com.typesafe.scalalogging.StrictLogging
-import fusion.core.model.{ Health, HealthComponent }
+import fusion.core.model.{Health, HealthComponent}
 import helloscala.common.util.Utils
 
 import scala.jdk.CollectionConverters._
@@ -35,7 +35,8 @@ final class HealthRoute(val system: ExtendedActorSystem) extends ActuatorRoute w
     .flatMap { fqcn =>
       Utils.try2option(
         system.dynamicAccess.getObjectFor[HealthComponent](fqcn),
-        e => logger.error(s"获取object失败，fqcn: $fqcn", e))
+        e => logger.error(s"获取object失败，fqcn: $fqcn", e)
+      )
     }
     .map(comp => comp.name -> comp)
     .toMap
@@ -44,22 +45,22 @@ final class HealthRoute(val system: ExtendedActorSystem) extends ActuatorRoute w
     pathEndOrSingleSlash {
       objectComplete(Health.up(healths.map { case (k, v) => k -> v.health }))
     } ~
-    pathPrefix(Segment) { comp =>
-      pathEndOrSingleSlash {
-        healths.get(comp) match {
-          case Some(health) => objectComplete(health)
-          case _            => complete(StatusCodes.NotFound)
-        }
-      } ~
-      path(Segment) { instance =>
-        val maybe = healths.get(comp) match {
-          case Some(health: HealthComponent) => health.health.details.get(instance)
-          case _                             => None
-        }
-        maybe match {
-          case Some(v) => objectComplete(v)
-          case _       => complete(StatusCodes.NotFound)
-        }
+      pathPrefix(Segment) { comp =>
+        pathEndOrSingleSlash {
+          healths.get(comp) match {
+            case Some(health) => objectComplete(health)
+            case _            => complete(StatusCodes.NotFound)
+          }
+        } ~
+          path(Segment) { instance =>
+            val maybe = healths.get(comp) match {
+              case Some(health: HealthComponent) => health.health.details.get(instance)
+              case _                             => None
+            }
+            maybe match {
+              case Some(v) => objectComplete(v)
+              case _       => complete(StatusCodes.NotFound)
+            }
+          }
       }
-    }
 }

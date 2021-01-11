@@ -36,9 +36,11 @@ import edu.umd.cs.findbugs.annotations.Nullable
 import scala.concurrent.Future
 
 trait FusionCassandraSession {
+
   @Nullable def execute[RequestT <: Request, ResultT](
       @NonNull request: RequestT,
-      @NonNull resultType: GenericType[ResultT]): ResultT
+      @NonNull resultType: GenericType[ResultT]
+  ): ResultT
 
   /** Returns a builder to create a new instance. */
   @NonNull def builder = new CqlSessionBuilder
@@ -131,7 +133,8 @@ trait FusionCassandraSession {
   @NonNull def prepare(@NonNull statement: SimpleStatement): PreparedStatement =
     Objects.requireNonNull(
       execute(new DefaultPrepareRequest(statement), PrepareRequest.SYNC),
-      "The CQL prepare processor should never return a null result")
+      "The CQL prepare processor should never return a null result"
+    )
 
   /**
    * Prepares a CQL statement synchronously (the calling thread blocks until the statement is
@@ -143,7 +146,8 @@ trait FusionCassandraSession {
   @NonNull def prepare(@NonNull query: String): PreparedStatement =
     Objects.requireNonNull(
       execute(new DefaultPrepareRequest(query), PrepareRequest.SYNC),
-      "The CQL prepare processor should never return a null result")
+      "The CQL prepare processor should never return a null result"
+    )
 
   /**
    * Prepares a CQL statement synchronously (the calling thread blocks until the statement is
@@ -160,7 +164,8 @@ trait FusionCassandraSession {
   @NonNull def prepare(@NonNull request: PrepareRequest): PreparedStatement =
     Objects.requireNonNull(
       execute(request, PrepareRequest.SYNC),
-      "The CQL prepare processor should never return a null result")
+      "The CQL prepare processor should never return a null result"
+    )
 
   /**
    * Prepares a CQL statement asynchronously (the call returns as soon as the prepare query was
@@ -177,7 +182,8 @@ trait FusionCassandraSession {
     Objects
       .requireNonNull(
         execute(new DefaultPrepareRequest(statement), PrepareRequest.ASYNC),
-        "The CQL prepare processor should never return a null result")
+        "The CQL prepare processor should never return a null result"
+      )
       .toScala
 
   /**
@@ -191,7 +197,8 @@ trait FusionCassandraSession {
     Objects
       .requireNonNull(
         execute(new DefaultPrepareRequest(query), PrepareRequest.ASYNC),
-        "The CQL prepare processor should never return a null result")
+        "The CQL prepare processor should never return a null result"
+      )
       .toScala
 
   /**
@@ -210,6 +217,7 @@ trait FusionCassandraSession {
     Objects
       .requireNonNull(
         execute(request, PrepareRequest.ASYNC),
-        "The CQL prepare processor should never return a null result")
+        "The CQL prepare processor should never return a null result"
+      )
       .toScala
 }

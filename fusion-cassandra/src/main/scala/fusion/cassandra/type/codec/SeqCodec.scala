@@ -44,10 +44,11 @@ class SeqCodec[ElementT](cqlType: DataType, elementCodec: TypeCodec[ElementT]) e
 
   override def decode(bytes: ByteBuffer, protocolVersion: ProtocolVersion): Seq[ElementT] = ???
 
-  override def format(value: Seq[ElementT]): String = value match {
-    case null => "NULL"
-    case _    => value.mkString("[", ",", "]")
-  }
+  override def format(value: Seq[ElementT]): String =
+    value match {
+      case null => "NULL"
+      case _    => value.mkString("[", ",", "]")
+    }
 
   override def parse(value: String): Seq[ElementT] = {
     if (value == null || value.isEmpty || value.equalsIgnoreCase("NULL")) {
@@ -55,9 +56,10 @@ class SeqCodec[ElementT](cqlType: DataType, elementCodec: TypeCodec[ElementT]) e
     }
 
     var idx = ParseUtils.skipSpaces(value, 0)
-    if (value.charAt({ idx += 1; idx - 1 }) != '[')
+    if (value.charAt { idx += 1; idx - 1 } != '[')
       throw new IllegalArgumentException(
-        s"""Cannot parse list value from "$value", at character $idx expecting '[' but got '${value.charAt(idx)}'""")
+        s"""Cannot parse list value from "$value", at character $idx expecting '[' but got '${value.charAt(idx)}'"""
+      )
 
     idx = ParseUtils.skipSpaces(value, idx)
 
@@ -73,7 +75,8 @@ class SeqCodec[ElementT](cqlType: DataType, elementCodec: TypeCodec[ElementT]) e
       } catch {
         case _: IllegalArgumentException =>
           throw new IllegalArgumentException(
-            s"""Cannot parse list value from $value, invalid CQL value at character $idx""")
+            s"""Cannot parse list value from $value, invalid CQL value at character $idx"""
+          )
       }
       list += elementCodec.parse(value.substring(idx, n))
       idx = n
@@ -81,9 +84,10 @@ class SeqCodec[ElementT](cqlType: DataType, elementCodec: TypeCodec[ElementT]) e
       if (value.charAt(idx) == ']') {
         return list.toSeq
       }
-      if (value.charAt({ idx += 1; idx - 1 }) != ',')
+      if (value.charAt { idx += 1; idx - 1 } != ',')
         throw new IllegalArgumentException(
-          s"""Cannot parse list value from "$value", at character $idx expecting ',' but got '${value.charAt(idx)}'""")
+          s"""Cannot parse list value from "$value", at character $idx expecting ',' but got '${value.charAt(idx)}'"""
+        )
       idx = ParseUtils.skipSpaces(value, idx)
     }
     throw new IllegalArgumentException(s"""Malformed list value "$value", missing closing ']'""")

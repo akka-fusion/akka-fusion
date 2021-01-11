@@ -21,8 +21,8 @@ import java.io.PrintWriter
 import java.io.StringWriter
 import java.nio.file.Files
 import java.nio.file.Path
-import java.util.{ HashMap => JHashMap }
-import java.util.{ Map => JMap }
+import java.util.{HashMap => JHashMap}
+import java.util.{Map => JMap}
 
 import scala.annotation.tailrec
 import scala.collection.immutable
@@ -51,12 +51,13 @@ object StringUtils {
 
   def blankReplaceAll(text: String, replacement: String): String = text.replaceAll(REGEX_STR_BLANK, replacement)
 
-  def extractFirstName(msg: Any): Option[String] = msg match {
-    case c: AnyRef =>
-      val s = convertPropertyToUnderscore(c.getClass.getSimpleName)
-      Some(s.take(s.indexOf('_')))
-    case _ => None
-  }
+  def extractFirstName(msg: Any): Option[String] =
+    msg match {
+      case c: AnyRef =>
+        val s = convertPropertyToUnderscore(c.getClass.getSimpleName)
+        Some(s.take(s.indexOf('_')))
+      case _ => None
+    }
 
   def option(text: String): Option[String] = if (isBlank(text)) None else Some(text)
 
@@ -149,7 +150,8 @@ object StringUtils {
         }
         sb.append(
           if (isLower) Character.toLowerCase(c)
-          else Character.toUpperCase(c.toUpper))
+          else Character.toUpperCase(c.toUpper)
+        )
       }
       sb.toString()
     }
@@ -241,18 +243,19 @@ object StringUtils {
   def snakeCaseToCamelCase(name: String, upperInitial: Boolean = false): String = {
     val b = new StringBuilder()
     @tailrec
-    def inner(name: String, index: Int, capNext: Boolean): Unit = if (name.nonEmpty) {
-      val (r, capNext2) = name.head match {
-        case c if c.isLower => (Some(if (capNext) c.toUpper else c), false)
-        case c if c.isUpper =>
-          // force first letter to lower unless forced to capitalize it.
-          (Some(if (index == 0 && !capNext) c.toLower else c), false)
-        case c if c.isDigit => (Some(c), true)
-        case _              => (None, true)
+    def inner(name: String, index: Int, capNext: Boolean): Unit =
+      if (name.nonEmpty) {
+        val (r, capNext2) = name.head match {
+          case c if c.isLower => (Some(if (capNext) c.toUpper else c), false)
+          case c if c.isUpper =>
+            // force first letter to lower unless forced to capitalize it.
+            (Some(if (index == 0 && !capNext) c.toLower else c), false)
+          case c if c.isDigit => (Some(c), true)
+          case _              => (None, true)
+        }
+        r.foreach(b.append)
+        inner(name.tail, index + 1, capNext2)
       }
-      r.foreach(b.append)
-      inner(name.tail, index + 1, capNext2)
-    }
     inner(name, 0, upperInitial)
     b.toString
   }

@@ -20,7 +20,7 @@ import akka.Done
 import akka.actor.ExtendedActorSystem
 import com.zaxxer.hikari.HikariDataSource
 import fusion.common.component.Components
-import fusion.common.extension.{ FusionExtension, FusionExtensionId }
+import fusion.common.extension.{FusionExtension, FusionExtensionId}
 import fusion.core.extension.FusionCore
 import fusion.jdbc.constant.JdbcConstants
 import fusion.jdbc.util.JdbcUtils
@@ -33,10 +33,11 @@ final private[jdbc] class JdbcComponents(system: ExtendedActorSystem)
     extends Components[HikariDataSource](JdbcConstants.PATH_DEFAULT) {
   override def configuration: Configuration = Configuration(system.settings.config)
 
-  override protected def componentClose(c: HikariDataSource): Future[Done] = Future.successful {
-    c.close()
-    Done
-  }
+  override protected def componentClose(c: HikariDataSource): Future[Done] =
+    Future.successful {
+      c.close()
+      Done
+    }
 
   override protected def createComponent(id: String): HikariDataSource =
     JdbcUtils.createHikariDataSource(configuration.getConfig(id))

@@ -17,11 +17,11 @@
 package fusion.slick.pg
 
 import com.fasterxml.jackson.databind.node.NullNode
-import com.fasterxml.jackson.databind.{ JsonNode, ObjectMapper }
+import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper}
 import com.github.tminglei.slickpg.ExPostgresProfile
 import com.github.tminglei.slickpg.array.PgArrayJdbcTypes
 import com.github.tminglei.slickpg.json.PgJsonExtensions
-import com.github.tminglei.slickpg.utils.{ PgCommonJdbcTypes, SimpleArrayUtils }
+import com.github.tminglei.slickpg.utils.{PgCommonJdbcTypes, SimpleArrayUtils}
 import slick.jdbc._
 
 import scala.language.implicitConversions
@@ -49,22 +49,26 @@ trait PgJacksonJsonSupport extends PgJsonExtensions with PgCommonJdbcTypes {
   trait JsonImplicits extends JacksonImplicits
 
   trait JacksonImplicits extends JacksonCodeGenSupport {
+
     implicit val jacksonJsonTypeMapper: JdbcType[JsonNode] = new GenericJdbcType[JsonNode](
       pgjson,
       v => Try(objectMapper.readTree(v)).getOrElse(NullNode.instance),
-      v => objectMapper.writeValueAsString(v))
+      v => objectMapper.writeValueAsString(v)
+    )
 
     implicit val jacksonArrayTypeMapper: AdvancedArrayJdbcType[JsonNode] =
       new AdvancedArrayJdbcType[JsonNode](
         pgjson,
         s => SimpleArrayUtils.fromString[JsonNode](jstr => objectMapper.readTree(jstr))(s).orNull,
-        v => SimpleArrayUtils.mkString[JsonNode](jnode => objectMapper.writeValueAsString(jnode))(v))
+        v => SimpleArrayUtils.mkString[JsonNode](jnode => objectMapper.writeValueAsString(jnode))(v)
+      )
 
     implicit def jacksonJsonColumnExtensionMethods(c: Rep[JsonNode]): JsonColumnExtensionMethods[JsonNode, JsonNode] =
       new JsonColumnExtensionMethods[JsonNode, JsonNode](c)
 
     implicit def jacksonJsonOptionColumnExtensionMethods(
-        c: Rep[Option[JsonNode]]): JsonColumnExtensionMethods[JsonNode, Option[JsonNode]] =
+        c: Rep[Option[JsonNode]]
+    ): JsonColumnExtensionMethods[JsonNode, Option[JsonNode]] =
       new JsonColumnExtensionMethods[JsonNode, Option[JsonNode]](c)
   }
 

@@ -21,6 +21,7 @@ import org.bson.codecs.configuration.CodecProvider
 import org.bson.codecs.configuration.CodecRegistry
 
 class FusionCodecProvider extends CodecProvider {
+
   private val codecs: Map[Class[_], Codec[_]] = Map(
 //    putCodec(new PathCodec)
   )

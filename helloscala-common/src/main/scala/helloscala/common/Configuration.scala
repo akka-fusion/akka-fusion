@@ -16,7 +16,7 @@
 
 package helloscala.common
 
-import java.util.{ Objects, Properties }
+import java.util.{Objects, Properties}
 
 import com.typesafe.config._
 import com.typesafe.config.impl.ConfigurationHelper
@@ -211,7 +211,8 @@ final case class Configuration(underlying: Config) {
   def reportError(path: String, message: String, e: Option[Throwable] = None): HSException = {
     val origin = Option(
       if (underlying.hasPath(path)) underlying.getValue(path).origin
-      else underlying.root.origin)
+      else underlying.root.origin
+    )
     Configuration.configError(message, origin, e)
   }
 
@@ -250,7 +251,7 @@ object Configuration extends StrictLogging {
         val clz = Option(Class.forName("fusion.discovery.DiscoveryUtils"))
           .getOrElse(Class.forName("fusion.discovery.DiscoveryUtils$"))
         val service = clz.getMethod("defaultConfigService").invoke(null)
-        val clzConfigService = Class.forName("fusion.discovery.client.FusionConfigService")
+        val clzConfigService = Class.forName("fusion.cloud.discovery.client.FusionConfigService")
         val value = clzConfigService.getMethod("getConfig").invoke(service)
         val confStr = Objects.requireNonNull(value, "未能获取到配置内容").toString
         logger.info(s"收到配置内容：$confStr")
@@ -311,7 +312,8 @@ object Configuration extends StrictLogging {
       if (Objects.isNull(url)) ConfigFactory.load()
       else {
         logger.info(
-          "Resource file 'application-test.conf' found and didn't set config properties, use resource file 'application-test.conf'.")
+          "Resource file 'application-test.conf' found and didn't set config properties, use resource file 'application-test.conf'."
+        )
         ConfigFactory.load("application-test.conf")
       }
     } else ConfigFactory.load()

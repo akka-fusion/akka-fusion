@@ -19,7 +19,7 @@ package fusion.http.client
 import akka.http.scaladsl.model.HttpRequest
 import akka.http.scaladsl.model.HttpResponse
 import akka.stream.Materializer
-import akka.{ actor => classic }
+import akka.{actor => classic}
 
 import scala.concurrent.Future
 

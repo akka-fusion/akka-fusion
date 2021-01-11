@@ -16,11 +16,11 @@
 
 package fusion.mail
 
+import jakarta.mail.internet.MimeMessage
+import jakarta.mail.{Authenticator, Message, Session, Transport}
+
 import java.io.InputStream
 import java.util.Properties
-
-import javax.mail.internet.MimeMessage
-import javax.mail._
 
 class MailHelper(props: Properties, authenticator: Authenticator) extends AutoCloseable {
   private val session = Session.getDefaultInstance(props, authenticator)

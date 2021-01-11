@@ -24,12 +24,13 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.inject.AbstractModule
 import com.google.inject.name.Names
 import fusion.inject.builtin._
-import fusion.json.jackson.http.{ JacksonHttpHelper, JacksonSupport }
-import fusion.json.jackson.{ JacksonConstants, ScalaObjectMapper }
+import fusion.json.jackson.http.{JacksonHttpHelper, JacksonSupport}
+import fusion.json.jackson.{JacksonConstants, ScalaObjectMapper}
 
-import scala.concurrent.{ ExecutionContext, ExecutionContextExecutor }
+import scala.concurrent.{ExecutionContext, ExecutionContextExecutor}
 
 class BuiltinModule extends AbstractModule {
+
   override def configure(): Unit = {
     bind(classOf[Materializer]).toProvider(classOf[MaterializerProvider])
     bind(classOf[ExecutionContextExecutor]).toProvider(classOf[ExecutionContextExecutorProvider])

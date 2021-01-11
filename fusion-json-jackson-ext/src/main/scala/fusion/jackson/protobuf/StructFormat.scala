@@ -26,15 +26,17 @@ import fusion.json.JsonFormatException
 import scala.jdk.CollectionConverters._
 
 object StructFormat {
-  def structValueWriter(v: struct.Value)(implicit mapper: ObjectMapper): JsonNode = v.kind match {
-    case Kind.Empty              => NullNode.instance
-    case Kind.NullValue(_)       => NullNode.instance
-    case Kind.NumberValue(value) => new DoubleNode(value)
-    case Kind.StringValue(value) => new TextNode(value)
-    case Kind.BoolValue(value)   => BooleanNode.valueOf(value)
-    case Kind.StructValue(value) => structWriter(value)
-    case Kind.ListValue(value)   => listValueWriter(value)
-  }
+
+  def structValueWriter(v: struct.Value)(implicit mapper: ObjectMapper): JsonNode =
+    v.kind match {
+      case Kind.Empty              => NullNode.instance
+      case Kind.NullValue(_)       => NullNode.instance
+      case Kind.NumberValue(value) => new DoubleNode(value)
+      case Kind.StringValue(value) => new TextNode(value)
+      case Kind.BoolValue(value)   => BooleanNode.valueOf(value)
+      case Kind.StructValue(value) => structWriter(value)
+      case Kind.ListValue(value)   => listValueWriter(value)
+    }
 
   def structValueParser(v: JsonNode): struct.Value = {
     val kind: struct.Value.Kind = v match {
@@ -50,11 +52,12 @@ object StructFormat {
     struct.Value(kind = kind)
   }
 
-  def structParser(v: JsonNode): struct.Struct = v match {
-    case fields: ObjectNode =>
-      struct.Struct(fields = fields.fieldNames().asScala.map(key => key -> structValueParser(fields.get(key))).toMap)
-    case _ => throw new JsonFormatException("Expected an object")
-  }
+  def structParser(v: JsonNode): struct.Struct =
+    v match {
+      case fields: ObjectNode =>
+        struct.Struct(fields = fields.fieldNames().asScala.map(key => key -> structValueParser(fields.get(key))).toMap)
+      case _ => throw new JsonFormatException("Expected an object")
+    }
 
   def structWriter(v: struct.Struct)(implicit mapper: ObjectMapper): JsonNode = {
     val obj = mapper.createObjectNode()
@@ -64,11 +67,12 @@ object StructFormat {
     obj
   }
 
-  def listValueParser(v: JsonNode): struct.ListValue = v match {
-    case elems: ArrayNode =>
-      com.google.protobuf.struct.ListValue(elems.asScala.map(structValueParser).toVector)
-    case _ => throw new JsonFormatException("Expected a list")
-  }
+  def listValueParser(v: JsonNode): struct.ListValue =
+    v match {
+      case elems: ArrayNode =>
+        com.google.protobuf.struct.ListValue(elems.asScala.map(structValueParser).toVector)
+      case _ => throw new JsonFormatException("Expected a list")
+    }
 
   def listValueWriter(v: struct.ListValue)(implicit mapper: ObjectMapper): ArrayNode = {
     val arr = mapper.createArrayNode()
@@ -78,10 +82,11 @@ object StructFormat {
     arr
   }
 
-  def nullValueParser(v: JsonNode): struct.NullValue = v match {
-    case _: NullNode => com.google.protobuf.struct.NullValue.NULL_VALUE
-    case _           => throw new JsonFormatException("Expected a null")
-  }
+  def nullValueParser(v: JsonNode): struct.NullValue =
+    v match {
+      case _: NullNode => com.google.protobuf.struct.NullValue.NULL_VALUE
+      case _           => throw new JsonFormatException("Expected a null")
+    }
 
   def nullValueWriter(v: struct.NullValue): JsonNode = NullNode.instance
 }

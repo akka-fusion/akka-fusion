@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import org.apache.kafka.clients.producer.ProducerRecord
 
 class KafkaUtils(objectMapper: ObjectMapper) {
+
   def stringProduceRecord(topic: String, value: Any) =
     new ProducerRecord[String, String](topic, objectMapper.writeValueAsString(value))
 }

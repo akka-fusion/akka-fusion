@@ -22,6 +22,7 @@ import akka.http.scaladsl.unmarshalling.Unmarshaller
 import akka.util.ByteString
 
 object Supports {
+
   val jsonStringUnmarshaller: FromEntityUnmarshaller[String] =
     Unmarshaller.byteStringUnmarshaller
       .forContentTypes(MediaTypes.`application/json`, MediaTypes.`text/plain`)

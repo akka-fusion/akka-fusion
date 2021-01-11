@@ -17,16 +17,17 @@
 package fusion.json.jackson
 
 import akka.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
-import com.fasterxml.jackson.core.{ JsonParseException, JsonParser }
+import com.fasterxml.jackson.core.{JsonParseException, JsonParser}
 import com.fasterxml.jackson.databind.DeserializationContext
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer
-import helloscala.common.util.{ EnumTrait, EnumTraitCompanion }
+import helloscala.common.util.{EnumTrait, EnumTraitCompanion}
 import org.scalatest.funsuite.AnyFunSuiteLike
 import org.scalatest.matchers.should.Matchers
 
 abstract class EnumTraitDeserHelper[A <: EnumTrait](cls: Class[A], comp: EnumTraitCompanion)
     extends StdDeserializer[A](cls) {
+
   override def deserialize(p: JsonParser, ctxt: DeserializationContext): A = {
     val value = p.getValueAsInt
     comp.fromValue(value) match {

@@ -36,7 +36,8 @@ object FusionRoute {
       parserSettings: ParserSettings,
       materializer: Materializer,
       routingLog: RoutingLog,
-      executionContext: ExecutionContextExecutor = null): HttpRequest => Future[HttpResponse] = {
+      executionContext: ExecutionContextExecutor = null
+  ): HttpRequest => Future[HttpResponse] = {
     import akka.http.scaladsl.util.FastFuture._
     val effectiveEC = if (executionContext ne null) executionContext else materializer.executionContext
 
@@ -46,11 +47,8 @@ object FusionRoute {
       val sealedRoute = route
       request =>
         sealedRoute(
-          new RequestContextImpl(
-            request,
-            routingLog.requestLog(request),
-            routingSettings,
-            effectiveParserSettings)).fast.map {
+          new RequestContextImpl(request, routingLog.requestLog(request), routingSettings, effectiveParserSettings)
+        ).fast.map {
           case RouteResult.Complete(response) => response
           case RouteResult.Rejected(rejected) =>
             throw new IllegalStateException(s"Unhandled rejections '$rejected', unsealed RejectionHandler?!")

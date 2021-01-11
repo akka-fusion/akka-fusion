@@ -18,9 +18,10 @@ package helloscala.common.converter
 
 import java.util.concurrent.TimeUnit
 
-import scala.concurrent.duration.{ Duration, FiniteDuration }
+import scala.concurrent.duration.{Duration, FiniteDuration}
 
 object DurationConverters {
+
   implicit class DurationJavaAsScala(d: java.time.Duration) {
     def toScala: FiniteDuration = FiniteDuration(d.toNanos, TimeUnit.NANOSECONDS).toCoarsest
   }

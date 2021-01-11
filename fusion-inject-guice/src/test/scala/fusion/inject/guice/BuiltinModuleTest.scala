@@ -26,6 +26,7 @@ import org.scalatest.matchers.should.Matchers
 
 class BuiltinModuleTest extends AnyFunSuite with Matchers {
   private val configuration = Configuration.load()
+
   private val injector = {
     import akka.actor.typed.scaladsl.adapter._
     val system = FusionUtils.createTypedActorSystem(configuration)

@@ -23,7 +23,7 @@ import com.datastax.oss.driver.internal.core.config.typesafe.DefaultDriverConfig
 import com.typesafe.config.Config
 import com.typesafe.scalalogging.StrictLogging
 import fusion.common.component.Components
-import fusion.common.extension.{ FusionExtension, FusionExtensionId }
+import fusion.common.extension.{FusionExtension, FusionExtensionId}
 import fusion.core.extension.FusionCore
 import helloscala.common.Configuration
 

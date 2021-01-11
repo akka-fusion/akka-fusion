@@ -25,23 +25,28 @@ import com.typesafe.scalalogging.StrictLogging
 import scala.concurrent.Future
 
 object GrpcUtils extends StrictLogging {
+
   def contactToRoute(partials: PartialFunction[HttpRequest, Future[HttpResponse]]*): HttpRequest => Route = {
-    contactToRouteCustom(partials: _*) { case req =>
-      logger.warn(s"gRPC handler not found, $req")
-      reject
+    contactToRouteCustom(partials: _*) {
+      case req =>
+        logger.warn(s"gRPC handler not found, $req")
+        reject
     }
   }
 
-  def contactToRouteCustom(partials: PartialFunction[HttpRequest, Future[HttpResponse]]*)(
-      rejectPF: PartialFunction[HttpRequest, Route]): HttpRequest => Route = {
+  def contactToRouteCustom(
+      partials: PartialFunction[HttpRequest, Future[HttpResponse]]*
+  )(rejectPF: PartialFunction[HttpRequest, Route]): HttpRequest => Route = {
     partials
-      .foldLeft(PartialFunction.empty[HttpRequest, Future[HttpResponse]]) { case (acc, pf) =>
-        acc.orElse(pf)
+      .foldLeft(PartialFunction.empty[HttpRequest, Future[HttpResponse]]) {
+        case (acc, pf) =>
+          acc.orElse(pf)
       }
       .andThen(f =>
         onSuccess(f) { response =>
           complete(response)
-        })
+        }
+      )
       .orElse(rejectPF)
   }
 }

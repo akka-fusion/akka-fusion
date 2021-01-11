@@ -49,35 +49,40 @@ class HttpUtilsTest extends ScalaTestWithActorTestKit with FusionFunSuiteLike {
         val q = HttpUtils.cachedHostConnectionPool("10.0.0.9", 8888, 512)
         println(s"new queue: $q")
         q
-      })
+      }
+    )
     httpSourceQueueMap.computeIfAbsent(
       Authority.parse("10.0.0.8:8888"),
       _ => {
         val q = HttpUtils.cachedHostConnectionPool("10.0.0.8", 8888, 512)
         println(s"new queue: $q")
         q
-      })
+      }
+    )
     httpSourceQueueMap.computeIfAbsent(
       Authority.parse("10.0.0.7:8097"),
       _ => {
         val q = HttpUtils.cachedHostConnectionPool("10.0.0.7", 8097, 512)
         println(s"new queue: $q")
         q
-      })
+      }
+    )
     httpSourceQueueMap.computeIfAbsent(
       Authority.parse("10.0.0.9:8888"),
       _ => {
         val q = HttpUtils.cachedHostConnectionPool("10.0.0.9", 8888, 512)
         println(s"new queue: $q")
         q
-      })
+      }
+    )
     httpSourceQueueMap.computeIfAbsent(
       Authority.parse("10.0.0.8:8888"),
       _ => {
         val q = HttpUtils.cachedHostConnectionPool("10.0.0.8", 8888, 512)
         println(s"new queue: $q")
         q
-      })
+      }
+    )
 
     httpSourceQueueMap.forEach((a, q) => println(s"$a  <->  $q"))
   }

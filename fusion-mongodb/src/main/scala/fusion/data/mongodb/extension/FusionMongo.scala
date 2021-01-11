@@ -19,9 +19,9 @@ package fusion.data.mongodb.extension
 import akka.Done
 import akka.actor.ExtendedActorSystem
 import com.mongodb.reactivestreams.client.MongoClients
-import com.mongodb.{ ConnectionString, MongoClientSettings, MongoDriverInformation }
+import com.mongodb.{ConnectionString, MongoClientSettings, MongoDriverInformation}
 import fusion.common.component.Components
-import fusion.common.extension.{ FusionExtension, FusionExtensionId }
+import fusion.common.extension.{FusionExtension, FusionExtensionId}
 import fusion.core.extension.FusionCore
 import fusion.data.mongodb.MongoTemplate
 import fusion.data.mongodb.constant.MongoConstants
@@ -34,10 +34,11 @@ final private[mongodb] class MongoComponents(system: ExtendedActorSystem)
   import system.dispatcher
   override def configuration: Configuration = Configuration(system.settings.config)
 
-  override protected def componentClose(c: MongoTemplate): Future[Done] = Future {
-    c.close()
-    Done
-  }
+  override protected def componentClose(c: MongoTemplate): Future[Done] =
+    Future {
+      c.close()
+      Done
+    }
 
   override protected def createComponent(id: String): MongoTemplate = {
     require(system.settings.config.hasPath(id), s"配置路径不存在，$id")

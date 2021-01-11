@@ -23,10 +23,11 @@ import fusion.http.server.AbstractRoute
 import fusion.json.jackson.JacksonObjectMapperExtension
 import fusion.json.jackson.http.JacksonSupport
 
-import scala.concurrent.{ ExecutionContext, Future }
+import scala.concurrent.{ExecutionContext, Future}
 
 // #SampleApplication
 object SampleApplication {
+
   def main(args: Array[String]): Unit = {
     implicit val system = ActorSystem()
     implicit val ec = system.dispatcher
@@ -40,11 +41,12 @@ object SampleApplication {
 class SampleRoute(sampleService: SampleService)(implicit system: ActorSystem) extends AbstractRoute {
   override val jacksonSupport: JacksonSupport = JacksonObjectMapperExtension(system).jacksonSupport
 
-  override def route: Route = pathGet("hello") {
-    parameters("hello", "year".as[Int].?(2019)).as(SampleReq) { req =>
-      futureComplete(sampleService.hello(req))
+  override def route: Route =
+    pathGet("hello") {
+      parameters("hello", "year".as[Int].?(2019)).as(SampleReq) { req =>
+        futureComplete(sampleService.hello(req))
+      }
     }
-  }
 }
 
 // Request、Response Model
@@ -53,8 +55,10 @@ case class SampleResp(hello: String, year: Int, language: String)
 
 // Service
 class SampleService()(implicit ec: ExecutionContext) {
-  def hello(req: SampleReq): Future[SampleResp] = Future {
-    SampleResp(req.hello, req.year, "scala")
-  }
+
+  def hello(req: SampleReq): Future[SampleResp] =
+    Future {
+      SampleResp(req.hello, req.year, "scala")
+    }
 }
 // #SampleApplication

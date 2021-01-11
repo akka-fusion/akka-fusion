@@ -18,12 +18,12 @@ package fusion.jackson.protobuf
 
 import com.fasterxml.jackson.core.Base64Variants
 import com.fasterxml.jackson.databind.node._
-import com.fasterxml.jackson.databind.{ JsonNode, ObjectMapper }
+import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper}
 import com.google.protobuf.descriptor.FieldDescriptorProto
 import fusion.jackson.protobuf.JacksonFormat.GenericCompanion
 import fusion.json.JsonFormatException
 import scalapb.descriptors._
-import scalapb.{ GeneratedFileObject, GeneratedMessage, GeneratedMessageCompanion, Message }
+import scalapb.{GeneratedFileObject, GeneratedMessage, GeneratedMessageCompanion, Message}
 
 /**
  * TypeRegistry is used to map the @type field in Any messages to a ScalaPB generated message.
@@ -32,7 +32,9 @@ import scalapb.{ GeneratedFileObject, GeneratedMessage, GeneratedMessageCompanio
  */
 case class TypeRegistry(
     companions: Map[String, GenericCompanion] = Map.empty,
-    private val filesSeen: Set[String] = Set.empty) {
+    private val filesSeen: Set[String] = Set.empty
+) {
+
   def addMessage[T <: GeneratedMessage with Message[T]](implicit cmp: GeneratedMessageCompanion[T]): TypeRegistry = {
     addMessageByCompanion(cmp)
   }
@@ -60,13 +62,15 @@ case class TypeRegistry(
 }
 
 object Printer {
+
   final private case class PrinterConfig(
       isIncludingDefaultValueFields: Boolean,
       isPreservingProtoFieldNames: Boolean,
       isFormattingLongAsNumber: Boolean,
       isFormattingEnumsAsNumber: Boolean,
       formatRegistry: FormatRegistry,
-      typeRegistry: TypeRegistry)
+      typeRegistry: TypeRegistry
+  )
 
   private def defaultConfig(implicit mapper: ObjectMapper) =
     PrinterConfig(
@@ -75,7 +79,8 @@ object Printer {
       isFormattingLongAsNumber = false,
       isFormattingEnumsAsNumber = false,
       formatRegistry = JacksonFormat.defaultRegistry,
-      typeRegistry = TypeRegistry.empty)
+      typeRegistry = TypeRegistry.empty
+    )
 }
 
 object TypeRegistry {
@@ -106,7 +111,8 @@ class Printer private (config: Printer.PrinterConfig)(implicit mapper: ObjectMap
   def print[A](m: GeneratedMessage): String = toJson(m).toString
 
   private def serializeMessageField(fd: FieldDescriptor, name: String, value: Any, b: ObjectNode)(implicit
-      mapper: ObjectMapper): Unit = {
+      mapper: ObjectMapper
+  ): Unit = {
     value match {
       case null =>
       // We are never printing empty optional messages to prevent infinite recursion.
@@ -151,7 +157,8 @@ class Printer private (config: Printer.PrinterConfig)(implicit mapper: ObjectMap
   }
 
   private def serializeNonMessageField(fd: FieldDescriptor, name: String, value: PValue, b: ObjectNode)(implicit
-      mapper: ObjectMapper): Unit = {
+      mapper: ObjectMapper
+  ): Unit = {
     value match {
       case PEmpty =>
         if (config.isIncludingDefaultValueFields && fd.containingOneof.isEmpty) {
@@ -164,11 +171,13 @@ class Printer private (config: Printer.PrinterConfig)(implicit mapper: ObjectMap
           b.set(name, arr)
         }
       case v =>
-        if (config.isIncludingDefaultValueFields ||
+        if (
+          config.isIncludingDefaultValueFields ||
           !fd.isOptional ||
           !fd.file.isProto3 ||
           (v != JacksonFormat.defaultValue(fd)) ||
-          fd.containingOneof.isDefined) {
+          fd.containingOneof.isDefined
+        ) {
           b.set(name, serializeSingleValue(fd, v, config.isFormattingLongAsNumber))
         }
     }

@@ -16,16 +16,16 @@
 
 package fusion.testkit
 
-import akka.actor.typed.{ ActorRef, ActorSystem, Behavior, Props }
+import akka.actor.typed.{ActorRef, ActorSystem, Behavior, Props}
 import akka.fusion.AkkaUtils
-import akka.{ actor => classic }
+import akka.{actor => classic}
 import com.typesafe.config.Config
-import fusion.common.{ ReceptionistFactory, SpawnFactory }
+import fusion.common.{ReceptionistFactory, SpawnFactory}
 import fusion.core.FusionApplication
 import helloscala.common.Configuration
 import org.scalatest.concurrent.Eventually
 import org.scalatest.matchers.should.Matchers
-import org.scalatest.{ BeforeAndAfterAll, EitherValues, OptionValues, TestSuite }
+import org.scalatest.{BeforeAndAfterAll, EitherValues, OptionValues, TestSuite}
 
 import scala.concurrent.duration._
 

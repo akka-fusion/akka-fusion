@@ -16,11 +16,11 @@
 
 package docs.stream
 
-import akka.kafka.{ ConsumerSettings, Subscriptions }
+import akka.kafka.{ConsumerSettings, Subscriptions}
 import akka.kafka.scaladsl.Consumer
 import akka.stream.Materializer
-import akka.stream.scaladsl.{ Sink, Source }
-import akka.{ Done, actor => classic }
+import akka.stream.scaladsl.{Sink, Source}
+import akka.{Done, actor => classic}
 import fusion.json.jackson.JacksonObjectMapperExtension
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.common.serialization.StringDeserializer
@@ -33,17 +33,20 @@ object StreamExample {
   implicit val mat = Materializer.matFromSystem(system)
   import system.dispatcher
 
-  def findOrgIdsByArea(area: String): Future[List[String]] = Future {
-    (0 until Random.nextInt(50)).map(_.toString).toList
-  }
+  def findOrgIdsByArea(area: String): Future[List[String]] =
+    Future {
+      (0 until Random.nextInt(50)).map(_.toString).toList
+    }
 
-  def findUserIdsByOrgId(orgId: String): Future[List[String]] = Future {
-    (0 until Random.nextInt(50)).map(n => s"$orgId-$n").toList
-  }
+  def findUserIdsByOrgId(orgId: String): Future[List[String]] =
+    Future {
+      (0 until Random.nextInt(50)).map(n => s"$orgId-$n").toList
+    }
 
-  def findImeisByUserIds(userIds: Iterable[String]): Future[List[String]] = Future {
-    userIds.map(id => "imei-" + id).toList
-  }
+  def findImeisByUserIds(userIds: Iterable[String]): Future[List[String]] =
+    Future {
+      userIds.map(id => "imei-" + id).toList
+    }
 
   def batchSendMessage(imeis: Seq[String], content: String): Unit = {
     println(s"发送消息内容为：$content, imeis个数：${imeis.size}")
@@ -98,7 +101,8 @@ object StreamExample {
     Consumer
       .plainSource(consumerSettings, Subscriptions.topics("message"))
       .map(record =>
-        JacksonObjectMapperExtension(system).objectMapperJson.convertValue[SendMessageByArea](record.value()))
+        JacksonObjectMapperExtension(system).objectMapperJson.convertValue[SendMessageByArea](record.value())
+      )
       .flatMapConcat { req =>
         Source
           .future(findOrgIdsByArea(req.area))

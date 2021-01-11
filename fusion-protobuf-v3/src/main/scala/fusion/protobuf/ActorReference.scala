@@ -17,9 +17,9 @@
 package fusion.protobuf
 
 import akka.actor.ExtendedActorSystem
-import akka.actor.typed.{ ActorRef, ActorRefResolver }
+import akka.actor.typed.{ActorRef, ActorRefResolver}
 import akka.serialization.Serialization
-import akka.{ actor => classic }
+import akka.{actor => classic}
 import fusion.core.FusionApplication
 import helloscala.common.util.StringUtils
 import scalapb.TypeMapper
@@ -62,6 +62,7 @@ trait ActorTypedReferenceTrait {
 }
 
 trait ActorTypedReferenceCompanion {
+
   def fromTyped[T](ref: ActorRef[T]): String =
     ActorRefResolver(FusionApplication.application.typedSystem).toSerializationFormat(ref)
   def fromClassic(ref: classic.ActorRef): String = Serialization.serializedActorPath(ref)

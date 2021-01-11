@@ -18,13 +18,15 @@ package fusion.json.jackson.deser
 
 import com.fasterxml.jackson.databind.deser.Deserializers
 import com.fasterxml.jackson.databind.util.EnumResolver
-import com.fasterxml.jackson.databind.{ BeanDescription, DeserializationConfig, JsonDeserializer }
+import com.fasterxml.jackson.databind.{BeanDescription, DeserializationConfig, JsonDeserializer}
 
 class FusionDeserializers extends Deserializers.Base {
+
   override def findEnumDeserializer(
       `type`: Class[_],
       config: DeserializationConfig,
-      beanDesc: BeanDescription): JsonDeserializer[_] = {
+      beanDesc: BeanDescription
+  ): JsonDeserializer[_] = {
     if (classOf[Enum[_]].isAssignableFrom(`type`)) {
       new CustomEnumDeserializer(EnumResolver.constructUnsafe(`type`, config.getAnnotationIntrospector))
 //    } else if (classOf[EnumTrait].isAssignableFrom(`type`)) {

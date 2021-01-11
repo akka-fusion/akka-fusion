@@ -18,7 +18,7 @@ package fusion.common.constant
 
 object FusionKeys {
   val FUSION_NAME = "fusion.name"
-  val AKKA_NAME = "fusion.akka-name"
+  val AKKA_NAME = "fusion.akka.name"
   val PIDFILE = "fusion.pidfile"
   val GLOBAL_APPLICATION_ENABLE = "fusion.global-application-enable"
   val PROFILES_ACTIVE_PATH = "fusion.profiles.active"

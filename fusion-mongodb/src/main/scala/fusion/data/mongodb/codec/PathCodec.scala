@@ -27,6 +27,7 @@ import org.bson.codecs.EncoderContext
 
 // XXX Path是一个 Iterable[Path]，会造成write时被单成数组而造成无限循环
 class PathCodec extends Codec[Path] {
+
   override def decode(reader: BsonReader, decoderContext: DecoderContext): Path =
     Paths.get(reader.readString())
 

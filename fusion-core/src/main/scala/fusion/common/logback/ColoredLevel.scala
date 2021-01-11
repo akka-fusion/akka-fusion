@@ -30,6 +30,7 @@ import helloscala.common.Colors
  * }}}
  */
 class ColoredLevel extends ClassicConverter {
+
   def convert(event: ILoggingEvent): String =
     event.getLevel match {
       case Level.TRACE => "[" + Colors.blue("trace") + "]"

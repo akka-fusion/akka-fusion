@@ -27,11 +27,13 @@ import scala.concurrent.Future
 
 class MailComponents(val configuration: Configuration)
     extends Components[MailHelper](s"${MailConstants.CONF_ROOT}.default") {
+
   override protected def createComponent(id: String): MailHelper =
     new MailHelper(configuration.get[Properties](id), null)
 
-  override protected def componentClose(c: MailHelper): Future[Done] = Future.successful {
-    c.close()
-    Done
-  }
+  override protected def componentClose(c: MailHelper): Future[Done] =
+    Future.successful {
+      c.close()
+      Done
+    }
 }

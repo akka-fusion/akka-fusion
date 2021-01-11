@@ -25,6 +25,7 @@ import scala.jdk.CollectionConverters._
 import scala.collection.immutable
 
 object ExcelUtils {
+
   def parse(wb: Workbook): immutable.Seq[RichSheet] = {
     Utils.using(wb)(_ =>
       toList(wb).map { sheet =>
@@ -36,7 +37,8 @@ object ExcelUtils {
           row.copy(cells = cells)
         }
         sheet.copy(rows = rows)
-      })
+      }
+    )
   }
 
   def toList(wb: Workbook): immutable.Seq[RichSheet] = {

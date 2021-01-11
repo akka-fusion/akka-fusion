@@ -17,7 +17,7 @@
 package helloscala.common.util
 
 import java.nio.charset.StandardCharsets
-import java.nio.file.{ Files, Path }
+import java.nio.file.{Files, Path}
 import java.security.MessageDigest
 
 object MessageDigestAlgorithms {

@@ -26,7 +26,8 @@ final class InfoRoute(val system: ExtendedActorSystem) extends ActuatorRoute wit
   private val EMPTY = HttpEntity(ContentTypes.`application/json`, "{}")
   override val name: String = "info"
 
-  override def route: Route = get {
-    complete(EMPTY)
-  }
+  override def route: Route =
+    get {
+      complete(EMPTY)
+    }
 }

@@ -16,27 +16,27 @@
 
 package fusion.http.gateway.server
 
-import java.util.concurrent.{ ConcurrentHashMap, TimeoutException }
+import java.util.concurrent.{ConcurrentHashMap, TimeoutException}
 import java.util.function.Consumer
 
 import akka.Done
 import akka.actor.ExtendedActorSystem
 import akka.http.scaladsl.model._
-import akka.http.scaladsl.server.{ PathMatchers, RequestContext, Route }
+import akka.http.scaladsl.server.{PathMatchers, RequestContext, Route}
 import akka.http.scaladsl.settings.RoutingSettings
-import akka.stream.{ Materializer, QueueOfferResult }
+import akka.stream.{Materializer, QueueOfferResult}
 import com.typesafe.scalalogging.StrictLogging
 import fusion.core.http.HttpSourceQueue
 import fusion.http.server.AbstractRoute
 import fusion.http.util.HttpUtils
 import fusion.json.jackson.JacksonObjectMapperExtension
 import fusion.json.jackson.http.JacksonSupport
-import helloscala.common.exception.{ HSBadGatewayException, HSServiceUnavailableException }
+import helloscala.common.exception.{HSBadGatewayException, HSServiceUnavailableException}
 import helloscala.common.util.CollectionUtils
 
-import scala.concurrent.{ Future, Promise }
+import scala.concurrent.{Future, Promise}
 import scala.concurrent.duration._
-import scala.util.{ Failure, Success }
+import scala.util.{Failure, Success}
 
 abstract class HttpGatewayComponent(id: String)(implicit val system: ExtendedActorSystem)
     extends AbstractRoute
@@ -117,17 +117,20 @@ abstract class HttpGatewayComponent(id: String)(implicit val system: ExtendedAct
               HttpResponse(StatusCodes.ServiceUnavailable, entity = HttpEntity(e.toString))
           }
         }
-        .recover { case e =>
-          val msg = s"服务地址无效；${location.upstream}"
-          logger.error(msg, e)
-          HttpUtils.jsonResponse(StatusCodes.BadGateway, msg)
+        .recover {
+          case e =>
+            val msg = s"服务地址无效；${location.upstream}"
+            logger.error(msg, e)
+            HttpUtils.jsonResponse(StatusCodes.BadGateway, msg)
         }
     } catch {
       case e: Throwable =>
         Future.successful(
           HttpResponse(
             StatusCodes.ServiceUnavailable,
-            entity = HttpUtils.entityJson(StatusCodes.ServiceUnavailable, e.getMessage)))
+            entity = HttpUtils.entityJson(StatusCodes.ServiceUnavailable, e.getMessage)
+          )
+        )
     }
   }
 
@@ -150,8 +153,8 @@ abstract class HttpGatewayComponent(id: String)(implicit val system: ExtendedAct
           logger.trace(s"discovery health target: ${upstream.serviceName} $target")
           val targetUri = uri.withAuthority(
             target.host,
-            target.port.getOrElse(
-              throw HSBadGatewayException(s"服务未指定端口号：$serviceName；[${target.host}:${target.port}]")))
+            target.port.getOrElse(throw HSBadGatewayException(s"服务未指定端口号：$serviceName；[${target.host}:${target.port}]"))
+          )
           req.copy(uri = targetUri, protocol = location.protocol)
         }
     }
@@ -177,7 +180,8 @@ abstract class HttpGatewayComponent(id: String)(implicit val system: ExtendedAct
           httpSourceQueueMap.remove(sourceQueueKey)
           val badGatewayException = HSBadGatewayException(
             s"Queue: $sourceQueueKey exception: ${ex.getLocalizedMessage}. Try again later.",
-            cause = ex)
+            cause = ex
+          )
           Future.failed(badGatewayException)
         case QueueOfferResult.QueueClosed =>
           httpSourceQueueMap.remove(sourceQueueKey)
@@ -186,7 +190,8 @@ abstract class HttpGatewayComponent(id: String)(implicit val system: ExtendedAct
       }
       .transform(
         identity,
-        e => HSServiceUnavailableException(s"代理请求错误：${request.method.value} ${request.uri}。${e.toString}", cause = e))
+        e => HSServiceUnavailableException(s"代理请求错误：${request.method.value} ${request.uri}。${e.toString}", cause = e)
+      )
   }
 
   def closeAsync(): Future[Done] = {

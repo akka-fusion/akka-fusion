@@ -16,7 +16,7 @@
 
 package fusion.http.server
 
-import akka.http.scaladsl.model.{ HttpResponse, ResponseEntity, StatusCode, StatusCodes }
+import akka.http.scaladsl.model.{HttpResponse, ResponseEntity, StatusCode, StatusCodes}
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.unmarshalling.FromRequestUnmarshaller
@@ -40,7 +40,8 @@ trait JacksonDirectives extends BaseHttpUtils {
   def completionStageComplete(
       future: java.util.concurrent.CompletionStage[AnyRef],
       needContainer: Boolean = false,
-      successCode: StatusCode = StatusCodes.OK): Route = {
+      successCode: StatusCode = StatusCodes.OK
+  ): Route = {
     import scala.compat.java8.FutureConverters._
     val f: AnyRef => Route = objectComplete(_, needContainer, successCode)
     onSuccess(future.toScala).apply(f)
@@ -49,7 +50,8 @@ trait JacksonDirectives extends BaseHttpUtils {
   def futureComplete(
       future: Future[AnyRef],
       needContainer: Boolean = false,
-      successCode: StatusCode = StatusCodes.OK): Route = {
+      successCode: StatusCode = StatusCodes.OK
+  ): Route = {
     val f: AnyRef => Route = objectComplete(_, needContainer, successCode)
     onSuccess(future).apply(f)
   }
@@ -58,7 +60,8 @@ trait JacksonDirectives extends BaseHttpUtils {
   final def objectComplete(
       obj: Any,
       needContainer: Boolean = false,
-      successCode: StatusCode = StatusCodes.OK): Route = {
+      successCode: StatusCode = StatusCodes.OK
+  ): Route = {
     obj match {
       case Right(result) =>
         objectComplete(result, needContainer, successCode)

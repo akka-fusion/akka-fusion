@@ -23,10 +23,12 @@ trait IEnumTrait[V] {
   //  val companion: IEnumTraitCompanion[V]
   val name: String = StringUtils.dropLast$(this.getClass.getSimpleName)
   val value: V
-  def toValueName: ValueName[V] = new ValueName[V] {
-    override def value: V = self.value
-    override def name: String = self.name
-  }
+
+  def toValueName: ValueName[V] =
+    new ValueName[V] {
+      override def value: V = self.value
+      override def name: String = self.name
+    }
 }
 
 trait StringEnumTrait extends IEnumTrait[String] {
@@ -37,11 +39,15 @@ trait IEnumTraitCompanion[V] {
   type Value <: IEnumTrait[V]
   val values: Vector[Value]
   def optionFromValue(value: String): Option[Value] = values.find(_.value == value)
+
   final def fromValue(value: String): Value =
     optionFromValue(value).getOrElse(
-      throw new NoSuchElementException(s"${getClass.getSimpleName}.values by value not found, it is $value."))
+      throw new NoSuchElementException(s"${getClass.getSimpleName}.values by value not found, it is $value.")
+    )
   def optionFromName(name: String): Option[Value] = values.find(_.name == name)
+
   final def fromName(name: String): Value =
     optionFromName(name).getOrElse(
-      throw new NoSuchElementException(s"${getClass.getSimpleName}.values by name not found, it is $name."))
+      throw new NoSuchElementException(s"${getClass.getSimpleName}.values by name not found, it is $name.")
+    )
 }

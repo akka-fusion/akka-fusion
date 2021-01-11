@@ -38,35 +38,41 @@ class LoggingJobListener extends JobListener with StrictLogging {
 
   override def getName: String = "LoggingJobListener"
 
-  override def jobToBeExecuted(context: JobExecutionContext): Unit = logger.whenInfoEnabled {
-    val trigger = context.getTrigger()
-    logger.info(
-      MessageFormat.format(
-        getJobToBeFiredMessage,
-        context.getJobDetail.getKey.getName,
-        context.getJobDetail.getKey.getGroup,
-        new java.util.Date(),
-        trigger.getKey.getName,
-        trigger.getKey.getGroup,
-        trigger.getPreviousFireTime,
-        trigger.getNextFireTime,
-        Integer.valueOf(context.getRefireCount)))
-  }
+  override def jobToBeExecuted(context: JobExecutionContext): Unit =
+    logger.whenInfoEnabled {
+      val trigger = context.getTrigger()
+      logger.info(
+        MessageFormat.format(
+          getJobToBeFiredMessage,
+          context.getJobDetail.getKey.getName,
+          context.getJobDetail.getKey.getGroup,
+          new java.util.Date(),
+          trigger.getKey.getName,
+          trigger.getKey.getGroup,
+          trigger.getPreviousFireTime,
+          trigger.getNextFireTime,
+          Integer.valueOf(context.getRefireCount)
+        )
+      )
+    }
 
-  override def jobExecutionVetoed(context: JobExecutionContext): Unit = logger.whenInfoEnabled {
-    val trigger = context.getTrigger()
-    logger.info(
-      MessageFormat.format(
-        getJobWasVetoedMessage,
-        context.getJobDetail.getKey.getName,
-        context.getJobDetail.getKey.getGroup,
-        new java.util.Date(),
-        trigger.getKey.getName,
-        trigger.getKey.getGroup,
-        trigger.getPreviousFireTime,
-        trigger.getNextFireTime,
-        Integer.valueOf(context.getRefireCount)))
-  }
+  override def jobExecutionVetoed(context: JobExecutionContext): Unit =
+    logger.whenInfoEnabled {
+      val trigger = context.getTrigger()
+      logger.info(
+        MessageFormat.format(
+          getJobWasVetoedMessage,
+          context.getJobDetail.getKey.getName,
+          context.getJobDetail.getKey.getGroup,
+          new java.util.Date(),
+          trigger.getKey.getName,
+          trigger.getKey.getGroup,
+          trigger.getPreviousFireTime,
+          trigger.getNextFireTime,
+          Integer.valueOf(context.getRefireCount)
+        )
+      )
+    }
 
   override def jobWasExecuted(context: JobExecutionContext, jobException: JobExecutionException): Unit =
     logger.whenInfoEnabled {
@@ -84,8 +90,10 @@ class LoggingJobListener extends JobListener with StrictLogging {
             trigger.getPreviousFireTime,
             trigger.getNextFireTime,
             Integer.valueOf(context.getRefireCount),
-            errMsg),
-          jobException)
+            errMsg
+          ),
+          jobException
+        )
       } else {
         val result = String.valueOf(context.getResult)
         logger.info(
@@ -99,7 +107,9 @@ class LoggingJobListener extends JobListener with StrictLogging {
             trigger.getPreviousFireTime,
             trigger.getNextFireTime,
             Integer.valueOf(context.getRefireCount),
-            result))
+            result
+          )
+        )
       }
     }
 }

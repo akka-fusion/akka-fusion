@@ -19,10 +19,10 @@ package fusion.mongodb.test
 import akka.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
 import akka.actor.typed.scaladsl.adapter._
 import akka.stream.Materializer
-import akka.stream.scaladsl.{ Sink, Source }
-import com.mongodb.{ ConnectionString, MongoClientSettings }
-import com.mongodb.client.model.{ Filters, ReplaceOptions }
-import com.mongodb.reactivestreams.client.{ MongoClients, MongoCollection }
+import akka.stream.scaladsl.{Sink, Source}
+import com.mongodb.{ConnectionString, MongoClientSettings}
+import com.mongodb.client.model.{Filters, ReplaceOptions}
+import com.mongodb.reactivestreams.client.{MongoClients, MongoCollection}
 import fusion.data.mongodb.MongoTemplate
 import org.bson.Document
 import org.bson.types.ObjectId
@@ -80,13 +80,15 @@ class MongodbTest extends ScalaTestWithActorTestKit with AnyFunSuiteLike {
   test("insert duplicate") {
     val ret = Source
       .fromPublisher(
-        testColl.insertOne(new Document("_id", new ObjectId("5c77d4c5f86831232761e850")).append("name", "杨景")))
+        testColl.insertOne(new Document("_id", new ObjectId("5c77d4c5f86831232761e850")).append("name", "杨景"))
+      )
       .runWith(Sink.head)
       .futureValue
     println(ret)
     val ret2 = Source
       .fromPublisher(
-        testColl.insertOne(new Document("_id", new ObjectId("5c77d4c5f86831232761e850")).append("name", "杨景")))
+        testColl.insertOne(new Document("_id", new ObjectId("5c77d4c5f86831232761e850")).append("name", "杨景"))
+      )
       .runWith(Sink.head)
       .futureValue
     println(ret2)
@@ -96,7 +98,8 @@ class MongodbTest extends ScalaTestWithActorTestKit with AnyFunSuiteLike {
     val id = "5c77d4c5f86831232761e890"
     val ret = Source
       .fromPublisher(
-        testColl.replaceOne(Filters.eq("_id", id), new Document("name", "杨景"), new ReplaceOptions().upsert(true)))
+        testColl.replaceOne(Filters.eq("_id", id), new Document("name", "杨景"), new ReplaceOptions().upsert(true))
+      )
       .runWith(Sink.head)
       .futureValue
     println(ret)

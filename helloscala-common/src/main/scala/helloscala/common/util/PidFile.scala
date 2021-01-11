@@ -72,6 +72,7 @@ class PidFile(val pid: Long) {
 
   private def addShutdownHook(path: Path): Unit =
     Runtime.getRuntime.addShutdownHook(new Thread() {
+
       override def run(): Unit =
         try {
           Files.deleteIfExists(path)

@@ -20,10 +20,10 @@ import java.nio.ByteBuffer
 import java.nio.charset.StandardCharsets
 
 import com.fasterxml.jackson.annotation.JsonIgnore
-import helloscala.common.util.{ DigestUtils, StringUtils }
+import helloscala.common.util.{DigestUtils, StringUtils}
 
 import scala.jdk.CollectionConverters._
-import scala.util.{ Failure, Try }
+import scala.util.{Failure, Try}
 
 /**
  * BSON ObjectId value.
@@ -44,10 +44,11 @@ class ObjectId private (private val raw: Array[Byte]) extends Serializable with 
 
   override def canEqual(that: Any): Boolean = that.isInstanceOf[ObjectId]
 
-  override def equals(that: Any): Boolean = that match {
-    case other: ObjectId => java.util.Arrays.equals(raw, other.raw)
-    case _               => false
-  }
+  override def equals(that: Any): Boolean =
+    that match {
+      case other: ObjectId => java.util.Arrays.equals(raw, other.raw)
+      case _               => false
+    }
 
   @JsonIgnore
   override lazy val hashCode: Int = java.util.Arrays.hashCode(raw)
@@ -106,7 +107,8 @@ object ObjectId {
       val networkInterfaces = networkInterfacesEnum.asScala
       val ha = networkInterfaces
         .find(ha =>
-          Try(ha.getHardwareAddress).isSuccess && ha.getHardwareAddress != null && ha.getHardwareAddress.length == 6)
+          Try(ha.getHardwareAddress).isSuccess && ha.getHardwareAddress != null && ha.getHardwareAddress.length == 6
+        )
         .map(_.getHardwareAddress)
         .getOrElse(InetAddress.getLocalHost.getHostName.getBytes(StandardCharsets.UTF_8))
       DigestUtils.md5(ha).take(3)
@@ -134,10 +136,11 @@ object ObjectId {
    * Constructs a BSON ObjectId element from a hexadecimal String representation.
    * Throws an exception if the given argument is not a valid ObjectID.
    */
-  def apply(id: String): ObjectId = parse(id) match {
-    case scala.util.Success(value) => value
-    case scala.util.Failure(e)     => throw e
-  }
+  def apply(id: String): ObjectId =
+    parse(id) match {
+      case scala.util.Success(value) => value
+      case scala.util.Failure(e)     => throw e
+    }
 
   def apply(array: Array[Byte]): ObjectId = {
     if (array.length != 12)

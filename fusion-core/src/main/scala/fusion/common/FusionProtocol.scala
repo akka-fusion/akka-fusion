@@ -16,8 +16,8 @@
 
 package fusion.common
 
-import akka.actor.typed.scaladsl.{ ActorContext, Behaviors }
-import akka.actor.typed.{ ActorRef, Behavior, Props }
+import akka.actor.typed.scaladsl.{ActorContext, Behaviors}
+import akka.actor.typed.{ActorRef, Behavior, Props}
 
 import scala.annotation.tailrec
 
@@ -58,8 +58,9 @@ object FusionProtocol {
   /**
    * Behavior implementing the [[FusionProtocol.Command]].
    */
-  val behavior: Behavior[Command] = Behaviors.receive { case (ctx, t) =>
-    behaviorPartial.applyOrElse((ctx, t), (_: (ActorContext[Command], Command)) => Behaviors.unhandled[Command])
+  val behavior: Behavior[Command] = Behaviors.receive {
+    case (ctx, t) =>
+      behaviorPartial.applyOrElse((ctx, t), (_: (ActorContext[Command], Command)) => Behaviors.unhandled[Command])
   }
 
   def behaviorMessagePartial(context: ActorContext[Command]): PartialFunction[Command, Behavior[Command]] = {

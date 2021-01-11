@@ -20,7 +20,7 @@ import java.util.concurrent.TimeoutException
 
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.server.Directives._
-import akka.http.scaladsl.server.{ ExceptionHandler, RequestContext }
+import akka.http.scaladsl.server.{ExceptionHandler, RequestContext}
 import com.typesafe.scalalogging.StrictLogging
 import fusion.http.exception.HttpResponseException
 import helloscala.common.exception.HSException

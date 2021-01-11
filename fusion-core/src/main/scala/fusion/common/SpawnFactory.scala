@@ -16,9 +16,9 @@
 
 package fusion.common
 
-import akka.actor.typed.receptionist.{ Receptionist, ServiceKey }
+import akka.actor.typed.receptionist.{Receptionist, ServiceKey}
 import akka.actor.typed.scaladsl.AskPattern._
-import akka.actor.typed.{ ActorRef, ActorSystem, Behavior, Props }
+import akka.actor.typed.{ActorRef, ActorSystem, Behavior, Props}
 import akka.util.Timeout
 import helloscala.common.exception.HSInternalErrorException
 
@@ -39,7 +39,8 @@ trait ReceptionistFactory {
   def typedSystem: ActorSystem[Nothing]
 
   def receptionistFind[T](serviceKey: ServiceKey[T], timeout: FiniteDuration)(
-      func: Receptionist.Listing => ActorRef[T]): ActorRef[T] = {
+      func: Receptionist.Listing => ActorRef[T]
+  ): ActorRef[T] = {
     implicit val ec = typedSystem.executionContext
     implicit val t: Timeout = timeout
     implicit val scheduler = typedSystem.scheduler

@@ -20,10 +20,10 @@ import akka.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
 import akka.actor.typed.scaladsl.adapter._
 import akka.kafka.ProducerMessage.PassThroughResult
 import akka.kafka.scaladsl.Consumer.DrainingControl
-import akka.kafka.scaladsl.{ Consumer, Producer }
-import akka.kafka.{ ProducerMessage, Subscriptions }
+import akka.kafka.scaladsl.{Consumer, Producer}
+import akka.kafka.{ProducerMessage, Subscriptions}
 import akka.stream.Materializer
-import akka.stream.scaladsl.{ Sink, Source }
+import akka.stream.scaladsl.{Sink, Source}
 import com.fasterxml.jackson.databind.ObjectMapper
 import fusion.json.jackson.ScalaObjectMapper
 import org.apache.kafka.clients.producer.ProducerRecord

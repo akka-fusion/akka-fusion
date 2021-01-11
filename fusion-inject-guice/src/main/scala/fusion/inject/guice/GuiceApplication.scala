@@ -20,7 +20,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 import akka.actor.typed._
 import akka.actor.typed.scaladsl.adapter._
-import akka.actor.{ ExtendedActorSystem, Extension, ExtensionId, ExtensionIdProvider }
+import akka.actor.{ExtendedActorSystem, Extension, ExtensionId, ExtensionIdProvider}
 import akka.util.Timeout
 import com.google.inject.Key
 import com.typesafe.config.Config
@@ -77,7 +77,8 @@ object GuiceApplication extends ExtensionId[GuiceApplication] with ExtensionIdPr
     val application = _application
     require(
       application.extendedActorSystem eq system,
-      "The [[ActorSystem]] passed in is not the same instance as the [[FusionApplication#ActorSystem]].")
+      "The [[ActorSystem]] passed in is not the same instance as the [[FusionApplication#ActorSystem]]."
+    )
     application
   }
 
@@ -85,6 +86,7 @@ object GuiceApplication extends ExtensionId[GuiceApplication] with ExtensionIdPr
 }
 
 class ClassicGuiceApplication(val injector: FusionInjector) extends GuiceApplication {
+
   override def spawn[T](behavior: Behavior[T], props: Props): ActorRef[T] =
     classicSystem.spawnAnonymous(behavior, props)
 
@@ -94,8 +96,8 @@ class ClassicGuiceApplication(val injector: FusionInjector) extends GuiceApplica
 
 class TypedGuiceApplication(val injector: FusionInjector) extends GuiceApplication {
   import akka.actor.typed.scaladsl.AskPattern._
-  private implicit val timeout: Timeout = 5.seconds
-  private implicit val scheduler: Scheduler = typedSystem.scheduler
+  implicit private val timeout: Timeout = 5.seconds
+  implicit private val scheduler: Scheduler = typedSystem.scheduler
 
   override def spawn[T](behavior: Behavior[T], props: Props): ActorRef[T] = _spawn(behavior, null, props)
 

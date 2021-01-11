@@ -17,11 +17,11 @@
 package fusion.http.util
 
 import akka.http.scaladsl.model.StatusCodes._
-import akka.http.scaladsl.server.Directives.{ complete, extractUri }
+import akka.http.scaladsl.server.Directives.{complete, extractUri}
 import akka.http.scaladsl.server.RejectionHandler.Builder
 import akka.http.scaladsl.server._
 import com.typesafe.scalalogging.StrictLogging
-import fusion.http.rejection.{ ForbiddenRejection, SessionRejection }
+import fusion.http.rejection.{ForbiddenRejection, SessionRejection}
 
 /**
  * Created by yangbajing(yangbajing@gmail.com) on 2017-03-01.
@@ -75,9 +75,10 @@ object BaseRejectionBuilder extends StrictLogging {
           complete(jsonEntity(NotFound, msg))
         }
       }
-      .handle { case rejection =>
-        logger.info(rejection.toString)
-        complete(jsonEntity(BadRequest, rejection.toString))
+      .handle {
+        case rejection =>
+          logger.info(rejection.toString)
+          complete(jsonEntity(BadRequest, rejection.toString))
       }
   // #rejectionBuilder
 

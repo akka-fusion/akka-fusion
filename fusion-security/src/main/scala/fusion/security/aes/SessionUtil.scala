@@ -22,6 +22,7 @@ import java.util.concurrent.ThreadLocalRandom
 import helloscala.common.util.StringUtils
 
 object SessionUtil {
+
   def randomString(length: Int): String = {
     // http://stackoverflow.com/questions/41107/how-to-generate-a-random-alpha-numeric-string
     val random = ThreadLocalRandom.current()

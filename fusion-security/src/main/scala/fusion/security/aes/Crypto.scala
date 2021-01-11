@@ -22,7 +22,7 @@ import java.util
 import java.util.Base64
 
 import javax.crypto.spec.SecretKeySpec
-import javax.crypto.{ Cipher, Mac }
+import javax.crypto.{Cipher, Mac}
 
 object Crypto {
   import SessionUtil._

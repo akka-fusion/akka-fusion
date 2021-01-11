@@ -18,7 +18,7 @@ package docs.http
 
 import akka.actor.typed.ActorSystem
 import akka.http.scaladsl.server.Directives
-import akka.{ actor => classic }
+import akka.{actor => classic}
 import fusion.http.FusionHttpServer
 
 // #SampleHttp

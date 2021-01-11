@@ -20,25 +20,25 @@ import akka.actor.ActorSystem
 import akka.http.scaladsl.marshalling.Marshal
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.unmarshalling.Unmarshaller.UnsupportedContentTypeException
-import akka.http.scaladsl.unmarshalling.{ Unmarshal, Unmarshaller }
-import akka.stream.scaladsl.{ Sink, Source }
+import akka.http.scaladsl.unmarshalling.{Unmarshal, Unmarshaller}
+import akka.stream.scaladsl.{Sink, Source}
 import com.fasterxml.jackson.databind.ObjectMapper
 import fusion.json.jackson.JacksonObjectMapperExtension
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AsyncWordSpec
 
-import scala.concurrent.{ Await, Future }
+import scala.concurrent.{Await, Future}
 import scala.concurrent.duration._
 
 final case class Foo(bar: String) {
-  require(bar startsWith "bar", "bar must start with 'bar'!")
+  require(bar.startsWith("bar"), "bar must start with 'bar'!")
 }
 
 final case class FinReq(id: Long, detail: List[Foo])
 
 class JacksonSupportTest extends AsyncWordSpec with Matchers with BeforeAndAfterAll {
-  private implicit val system = ActorSystem()
+  implicit private val system = ActorSystem()
   private val jacksonSupport = JacksonObjectMapperExtension(system).jacksonSupport
   private val objectMapperJson = JacksonObjectMapperExtension(system).objectMapperJson
   import jacksonSupport._
@@ -104,7 +104,9 @@ class JacksonSupportTest extends AsyncWordSpec with Matchers with BeforeAndAfter
         .map(
           _ shouldBe UnsupportedContentTypeException(
             Some(ContentTypes.`text/plain(UTF-8)`),
-            MediaTypes.`application/json`))
+            MediaTypes.`application/json`
+          )
+        )
     }
 
     "allow unmarshalling with passed in Content-Types" in {
@@ -113,7 +115,7 @@ class JacksonSupportTest extends AsyncWordSpec with Matchers with BeforeAndAfter
         MediaType.applicationWithFixedCharset("json-home", HttpCharsets.`UTF-8`, "json-home")
 
       final object CustomJacksonSupport extends JacksonSupport {
-        override implicit val objectMapper: ObjectMapper = JacksonObjectMapperExtension(system).objectMapperJson
+        implicit override val objectMapper: ObjectMapper = JacksonObjectMapperExtension(system).objectMapperJson
 
         override val unmarshallerContentTypes = List(MediaTypes.`application/json`, `application/json-home`)
       }

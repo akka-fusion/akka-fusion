@@ -16,12 +16,12 @@
 
 package helloscala.common
 
-import java.nio.file.{ Path, Paths }
+import java.nio.file.{Path, Paths}
 import java.time.OffsetDateTime
 import java.util.Properties
 
 import com.typesafe.config._
-import helloscala.common.util.{ StringUtils, TimeUtils }
+import helloscala.common.util.{StringUtils, TimeUtils}
 
 import scala.collection.mutable
 import scala.concurrent.duration._
@@ -133,6 +133,7 @@ object ConfigLoader {
 
   implicit val propertiesLoader: ConfigLoader[Properties] =
     new ConfigLoader[Properties] {
+
       def make(props: Properties, parentKeys: String, obj: ConfigObject): Unit =
         obj.keySet().forEach { key =>
           val value = obj.get(key)
@@ -159,6 +160,7 @@ object ConfigLoader {
 
   implicit val scalaMapLoader: ConfigLoader[Map[String, String]] =
     new ConfigLoader[Map[String, String]] {
+
       def make(props: mutable.Map[String, String], parentKeys: String, obj: ConfigObject): Unit =
         obj.keySet().forEach { key: String =>
           val value = obj.get(key)

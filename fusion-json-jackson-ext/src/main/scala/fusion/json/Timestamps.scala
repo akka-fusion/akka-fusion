@@ -17,7 +17,7 @@
 package fusion.json
 
 import java.text.SimpleDateFormat
-import java.util.{ Date, GregorianCalendar, TimeZone }
+import java.util.{Date, GregorianCalendar, TimeZone}
 
 import com.google.protobuf.TextFormat.ParseException
 import com.google.protobuf.timestamp.Timestamp
@@ -33,6 +33,7 @@ object Timestamps {
   val NANOS_PER_MICROSECOND = 1000
 
   private val timestampFormat: ThreadLocal[SimpleDateFormat] = new ThreadLocal[SimpleDateFormat] {
+
     override def initialValue(): SimpleDateFormat = {
       val sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss")
       val calendar = new GregorianCalendar(TimeZone.getTimeZone("UTC"))
@@ -43,10 +44,10 @@ object Timestamps {
   }
 
   def isValid(ts: Timestamp): Boolean =
-    (ts.seconds >= TIMESTAMP_SECONDS_MIN &&
-    ts.seconds <= TIMESTAMP_SECONDS_MAX &&
-    ts.nanos >= 0 &&
-    ts.nanos < NANOS_PER_SECOND)
+    ts.seconds >= TIMESTAMP_SECONDS_MIN &&
+      ts.seconds <= TIMESTAMP_SECONDS_MAX &&
+      ts.nanos >= 0 &&
+      ts.nanos < NANOS_PER_SECOND
 
   def checkValid(ts: Timestamp): Timestamp = {
     require(isValid(ts), "Timestamp is not valid.")
@@ -78,25 +79,26 @@ object Timestamps {
     result.toString
   }
 
-  def parseTimezoneOffset(s: String): Long = s(0) match {
-    case 'Z' =>
-      if (s.length != 1) {
-        throw new ParseException(s"Failed to parse timestamp: invalid trailing data: '$s'")
-      } else {
-        0
-      }
-    case '+' | '-' =>
-      val pos = s.indexOf(':')
-      if (pos == -1) {
-        throw new ParseException(s"Failed to parse timestamp: invalid offset value: '$s'")
-      } else {
-        val hours = s.substring(1, pos)
-        val minutes = s.substring(pos + 1)
-        val r = hours.toLong * 3600 + minutes.toLong * 60
-        if (s(0) == '-') -r else r
-      }
-    case _ => throw new ParseException("Failed to parse timestamp.")
-  }
+  def parseTimezoneOffset(s: String): Long =
+    s(0) match {
+      case 'Z' =>
+        if (s.length != 1) {
+          throw new ParseException(s"Failed to parse timestamp: invalid trailing data: '$s'")
+        } else {
+          0
+        }
+      case '+' | '-' =>
+        val pos = s.indexOf(':')
+        if (pos == -1) {
+          throw new ParseException(s"Failed to parse timestamp: invalid offset value: '$s'")
+        } else {
+          val hours = s.substring(1, pos)
+          val minutes = s.substring(pos + 1)
+          val r = hours.toLong * 3600 + minutes.toLong * 60
+          if (s(0) == '-') -r else r
+        }
+      case _ => throw new ParseException("Failed to parse timestamp.")
+    }
 
   def parseTimestamp(value: String): Timestamp = {
     val dayOffset = value.indexOf('T')

@@ -16,7 +16,7 @@
 
 package fusion.protobuf
 
-import java.time.{ Instant, LocalDateTime, OffsetDateTime, ZoneOffset }
+import java.time.{Instant, LocalDateTime, OffsetDateTime, ZoneOffset}
 import java.util.concurrent.TimeUnit
 
 import com.google.protobuf.duration.Duration
@@ -25,6 +25,7 @@ import com.google.protobuf.timestamp.Timestamp
 import scala.concurrent.duration.FiniteDuration
 
 trait ProtobufConverters {
+
   implicit class ProtobufTimestampConverter(value: Timestamp) {
     @inline def toInstant: Instant = toJavaInstant
 
@@ -43,6 +44,7 @@ trait ProtobufConverters {
   }
 
   implicit class ScalaDurationToProtobuf(value: scala.concurrent.duration.Duration) {
+
     def toProtobuf: Duration = {
       val seconds = value.toSeconds
       val nanos = (value.toNanos - (seconds * 1000000000L)).toInt

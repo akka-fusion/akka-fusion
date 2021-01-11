@@ -31,8 +31,10 @@ lazy val root = Project(id = "akka-fusion", base = file("."))
     fusionInject,
     fusionJob,
     fusionLog,
-    fusionDiscoveryClient,
     fusionHttpGateway,
+    fusionCloudNacos,
+    fusionCloudConsul,
+    fusionCloud,
     fusionActuator,
     fusionCluster,
     fusionHttp,
@@ -66,10 +68,12 @@ lazy val fusionDocs = _project("fusion-docs")
     fusionInjectGuice,
     fusionJob,
     fusionLog,
-    fusionDiscoveryClient,
     fusionHttpGateway,
     fusionActuator,
     fusionCluster,
+    fusionCloudNacos,
+    fusionCloudConsul,
+    fusionCloud,
     fusionHttpClient,
     fusionOauth,
     fusionKafka,
@@ -130,16 +134,24 @@ lazy val fusionInjectGuice = _project("fusion-inject-guice")
   .settings(libraryDependencies ++= _guices)
 
 lazy val fusionInject = _project("fusion-inject")
-  .dependsOn(fusionHttp, fusionDiscoveryClient, fusionTestkit % "test->test")
+  .dependsOn(fusionHttp, fusionCloud, fusionTestkit % "test->test")
   .settings(libraryDependencies ++= Seq(_javaxInject))
 
 lazy val fusionHttpGateway = _project("fusion-http-gateway")
-  .dependsOn(fusionHttp, fusionDiscoveryClient, fusionTestkit % "test->test", fusionCore)
+  .dependsOn(fusionHttp, fusionCloud, fusionTestkit % "test->test", fusionCore)
   .settings(libraryDependencies ++= Seq())
 
-lazy val fusionDiscoveryClient = _project("fusion-discovery-client")
-  .dependsOn(fusionHttpClient, fusionTestkit % "test->test", fusionCore)
+lazy val fusionCloudConsul = _project("fusion-cloud-consul")
+  .dependsOn(fusionCloud, fusionTestkit % "test->test", fusionCore)
+  .settings(libraryDependencies ++= Seq(_akkaDiscovery, _akkaDiscoveryConsul) ++ _akkaHttps)
+
+lazy val fusionCloudNacos = _project("fusion-cloud-nacos")
+  .dependsOn(fusionCloud, fusionTestkit % "test->test", fusionCore)
   .settings(libraryDependencies ++= Seq(_akkaDiscovery, _nacosClient) ++ _akkaHttps)
+
+lazy val fusionCloud = _project("fusion-cloud")
+  .dependsOn(fusionHttpClient, fusionTestkit % "test->test", fusionCore)
+  .settings(libraryDependencies ++= Seq(_akkaManagement, _akkaDiscovery) ++ _akkaHttps ++ _akkaClusters.map(_ % Provided))
 
 lazy val fusionActuatorCluster = _project("fusion-actuator-cluster")
   .dependsOn(fusionActuator, fusionTestkit % "test->test", fusionCore)
@@ -173,8 +185,8 @@ lazy val fusionCluster = _project("fusion-cluster")
   .settings(libraryDependencies ++= Seq(_akkaManagement, _akkaManagementClusterHttp) ++ _akkaClusters)
 
 lazy val fusionHttp = _project("fusion-http")
-  .dependsOn(fusionHttpClient, fusionTestkit % "test->test", fusionCore)
-  .settings(libraryDependencies ++= Seq(_akkaManagement))
+  .dependsOn(fusionCloudConsul % "test->test", fusionCloud, fusionTestkit % "test->test", fusionCore)
+  .settings(libraryDependencies ++= Seq(_akkaManagement, _logbackClassic % Test))
 
 lazy val fusionHttpClient = _project("fusion-http-client")
   .dependsOn(fusionProtobufV3, fusionJsonJackson, fusionTestkit % "test->test", fusionCore)

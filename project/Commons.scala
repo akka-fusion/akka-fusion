@@ -1,5 +1,4 @@
 import Dependencies.{ versionScala212, versionScala213 }
-import bintray.BintrayKeys.{ bintrayOrganization, bintrayRepository }
 //import bintray.BintrayKeys._
 import com.typesafe.sbt.SbtNativePackager.autoImport.maintainer
 import de.heikoseeberger.sbtheader.HeaderPlugin.autoImport.{ headerLicense, HeaderLicense }

@@ -17,7 +17,7 @@
 package helloscala.common.util
 
 import java.math.BigInteger
-import java.math.{ BigDecimal => JBigDecimal }
+import java.math.{BigDecimal => JBigDecimal}
 
 object NumberUtils {
   private val LONG_MIN = BigInteger.valueOf(Long.MinValue)
@@ -92,7 +92,8 @@ object NumberUtils {
                       return new JBigDecimal(number.toString).asInstanceOf[T]
                     } else {
                       throw new IllegalArgumentException(
-                        "Could not convert number [" + number + "] of type [" + number.getClass.getName + "] to unsupported target class [" + targetClass.getName + "]")
+                        "Could not convert number [" + number + "] of type [" + number.getClass.getName + "] to unsupported target class [" + targetClass.getName + "]"
+                      )
                     }
                   }
                 }
@@ -138,6 +139,7 @@ object NumberUtils {
    */
   private def raiseOverflowException(number: Number, targetClass: Class[_]): Unit = {
     throw new IllegalArgumentException(
-      "Could not convert number [" + number + "] of type [" + number.getClass.getName + "] to target class [" + targetClass.getName + "]: overflow")
+      "Could not convert number [" + number + "] of type [" + number.getClass.getName + "] to target class [" + targetClass.getName + "]: overflow"
+    )
   }
 }

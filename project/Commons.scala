@@ -16,7 +16,7 @@ object Commons {
       homepage := Some(url("https://akka-fusion.github.io/akka-fusion")),
       startYear := Some(2019),
       licenses += ("Apache-2.0", new URL("https://www.apache.org/licenses/LICENSE-2.0.txt")),
-      headerLicense := Some(HeaderLicense.ALv2("2019", "helloscala.com")),
+      headerLicense := Some(HeaderLicense.ALv2("2019-2021", "helloscala.com")),
       crossScalaVersions := Seq(versionScala212, versionScala213),
       scalacOptions ++= {
         var list = Seq(

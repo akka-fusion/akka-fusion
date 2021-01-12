@@ -21,6 +21,7 @@ object Dependencies {
   val versionElastic4s = "7.10.2"
   val versionConfig = "1.4.1"
   val versionPureconfig = "0.14.0"
+  val versionChimeny = "0.6.1"
   val versionGuice = "4.2.3"
   val versionKamon = "2.0.4"
   val versionKanela = "1.0.4"
@@ -54,6 +55,7 @@ object Dependencies {
   val versionJwt = "4.3.0"
   val versionJson4s = "3.6.10"
   val versionScalapbJson4s = "0.10.2"
+  val versionJoseJwt = "9.0.1"
 
   val _scalameta = "org.scalameta" %% "scalameta" % versionScalameta
   val _scalaXml = ("org.scala-lang.modules" %% "scala-xml" % versionScalaXml).exclude("org.scala-lang", "scala-library")
@@ -79,7 +81,8 @@ object Dependencies {
 
   val _akkaClusters = Seq(
     "com.typesafe.akka" %% "akka-cluster-typed" % versionAkka,
-    "com.typesafe.akka" %% "akka-cluster-sharding-typed" % versionAkka)
+    "com.typesafe.akka" %% "akka-cluster-sharding-typed" % versionAkka
+  )
 
   val _akkaManagement =
     ("com.lightbend.akka.management" %% "akka-management" % versionAkkaManagement)
@@ -111,7 +114,13 @@ object Dependencies {
     .exclude("com.typesafe.akka", "akka-stream")
     .cross(CrossVersion.binary)
 
-  val _akkaHttps = Seq(_akkaHttp, _akkaHttp2, _akkaHttpTestkit % Test)
+  val _akkaHttps = Seq(
+    _akkaHttpCors,
+    _akkaHttp,
+    "com.typesafe.akka" %% "akka-http-spray-json" % versionAkkaHttp,
+    _akkaHttp2,
+    _akkaHttpTestkit % Test
+  )
 
   val _akkaGrpcRuntime = ("com.lightbend.akka.grpc" %% "akka-grpc-runtime" % akka.grpc.gen.BuildInfo.version)
     .exclude("com.typesafe", "config")
@@ -174,7 +183,8 @@ object Dependencies {
 
   val _mongodbs = Seq(
     "org.mongodb.scala" %% "mongo-scala-bson" % versionMongoScalaBson,
-    "org.mongodb" % "mongodb-driver-reactivestreams" % versionMongoDriverReactivestreams)
+    "org.mongodb" % "mongodb-driver-reactivestreams" % versionMongoDriverReactivestreams
+  )
 
   val _jacksonAnnotations = "com.fasterxml.jackson.core" % "jackson-annotations" % versionJackson
 
@@ -185,7 +195,8 @@ object Dependencies {
     "com.sksamuel.elastic4s" %% "elastic4s-client-esjava" % versionElastic4s,
     "com.sksamuel.elastic4s" %% "elastic4s-http-streams" % versionElastic4s,
     "com.sksamuel.elastic4s" %% "elastic4s-json-jackson" % versionElastic4s,
-    "com.sksamuel.elastic4s" %% "elastic4s-testkit" % versionElastic4s % Test)
+    "com.sksamuel.elastic4s" %% "elastic4s-testkit" % versionElastic4s % Test
+  )
 
   val _alpakkaText =
     ("com.lightbend.akka" %% "akka-stream-alpakka-text" % versionAlpakka)
@@ -197,21 +208,26 @@ object Dependencies {
     ("com.typesafe.akka" %% "akka-stream-kafka" % versionAlpakkaKafka)
       .exclude("com.typesafe.akka", "akka-stream")
       .exclude("org.apache.kafka", "kafka-clients")
-      .cross(CrossVersion.binary))
+      .cross(CrossVersion.binary)
+  )
 
   val _akkaDiscoveryConsul = "com.lightbend.akka.discovery" %% "akka-discovery-consul" % versionAkkaManagement
 
   val _config = "com.typesafe" % "config" % versionConfig
 
-//  val _pureconfig = "com.github.pureconfig" %% "pureconfig" % versionPureconfig
+  val _pureconfig = "com.github.pureconfig" %% "pureconfig" % versionPureconfig
+
+  val _chimney = "io.scalaland" %% "chimney" % versionChimeny
 
   val _javaxInject = "javax.inject" % "javax.inject" % "1"
 
   val _hanlp = "com.hankcs" % "hanlp" % versionHanlp
   val _uuidGenerator = ("com.fasterxml.uuid" % "java-uuid-generator" % versionUuidGenerator).exclude("log4j", "log4j")
+
   val _guices = Seq(
     "com.google.inject" % "guice" % versionGuice,
-    "com.google.inject.extensions" % "guice-assistedinject" % versionGuice)
+    "com.google.inject.extensions" % "guice-assistedinject" % versionGuice
+  )
 
   val _json4s =
     ("org.json4s" %% "json4s-jackson" % versionJson4s).exclude("com.fasterxml.jackson.core", "jackson-databind")
@@ -284,4 +300,4 @@ object Dependencies {
   val _mssql = "com.microsoft.sqlserver" % "mssql-jdbc" % "6.4.0.jre8"
   val _commonsVfs = "org.apache.commons" % "commons-vfs2" % "2.2"
   val _alpnAgent = "org.mortbay.jetty.alpn" % "jetty-alpn-agent" % versionAlpnAgent
-}
+  val _joseJwt = "com.nimbusds" % "nimbus-jose-jwt" % versionJoseJwt                                                                                                                                                                    }

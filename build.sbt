@@ -31,6 +31,7 @@ lazy val root = Project(id = "akka-fusion", base = file("."))
     fusionInject,
     fusionJob,
     fusionLog,
+    fusionGrpc,
     fusionHttpGateway,
     fusionCloudNacos,
     fusionCloudConsul,
@@ -48,13 +49,17 @@ lazy val root = Project(id = "akka-fusion", base = file("."))
     fusionMybatis,
     fusionJdbc,
     fusionMail,
+    fusionAuthorizationServer,
+    fusionSecurityOauthJose,
+    fusionSecurityOauthCore,
     fusionJsonJacksonExt,
     fusionJsonJackson,
     fusionSecurity,
     fusionTestkit,
     fusionProtobufV3,
     fusionCore,
-    helloscalaCommon)
+    helloscalaCommon
+  )
   .settings(Publishing.noPublish: _*)
   .settings(Environment.settings: _*)
   .settings(aggregate in sonarScan := false, skip in publish := true)
@@ -88,7 +93,8 @@ lazy val fusionDocs = _project("fusion-docs")
     fusionSecurity,
     fusionTestkit,
     fusionCore,
-    helloscalaCommon)
+    helloscalaCommon
+  )
   .settings(Publishing.noPublish: _*)
   .settings(
     Compile / paradoxMaterialTheme ~= {
@@ -98,15 +104,18 @@ lazy val fusionDocs = _project("fusion-docs")
         .withSocial(
           uri("https://akka-fusion.github.io/akka-fusion/"),
           uri("https://github.com/akka-fusion"),
-          uri("https://weibo.com/yangbajing"))
+          uri("https://weibo.com/yangbajing")
+        )
     },
     paradoxProperties ++= Map(
-        "github.base_url" -> s"https://github.com/akka-fusion/akka-fusion/tree/${version.value}",
-        "version" -> version.value,
-        "scala.version" -> scalaVersion.value,
-        "scala.binary_version" -> scalaBinaryVersion.value,
-        "scaladoc.akka.base_url" -> s"https://doc.akka.io/api/$versionAkka",
-        "akka.version" -> versionAkka))
+      "github.base_url" -> s"https://github.com/akka-fusion/akka-fusion/tree/${version.value}",
+      "version" -> version.value,
+      "scala.version" -> scalaVersion.value,
+      "scala.binary_version" -> scalaBinaryVersion.value,
+      "scaladoc.akka.base_url" -> s"https://doc.akka.io/api/$versionAkka",
+      "akka.version" -> versionAkka
+    )
+  )
 
 lazy val fusionSbtPlugin = _project("fusion-sbt-plugin", "sbt-plugin")
   .enablePlugins(SbtPlugin)
@@ -116,7 +125,8 @@ lazy val fusionSbtPlugin = _project("fusion-sbt-plugin", "sbt-plugin")
     scalaVersion := versionScala212,
 //    bintrayRepository := "ivy",
     scriptedBufferLog := false,
-    publishMavenStyle := false)
+    publishMavenStyle := false
+  )
 
 lazy val codegen = _project("codegen")
   .enablePlugins(BuildInfoPlugin)
@@ -125,7 +135,8 @@ lazy val codegen = _project("codegen")
 //    bintrayRepository := "ivy",
     scriptedBufferLog := false,
     publishMavenStyle := false,
-    buildInfoPackage := "fusion.sbt.gen")
+    buildInfoPackage := "fusion.sbt.gen"
+  )
 
 lazy val fusionInjectGuiceTestkit = _project("fusion-inject-guice-testkit").dependsOn(fusionInjectGuice, fusionTestkit)
 
@@ -143,15 +154,18 @@ lazy val fusionHttpGateway = _project("fusion-http-gateway")
 
 lazy val fusionCloudConsul = _project("fusion-cloud-consul")
   .dependsOn(fusionCloud, fusionTestkit % "test->test", fusionCore)
-  .settings(libraryDependencies ++= Seq(_akkaDiscovery, _akkaDiscoveryConsul) ++ _akkaHttps)
+  .settings(libraryDependencies ++= Seq(_akkaDiscoveryConsul) ++ _akkaHttps)
 
 lazy val fusionCloudNacos = _project("fusion-cloud-nacos")
   .dependsOn(fusionCloud, fusionTestkit % "test->test", fusionCore)
-  .settings(libraryDependencies ++= Seq(_akkaDiscovery, _nacosClient) ++ _akkaHttps)
+  .settings(libraryDependencies ++= Seq(_nacosClient) ++ _akkaHttps)
 
 lazy val fusionCloud = _project("fusion-cloud")
   .dependsOn(fusionHttpClient, fusionTestkit % "test->test", fusionCore)
-  .settings(libraryDependencies ++= Seq(_akkaManagement, _akkaDiscovery) ++ _akkaHttps ++ _akkaClusters.map(_ % Provided))
+  .settings(
+    libraryDependencies ++= Seq(_akkaManagement, _chimney, _akkaDiscovery) ++ _akkaHttps ++ _akkaClusters
+      .map(_ % Provided)
+  )
 
 lazy val fusionActuatorCluster = _project("fusion-actuator-cluster")
   .dependsOn(fusionActuator, fusionTestkit % "test->test", fusionCore)
@@ -161,12 +175,14 @@ lazy val fusionActuator = _project("fusion-actuator")
   .dependsOn(fusionHttp, fusionTestkit % "test->test", fusionCore)
   .settings(
     libraryDependencies ++= Seq(
-        _akkaManagement,
-        _kamonStatusPage,
-        _kamonAkka,
-        _kamonAkkaHttp,
-        _kamonSystemMetrics,
-        _kamonLogback) ++ _akkaHttps)
+      _akkaManagement,
+      _kamonStatusPage,
+      _kamonAkka,
+      _kamonAkkaHttp,
+      _kamonSystemMetrics,
+      _kamonLogback
+    ) ++ _akkaHttps
+  )
 
 lazy val fusionJob = _project("fusion-job")
   .dependsOn(fusionJdbc, fusionTestkit % "test->test", fusionCore)
@@ -184,20 +200,42 @@ lazy val fusionCluster = _project("fusion-cluster")
   .dependsOn(fusionTestkit % "test->test", fusionCore)
   .settings(libraryDependencies ++= Seq(_akkaManagement, _akkaManagementClusterHttp) ++ _akkaClusters)
 
+lazy val fusionGrpc = _project("fusion-grpc")
+  .dependsOn(fusionTestkit % "test->test", fusionCore)
+  .settings(libraryDependencies ++= Seq(_scalapbJson4s))
+
+lazy val fusionAuthorizationServer = _project("fusion-authorization-server")
+  .dependsOn(fusionSecurityOauthCore, fusionHttp, fusionTestkit % "test->test")
+  .settings(libraryDependencies ++= Seq())
+
+lazy val fusionSecurityOauthJose = _project("fusion-security-oauth-jose")
+  .dependsOn(fusionSecurityOauthCore, fusionTestkit % "test->test")
+  .settings(libraryDependencies ++= Seq(_joseJwt))
+
+lazy val fusionSecurityOauthCore = _project("fusion-security-oauth-core")
+  .dependsOn(fusionSecurity, fusionTestkit % "test->test")
+  .settings(libraryDependencies ++= Seq())
+
 lazy val fusionHttp = _project("fusion-http")
   .dependsOn(fusionCloudConsul % "test->test", fusionCloud, fusionTestkit % "test->test", fusionCore)
   .settings(libraryDependencies ++= Seq(_akkaManagement, _logbackClassic % Test))
 
 lazy val fusionHttpClient = _project("fusion-http-client")
   .dependsOn(fusionProtobufV3, fusionJsonJackson, fusionTestkit % "test->test", fusionCore)
-  .settings(libraryDependencies ++= Seq(
-      "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion % "protobuf,test,provided") ++ _akkaHttps)
+  .settings(
+    libraryDependencies ++= Seq(
+      "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion % "protobuf,test,provided"
+    ) ++ _akkaHttps
+  )
 
 lazy val fusionJsonJacksonExt = _project("fusion-json-jackson-ext")
   .dependsOn(fusionJsonJackson, fusionTestkit % "test->test")
-  .settings(libraryDependencies ++= Seq(
+  .settings(
+    libraryDependencies ++= Seq(
       "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion % "protobuf,test,provided",
-      _json4s))
+      _json4s
+    )
+  )
 
 lazy val fusionJsonJackson = _project("fusion-json-jackson")
   .dependsOn(fusionTestkit % "test->test", fusionCore)
@@ -239,7 +277,7 @@ lazy val fusionMail = _project("fusion-mail")
   .settings(libraryDependencies ++= Seq(_jakartaMail))
 
 lazy val fusionSecurity = _project("fusion-security")
-  .dependsOn(fusionTestkit % "test->test", fusionCore)
+  .dependsOn(fusionJsonJackson, fusionCore, fusionTestkit % "test->test")
   .settings(libraryDependencies ++= Seq(_bcprovJdk15on))
 
 lazy val fusionTestkit = _project("fusion-testkit")
@@ -252,20 +290,25 @@ lazy val fusionProtobufV3 = _project("fusion-protobuf-v3")
   .settings(Publishing.publishing: _*)
   .settings(
     libraryDependencies ++= Seq(
-        "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion % "protobuf,provided",
-        _akkaProtobufV3,
-        _akkaDiscovery))
+      "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion % "protobuf,provided",
+      _akkaProtobufV3,
+      _akkaDiscovery
+    )
+  )
 
 lazy val fusionCore = _project("fusion-core")
   .dependsOn(helloscalaCommon)
   .settings(Publishing.publishing: _*)
   .settings(
     libraryDependencies ++= Seq(
-        _akkaHttp % Provided,
-        _logbackClassic,
-        _akkaTypedTestkit % Test,
-        _akkaStreamTestkit % Test,
-        _scalatest % Test) ++ _akkas ++ _slf4js)
+      _akkaHttp % Provided,
+      _logbackClassic % Provided,
+      _pureconfig,
+      _akkaTypedTestkit % Test,
+      _akkaStreamTestkit % Test,
+      _scalatest % Test
+    ) ++ _akkas ++ _slf4js
+  )
 
 lazy val helloscalaCommon = _project("helloscala-common")
   .settings(Publishing.publishing: _*)
@@ -275,15 +318,17 @@ lazy val helloscalaCommon = _project("helloscala-common")
     organizationHomepage := Some(url("https://github.com/helloscala")),
     homepage := Some(url("https://helloscala.github.io/helloscala-common")),
     libraryDependencies ++= Seq(
-        _jacksonAnnotations % Provided,
-        _config,
-        _slf4jApi,
-        _scalaLogging,
-        _uuidGenerator,
-        "org.scala-lang" % "scala-reflect" % scalaVersion.value,
-        _scalaCollectionCompat,
-        _scalaJava8Compat,
-        _scalatest % Test))
+      _jacksonAnnotations % Provided,
+      _config,
+      _slf4jApi,
+      _scalaLogging,
+      _uuidGenerator,
+      "org.scala-lang" % "scala-reflect" % scalaVersion.value,
+      _scalaCollectionCompat,
+      _scalaJava8Compat,
+      _scalatest % Test
+    )
+  )
 
 def _project(name: String, _base: String = null) =
   Project(id = name, base = file(if (_base eq null) name else _base))

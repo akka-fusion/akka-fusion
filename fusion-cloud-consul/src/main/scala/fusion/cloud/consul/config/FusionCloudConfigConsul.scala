@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019-2021 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import akka.actor.typed.{ActorSystem, ExtensionId}
 import com.typesafe.config.Config
 import fusion.cloud.config.FusionCloudConfig
 import fusion.cloud.consul.FusionConsul
+import fusion.core.extension.FusionCore
 
 /**
  * @author Yang Jing <a href="mailto:yang.xunjing@qq.com">yangbajing</a>
@@ -27,7 +28,7 @@ import fusion.cloud.consul.FusionConsul
  */
 class FusionCloudConfigConsul()(implicit val system: ActorSystem[_]) extends FusionCloudConfig {
   val fusionConsul: FusionConsul = FusionConsul.fromByConfig(system.settings.config)
-  system.classicSystem.registerOnTermination(() -> fusionConsul.close())
+  FusionCore(system).shutdowns.addJvmShutdownHook(fusionConsul.close())
   override def config: Config = system.settings.config
 }
 

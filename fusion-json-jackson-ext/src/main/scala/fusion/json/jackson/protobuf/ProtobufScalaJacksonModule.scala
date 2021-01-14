@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019-2021 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,22 +14,19 @@
  * limitations under the License.
  */
 
-package fusion.jackson.protobuf
+package fusion.json.jackson.protobuf
 
-import java.time.Instant
-import java.util.Objects
-
-import com.fasterxml.jackson.core.JsonGenerator
-import com.fasterxml.jackson.core.JsonParser
-import com.fasterxml.jackson.core.JsonToken
+import com.fasterxml.jackson.core.{JsonGenerator, JsonParser, JsonToken}
 import com.fasterxml.jackson.databind._
 import com.fasterxml.jackson.databind.deser.Deserializers
 import com.fasterxml.jackson.databind.ser.Serializers
 import com.fasterxml.jackson.module.scala.JacksonModule
-import com.google.protobuf.struct.NullValue
-import com.google.protobuf.struct.Value
+import com.google.protobuf.struct.{NullValue, Value}
 import com.google.protobuf.struct.Value.Kind
 import com.google.protobuf.timestamp.Timestamp
+
+import java.time.Instant
+import java.util.Objects
 
 object Protobufs {
   val TIMESTAMP_CLS = classOf[Timestamp]
@@ -91,18 +88,13 @@ object Protobufs {
 
     override def deserialize(p: JsonParser, ctxt: DeserializationContext): Kind = {
       val token = p.currentToken()
-      println(token + " | " + p)
       token match {
         case JsonToken.VALUE_STRING                       => Kind.StringValue(p.getValueAsString)
         case JsonToken.VALUE_NUMBER_FLOAT                 => Kind.NumberValue(p.getValueAsDouble)
         case JsonToken.VALUE_NUMBER_INT                   => Kind.NumberValue(p.getValueAsInt)
         case JsonToken.VALUE_TRUE | JsonToken.VALUE_FALSE => Kind.BoolValue(p.getValueAsBoolean)
-        case JsonToken.START_OBJECT                       =>
-//          ctxt.readValue(p, KIND_CLS)
-          null
-        //          p.readValueAs(classOf[Kind])
-        //        case JsonToken.START_ARRAY                        => p.readValueAs(classOf[Kind])
-        case _ => Kind.NullValue(NullValue.NULL_VALUE)
+        case JsonToken.START_OBJECT                       => null
+        case _                                            => Kind.NullValue(NullValue.NULL_VALUE)
       }
     }
   }

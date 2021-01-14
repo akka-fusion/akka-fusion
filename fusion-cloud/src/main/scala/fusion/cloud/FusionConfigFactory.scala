@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019-2021 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,11 @@ object FusionConfigFactory {
 
   def fromByConfig(localConfig: Config = ConfigFactory.load()): FusionFactory = {
     val localSystem =
-      ActorSystem(SpawnProtocol(), "localTemp", ConfigFactory.parseString("akka.actor.provider = local"))
+      ActorSystem(SpawnProtocol(), "localTemp", ConfigFactory.parseString("""
+          |akka.actor.provider = local
+          |akka.actor.typed.extensions = []
+          |akka.actor.extensions = []
+          |""".stripMargin))
     try {
       val fqcn = localConfig.getString("fusion.config-factory")
       localSystem.dynamicAccess

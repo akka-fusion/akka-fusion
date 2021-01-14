@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019-2021 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package fusion.jackson.protobuf
+package fusion.json.jackson.protobuf
 
 import com.fasterxml.jackson.core.Base64Variants
 import com.fasterxml.jackson.databind.node._
 import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper}
 import com.google.protobuf.descriptor.FieldDescriptorProto
-import fusion.jackson.protobuf.JacksonFormat.GenericCompanion
+import JacksonFormat.GenericCompanion
 import fusion.json.JsonFormatException
 import scalapb.descriptors._
 import scalapb.{GeneratedFileObject, GeneratedMessage, GeneratedMessageCompanion, Message}

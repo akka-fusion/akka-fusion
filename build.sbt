@@ -233,7 +233,7 @@ lazy val fusionJsonJacksonExt = _project("fusion-json-jackson-ext")
   .settings(
     libraryDependencies ++= Seq(
       "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion % "protobuf,test,provided",
-      _json4s
+      _scalapbJson4s
     )
   )
 

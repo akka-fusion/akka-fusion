@@ -10,7 +10,7 @@ object Dependencies {
   val versionScalatest = "3.1.4"
   val versionAkka: String = sys.props.getOrElse("akka.version", "2.6.10")
   val versionAkkaManagement = "1.0.9"
-  val versionAkkaHttp = "10.2.2"
+  val versionAkkaHttp = "10.1.13" //"10.2.2"
   val versionAkkaHttpCors = "1.1.1"
   val versionAlpakka = "2.0.2"
   val versionAlpakkaKafka = "2.0.6"
@@ -228,9 +228,6 @@ object Dependencies {
     "com.google.inject" % "guice" % versionGuice,
     "com.google.inject.extensions" % "guice-assistedinject" % versionGuice
   )
-
-  val _json4s =
-    ("org.json4s" %% "json4s-jackson" % versionJson4s).exclude("com.fasterxml.jackson.core", "jackson-databind")
 
   val _scalapbJson4s = "com.thesamet.scalapb" %% "scalapb-json4s" % versionScalapbJson4s
 

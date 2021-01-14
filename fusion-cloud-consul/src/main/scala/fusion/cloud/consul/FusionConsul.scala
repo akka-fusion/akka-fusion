@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019-2021 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import com.google.common.net.HostAndPort
 import com.orbitz.consul.Consul
 import com.orbitz.consul.model.agent.Registration
 import com.typesafe.config.{Config, ConfigFactory}
+import com.typesafe.scalalogging.StrictLogging
 
 import java.nio.charset.{Charset, StandardCharsets}
 import scala.jdk.CollectionConverters._
@@ -29,7 +30,7 @@ import scala.jdk.OptionConverters._
  * @author Yang Jing <a href="mailto:yang.xunjing@qq.com">yangbajing</a>
  * @date 2020-12-01 18:50:02
  */
-class FusionConsul private (val consul: Consul) extends AutoCloseable {
+class FusionConsul private (val consul: Consul) extends AutoCloseable with StrictLogging {
 
   def getConfig(key: String, localConfig: Config = ConfigFactory.parseString("{}")): Config = {
     val text = getValueAsString(key).getOrElse(
@@ -52,6 +53,7 @@ class FusionConsul private (val consul: Consul) extends AutoCloseable {
 
   override def close(): Unit = {
     consul.destroy()
+    logger.info("Exit FusionConsul complete.")
   }
 }
 

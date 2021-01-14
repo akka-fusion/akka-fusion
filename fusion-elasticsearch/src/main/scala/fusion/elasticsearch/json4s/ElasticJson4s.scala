@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019-2021 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ package fusion.elasticsearch.json4s
 
 import com.sksamuel.elastic4s.{AggReader, Hit, HitReader, Indexable}
 import com.sksamuel.exts.Logging
-import fusion.json.json4s.JsonUtils
+import fusion.json.json4s.Json4sUtils
 import org.json4s.{Formats, Serialization}
 
 import scala.util.Try
@@ -26,7 +26,7 @@ import scala.util.Try
 object ElasticJson4s {
 
   trait Implicits extends Logging {
-    def jsonUtils: JsonUtils
+    def jsonUtils: Json4sUtils
 
     implicit def Json4sHitReader[T](implicit
         mf: Manifest[T],

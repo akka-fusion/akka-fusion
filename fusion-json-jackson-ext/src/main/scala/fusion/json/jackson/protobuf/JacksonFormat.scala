@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019-2021 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fusion.jackson.protobuf
+package fusion.json.jackson.protobuf
 
 import com.fasterxml.jackson.core.Base64Variants
 import com.fasterxml.jackson.databind.node._
@@ -26,7 +26,8 @@ import com.google.protobuf.duration.Duration
 import com.google.protobuf.field_mask.FieldMask
 import com.google.protobuf.struct.NullValue
 import com.google.protobuf.timestamp.Timestamp
-import fusion.json.{Durations, JsonFormatException, Timestamps}
+import fusion.json.JsonFormatException
+import fusion.json.protobuf.{Durations, Timestamps}
 import helloscala.common.util.StringUtils
 import scalapb._
 import scalapb.descriptors._

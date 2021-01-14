@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019-2021 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package fusion.json
-
-import java.text.SimpleDateFormat
-import java.util.{Date, GregorianCalendar, TimeZone}
+package fusion.json.protobuf
 
 import com.google.protobuf.TextFormat.ParseException
 import com.google.protobuf.timestamp.Timestamp
+
+import java.text.SimpleDateFormat
+import java.util.{Date, GregorianCalendar, TimeZone}
 
 object Timestamps {
   // Timestamp for "0001-01-01T00:00:00Z"

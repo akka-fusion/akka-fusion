@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019-2021 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -112,7 +112,7 @@ class FusionCloudDiscoveryConsul()(implicit val system: ActorSystem[_])
       tags.add(s"gRPC.port=$grpcServerPort")
 
       inst.copy(
-        id = s"$applicationName-$serverPort",
+        id = s"$applicationName-$serverHost-$serverPort",
         name = applicationName,
         address = Some(serverHost),
         port = Some(serverPort),

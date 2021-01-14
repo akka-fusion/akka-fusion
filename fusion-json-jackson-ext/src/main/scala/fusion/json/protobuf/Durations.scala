@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019-2021 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package fusion.json
-
-import java.text.ParseException
+package fusion.json.protobuf
 
 import com.google.protobuf.duration.Duration
+
+import java.text.ParseException
 
 object Durations {
   val DURATION_SECONDS_MIN = -315576000000L

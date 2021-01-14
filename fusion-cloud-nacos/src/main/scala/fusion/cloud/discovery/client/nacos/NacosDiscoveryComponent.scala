@@ -20,7 +20,6 @@ import akka.actor.{ExtendedActorSystem, ExtensionId}
 import com.typesafe.scalalogging.StrictLogging
 import fusion.cloud.discovery.client.{FusionConfigService, FusionNamingService}
 import fusion.cloud.discovery.model.DiscoveryInstance
-import fusion.cloud.discovery.client.{FusionConfigService, FusionNamingService}
 import fusion.core.event.http.HttpBindingServerEvent
 import fusion.core.extension.FusionCore
 import helloscala.common.Configuration

@@ -16,7 +16,7 @@
 
 package com.helloscala.akka.security.oauth.core
 
-import akka.http.scaladsl.model.AttributeKey
+//import akka.http.scaladsl.model.AttributeKey
 
 /**
  * @author Yang Jing <a href="mailto:yang.xunjing@qq.com">yangbajing</a>
@@ -25,5 +25,5 @@ import akka.http.scaladsl.model.AttributeKey
 case class OAuth2Authorization(
     principalName: String,
     accessToken: OAuth2AccessToken,
-    attributes: Map[AttributeKey[_], _]
+    attributes: Map[String, _]
 )

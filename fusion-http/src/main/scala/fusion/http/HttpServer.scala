@@ -113,8 +113,8 @@ final class HttpServer(val id: String, implicit val system: ExtendedActorSystem)
 
     val handler = toHandler(Route.seal(_route))
     val bindingFuture = {
-//      Http().bindAndHandleAsync(handler, httpSetting.server.host, httpSetting.server.port, connectionContext)
-      Http().newServerAt(httpSetting.server.host, httpSetting.server.port).bind(handler)
+      Http().bindAndHandleAsync(handler, httpSetting.server.host, httpSetting.server.port, connectionContext)
+//      Http().newServerAt(httpSetting.server.host, httpSetting.server.port).bind(handler)
     }
     maybeEventualBinding = Some(bindingFuture)
     bindingFuture.failed.foreach { cause =>

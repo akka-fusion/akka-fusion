@@ -27,10 +27,11 @@ import fusion.cloud.FusionConfigFactory
 object GatewayApplication {
 
   def main(args: Array[String]): Unit = {
-    implicit val system = FusionConfigFactory.fromByConfig().initActorSystem(SpawnProtocol())
+    val system = FusionConfigFactory.fromByConfig().initActorSystem(SpawnProtocol())
+    implicit val classicSystem = system.classicSystem
 
     val route = complete("Hello world!")
-    val binding = FusionHttpServer(system).component.startHandlerSync(route)
+    val binding = FusionHttpServer(system).component.startRouteSync(route)
     println(binding)
     //    FusionWeb(system).startAsync(route)
   }

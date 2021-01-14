@@ -10,7 +10,7 @@ object Dependencies {
   val versionScalatest = "3.1.4"
   val versionAkka: String = sys.props.getOrElse("akka.version", "2.6.10")
   val versionAkkaManagement = "1.0.9"
-  val versionAkkaHttp = "10.1.13" //"10.2.2"
+  val versionAkkaHttp = "10.2.2" //"10.1.13"
   val versionAkkaHttpCors = "1.1.1"
   val versionAlpakka = "2.0.2"
   val versionAlpakkaKafka = "2.0.6"

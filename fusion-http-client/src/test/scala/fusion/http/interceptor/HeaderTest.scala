@@ -35,8 +35,7 @@ class HeaderTest extends FusionFunSuiteLike with ScalatestRouteTest {
   test("X-Trace-Id") {
     val route = path("test") {
       mapRequest(request =>
-        request.copy(headers = RawHeader("X-Trace-Id", generateXTraceId(request.headers)) +: request.headers)
-      ) {
+        request.copy(headers = RawHeader("X-Trace-Id", generateXTraceId(request.headers)) +: request.headers)) {
         complete("test")
       }
     }

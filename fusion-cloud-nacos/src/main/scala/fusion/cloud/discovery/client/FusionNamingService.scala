@@ -16,10 +16,10 @@
 
 package fusion.cloud.discovery.client
 
-import akka.http.scaladsl.model.{HttpRequest, Uri}
+import akka.http.scaladsl.model.{ HttpRequest, Uri }
 import akka.http.scaladsl.model.Uri.Authority
-import fusion.cloud.discovery.model.{DiscoveryEvent, DiscoveryInstance, DiscoveryList, DiscoveryServiceInfo}
-import fusion.cloud.discovery.model.{DiscoveryEvent, DiscoveryInstance, DiscoveryList, DiscoveryServiceInfo}
+import fusion.cloud.discovery.model.{ DiscoveryEvent, DiscoveryInstance, DiscoveryList, DiscoveryServiceInfo }
+import fusion.cloud.discovery.model.{ DiscoveryEvent, DiscoveryInstance, DiscoveryList, DiscoveryServiceInfo }
 
 import java.util.Objects
 import scala.util.control.NonFatal
@@ -158,8 +158,7 @@ trait FusionNamingService {
       serviceName: String,
       clusters: Seq[String],
       healthy: Boolean,
-      subscribe: Boolean
-  ): Seq[DiscoveryInstance]
+      subscribe: Boolean): Seq[DiscoveryInstance]
 
   /**
    * Select one healthy instance of service using predefined load balance strategy

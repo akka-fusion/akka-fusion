@@ -30,8 +30,7 @@ case class DiscoveryInstance(
     metadata: Map[String, String] = Map(),
     group: String = Constants.DEFAULT_GROUP,
     // ip#port#clasterName#group@@serviceName
-    instanceId: String = null
-) {
+    instanceId: String = null) {
   def isEnabled: Boolean = enable
 
   def toInetAddr: String = ip + ":" + port

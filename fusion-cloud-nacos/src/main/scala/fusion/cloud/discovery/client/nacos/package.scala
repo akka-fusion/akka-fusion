@@ -19,8 +19,8 @@ package fusion.cloud.discovery.client
 import java.util.Properties
 import java.util.function.BiConsumer
 import com.alibaba.nacos.api.common.Constants
-import com.alibaba.nacos.api.naming.listener.{Event, NamingEvent}
-import com.alibaba.nacos.api.naming.pojo.{Instance, ListView, ServiceInfo}
+import com.alibaba.nacos.api.naming.listener.{ Event, NamingEvent }
+import com.alibaba.nacos.api.naming.pojo.{ Instance, ListView, ServiceInfo }
 import com.typesafe.scalalogging.StrictLogging
 import fusion.cloud.discovery.constant.PropKeys._
 import fusion.cloud.discovery.model.{
@@ -31,7 +31,7 @@ import fusion.cloud.discovery.model.{
   DiscoveryServiceInfo
 }
 import fusion.http.constant.HttpConstants
-import helloscala.common.util.{AsBoolean, AsInt, AsLong, Utils}
+import helloscala.common.util.{ AsBoolean, AsInt, AsLong, Utils }
 
 import scala.jdk.CollectionConverters._
 
@@ -89,8 +89,7 @@ package object nacos {
         instance.isEphemeral,
         Option(instance.getMetadata).map(_.asScala.toMap).getOrElse(Map()),
         Constants.DEFAULT_GROUP,
-        instance.getInstanceId
-      )
+        instance.getInstanceId)
   }
 
   implicit final class ToNacosInstantce(instance: DiscoveryInstance) {
@@ -123,8 +122,7 @@ package object nacos {
         v.getHosts.asScala.map(_.toDiscoveryInstance).toSeq,
         v.getLastRefTime,
         v.getChecksum,
-        v.isAllIPs
-      )
+        v.isAllIPs)
   }
 
   implicit final class ToDiscoveryEvent(v: Event) {

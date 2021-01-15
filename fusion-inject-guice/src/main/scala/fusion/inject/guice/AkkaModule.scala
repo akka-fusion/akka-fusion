@@ -18,7 +18,7 @@ package fusion.inject.guice
 
 import akka.actor.ExtendedActorSystem
 import akka.actor.typed.ActorSystem
-import akka.{actor => classic}
+import akka.{ actor => classic }
 import com.google.inject.AbstractModule
 import com.typesafe.config.Config
 import helloscala.common.Configuration

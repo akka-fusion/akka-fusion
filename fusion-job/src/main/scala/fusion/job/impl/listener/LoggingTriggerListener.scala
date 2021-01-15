@@ -49,9 +49,7 @@ class LoggingTriggerListener extends TriggerListener with StrictLogging {
           new java.util.Date(),
           context.getJobDetail.getKey.getName,
           context.getJobDetail.getKey.getGroup,
-          Integer.valueOf(context.getRefireCount)
-        )
-      )
+          Integer.valueOf(context.getRefireCount)))
     }
 
   override def vetoJobExecution(trigger: Trigger, context: JobExecutionContext): Boolean = false
@@ -67,16 +65,13 @@ class LoggingTriggerListener extends TriggerListener with StrictLogging {
           trigger.getNextFireTime,
           new java.util.Date,
           trigger.getJobKey.getName,
-          trigger.getJobKey.getGroup
-        )
-      )
+          trigger.getJobKey.getGroup))
     }
 
   override def triggerComplete(
       trigger: Trigger,
       context: JobExecutionContext,
-      triggerInstructionCode: Trigger.CompletedExecutionInstruction
-  ): Unit =
+      triggerInstructionCode: Trigger.CompletedExecutionInstruction): Unit =
     logger.whenInfoEnabled {
       val instrCode = triggerInstructionCode match {
         case CompletedExecutionInstruction.DELETE_TRIGGER                => "DELETE TRIGGER"
@@ -98,8 +93,6 @@ class LoggingTriggerListener extends TriggerListener with StrictLogging {
           context.getJobDetail.getKey.getGroup,
           Integer.valueOf(context.getRefireCount),
           triggerInstructionCode.toString,
-          instrCode
-        )
-      )
+          instrCode))
     }
 }

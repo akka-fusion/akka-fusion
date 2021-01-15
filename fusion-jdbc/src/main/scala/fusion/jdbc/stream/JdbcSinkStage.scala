@@ -37,15 +37,14 @@ class JdbcSinkStage[T](
     dataSource: DataSource,
     creator: ConnectionPreparedStatementCreator,
     actionBinder: (T, PreparedStatement) => Unit,
-    batchSize: Int = 100
-) extends GraphStageWithMaterializedValue[SinkShape[T], Future[JdbcSinkResult]] {
+    batchSize: Int = 100)
+    extends GraphStageWithMaterializedValue[SinkShape[T], Future[JdbcSinkResult]] {
   val in: Inlet[T] = Inlet("JdbcSink.in")
 
   override def shape: SinkShape[T] = SinkShape(in)
 
   override def createLogicAndMaterializedValue(
-      inheritedAttributes: Attributes
-  ): (GraphStageLogic, Future[JdbcSinkResult]) = {
+      inheritedAttributes: Attributes): (GraphStageLogic, Future[JdbcSinkResult]) = {
     val promise = Promise[JdbcSinkResult]()
 
     val logic = new GraphStageLogic(shape) with InHandler {

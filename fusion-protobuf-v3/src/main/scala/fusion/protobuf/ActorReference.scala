@@ -17,9 +17,9 @@
 package fusion.protobuf
 
 import akka.actor.ExtendedActorSystem
-import akka.actor.typed.{ActorRef, ActorRefResolver}
+import akka.actor.typed.{ ActorRef, ActorRefResolver }
 import akka.serialization.Serialization
-import akka.{actor => classic}
+import akka.{ actor => classic }
 import fusion.core.FusionApplication
 import helloscala.common.util.StringUtils
 import scalapb.TypeMapper

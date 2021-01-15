@@ -42,12 +42,10 @@ trait IEnumTraitCompanion[V] {
 
   final def fromValue(value: String): Value =
     optionFromValue(value).getOrElse(
-      throw new NoSuchElementException(s"${getClass.getSimpleName}.values by value not found, it is $value.")
-    )
+      throw new NoSuchElementException(s"${getClass.getSimpleName}.values by value not found, it is $value."))
   def optionFromName(name: String): Option[Value] = values.find(_.name == name)
 
   final def fromName(name: String): Value =
     optionFromName(name).getOrElse(
-      throw new NoSuchElementException(s"${getClass.getSimpleName}.values by name not found, it is $name.")
-    )
+      throw new NoSuchElementException(s"${getClass.getSimpleName}.values by name not found, it is $name."))
 }

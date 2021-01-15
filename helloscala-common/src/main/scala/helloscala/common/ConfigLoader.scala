@@ -16,12 +16,12 @@
 
 package helloscala.common
 
-import java.nio.file.{Path, Paths}
+import java.nio.file.{ Path, Paths }
 import java.time.OffsetDateTime
 import java.util.Properties
 
 import com.typesafe.config._
-import helloscala.common.util.{StringUtils, TimeUtils}
+import helloscala.common.util.{ StringUtils, TimeUtils }
 
 import scala.collection.mutable
 import scala.concurrent.duration._

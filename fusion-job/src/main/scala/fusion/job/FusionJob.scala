@@ -17,7 +17,7 @@
 package fusion.job
 
 import akka.actor.ExtendedActorSystem
-import fusion.common.extension.{FusionExtension, FusionExtensionId}
+import fusion.common.extension.{ FusionExtension, FusionExtensionId }
 import fusion.core.extension.FusionCore
 
 class FusionJob private (override val classicSystem: ExtendedActorSystem) extends FusionExtension {

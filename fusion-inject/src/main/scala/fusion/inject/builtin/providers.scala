@@ -16,48 +16,48 @@
 
 package fusion.inject.builtin
 
-import akka.actor.typed.{ActorSystem, Scheduler}
+import akka.actor.typed.{ ActorSystem, Scheduler }
 import akka.stream.Materializer
-import akka.{actor => classic}
-import fusion.json.jackson.http.{JacksonHttpHelper, JacksonSupport}
-import fusion.json.jackson.{JacksonObjectMapperExtension, ScalaObjectMapper}
-import javax.inject.{Inject, Provider, Singleton}
+import akka.{ actor => classic }
+import fusion.json.jackson.http.{ JacksonHttpHelper, JacksonSupport }
+import fusion.json.jackson.{ JacksonObjectMapperExtension, ScalaObjectMapper }
+import javax.inject.{ Inject, Provider, Singleton }
 
 import scala.concurrent.ExecutionContextExecutor
 
 @Singleton
-class ExecutionContextExecutorProvider @Inject() (system: classic.ActorSystem)
+class ExecutionContextExecutorProvider @Inject()(system: classic.ActorSystem)
     extends Provider[ExecutionContextExecutor] {
   override def get: ExecutionContextExecutor = system.dispatcher
 }
 
 @Singleton
-class MaterializerProvider @Inject() (system: classic.ActorSystem) extends Provider[Materializer] {
+class MaterializerProvider @Inject()(system: classic.ActorSystem) extends Provider[Materializer] {
   override def get: Materializer = Materializer.matFromSystem(system)
 }
 
 @Singleton
-class SchedulerProvider @Inject() (system: classic.ActorSystem) extends Provider[Scheduler] {
+class SchedulerProvider @Inject()(system: classic.ActorSystem) extends Provider[Scheduler] {
   import akka.actor.typed.scaladsl.adapter._
   override def get: Scheduler = system.scheduler.toTyped
 }
 
 @Singleton
-class ScalaObjectMapperProvider @Inject() (system: classic.ActorSystem) extends Provider[ScalaObjectMapper] {
+class ScalaObjectMapperProvider @Inject()(system: classic.ActorSystem) extends Provider[ScalaObjectMapper] {
   override def get: ScalaObjectMapper = JacksonObjectMapperExtension(system).objectMapperJson
 }
 
 @Singleton
-class CborObjectMapperProvider @Inject() (system: classic.ActorSystem) extends Provider[ScalaObjectMapper] {
+class CborObjectMapperProvider @Inject()(system: classic.ActorSystem) extends Provider[ScalaObjectMapper] {
   override def get: ScalaObjectMapper = JacksonObjectMapperExtension(system).objectMapperCbor
 }
 
 @Singleton
-class JacksonSupportProvider @Inject() (system: classic.ActorSystem) extends Provider[JacksonSupport] {
+class JacksonSupportProvider @Inject()(system: classic.ActorSystem) extends Provider[JacksonSupport] {
   override def get: JacksonSupport = JacksonObjectMapperExtension(system).jacksonSupport
 }
 
 @Singleton
-class JacksonHttpHelperProvider @Inject() (system: classic.ActorSystem) extends Provider[JacksonHttpHelper] {
+class JacksonHttpHelperProvider @Inject()(system: classic.ActorSystem) extends Provider[JacksonHttpHelper] {
   override def get: JacksonHttpHelper = JacksonHttpHelper(system)
 }

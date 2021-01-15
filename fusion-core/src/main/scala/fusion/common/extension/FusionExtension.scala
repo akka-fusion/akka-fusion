@@ -18,7 +18,7 @@ package fusion.common.extension
 
 import akka.actor.typed.ActorSystem
 import akka.actor.typed.scaladsl.adapter._
-import akka.actor.{ExtendedActorSystem, Extension, ExtensionId, ExtensionIdProvider}
+import akka.actor.{ ExtendedActorSystem, Extension, ExtensionId, ExtensionIdProvider }
 import helloscala.common.Configuration
 
 // #FusionExtension

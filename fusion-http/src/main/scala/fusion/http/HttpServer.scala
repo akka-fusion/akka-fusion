@@ -25,9 +25,9 @@ import akka.actor.ExtendedActorSystem
 import akka.actor.typed.ActorSystem
 import akka.http.FusionRoute
 import akka.http.scaladsl.Http.ServerBinding
-import akka.http.scaladsl.model.{HttpRequest, HttpResponse, Uri}
-import akka.http.scaladsl.server.{ExceptionHandler, RejectionHandler, Route}
-import akka.http.scaladsl.{ConnectionContext, Http, HttpConnectionContext}
+import akka.http.scaladsl.model.{ HttpRequest, HttpResponse, Uri }
+import akka.http.scaladsl.server.{ ExceptionHandler, RejectionHandler, Route }
+import akka.http.scaladsl.{ ConnectionContext, Http, HttpConnectionContext }
 import akka.stream.Materializer
 import com.typesafe.config.ConfigFactory
 import com.typesafe.scalalogging.StrictLogging
@@ -43,9 +43,9 @@ import helloscala.common.exception.HSInternalErrorException
 import helloscala.common.util.NetworkUtils
 
 import scala.concurrent.duration._
-import scala.concurrent.{Await, ExecutionContextExecutor, Future}
+import scala.concurrent.{ Await, ExecutionContextExecutor, Future }
 import scala.reflect.ClassTag
-import scala.util.{Failure, Success, Try}
+import scala.util.{ Failure, Success, Try }
 
 final class HttpServer(val id: String, implicit val system: ExtendedActorSystem)
     extends StrictLogging
@@ -57,8 +57,7 @@ final class HttpServer(val id: String, implicit val system: ExtendedActorSystem)
   private def dynamicAccess = system.dynamicAccess
 
   private val c = Configuration(
-    system.settings.config.getConfig(id).withFallback(system.settings.config.getConfig("fusion.default.http"))
-  )
+    system.settings.config.getConfig(id).withFallback(system.settings.config.getConfig("fusion.default.http")))
   private var _schema: String = _
   private var _socketAddress: InetSocketAddress = _
   private var maybeEventualBinding = Option.empty[Future[ServerBinding]]
@@ -66,17 +65,17 @@ final class HttpServer(val id: String, implicit val system: ExtendedActorSystem)
   logger.debug("httpSetting: " + httpSetting)
 
   @throws(classOf[Exception])
-  def startHandlerSync(handler: HttpHandler)(implicit
+  def startHandlerSync(handler: HttpHandler)(
+      implicit
       rejectionHandler: RejectionHandler = createRejectionHandler(),
       exceptionHandler: ExceptionHandler = createExceptionHandler(),
-      duration: Duration = 30.seconds
-  ): ServerBinding =
+      duration: Duration = 30.seconds): ServerBinding =
     Await.result(startHandlerAsync(handler), duration)
 
-  def startHandlerAsync(handler: HttpHandler)(implicit
+  def startHandlerAsync(handler: HttpHandler)(
+      implicit
       rejectionHandler: RejectionHandler = createRejectionHandler(),
-      exceptionHandler: ExceptionHandler = createExceptionHandler()
-  ): Future[ServerBinding] = {
+      exceptionHandler: ExceptionHandler = createExceptionHandler()): Future[ServerBinding] = {
     import akka.http.scaladsl.server.Directives._
     val route = extractRequest { request =>
       complete(handler(request))
@@ -84,27 +83,27 @@ final class HttpServer(val id: String, implicit val system: ExtendedActorSystem)
     startRouteAsync(route)
   }
 
-  def startBaseRouteSync(route: BaseRoute)(implicit
+  def startBaseRouteSync(route: BaseRoute)(
+      implicit
       rejectionHandler: RejectionHandler = createRejectionHandler(),
       exceptionHandler: ExceptionHandler = createExceptionHandler(),
-      duration: Duration = 30.seconds
-  ): ServerBinding = {
+      duration: Duration = 30.seconds): ServerBinding = {
     Await.result(startRouteAsync(route.route), duration)
   }
 
   @throws(classOf[Exception])
-  def startRouteSync(route: Route)(implicit
+  def startRouteSync(route: Route)(
+      implicit
       rejectionHandler: RejectionHandler = createRejectionHandler(),
       exceptionHandler: ExceptionHandler = createExceptionHandler(),
-      duration: Duration = 30.seconds
-  ): ServerBinding = {
+      duration: Duration = 30.seconds): ServerBinding = {
     Await.result(startRouteAsync(route), duration)
   }
 
-  def startRouteAsync(_route: Route)(implicit
+  def startRouteAsync(_route: Route)(
+      implicit
       rejectionHandler: RejectionHandler = createRejectionHandler(),
-      exceptionHandler: ExceptionHandler = createExceptionHandler()
-  ): Future[ServerBinding] = {
+      exceptionHandler: ExceptionHandler = createExceptionHandler()): Future[ServerBinding] = {
     if (!_isStarted.compareAndSet(false, true)) {
       throw HSInternalErrorException("HttpServer只允许start一次")
     }
@@ -145,8 +144,7 @@ final class HttpServer(val id: String, implicit val system: ExtendedActorSystem)
       case Success(rejectionHandler) => rejectionHandler
       case Failure(e) =>
         throw new ExceptionInInitializerError(
-          s"$clz 不是有效的 akka.http.scaladsl.server.RejectionHandler，${e.getLocalizedMessage}"
-        )
+          s"$clz 不是有效的 akka.http.scaladsl.server.RejectionHandler，${e.getLocalizedMessage}")
     }
   }
 
@@ -156,8 +154,7 @@ final class HttpServer(val id: String, implicit val system: ExtendedActorSystem)
       case Success(pf) => ExceptionHandler(pf)
       case Failure(e) =>
         throw new ExceptionInInitializerError(
-          s"$clz 不是有效的 akka.http.scaladsl.server.ExceptionHandler.PF，${e.getLocalizedMessage}"
-        )
+          s"$clz 不是有效的 akka.http.scaladsl.server.ExceptionHandler.PF，${e.getLocalizedMessage}")
     }
   }
 

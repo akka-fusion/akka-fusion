@@ -16,12 +16,12 @@
 
 package fusion.json.json4s
 
-import akka.actor.{ExtendedActorSystem, Extension, ExtensionId, ExtensionIdProvider}
+import akka.actor.{ ExtendedActorSystem, Extension, ExtensionId, ExtensionIdProvider }
 import com.fasterxml.jackson.databind.ObjectMapper
 import fusion.json.jackson.JacksonObjectMapperExtension
 import org.json4s.JsonAST.JValue
 import org.json4s.jackson.JsonMethods
-import org.json4s.{DefaultFormats, Extraction, Formats, JsonInput, Serialization}
+import org.json4s.{ DefaultFormats, Extraction, Formats, JsonInput, Serialization }
 
 import java.io.OutputStream
 import java.util.TimeZone
@@ -42,7 +42,7 @@ class Json4sUtils(system: ExtendedActorSystem) extends JsonMethods with Extensio
   }
 
   object serialization extends Serialization {
-    import java.io.{Reader, Writer}
+    import java.io.{ Reader, Writer }
 
     /**
      * Serialize to String.

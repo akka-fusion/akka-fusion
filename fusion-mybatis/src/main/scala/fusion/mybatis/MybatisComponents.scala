@@ -18,8 +18,8 @@ package fusion.mybatis
 
 import akka.Done
 import akka.actor.ExtendedActorSystem
-import com.baomidou.mybatisplus.annotation.{FieldStrategy, IdType}
-import com.baomidou.mybatisplus.core.{MybatisConfiguration, MybatisSqlSessionFactoryBuilder}
+import com.baomidou.mybatisplus.annotation.{ FieldStrategy, IdType }
+import com.baomidou.mybatisplus.core.{ MybatisConfiguration, MybatisSqlSessionFactoryBuilder }
 import com.baomidou.mybatisplus.core.config.GlobalConfig
 import com.baomidou.mybatisplus.core.config.GlobalConfig.DbConfig
 import com.baomidou.mybatisplus.core.incrementer.IKeyGenerator
@@ -41,7 +41,7 @@ import org.apache.ibatis.plugin.Interceptor
 import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory
 
 import scala.concurrent.Future
-import scala.util.{Failure, Success}
+import scala.util.{ Failure, Success }
 
 class MybatisComponents(system: ExtendedActorSystem)
     extends Components[FusionSqlSessionFactory](MybatisConstants.PATH_DEFAULT)
@@ -74,22 +74,18 @@ class MybatisComponents(system: ExtendedActorSystem)
     c.computeIfForeach[Boolean]("global-config.capital-mode", dbConfig.setCapitalMode)
     c.computeIfForeach[String](
       "global-config.key-generator",
-      keyGenerator => dbConfig.setKeyGenerator(getKeyGenerator(keyGenerator))
-    )
+      keyGenerator => dbConfig.setKeyGenerator(getKeyGenerator(keyGenerator)))
     c.computeIfForeach[String]("global-config.logic-delete-value", dbConfig.setLogicDeleteValue)
     c.computeIfForeach[String]("global-config.logic-not-delete-value", dbConfig.setLogicNotDeleteValue)
     c.computeIfForeach[String](
       "global-config.insert-strategy",
-      fieldStrategy => dbConfig.setInsertStrategy(FieldStrategy.valueOf(fieldStrategy))
-    )
+      fieldStrategy => dbConfig.setInsertStrategy(FieldStrategy.valueOf(fieldStrategy)))
     c.computeIfForeach[String](
       "global-config.update-strategy",
-      fieldStrategy => dbConfig.setUpdateStrategy(FieldStrategy.valueOf(fieldStrategy))
-    )
+      fieldStrategy => dbConfig.setUpdateStrategy(FieldStrategy.valueOf(fieldStrategy)))
     c.computeIfForeach[String](
       "global-config.select-strategy",
-      fieldStrategy => dbConfig.setSelectStrategy(FieldStrategy.valueOf(fieldStrategy))
-    )
+      fieldStrategy => dbConfig.setSelectStrategy(FieldStrategy.valueOf(fieldStrategy)))
 
     gc.setDbConfig(dbConfig)
 

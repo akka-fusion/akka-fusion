@@ -59,8 +59,7 @@ object JdbcFlow {
 
   def flowToByteString(
       valueSeparator: Char = ',',
-      charset: Charset = StandardCharsets.UTF_8
-  ): Flow[immutable.IndexedSeq[AnyRef], ByteString, NotUsed] =
+      charset: Charset = StandardCharsets.UTF_8): Flow[immutable.IndexedSeq[AnyRef], ByteString, NotUsed] =
     Flow[immutable.IndexedSeq[AnyRef]].map { values =>
       val builder = ByteString.newBuilder
       var i = 0

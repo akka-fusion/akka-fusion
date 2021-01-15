@@ -21,7 +21,7 @@ import akka.actor.ExtendedActorSystem
 import com.sksamuel.elastic4s._
 import com.sksamuel.elastic4s.http.JavaClient
 import fusion.common.component.Components
-import fusion.common.extension.{FusionExtension, FusionExtensionId}
+import fusion.common.extension.{ FusionExtension, FusionExtensionId }
 import fusion.core.extension.FusionCore
 import helloscala.common.Configuration
 import org.apache.http.client.config.RequestConfig
@@ -42,8 +42,7 @@ class FusionESClient(val underlying: ElasticClient, val config: Configuration) {
   // where U is particular to the request type.
   // For example a search request will return a Response[SearchResponse].
   def execute[T, U, F[_]](
-      t: T
-  )(implicit executor: Executor[F], functor: Functor[F], handler: Handler[T, U]): F[Response[U]] = {
+      t: T)(implicit executor: Executor[F], functor: Functor[F], handler: Handler[T, U]): F[Response[U]] = {
     import scala.language.higherKinds
     val request = handler.build(t)
     val f = executor.exec(client, request)
@@ -65,17 +64,13 @@ class ElasticsearchComponents(system: ExtendedActorSystem)
   override protected def createComponent(id: String): FusionESClient = {
     val c = configuration.getConfiguration(id)
     val props = ElasticProperties(c.getString("uri"))
-    val client = JavaClient(
-      props,
-      (requestConfigBuilder: RequestConfig.Builder) => {
-        c.get[Option[Configuration]]("request-config").foreach(customizeRequestConfigFunc(_, requestConfigBuilder))
-        requestConfigBuilder
-      },
-      (httpClientBuilder: HttpAsyncClientBuilder) => {
-        c.get[Option[Configuration]]("http-config").foreach(customizeHttpClientFunc(_, httpClientBuilder))
-        httpClientBuilder
-      }
-    )
+    val client = JavaClient(props, (requestConfigBuilder: RequestConfig.Builder) => {
+      c.get[Option[Configuration]]("request-config").foreach(customizeRequestConfigFunc(_, requestConfigBuilder))
+      requestConfigBuilder
+    }, (httpClientBuilder: HttpAsyncClientBuilder) => {
+      c.get[Option[Configuration]]("http-config").foreach(customizeHttpClientFunc(_, httpClientBuilder))
+      httpClientBuilder
+    })
     new FusionESClient(ElasticClient(client), c)
   }
 

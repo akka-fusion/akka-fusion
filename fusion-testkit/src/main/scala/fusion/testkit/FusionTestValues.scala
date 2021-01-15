@@ -20,7 +20,7 @@ import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.funsuite.AnyFunSuiteLike
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
-import org.scalatest.{EitherValues, OptionValues}
+import org.scalatest.{ EitherValues, OptionValues }
 
 import scala.concurrent.duration._
 

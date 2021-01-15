@@ -17,7 +17,7 @@
 package fusion.cloud.discovery
 
 import fusion.cloud.discovery.client.FusionConfigService
-import fusion.cloud.discovery.client.nacos.{NacosConstants, NacosPropertiesUtils, NacosServiceFactory}
+import fusion.cloud.discovery.client.nacos.{ NacosConstants, NacosPropertiesUtils, NacosServiceFactory }
 import helloscala.common.Configuration
 
 object DiscoveryUtils {

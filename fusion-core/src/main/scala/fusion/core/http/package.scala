@@ -16,10 +16,10 @@
 
 package fusion.core
 
-import akka.http.scaladsl.model.{HttpRequest, HttpResponse}
+import akka.http.scaladsl.model.{ HttpRequest, HttpResponse }
 import akka.stream.scaladsl.SourceQueueWithComplete
 
-import scala.concurrent.{Future, Promise}
+import scala.concurrent.{ Future, Promise }
 
 package object http {
   type HttpHandler = HttpRequest => Future[HttpResponse]

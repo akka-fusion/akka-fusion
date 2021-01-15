@@ -16,11 +16,11 @@
 
 package docs.stream
 
-import akka.kafka.{ConsumerSettings, Subscriptions}
+import akka.kafka.{ ConsumerSettings, Subscriptions }
 import akka.kafka.scaladsl.Consumer
 import akka.stream.Materializer
-import akka.stream.scaladsl.{Sink, Source}
-import akka.{Done, actor => classic}
+import akka.stream.scaladsl.{ Sink, Source }
+import akka.{ Done, actor => classic }
 import fusion.json.jackson.JacksonObjectMapperExtension
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.common.serialization.StringDeserializer
@@ -101,8 +101,7 @@ object StreamExample {
     Consumer
       .plainSource(consumerSettings, Subscriptions.topics("message"))
       .map(record =>
-        JacksonObjectMapperExtension(system).objectMapperJson.convertValue[SendMessageByArea](record.value())
-      )
+        JacksonObjectMapperExtension(system).objectMapperJson.convertValue[SendMessageByArea](record.value()))
       .flatMapConcat { req =>
         Source
           .future(findOrgIdsByArea(req.area))

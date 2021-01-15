@@ -18,7 +18,7 @@ package fusion.core.http.headers
 
 import java.time.Instant
 
-import akka.http.scaladsl.model.headers.{ModeledCustomHeader, ModeledCustomHeaderCompanion}
+import akka.http.scaladsl.model.headers.{ ModeledCustomHeader, ModeledCustomHeaderCompanion }
 import com.typesafe.scalalogging.StrictLogging
 import fusion.common.constant.HttpKeys
 

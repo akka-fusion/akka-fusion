@@ -19,7 +19,7 @@ package fusion.http
 import akka.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
 import akka.actor.typed.scaladsl.adapter._
 import akka.http.scaladsl.Http
-import akka.http.scaladsl.model.{HttpRequest, Uri}
+import akka.http.scaladsl.model.{ HttpRequest, Uri }
 import akka.http.scaladsl.server.Directives._
 import fusion.testkit.FusionFunSuiteLike
 
@@ -27,8 +27,8 @@ class HttpServerTest extends ScalaTestWithActorTestKit with FusionFunSuiteLike {
   implicit private val classicSystem = system.toClassic
 
   private val route = path("hello") {
-    complete("hello")
-  } ~
+      complete("hello")
+    } ~
     path("404") {
       complete("404")
     }
@@ -40,8 +40,7 @@ class HttpServerTest extends ScalaTestWithActorTestKit with FusionFunSuiteLike {
     val request =
       HttpRequest(
         uri = Uri(s"http://${local.getHostString}:${local.getPort}/404")
-          .withQuery(Uri.Query("name" -> "羊八井", "age" -> 33.toString, "username" -> "yangbajing"))
-      )
+          .withQuery(Uri.Query("name" -> "羊八井", "age" -> 33.toString, "username" -> "yangbajing")))
     val response = Http().singleRequest(request).futureValue
     println(response)
   }

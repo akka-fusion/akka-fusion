@@ -16,24 +16,24 @@
 
 package fusion.cloud.consul.discovery
 
-import akka.actor.typed.{ActorSystem, ExtensionId}
+import akka.actor.typed.{ ActorSystem, ExtensionId }
 import akka.http.scaladsl.model.Uri
 import akka.management.scaladsl.AkkaManagement
-import com.orbitz.consul.model.agent.{ImmutableRegCheck, ImmutableRegistration}
+import com.orbitz.consul.model.agent.{ ImmutableRegCheck, ImmutableRegistration }
 import com.typesafe.config.Config
 import com.typesafe.scalalogging.StrictLogging
 import fusion.cloud.consul.FusionConsulFactory.DISCOVERY
 import fusion.cloud.consul.config.FusionCloudConfigConsul
-import fusion.cloud.discovery.{FusionCloudDiscovery, ServiceCheck, ServiceInstance}
+import fusion.cloud.discovery.{ FusionCloudDiscovery, ServiceCheck, ServiceInstance }
 import fusion.core.event.http.HttpBindingServerEvent
 import fusion.core.extension.FusionCore
-import helloscala.common.util.{NetworkUtils, StringUtils}
+import helloscala.common.util.{ NetworkUtils, StringUtils }
 
 import java.net.InetSocketAddress
 import java.util.concurrent.locks.ReentrantReadWriteLock
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters._
-import scala.util.{Failure, Success}
+import scala.util.{ Failure, Success }
 
 /**
  * @author Yang Jing <a href="mailto:yang.xunjing@qq.com">yangbajing</a>
@@ -62,8 +62,7 @@ class FusionCloudDiscoveryConsul()(implicit val system: ActorSystem[_])
       uri <- managementF
     } {
       val originalInst = configureServiceInstance(
-        Some(ServiceInstance(address = Some(inet.getHostString), port = Some(inet.getPort)))
-      )
+        Some(ServiceInstance(address = Some(inet.getHostString), port = Some(inet.getPort))))
       val address = originalInst.address.getOrElse(uri.authority.host.address())
 
       var http = s"http://$address:${uri.authority.port}"
@@ -116,8 +115,7 @@ class FusionCloudDiscoveryConsul()(implicit val system: ActorSystem[_])
         name = applicationName,
         address = Some(serverHost),
         port = Some(serverPort),
-        tags = tags.asScala.toVector
-      )
+        tags = tags.asScala.toVector)
     } finally {
       lock.unlock()
     }

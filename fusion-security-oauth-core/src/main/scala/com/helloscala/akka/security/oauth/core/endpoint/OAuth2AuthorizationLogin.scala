@@ -30,5 +30,4 @@ case class OAuth2AuthorizationLogin(
     clientId: String,
     redirectUri: Option[String],
     scopes: Set[String],
-    state: Option[String]
-)
+    state: Option[String])

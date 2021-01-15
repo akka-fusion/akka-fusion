@@ -17,7 +17,7 @@
 package fusion.cloud.discovery.client.nacos
 
 import akka.actor.typed.scaladsl.adapter._
-import akka.{actor => classic}
+import akka.{ actor => classic }
 import com.alibaba.nacos.api.NacosFactory
 import fusion.cloud.discovery.DiscoveryUtils
 import fusion.cloud.discovery.DiscoveryUtils

@@ -20,20 +20,20 @@ import java.util.concurrent.ConcurrentHashMap
 
 import akka.actor.typed.ActorSystem
 import akka.http.scaladsl.Http
-import akka.http.scaladsl.model.{HttpRequest, HttpResponse, Uri}
+import akka.http.scaladsl.model.{ HttpRequest, HttpResponse, Uri }
 import akka.pattern.CircuitBreaker
 import akka.stream.QueueOfferResult
-import akka.{actor => classic}
+import akka.{ actor => classic }
 import com.typesafe.config.ConfigFactory
 import fusion.core.http.HttpSourceQueue
 import fusion.core.setting.CircuitBreakerSetting
 import fusion.http.client.HttpClient
 import fusion.http.util.HttpUtils
 import helloscala.common.Configuration
-import helloscala.common.exception.{HSBadGatewayException, HSServiceUnavailableException}
+import helloscala.common.exception.{ HSBadGatewayException, HSServiceUnavailableException }
 
 import scala.concurrent.duration._
-import scala.concurrent.{ExecutionContext, Future, Promise}
+import scala.concurrent.{ ExecutionContext, Future, Promise }
 
 /**
  * {
@@ -69,9 +69,7 @@ trait DiscoveryHttpClient extends HttpClient {
           classicSystem.scheduler,
           clientSetting.circuit.maxFailures,
           clientSetting.circuit.callTimeout,
-          clientSetting.circuit.resetTimeout
-        )
-      )
+          clientSetting.circuit.resetTimeout))
     } else {
       None
     }
@@ -105,8 +103,7 @@ trait DiscoveryHttpClient extends HttpClient {
             httpSourceQueueMap.remove(sourceQueueKey)
             val badGatewayException = HSBadGatewayException(
               s"Queue: $sourceQueueKey exception: ${ex.getLocalizedMessage}. Try again later.",
-              cause = ex
-            )
+              cause = ex)
             Future.failed(badGatewayException)
           case QueueOfferResult.QueueClosed =>
             httpSourceQueueMap.remove(sourceQueueKey)
@@ -115,8 +112,7 @@ trait DiscoveryHttpClient extends HttpClient {
         }
         .transform(
           identity,
-          e => HSServiceUnavailableException(s"代理请求错误：${request.method.value} ${request.uri}。${e.toString}", cause = e)
-        )
+          e => HSServiceUnavailableException(s"代理请求错误：${request.method.value} ${request.uri}。${e.toString}", cause = e))
 
       circuitBreaker.map(_.withCircuitBreaker(responseF)).getOrElse(responseF)
     }
@@ -125,8 +121,7 @@ trait DiscoveryHttpClient extends HttpClient {
   @inline private def generateQueue(uri: Uri, sourceQueueKey: (String, Int)): HttpSourceQueue = {
     httpSourceQueueMap.computeIfAbsent(
       sourceQueueKey,
-      _ => HttpUtils.cachedHostConnectionPool(uri, clientSetting.queueBufferSize)
-    )
+      _ => HttpUtils.cachedHostConnectionPool(uri, clientSetting.queueBufferSize))
   }
 
   override def request(req: HttpRequest): Future[HttpResponse] = {

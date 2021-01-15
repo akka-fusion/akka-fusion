@@ -65,17 +65,17 @@ class TimeUtilsTest extends AnyFunSuite with Matchers {
 
   test("testToOffsetDateTime") {
     TimeUtils.toOffsetDateTime("2019-4-9", "11:22:33") shouldBe
-      OffsetDateTime.of(2019, 4, 9, 11, 22, 33, 0, TimeUtils.ZONE_CHINA_OFFSET)
+    OffsetDateTime.of(2019, 4, 9, 11, 22, 33, 0, TimeUtils.ZONE_CHINA_OFFSET)
 
     val ts = System.currentTimeMillis()
     TimeUtils.toOffsetDateTime(ts) shouldBe
-      OffsetDateTime.ofInstant(Instant.ofEpochMilli(ts), TimeUtils.ZONE_CHINA_OFFSET)
+    OffsetDateTime.ofInstant(Instant.ofEpochMilli(ts), TimeUtils.ZONE_CHINA_OFFSET)
 
     TimeUtils.toOffsetDateTime("2019-4-9", "11:22:33", ZoneOffset.UTC) shouldBe
-      OffsetDateTime.of(2019, 4, 9, 11, 22, 33, 0, ZoneOffset.UTC)
+    OffsetDateTime.of(2019, 4, 9, 11, 22, 33, 0, ZoneOffset.UTC)
 
     TimeUtils.toOffsetDateTime("2019-4-9 11:22:33+1230") shouldBe
-      OffsetDateTime.of(2019, 4, 9, 11, 22, 33, 0, ZoneOffset.of("+1230"))
+    OffsetDateTime.of(2019, 4, 9, 11, 22, 33, 0, ZoneOffset.of("+1230"))
   }
 
   test("testToZonedDateTime") {
@@ -84,7 +84,7 @@ class TimeUtilsTest extends AnyFunSuite with Matchers {
     TimeUtils.toZonedDateTime("2019-4-9T11:07:22+08[Asia/Shanghai]") shouldBe zdt
     TimeUtils.toZonedDateTime("2019-4-9 11:7:22+08[Asia/Shanghai]") shouldBe zdt
     TimeUtils.toZonedDateTime("2019-4-9 11:7:22.333+08[Asia/Shanghai]") shouldBe
-      zdt.plusNanos(TimeUnit.MILLISECONDS.toNanos(333))
+    zdt.plusNanos(TimeUnit.MILLISECONDS.toNanos(333))
   }
 
   test("testToDate") {
@@ -96,9 +96,9 @@ class TimeUtilsTest extends AnyFunSuite with Matchers {
     val ldt = LocalDateTime.of(2019, 4, 9, 16, 18, 4)
     TimeUtils.toEpochMilli(ldt) shouldBe ldt.toInstant(TimeUtils.ZONE_CHINA_OFFSET).toEpochMilli
     TimeUtils.toEpochMilli(ldt.atOffset(TimeUtils.ZONE_CHINA_OFFSET)) shouldBe
-      ldt.toInstant(TimeUtils.ZONE_CHINA_OFFSET).toEpochMilli
+    ldt.toInstant(TimeUtils.ZONE_CHINA_OFFSET).toEpochMilli
     TimeUtils.toEpochMilli(ldt.atZone(TimeUtils.ZONE_CHINA_OFFSET)) shouldBe
-      ldt.toInstant(TimeUtils.ZONE_CHINA_OFFSET).toEpochMilli
+    ldt.toInstant(TimeUtils.ZONE_CHINA_OFFSET).toEpochMilli
   }
 
   test("testToLocalDate") {

@@ -25,7 +25,8 @@ object Fusion extends AutoPlugin {
 object FusionPlugin extends AutoPlugin {
   override def requires = Fusion
 
-  trait Keys { _: autoImport.type => }
+  trait Keys { _: autoImport.type =>
+  }
 
   object autoImport extends Keys
   import autoImport._

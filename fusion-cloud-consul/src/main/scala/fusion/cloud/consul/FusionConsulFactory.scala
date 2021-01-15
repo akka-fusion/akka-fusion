@@ -18,9 +18,9 @@ package fusion.cloud.consul
 
 import akka.actor.BootstrapSetup
 import akka.actor.setup.ActorSystemSetup
-import akka.actor.typed.{ActorSystem, Behavior, Props}
-import com.typesafe.config.{Config, ConfigFactory}
-import fusion.cloud.{FusionConfigFactory, FusionFactory}
+import akka.actor.typed.{ ActorSystem, Behavior, Props }
+import com.typesafe.config.{ Config, ConfigFactory }
+import fusion.cloud.{ FusionConfigFactory, FusionFactory }
 
 import java.util.Objects
 
@@ -50,8 +50,7 @@ class FusionConsulFactory(val fusionConsul: FusionConsul, val config: Config) ex
       guardianBehavior,
       config.getString("fusion.akka.name"),
       ActorSystemSetup.create(BootstrapSetup(config)),
-      Props.empty
-    )
+      Props.empty)
   }
 
 }
@@ -82,8 +81,7 @@ object FusionConsulFactory extends FusionConfigFactory {
       val dataKey = localConfig.getString(CONFIG.DATA_KEY)
       val profile = Option(System.getProperty("fusion.profiles.active")).orElse(
         if (localConfig.hasPath("fusion.profiles.active")) Some(localConfig.getString("fusion.profiles.active"))
-        else None
-      )
+        else None)
       prefix + "/" + defaultContext + profile.map("-" + _).getOrElse("") + "/" + dataKey
     }
     val config = fusionConsul.getConfig(key, localConfig)

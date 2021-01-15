@@ -18,7 +18,7 @@ package akka.fusion
 
 import java.util.concurrent.TimeoutException
 
-import akka.actor.{ActorSystem, ActorSystemImpl}
+import akka.actor.{ ActorSystem, ActorSystemImpl }
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
@@ -36,8 +36,7 @@ object AkkaUtils {
   def shutdownActorSystem(
       actorSystem: ActorSystem,
       duration: Duration = 10.seconds,
-      verifySystemShutdown: Boolean = false
-  ): Unit = {
+      verifySystemShutdown: Boolean = false): Unit = {
     actorSystem.terminate()
     try Await.ready(actorSystem.whenTerminated, duration)
     catch {
@@ -45,8 +44,7 @@ object AkkaUtils {
         val msg = "Failed to stop [%s] within [%s] \n%s".format(
           actorSystem.name,
           duration,
-          actorSystem.asInstanceOf[ActorSystemImpl].printTree
-        )
+          actorSystem.asInstanceOf[ActorSystemImpl].printTree)
         if (verifySystemShutdown) throw new RuntimeException(msg)
         else println(msg)
     }

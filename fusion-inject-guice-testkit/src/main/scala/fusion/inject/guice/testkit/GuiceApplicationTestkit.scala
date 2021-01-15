@@ -16,11 +16,11 @@
 
 package fusion.inject.guice.testkit
 
-import akka.actor.typed.{ActorRef, ActorSystem, Behavior, Props}
+import akka.actor.typed.{ ActorRef, ActorSystem, Behavior, Props }
 import akka.fusion.AkkaUtils
-import akka.{actor => classic}
+import akka.{ actor => classic }
 import com.typesafe.config.Config
-import fusion.common.{ReceptionistFactory, SpawnFactory}
+import fusion.common.{ ReceptionistFactory, SpawnFactory }
 import fusion.core.FusionApplication
 import fusion.inject.guice.GuiceApplication
 import fusion.testkit.FusionScalaFutures
@@ -28,7 +28,7 @@ import helloscala.common.Configuration
 import javax.inject.Named
 import org.scalatest.concurrent.Eventually
 import org.scalatest.matchers.should.Matchers
-import org.scalatest.{BeforeAndAfterAll, EitherValues, OptionValues, TestSuite}
+import org.scalatest.{ BeforeAndAfterAll, EitherValues, OptionValues, TestSuite }
 
 import scala.concurrent.duration._
 import scala.reflect.ClassTag

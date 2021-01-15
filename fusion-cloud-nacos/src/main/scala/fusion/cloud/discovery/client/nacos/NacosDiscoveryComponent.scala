@@ -16,22 +16,22 @@
 
 package fusion.cloud.discovery.client.nacos
 
-import akka.actor.{ExtendedActorSystem, ExtensionId}
+import akka.actor.{ ExtendedActorSystem, ExtensionId }
 import com.typesafe.scalalogging.StrictLogging
-import fusion.cloud.discovery.client.{FusionConfigService, FusionNamingService}
+import fusion.cloud.discovery.client.{ FusionConfigService, FusionNamingService }
 import fusion.cloud.discovery.model.DiscoveryInstance
 import fusion.core.event.http.HttpBindingServerEvent
 import fusion.core.extension.FusionCore
 import helloscala.common.Configuration
 
-import scala.util.{Failure, Success}
+import scala.util.{ Failure, Success }
 
 class NacosDiscoveryComponent(
     id: String,
     val properties: NacosDiscoveryProperties,
     c: Configuration,
-    system: ExtendedActorSystem
-) extends AutoCloseable
+    system: ExtendedActorSystem)
+    extends AutoCloseable
     with StrictLogging {
   private var currentInstances: List[DiscoveryInstance] = Nil
   val configService: FusionConfigService = NacosServiceFactory.configService(properties)

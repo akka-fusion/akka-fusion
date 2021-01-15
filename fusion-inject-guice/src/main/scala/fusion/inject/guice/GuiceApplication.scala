@@ -20,7 +20,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 import akka.actor.typed._
 import akka.actor.typed.scaladsl.adapter._
-import akka.actor.{ExtendedActorSystem, Extension, ExtensionId, ExtensionIdProvider}
+import akka.actor.{ ExtendedActorSystem, Extension, ExtensionId, ExtensionIdProvider }
 import akka.util.Timeout
 import com.google.inject.Key
 import com.typesafe.config.Config
@@ -77,8 +77,7 @@ object GuiceApplication extends ExtensionId[GuiceApplication] with ExtensionIdPr
     val application = _application
     require(
       application.extendedActorSystem eq system,
-      "The [[ActorSystem]] passed in is not the same instance as the [[FusionApplication#ActorSystem]]."
-    )
+      "The [[ActorSystem]] passed in is not the same instance as the [[FusionApplication#ActorSystem]].")
     application
   }
 

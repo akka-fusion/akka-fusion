@@ -22,8 +22,8 @@ import akka.actor.ExtendedActorSystem
 import akka.serialization.jackson.JacksonObjectMapperProvider
 import com.fasterxml.jackson.core.JsonFactory
 import com.fasterxml.jackson.dataformat.cbor.CBORFactory
-import fusion.common.extension.{FusionExtension, FusionExtensionId}
-import fusion.json.jackson.http.{JacksonSupport, JacksonSupportImpl}
+import fusion.common.extension.{ FusionExtension, FusionExtensionId }
+import fusion.json.jackson.http.{ JacksonSupport, JacksonSupportImpl }
 
 class JacksonObjectMapperExtension private (override val classicSystem: ExtendedActorSystem) extends FusionExtension {
   private val objectMappers = new ConcurrentHashMap[String, ScalaObjectMapper]()
@@ -37,8 +37,7 @@ class JacksonObjectMapperExtension private (override val classicSystem: Extended
   private[fusion] def getOrCreate(bindingName: String, jsonFactory: Option[JsonFactory]): ScalaObjectMapper =
     objectMappers.computeIfAbsent(
       bindingName,
-      _ => new ScalaObjectMapper(JacksonObjectMapperProvider(classicSystem).getOrCreate(bindingName, jsonFactory))
-    )
+      _ => new ScalaObjectMapper(JacksonObjectMapperProvider(classicSystem).getOrCreate(bindingName, jsonFactory)))
 }
 
 object JacksonObjectMapperExtension extends FusionExtensionId[JacksonObjectMapperExtension] {

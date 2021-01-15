@@ -17,7 +17,7 @@
 package docs
 
 import akka.actor.typed.ActorSystem
-import akka.{actor => classic}
+import akka.{ actor => classic }
 import fusion.actuator.FusionActuator
 import fusion.cloud.discovery.client.nacos.FusionNacos
 import fusion.http.FusionHttpServer

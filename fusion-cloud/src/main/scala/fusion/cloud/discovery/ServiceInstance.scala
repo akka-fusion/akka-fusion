@@ -16,7 +16,7 @@
 
 package fusion.cloud.discovery
 
-import helloscala.common.util.{CollectionUtils, StringUtils}
+import helloscala.common.util.{ CollectionUtils, StringUtils }
 
 /**
  * @author Yang Jing <a href="mailto:yang.xunjing@qq.com">yangbajing</a>
@@ -29,8 +29,7 @@ case class ServiceInstance(
     port: Option[Int] = None,
     checks: Vector[ServiceCheck] = Vector(),
     tags: Vector[String] = Vector(),
-    meta: Map[String, String] = Map()
-) {
+    meta: Map[String, String] = Map()) {
   def merge(maybeInstance: Option[ServiceInstance]): ServiceInstance = maybeInstance.getOrElse(merge(this))
 
   def merge(other: ServiceInstance): ServiceInstance = {
@@ -43,8 +42,7 @@ case class ServiceInstance(
         port = if (other.port.isEmpty) this.port else other.port,
         checks = if (CollectionUtils.isEmpty(other.checks)) this.checks else other.checks,
         tags = if (CollectionUtils.isEmpty(other.tags)) this.tags else other.tags,
-        meta = if (CollectionUtils.isEmpty(other.meta)) this.meta else other.meta
-      )
+        meta = if (CollectionUtils.isEmpty(other.meta)) this.meta else other.meta)
     }
   }
 
@@ -62,5 +60,4 @@ case class ServiceCheck(
     notes: String = "",
     deregisterCriticalServerAfter: String = "",
     tlsSkipVerify: Boolean = false,
-    status: String = ""
-)
+    status: String = "")

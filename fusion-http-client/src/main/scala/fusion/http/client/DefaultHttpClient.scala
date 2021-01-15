@@ -19,7 +19,7 @@ package fusion.http.client
 import java.util.Objects
 
 import akka.actor.typed.ActorSystem
-import akka.{actor => classic}
+import akka.{ actor => classic }
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.marshalling.Marshal
 import akka.http.scaladsl.marshalling.Marshaller
@@ -49,8 +49,10 @@ class DefaultHttpClient private ()(implicit val classicSystem: classic.ActorSyst
       params: Seq[(String, String)] = Nil,
       entity: T = HttpEntity.Empty,
       headers: immutable.Seq[HttpHeader] = Nil,
-      protocol: HttpProtocol = HttpProtocols.`HTTP/1.1`
-  )(implicit m: Marshaller[T, RequestEntity], mat: Materializer, ec: ExecutionContext = null): Future[HttpResponse] = {
+      protocol: HttpProtocol = HttpProtocols.`HTTP/1.1`)(
+      implicit m: Marshaller[T, RequestEntity],
+      mat: Materializer,
+      ec: ExecutionContext = null): Future[HttpResponse] = {
     val eec = if (Objects.isNull(ec)) mat.executionContext else ec
     Marshal(entity)
       .to[RequestEntity](m, eec)

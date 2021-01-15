@@ -16,7 +16,7 @@
 
 package fusion.protobuf
 
-import java.time.{Instant, LocalDateTime, OffsetDateTime, ZoneOffset}
+import java.time.{ Instant, LocalDateTime, OffsetDateTime, ZoneOffset }
 import java.util.concurrent.TimeUnit
 
 import com.google.protobuf.duration.Duration

@@ -16,7 +16,7 @@
 
 package fusion.cloud.discovery.client
 
-import akka.{actor => classic}
+import akka.{ actor => classic }
 import akka.discovery.Discovery
 import akka.http.scaladsl.model.Uri
 import com.typesafe.scalalogging.StrictLogging
@@ -25,9 +25,10 @@ import helloscala.common.exception.HSBadGatewayException
 import scala.concurrent.Future
 import scala.util.Random
 
-private class AkkaDiscoveryHttpClient(val clientSetting: DiscoveryHttpClientSetting)(implicit
-    val classicSystem: classic.ActorSystem
-) extends DiscoveryHttpClient
+private class AkkaDiscoveryHttpClient(val clientSetting: DiscoveryHttpClientSetting)(
+    implicit
+    val classicSystem: classic.ActorSystem)
+    extends DiscoveryHttpClient
     with StrictLogging {
 
   private val discovery =
@@ -45,8 +46,7 @@ private class AkkaDiscoveryHttpClient(val clientSetting: DiscoveryHttpClientSett
         }
         uri.withAuthority(
           target.host,
-          target.port.getOrElse(throw HSBadGatewayException(s"服务地址未指定port，${resolved.serviceName} $target"))
-        )
+          target.port.getOrElse(throw HSBadGatewayException(s"服务地址未指定port，${resolved.serviceName} $target")))
       }
     } else {
       Future.successful(uri)

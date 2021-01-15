@@ -21,7 +21,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.MissingNode
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.fasterxml.jackson.databind.node.TextNode
-import com.google.protobuf.any.{Any => PBAny}
+import com.google.protobuf.any.{ Any => PBAny }
 import fusion.json.JsonFormatException
 
 object AnyFormat {
@@ -32,11 +32,8 @@ object AnyFormat {
       // including the original GeneratedMessage with the Any (at least in memory).
       val cmp = printer.typeRegistry
         .findType(any.typeUrl)
-        .getOrElse(
-          throw new IllegalStateException(
-            s"Unknown type ${any.typeUrl} in Any.  Add a TypeRegistry that supports this type to the Printer."
-          )
-        )
+        .getOrElse(throw new IllegalStateException(
+          s"Unknown type ${any.typeUrl} in Any.  Add a TypeRegistry that supports this type to the Printer."))
 
       // Unpack the message...
       val message = any.unpack(cmp)
@@ -58,11 +55,8 @@ object AnyFormat {
           val typeUrl = textNode.asText()
           val cmp = parser.typeRegistry
             .findType(typeUrl)
-            .getOrElse(
-              throw new JsonFormatException(
-                s"Unknown type $typeUrl in Any.  Add a TypeRegistry that supports this type to the Parser."
-              )
-            )
+            .getOrElse(throw new JsonFormatException(
+              s"Unknown type $typeUrl in Any.  Add a TypeRegistry that supports this type to the Parser."))
           val message = parser.fromJson(obj, true)(cmp)
           PBAny(typeUrl = typeUrl, value = message.toByteString)
 

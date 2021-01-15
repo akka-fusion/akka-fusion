@@ -18,12 +18,12 @@ package fusion.json.jackson.protobuf
 
 import com.fasterxml.jackson.core.Base64Variants
 import com.fasterxml.jackson.databind.node._
-import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper}
+import com.fasterxml.jackson.databind.{ JsonNode, ObjectMapper }
 import com.google.protobuf.descriptor.FieldDescriptorProto
 import JacksonFormat.GenericCompanion
 import fusion.json.JsonFormatException
 import scalapb.descriptors._
-import scalapb.{GeneratedFileObject, GeneratedMessage, GeneratedMessageCompanion, Message}
+import scalapb.{ GeneratedFileObject, GeneratedMessage, GeneratedMessageCompanion, Message }
 
 /**
  * TypeRegistry is used to map the @type field in Any messages to a ScalaPB generated message.
@@ -32,8 +32,7 @@ import scalapb.{GeneratedFileObject, GeneratedMessage, GeneratedMessageCompanion
  */
 case class TypeRegistry(
     companions: Map[String, GenericCompanion] = Map.empty,
-    private val filesSeen: Set[String] = Set.empty
-) {
+    private val filesSeen: Set[String] = Set.empty) {
 
   def addMessage[T <: GeneratedMessage with Message[T]](implicit cmp: GeneratedMessageCompanion[T]): TypeRegistry = {
     addMessageByCompanion(cmp)
@@ -69,8 +68,7 @@ object Printer {
       isFormattingLongAsNumber: Boolean,
       isFormattingEnumsAsNumber: Boolean,
       formatRegistry: FormatRegistry,
-      typeRegistry: TypeRegistry
-  )
+      typeRegistry: TypeRegistry)
 
   private def defaultConfig(implicit mapper: ObjectMapper) =
     PrinterConfig(
@@ -79,8 +77,7 @@ object Printer {
       isFormattingLongAsNumber = false,
       isFormattingEnumsAsNumber = false,
       formatRegistry = JacksonFormat.defaultRegistry,
-      typeRegistry = TypeRegistry.empty
-    )
+      typeRegistry = TypeRegistry.empty)
 }
 
 object TypeRegistry {
@@ -110,9 +107,9 @@ class Printer private (config: Printer.PrinterConfig)(implicit mapper: ObjectMap
 
   def print[A](m: GeneratedMessage): String = toJson(m).toString
 
-  private def serializeMessageField(fd: FieldDescriptor, name: String, value: Any, b: ObjectNode)(implicit
-      mapper: ObjectMapper
-  ): Unit = {
+  private def serializeMessageField(fd: FieldDescriptor, name: String, value: Any, b: ObjectNode)(
+      implicit
+      mapper: ObjectMapper): Unit = {
     value match {
       case null =>
       // We are never printing empty optional messages to prevent infinite recursion.
@@ -156,9 +153,9 @@ class Printer private (config: Printer.PrinterConfig)(implicit mapper: ObjectMap
     }
   }
 
-  private def serializeNonMessageField(fd: FieldDescriptor, name: String, value: PValue, b: ObjectNode)(implicit
-      mapper: ObjectMapper
-  ): Unit = {
+  private def serializeNonMessageField(fd: FieldDescriptor, name: String, value: PValue, b: ObjectNode)(
+      implicit
+      mapper: ObjectMapper): Unit = {
     value match {
       case PEmpty =>
         if (config.isIncludingDefaultValueFields && fd.containingOneof.isEmpty) {
@@ -171,13 +168,11 @@ class Printer private (config: Printer.PrinterConfig)(implicit mapper: ObjectMap
           b.set(name, arr)
         }
       case v =>
-        if (
-          config.isIncludingDefaultValueFields ||
-          !fd.isOptional ||
-          !fd.file.isProto3 ||
-          (v != JacksonFormat.defaultValue(fd)) ||
-          fd.containingOneof.isDefined
-        ) {
+        if (config.isIncludingDefaultValueFields ||
+            !fd.isOptional ||
+            !fd.file.isProto3 ||
+            (v != JacksonFormat.defaultValue(fd)) ||
+            fd.containingOneof.isDefined) {
           b.set(name, serializeSingleValue(fd, v, config.isFormattingLongAsNumber))
         }
     }
@@ -204,10 +199,10 @@ class Printer private (config: Printer.PrinterConfig)(implicit mapper: ObjectMap
   private def defaultJValue(fd: FieldDescriptor): JsonNode =
     serializeSingleValue(fd, JacksonFormat.defaultValue(fd), config.isFormattingLongAsNumber)
 
-  private def unsignedInt(n: Int): Long = n & 0x00000000ffffffffL
+  private def unsignedInt(n: Int): Long = n & 0x00000000FFFFFFFFL
 
   private def unsignedLong(n: Long): BigInt =
-    if (n < 0) BigInt(n & 0x7fffffffffffffffL).setBit(63) else BigInt(n)
+    if (n < 0) BigInt(n & 0x7FFFFFFFFFFFFFFFL).setBit(63) else BigInt(n)
 
   private def formatLong(n: Long, protoType: FieldDescriptorProto.Type, formattingLongAsNumber: Boolean): JsonNode = {
     val v: BigInt = if (protoType.isTypeUint64 || protoType.isTypeFixed64) unsignedLong(n) else BigInt(n)

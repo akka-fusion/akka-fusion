@@ -16,7 +16,7 @@
 
 package helloscala.common.util
 
-import com.fasterxml.jackson.annotation.{JsonIgnore, JsonValue}
+import com.fasterxml.jackson.annotation.{ JsonIgnore, JsonValue }
 import helloscala.common.data.IntValueName
 
 trait EnumTrait {

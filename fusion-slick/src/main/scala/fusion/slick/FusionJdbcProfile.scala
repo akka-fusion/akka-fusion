@@ -60,9 +60,7 @@ trait FusionJdbcProfile extends JdbcProfile {
           dataSource.getMaximumPoolSize,
           dataSource.getMaximumPoolSize,
           dataSource.getMaximumPoolSize * 2,
-          dataSource.getMaximumPoolSize
-        )
-      )
+          dataSource.getMaximumPoolSize))
     }
   }
 

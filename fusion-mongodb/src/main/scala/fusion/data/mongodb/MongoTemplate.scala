@@ -51,16 +51,16 @@ class MongoTemplate private (val client: MongoClient, defaultDbName: String) ext
   def getCollection[T](
       collName: String,
       codecProviders: Seq[CodecProvider],
-      codecRegistry: CodecRegistry = MongoTemplate.DEFAULT_CODEC_REGISTRY
-  )(implicit ev1: ClassTag[T]): MongoCollection[T] =
+      codecRegistry: CodecRegistry = MongoTemplate.DEFAULT_CODEC_REGISTRY)(
+      implicit ev1: ClassTag[T]): MongoCollection[T] =
     getDatabaseCollection(defaultDbName, collName, codecProviders, codecRegistry)
 
   def getDatabaseCollection[T](
       dbName: String,
       collName: String,
       codecProviders: Seq[CodecProvider],
-      codecRegistry: CodecRegistry = MongoTemplate.DEFAULT_CODEC_REGISTRY
-  )(implicit ev1: ClassTag[T]): MongoCollection[T] = {
+      codecRegistry: CodecRegistry = MongoTemplate.DEFAULT_CODEC_REGISTRY)(
+      implicit ev1: ClassTag[T]): MongoCollection[T] = {
     val list = new java.util.LinkedList[CodecRegistry]()
     list.add(fromProviders(codecProviders: _*))
     list.add(codecRegistry)
@@ -86,8 +86,7 @@ object MongoTemplate {
   val DEFAULT_CODEC_REGISTRY: CodecRegistry = fromRegistries(
     MongoClients.getDefaultCodecRegistry,
     fromProviders(DocumentCodecProvider(), IterableCodecProvider()),
-    fromProviders(new FusionCodecProvider())
-  )
+    fromProviders(new FusionCodecProvider()))
 
   def apply(client: MongoClient): MongoTemplate = apply(client, "test")
 

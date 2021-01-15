@@ -17,7 +17,7 @@
 package fusion.cloud.discovery.client.nacos
 
 import com.alibaba.nacos.api.config.listener.AbstractListener
-import com.alibaba.nacos.api.config.{ConfigService => JConfigService}
+import com.alibaba.nacos.api.config.{ ConfigService => JConfigService }
 import fusion.cloud.discovery.client.FusionConfigService
 
 import java.util.Properties
@@ -25,13 +25,9 @@ import java.util.Properties
 class NacosConfigServiceImpl(props: Properties, val underlying: JConfigService) extends FusionConfigService {
 
   override def addListener(dataId: String, group: String, listener: String => Unit): Unit =
-    underlying.addListener(
-      dataId,
-      group,
-      new AbstractListener {
-        override def receiveConfigInfo(configInfo: String): Unit = listener(configInfo)
-      }
-    )
+    underlying.addListener(dataId, group, new AbstractListener {
+      override def receiveConfigInfo(configInfo: String): Unit = listener(configInfo)
+    })
 
   /**
    * Remove listener
@@ -41,13 +37,9 @@ class NacosConfigServiceImpl(props: Properties, val underlying: JConfigService) 
    * @param listener listener
    */
   override def removeListener(dataId: String, group: String, listener: String => Unit): Unit =
-    underlying.removeListener(
-      dataId,
-      group,
-      new AbstractListener {
-        override def receiveConfigInfo(configInfo: String): Unit = listener(configInfo)
-      }
-    )
+    underlying.removeListener(dataId, group, new AbstractListener {
+      override def receiveConfigInfo(configInfo: String): Unit = listener(configInfo)
+    })
 
   override def getConfig(dataId: String, group: String, timeoutMs: Long): String =
     underlying.getConfig(dataId, group, timeoutMs)

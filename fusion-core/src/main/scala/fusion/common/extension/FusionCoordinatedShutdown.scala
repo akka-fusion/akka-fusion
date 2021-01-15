@@ -18,7 +18,7 @@ package fusion.common.extension
 
 import akka.Done
 import akka.actor.CoordinatedShutdown.UnknownReason
-import akka.actor.{ActorSystem, Cancellable, CoordinatedShutdown}
+import akka.actor.{ ActorSystem, Cancellable, CoordinatedShutdown }
 
 import scala.concurrent.Future
 

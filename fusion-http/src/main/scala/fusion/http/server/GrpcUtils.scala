@@ -34,9 +34,8 @@ object GrpcUtils extends StrictLogging {
     }
   }
 
-  def contactToRouteCustom(
-      partials: PartialFunction[HttpRequest, Future[HttpResponse]]*
-  )(rejectPF: PartialFunction[HttpRequest, Route]): HttpRequest => Route = {
+  def contactToRouteCustom(partials: PartialFunction[HttpRequest, Future[HttpResponse]]*)(
+      rejectPF: PartialFunction[HttpRequest, Route]): HttpRequest => Route = {
     partials
       .foldLeft(PartialFunction.empty[HttpRequest, Future[HttpResponse]]) {
         case (acc, pf) =>
@@ -45,8 +44,7 @@ object GrpcUtils extends StrictLogging {
       .andThen(f =>
         onSuccess(f) { response =>
           complete(response)
-        }
-      )
+        })
       .orElse(rejectPF)
   }
 }

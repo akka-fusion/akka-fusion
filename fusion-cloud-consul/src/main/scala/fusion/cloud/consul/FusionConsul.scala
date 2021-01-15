@@ -19,10 +19,10 @@ package fusion.cloud.consul
 import com.google.common.net.HostAndPort
 import com.orbitz.consul.Consul
 import com.orbitz.consul.model.agent.Registration
-import com.typesafe.config.{Config, ConfigFactory}
+import com.typesafe.config.{ Config, ConfigFactory }
 import com.typesafe.scalalogging.StrictLogging
 
-import java.nio.charset.{Charset, StandardCharsets}
+import java.nio.charset.{ Charset, StandardCharsets }
 import scala.jdk.CollectionConverters._
 import scala.jdk.OptionConverters._
 
@@ -34,8 +34,7 @@ class FusionConsul private (val consul: Consul) extends AutoCloseable with Stric
 
   def getConfig(key: String, localConfig: Config = ConfigFactory.parseString("{}")): Config = {
     val text = getValueAsString(key).getOrElse(
-      throw new IllegalArgumentException(s"The key of Consul is not exists that is [$key].")
-    )
+      throw new IllegalArgumentException(s"The key of Consul is not exists that is [$key]."))
     val config = ConfigFactory.parseString(text)
     config.withFallback(localConfig).withFallback(ConfigFactory.load()).resolve()
   }

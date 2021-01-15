@@ -16,38 +16,23 @@
 
 package fusion.cloud
 
-import akka.actor.typed.{ActorSystem, SpawnProtocol}
-import com.typesafe.config.{Config, ConfigException, ConfigFactory}
-
-import scala.concurrent.Await
-import scala.concurrent.duration.Duration
+import akka.actor.ReflectiveDynamicAccess
+import com.typesafe.config.{Config, ConfigFactory}
 
 /**
  * @author Yang Jing <a href="mailto:yang.xunjing@qq.com">yangbajing</a>
  * @date   2021-01-11 14:33:30
  */
 object FusionConfigFactory {
+  val dynamicAccess = new ReflectiveDynamicAccess(Thread.currentThread().getContextClassLoader)
 
   def fromByConfig(localConfig: Config = ConfigFactory.load()): FusionFactory = {
-    val localSystem =
-      ActorSystem(SpawnProtocol(), "localTemp", ConfigFactory.parseString("""
-          |akka.actor.provider = local
-          |akka.actor.typed.extensions = []
-          |akka.actor.extensions = []
-          |""".stripMargin))
-    try {
-      val fqcn = localConfig.getString("fusion.config-factory")
-      localSystem.dynamicAccess
-        .getObjectFor[FusionConfigFactory](fqcn)
-        .getOrElse(throw new ExceptionInInitializerError("Configuration 'fusion.config-factory' not exists."))
-        .createConfig(localConfig)
-    } catch {
-      case e: ConfigException =>
-        throw new ExceptionInInitializerError(e)
-    } finally {
-      localSystem.terminate()
-      Await.result(localSystem.whenTerminated, Duration.Inf)
-    }
+    val fqcn = localConfig.getString("fusion.config-factory")
+    dynamicAccess
+      .getObjectFor[FusionConfigFactory](fqcn)
+      .orElse(dynamicAccess.createInstanceFor[FusionConfigFactory](fqcn, Nil))
+      .getOrElse(throw new ExceptionInInitializerError("Configuration 'fusion.config-factory' not exists."))
+      .createConfig(localConfig)
   }
 }
 

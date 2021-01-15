@@ -20,10 +20,10 @@ import akka.Done
 import akka.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
 import akka.actor.typed.scaladsl.adapter._
 import akka.stream.ActorAttributes.SupervisionStrategy
-import akka.stream.{Attributes, Materializer, Supervision}
-import akka.stream.scaladsl.{Flow, Sink, Source}
+import akka.stream.{ Attributes, Materializer, Supervision }
+import akka.stream.scaladsl.{ Flow, Sink, Source }
 import com.mongodb.client.model.Filters
-import com.mongodb.client.model.geojson.{Point, Polygon, Position}
+import com.mongodb.client.model.geojson.{ Point, Polygon, Position }
 import com.mongodb.reactivestreams.client._
 import fusion.data.mongodb.MongoTemplate
 import helloscala.common.util.Utils
@@ -62,11 +62,8 @@ class MongodbGeoTest extends ScalaTestWithActorTestKit with AnyFunSuiteLike {
         val data = doc.asScala.filter { case (key, _) => !IGNORE_KEYS(key) }.asJava
         new Document(data).append("location", point).append("_id", doc.getString("id"))
       }
-      .via(
-        Flow[Document].flatMapConcat(doc =>
-          Source.fromPublisher(schoolPointColl.insertOne(doc)).map(_ => Some(doc)).recover { case _ => None }
-        )
-      )
+      .via(Flow[Document].flatMapConcat(doc =>
+        Source.fromPublisher(schoolPointColl.insertOne(doc)).map(_ => Some(doc)).recover { case _ => None }))
       .runWith(Sink.ignore)
 
     val (result, cost) = Utils.timing(Await.result(insertManyF, 30.minutes))
@@ -83,10 +80,7 @@ class MongodbGeoTest extends ScalaTestWithActorTestKit with AnyFunSuiteLike {
           116.490476 -> 39.952362,
           116.490476 -> 39.902362,
           116.420476 -> 39.902362,
-          116.440476 -> 39.952362
-        ).map { case (left, right) => new Position(left, right) }.asJava
-      )
-    )
+          116.440476 -> 39.952362).map { case (left, right) => new Position(left, right) }.asJava))
     println(filters.toBsonDocument(classOf[Bson], schoolPointColl.getCodecRegistry).toJson())
 
     val list = Source.fromPublisher(schoolPointColl.find(filters)).runWith(Sink.seq).futureValue

@@ -16,12 +16,12 @@
 
 package fusion.json.jackson.protobuf
 
-import com.fasterxml.jackson.core.{JsonGenerator, JsonParser, JsonToken}
+import com.fasterxml.jackson.core.{ JsonGenerator, JsonParser, JsonToken }
 import com.fasterxml.jackson.databind._
 import com.fasterxml.jackson.databind.deser.Deserializers
 import com.fasterxml.jackson.databind.ser.Serializers
 import com.fasterxml.jackson.module.scala.JacksonModule
-import com.google.protobuf.struct.{NullValue, Value}
+import com.google.protobuf.struct.{ NullValue, Value }
 import com.google.protobuf.struct.Value.Kind
 import com.google.protobuf.timestamp.Timestamp
 
@@ -125,8 +125,7 @@ class ProtobufScalaJacksonModule extends JacksonModule {
     override def findSerializer(
         config: SerializationConfig,
         `type`: JavaType,
-        beanDesc: BeanDescription
-    ): JsonSerializer[_] = {
+        beanDesc: BeanDescription): JsonSerializer[_] = {
       val rawCls = `type`.getRawClass
       if (TIMESTAMP_CLS.isAssignableFrom(rawCls)) {
         timestampSerializer
@@ -147,8 +146,7 @@ class ProtobufScalaJacksonModule extends JacksonModule {
     override def findBeanDeserializer(
         `type`: JavaType,
         config: DeserializationConfig,
-        beanDesc: BeanDescription
-    ): JsonDeserializer[_] = {
+        beanDesc: BeanDescription): JsonDeserializer[_] = {
       val rawCls = `type`.getRawClass
       if (TIMESTAMP_CLS.isAssignableFrom(rawCls)) {
         timestampDeserializer

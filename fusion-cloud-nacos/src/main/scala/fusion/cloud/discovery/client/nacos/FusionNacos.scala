@@ -22,7 +22,7 @@ import com.typesafe.scalalogging.StrictLogging
 import fusion.cloud.discovery.DiscoveryUtils
 import fusion.common.component.Components
 import fusion.common.constant.FusionKeys
-import fusion.common.extension.{FusionExtension, FusionExtensionId}
+import fusion.common.extension.{ FusionExtension, FusionExtensionId }
 import fusion.core.extension.FusionCore
 import helloscala.common.Configuration
 

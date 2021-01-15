@@ -18,7 +18,7 @@ package fusion.security.util
 
 import java.util
 
-import helloscala.common.util.{DigestUtils, StringUtils, Utils}
+import helloscala.common.util.{ DigestUtils, StringUtils, Utils }
 
 object SecurityUtils {
   final val CLIENT_KEY_LENGTH = 32

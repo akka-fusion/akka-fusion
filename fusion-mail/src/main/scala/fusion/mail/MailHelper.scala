@@ -17,7 +17,7 @@
 package fusion.mail
 
 import jakarta.mail.internet.MimeMessage
-import jakarta.mail.{Authenticator, Message, Session, Transport}
+import jakarta.mail.{ Authenticator, Message, Session, Transport }
 
 import java.io.InputStream
 import java.util.Properties

@@ -21,9 +21,9 @@ import akka.fusion.AkkaUtils
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
-import akka.management.scaladsl.{ManagementRouteProvider, ManagementRouteProviderSettings}
+import akka.management.scaladsl.{ ManagementRouteProvider, ManagementRouteProviderSettings }
 import fusion.http.util.HttpUtils
-import helloscala.common.{Configuration, IntStatus}
+import helloscala.common.{ Configuration, IntStatus }
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
@@ -33,7 +33,7 @@ class FusionManagementRoutes(system: ExtendedActorSystem) extends ManagementRout
   override def routes(settings: ManagementRouteProviderSettings): Route =
     pathPrefix("fusion") {
       shutdownRoute ~
-        healthRoute
+      healthRoute
     }
 
   def shutdownRoute: Route =

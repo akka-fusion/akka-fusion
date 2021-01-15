@@ -16,14 +16,14 @@
 
 package fusion.cloud.discovery.client.nacos
 
-import com.alibaba.nacos.api.naming.listener.{Event, EventListener}
-import com.alibaba.nacos.api.naming.{NamingService => JNamingService}
+import com.alibaba.nacos.api.naming.listener.{ Event, EventListener }
+import com.alibaba.nacos.api.naming.{ NamingService => JNamingService }
 import com.alibaba.nacos.api.selector.AbstractSelector
 import com.typesafe.scalalogging.StrictLogging
 import fusion.cloud.discovery.client.FusionNamingService
-import fusion.cloud.discovery.model.{DiscoveryEvent, DiscoveryInstance, DiscoveryList, DiscoveryServiceInfo}
+import fusion.cloud.discovery.model.{ DiscoveryEvent, DiscoveryInstance, DiscoveryList, DiscoveryServiceInfo }
 import fusion.cloud.discovery.client.FusionNamingService
-import fusion.cloud.discovery.model.{DiscoveryEvent, DiscoveryInstance, DiscoveryList, DiscoveryServiceInfo}
+import fusion.cloud.discovery.model.{ DiscoveryEvent, DiscoveryInstance, DiscoveryList, DiscoveryServiceInfo }
 import helloscala.common.exception.HSBadRequestException
 
 import scala.jdk.CollectionConverters._
@@ -44,9 +44,7 @@ class NacosNamingServiceImpl(props: NacosDiscoveryProperties, val underlying: JN
         clusterName,
         props.instanceWeight,
         props.healthy,
-        ephemeral = props.ephemeral
-      )
-    )
+        ephemeral = props.ephemeral))
 
   override def registerInstance(serviceName: String, instance: DiscoveryInstance): DiscoveryInstance =
     registerInstance(instance.copy(serviceName = serviceName))
@@ -68,8 +66,7 @@ class NacosNamingServiceImpl(props: NacosDiscoveryProperties, val underlying: JN
       props.healthy,
       enable = props.enable,
       ephemeral = props.ephemeral,
-      group = props.group
-    )
+      group = props.group)
     registerInstance(inst)
   }
 
@@ -91,8 +88,7 @@ class NacosNamingServiceImpl(props: NacosDiscoveryProperties, val underlying: JN
       props.serviceName.getOrElse(throw HSBadRequestException("未指定服务名 [serviceName]")),
       props.instanceIp,
       props.instancePort,
-      props.instanceClusterName
-    )
+      props.instanceClusterName)
 
   override def getAllInstances(serviceName: String): Seq[DiscoveryInstance] =
     underlying.getAllInstances(serviceName).asScala.map(_.toDiscoveryInstance).toVector
@@ -119,8 +115,7 @@ class NacosNamingServiceImpl(props: NacosDiscoveryProperties, val underlying: JN
       serviceName: String,
       clusters: Seq[String],
       healthy: Boolean,
-      subscribe: Boolean
-  ): Seq[DiscoveryInstance] =
+      subscribe: Boolean): Seq[DiscoveryInstance] =
     underlying
       .selectInstances(serviceName, clusters.asJava, healthy, subscribe)
       .asScala
@@ -143,25 +138,17 @@ class NacosNamingServiceImpl(props: NacosDiscoveryProperties, val underlying: JN
     underlying.subscribe(serviceName, (event: Event) => listener(event.toDiscoveryEvent))
 
   def subscribe(serviceName: String, clusters: Seq[String], listener: DiscoveryEvent => Unit): Unit =
-    underlying.subscribe(
-      serviceName,
-      clusters.asJava,
-      new EventListener {
-        override def onEvent(event: Event): Unit = listener(event.toDiscoveryEvent)
-      }
-    )
+    underlying.subscribe(serviceName, clusters.asJava, new EventListener {
+      override def onEvent(event: Event): Unit = listener(event.toDiscoveryEvent)
+    })
 
   def unsubscribe(serviceName: String, listener: DiscoveryEvent => Unit): Unit =
     underlying.unsubscribe(serviceName, event => listener(event.toDiscoveryEvent))
 
   def unsubscribe(serviceName: String, clusters: Seq[String], listener: DiscoveryEvent => Unit): Unit =
-    underlying.unsubscribe(
-      serviceName,
-      clusters.asJava,
-      new EventListener {
-        override def onEvent(event: Event): Unit = listener(event.toDiscoveryEvent)
-      }
-    )
+    underlying.unsubscribe(serviceName, clusters.asJava, new EventListener {
+      override def onEvent(event: Event): Unit = listener(event.toDiscoveryEvent)
+    })
 
   def getServicesOfServer(pageNo: Int, pageSize: Int): DiscoveryList[String] =
     underlying.getServicesOfServer(pageNo, pageSize).toDiscoveryList

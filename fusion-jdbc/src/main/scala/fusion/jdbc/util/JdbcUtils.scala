@@ -82,8 +82,7 @@ object JdbcUtils extends StrictLogging {
       "databaseMajorVersion" -> md.getDatabaseMajorVersion,
       "databaseMinorVersion" -> md.getDatabaseMinorVersion,
       "jdbcMajorVersion" -> md.getJDBCMajorVersion,
-      "jdbcMinorVersion" -> md.getJDBCMinorVersion
-    )
+      "jdbcMinorVersion" -> md.getJDBCMinorVersion)
   }
 
   def columnLabels(metadata: ResultSetMetaData): immutable.IndexedSeq[String] =
@@ -93,8 +92,7 @@ object JdbcUtils extends StrictLogging {
       rs: ResultSet,
       index: Int,
       requiredType: Class[_],
-      defaultTimeZone: ZoneOffset = TimeUtils.ZONE_CHINA_OFFSET
-  ): Any = {
+      defaultTimeZone: ZoneOffset = TimeUtils.ZONE_CHINA_OFFSET): Any = {
     require(Objects.nonNull(requiredType), "requiredType non null")
     val columnType = rs.getMetaData.getColumnType(index)
 
@@ -162,9 +160,7 @@ object JdbcUtils extends StrictLogging {
         value = rs.getLong(index)
       } else if (classOf[Float] == requiredType || classOf[java.lang.Float] == requiredType) {
         value = rs.getFloat(index)
-      } else if (
-        classOf[Double] == requiredType || classOf[java.lang.Double] == requiredType || classOf[Number] == requiredType
-      ) {
+      } else if (classOf[Double] == requiredType || classOf[java.lang.Double] == requiredType || classOf[Number] == requiredType) {
         value = rs.getDouble(index)
       } else {
         // Some unknown type desired -> rely on getObject.
@@ -295,76 +291,60 @@ object JdbcUtils extends StrictLogging {
     new PreparedStatementActionImpl(args, func)
 
   def preparedStatementActionUseUpdate(args: Iterable[Any]): PreparedStatementAction[Int] =
-    new PreparedStatementActionImpl(
-      args,
-      new PreparedStatementAction[Int] {
+    new PreparedStatementActionImpl(args, new PreparedStatementAction[Int] {
 
-        override def apply(pstmt: PreparedStatement): Int = {
-          setStatementParameters(pstmt, args)
-          pstmt.executeUpdate()
-        }
+      override def apply(pstmt: PreparedStatement): Int = {
+        setStatementParameters(pstmt, args)
+        pstmt.executeUpdate()
       }
-    )
+    })
 
   def preparedStatementActionUseUpdate(
       args: Map[String, Any],
-      paramIndex: Map[String, Int]
-  ): PreparedStatementAction[Int] =
-    new PreparedStatementActionImpl(
-      args,
-      new PreparedStatementAction[Int] {
+      paramIndex: Map[String, Int]): PreparedStatementAction[Int] =
+    new PreparedStatementActionImpl(args, new PreparedStatementAction[Int] {
 
-        override def apply(pstmt: PreparedStatement): Int = {
-          for ((param, index) <- paramIndex) {
-            setParameter(pstmt, index, args(param))
-          }
-          pstmt.executeUpdate()
+      override def apply(pstmt: PreparedStatement): Int = {
+        for ((param, index) <- paramIndex) {
+          setParameter(pstmt, index, args(param))
         }
+        pstmt.executeUpdate()
       }
-    )
+    })
 
   def preparedStatementActionUseBatchUpdate(
-      argsList: Iterable[Iterable[Any]]
-  ): PreparedStatementAction[scala.Array[Int]] =
-    new PreparedStatementActionImpl(
-      argsList,
-      new PreparedStatementAction[scala.Array[Int]] {
+      argsList: Iterable[Iterable[Any]]): PreparedStatementAction[scala.Array[Int]] =
+    new PreparedStatementActionImpl(argsList, new PreparedStatementAction[scala.Array[Int]] {
 
-        override def apply(pstmt: PreparedStatement): scala.Array[Int] = {
-          for (args <- argsList) {
-            setStatementParameters(pstmt, args)
-            pstmt.addBatch()
-          }
-          pstmt.executeBatch()
+      override def apply(pstmt: PreparedStatement): scala.Array[Int] = {
+        for (args <- argsList) {
+          setStatementParameters(pstmt, args)
+          pstmt.addBatch()
         }
+        pstmt.executeBatch()
       }
-    )
+    })
 
   def preparedStatementActionUseBatchUpdate(
       argsList: Iterable[Map[String, Any]],
-      paramIndex: Map[String, Int]
-  ): PreparedStatementAction[scala.Array[Int]] =
-    new PreparedStatementActionImpl(
-      argsList,
-      new PreparedStatementAction[scala.Array[Int]] {
+      paramIndex: Map[String, Int]): PreparedStatementAction[scala.Array[Int]] =
+    new PreparedStatementActionImpl(argsList, new PreparedStatementAction[scala.Array[Int]] {
 
-        override def apply(pstmt: PreparedStatement): scala.Array[Int] = {
-          for (args <- argsList) {
-            for ((param, index) <- paramIndex) {
-              setParameter(pstmt, index, args(param))
-            }
-            pstmt.addBatch()
+      override def apply(pstmt: PreparedStatement): scala.Array[Int] = {
+        for (args <- argsList) {
+          for ((param, index) <- paramIndex) {
+            setParameter(pstmt, index, args(param))
           }
-          pstmt.executeBatch()
+          pstmt.addBatch()
         }
+        pstmt.executeBatch()
       }
-    )
+    })
 
   def setStatementParameters(
       pstmt: PreparedStatement,
       args: Map[String, Any],
-      paramIndex: Map[String, Int]
-  ): PreparedStatement = {
+      paramIndex: Map[String, Int]): PreparedStatement = {
     for ((param, index) <- paramIndex) {
       setParameter(pstmt, index, args(param))
     }
@@ -491,12 +471,12 @@ object JdbcUtils extends StrictLogging {
 
   def isString(sqlType: Int): Boolean =
     Types.VARCHAR == sqlType || Types.VARCHAR == Types.CHAR || Types.VARCHAR == Types.LONGNVARCHAR ||
-      Types.VARCHAR == Types.LONGVARCHAR || Types.VARCHAR == Types.NCHAR || Types.VARCHAR == Types.NVARCHAR
+    Types.VARCHAR == Types.LONGVARCHAR || Types.VARCHAR == Types.NCHAR || Types.VARCHAR == Types.NVARCHAR
 
   def isNumeric(sqlType: Int): Boolean =
     Types.BIT == sqlType || Types.BIGINT == sqlType || Types.DECIMAL == sqlType || Types.DOUBLE == sqlType ||
-      Types.FLOAT == sqlType || Types.INTEGER == sqlType || Types.NUMERIC == sqlType || Types.REAL == sqlType ||
-      Types.SMALLINT == sqlType || Types.TINYINT == sqlType
+    Types.FLOAT == sqlType || Types.INTEGER == sqlType || Types.NUMERIC == sqlType || Types.REAL == sqlType ||
+    Types.SMALLINT == sqlType || Types.TINYINT == sqlType
 
   /**
    * 从SQL结果元数据中获取列表。将首先通过 label 获取，若 label 不存在再从 name 获取
@@ -516,8 +496,7 @@ object JdbcUtils extends StrictLogging {
       ignoreWarnings: Boolean = true,
       allowPrintLog: Boolean = true,
       useTransaction: Boolean = false,
-      autoClose: Boolean = false
-  )(implicit con: Connection): R = {
+      autoClose: Boolean = false)(implicit con: Connection): R = {
     assert(Objects.nonNull(con), "con: Connection must not be null")
     assert(Objects.nonNull(pscFunc), "Connection => PreparedStatement must not be null")
     assert(Objects.nonNull(actionFunc), "PreparedStatement => R must not be null")
@@ -594,8 +573,7 @@ object JdbcUtils extends StrictLogging {
       beginTime: Instant,
       parameterTypes: Seq[String],
       pscFunc: ConnectionPreparedStatementCreator,
-      actionFunc: PreparedStatementAction[_]
-  ): Unit = {
+      actionFunc: PreparedStatementAction[_]): Unit = {
     val endTime = Instant.now()
     val dua = java.time.Duration.between(beginTime, endTime)
     val sql = pscFunc match {
@@ -627,8 +605,7 @@ object JdbcUtils extends StrictLogging {
         var warningToLog = stmt.getWarnings
         while (warningToLog != null) {
           logger.warn(
-            "SQLWarning ignored: SQL state '" + warningToLog.getSQLState + "', error code '" + warningToLog.getErrorCode + "', message [" + warningToLog.getMessage + "]"
-          )
+            "SQLWarning ignored: SQL state '" + warningToLog.getSQLState + "', error code '" + warningToLog.getErrorCode + "', message [" + warningToLog.getMessage + "]")
           warningToLog = warningToLog.getNextWarning
         }
       }
@@ -664,8 +641,7 @@ object JdbcUtils extends StrictLogging {
     "maxConnections",
     "numThreads",
     "registerMbeans",
-    "queueSize"
-  )
+    "queueSize")
 
   @inline def createHikariDataSource(config: Configuration): HikariDataSource =
     createHikariDataSource(config.getProperties(null))

@@ -22,16 +22,16 @@ import java.util.concurrent.TimeoutException
 import akka.actor.ActorSystem
 
 import scala.collection.immutable.Seq
-import scala.concurrent.{ExecutionContext, Future, Promise}
+import scala.concurrent.{ ExecutionContext, Future, Promise }
 import akka.pattern.after
 import com.google.common.net.HostAndPort
 import com.orbitz.consul.Consul
 import com.orbitz.consul.async.ConsulResponseCallback
 import com.orbitz.consul.model.ConsulResponse
 import ConsulGrpcServiceDiscovery._
-import akka.discovery.ServiceDiscovery.{Resolved, ResolvedTarget}
+import akka.discovery.ServiceDiscovery.{ Resolved, ResolvedTarget }
 import akka.discovery.consul.ConsulSettings
-import akka.discovery.{Lookup, ServiceDiscovery}
+import akka.discovery.{ Lookup, ServiceDiscovery }
 import com.orbitz.consul.model.catalog.CatalogService
 import com.orbitz.consul.option.QueryOptions
 
@@ -55,24 +55,21 @@ class ConsulGrpcServiceDiscovery(system: ActorSystem) extends ServiceDiscovery {
     Future.firstCompletedOf(
       Seq(
         after(resolveTimeout, using = system.scheduler)(
-          Future.failed(new TimeoutException(s"Lookup for [${lookup}] timed-out, within [${resolveTimeout}]!"))
-        ),
-        lookupInConsul(lookup.serviceName)
-      )
-    )
+          Future.failed(new TimeoutException(s"Lookup for [${lookup}] timed-out, within [${resolveTimeout}]!"))),
+        lookupInConsul(lookup.serviceName)))
   }
 
   private def lookupInConsul(name: String)(implicit executionContext: ExecutionContext): Future[Resolved] = {
     val consulResult = for {
       servicesWithTags <- getServicesWithTags
       serviceIds = servicesWithTags.getResponse
-                     .entrySet()
-                     .asScala
-                     .filter(e => e.getValue.contains(settings.applicationNameTagPrefix + name))
-                     .map(_.getKey)
+        .entrySet()
+        .asScala
+        .filter(e => e.getValue.contains(settings.applicationNameTagPrefix + name))
+        .map(_.getKey)
       catalogServices <- Future.sequence(serviceIds.map(id => getService(id).map(_.getResponse.asScala.toList)))
-      resolvedTargets =
-        catalogServices.flatten.toSeq.map(catalogService => extractResolvedTargetFromCatalogService(catalogService))
+      resolvedTargets = catalogServices.flatten.toSeq.map(catalogService =>
+        extractResolvedTargetFromCatalogService(catalogService))
     } yield resolvedTargets
     consulResult.map(targets => Resolved(name, scala.collection.immutable.Seq(targets: _*)))
   }
@@ -88,22 +85,17 @@ class ConsulGrpcServiceDiscovery(system: ActorSystem) extends ServiceDiscovery {
     ResolvedTarget(
       host = address,
       port = Some(port.getOrElse(catalogService.getServicePort)),
-      address = Try(InetAddress.getByName(address)).toOption
-    )
+      address = Try(InetAddress.getByName(address)).toOption)
   }
 
   private def getServicesWithTags: Future[ConsulResponse[util.Map[String, util.List[String]]]] = {
-    (
-        (callback: ConsulResponseCallback[util.Map[String, util.List[String]]]) =>
-          consul.catalogClient().getServices(callback)
-    ).asFuture
+    ((callback: ConsulResponseCallback[util.Map[String, util.List[String]]]) =>
+      consul.catalogClient().getServices(callback)).asFuture
   }
 
   private def getService(name: String) =
-    (
-        (callback: ConsulResponseCallback[util.List[CatalogService]]) =>
-          consul.catalogClient().getService(name, QueryOptions.BLANK, callback)
-    ).asFuture
+    ((callback: ConsulResponseCallback[util.List[CatalogService]]) =>
+      consul.catalogClient().getService(name, QueryOptions.BLANK, callback)).asFuture
 }
 
 object ConsulGrpcServiceDiscovery {

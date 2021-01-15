@@ -29,9 +29,7 @@ class ModelTest extends ScalaTestWithActorTestKit with FusionWordSpecLike {
         Map(
           "diskSpace" -> Health.up("total" -> 316933124096L, "free" -> 124918386688L, "threshold" -> 10485760),
           "db" -> Health.up("database" -> "MySQL", "hello" -> 1),
-          "refreshScope" -> Health.up()
-        )
-      )
+          "refreshScope" -> Health.up()))
       val jsonStr = JacksonObjectMapperExtension(system).objectMapperJson.prettyStringify(health)
       jsonStr should include(""""total" : 316933124096""")
     }

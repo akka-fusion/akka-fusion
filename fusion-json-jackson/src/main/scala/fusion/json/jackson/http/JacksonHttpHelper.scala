@@ -20,18 +20,18 @@ import akka.actor.ExtendedActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.unmarshalling.Unmarshal
-import akka.stream.{Materializer, QueueOfferResult}
-import akka.{actor => classic}
+import akka.stream.{ Materializer, QueueOfferResult }
+import akka.{ actor => classic }
 import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.node.{ArrayNode, ObjectNode}
-import fusion.common.extension.{FusionExtension, FusionExtensionId}
+import com.fasterxml.jackson.databind.node.{ ArrayNode, ObjectNode }
+import fusion.common.extension.{ FusionExtension, FusionExtensionId }
 import fusion.core.http.HttpSourceQueue
 import fusion.json.jackson.JacksonObjectMapperExtension
 import helloscala.common.IntStatus
-import helloscala.common.exception.{HSException, HSHttpStatusException}
+import helloscala.common.exception.{ HSException, HSHttpStatusException }
 
 import scala.collection.immutable
-import scala.concurrent.{ExecutionContext, Future, Promise}
+import scala.concurrent.{ ExecutionContext, Future, Promise }
 import scala.reflect.runtime.universe._
 
 class JacksonHttpHelper private (override val classicSystem: ExtendedActorSystem) extends FusionExtension {
@@ -44,8 +44,7 @@ class JacksonHttpHelper private (override val classicSystem: ExtendedActorSystem
       params: Seq[(String, String)] = Nil,
       data: AnyRef = null,
       headers: immutable.Seq[HttpHeader] = Nil,
-      protocol: HttpProtocol = HttpProtocols.`HTTP/1.1`
-  ): HttpRequest = {
+      protocol: HttpProtocol = HttpProtocols.`HTTP/1.1`): HttpRequest = {
     val entity = data match {
       case null                    => HttpEntity.Empty
       case entity: UniversalEntity => entity
@@ -71,8 +70,7 @@ class JacksonHttpHelper private (override val classicSystem: ExtendedActorSystem
       params: Seq[(String, String)] = Nil,
       data: AnyRef = null,
       headers: immutable.Seq[HttpHeader] = Nil,
-      protocol: HttpProtocol = HttpProtocols.`HTTP/1.1`
-  )(implicit system: classic.ActorSystem): Future[HttpResponse] = {
+      protocol: HttpProtocol = HttpProtocols.`HTTP/1.1`)(implicit system: classic.ActorSystem): Future[HttpResponse] = {
     val request = buildRequest(method, uri, params, data, headers, protocol)
     singleRequest(request)
   }
@@ -91,8 +89,9 @@ class JacksonHttpHelper private (override val classicSystem: ExtendedActorSystem
       uri: Uri,
       params: Seq[(String, String)] = Nil,
       data: AnyRef = null,
-      headers: immutable.Seq[HttpHeader] = Nil
-  )(implicit httpSourceQueue: HttpSourceQueue, ec: ExecutionContext): Future[HttpResponse] = {
+      headers: immutable.Seq[HttpHeader] = Nil)(
+      implicit httpSourceQueue: HttpSourceQueue,
+      ec: ExecutionContext): Future[HttpResponse] = {
     val entity = if (data != null) {
       data match {
         case entity: RequestEntity => entity
@@ -113,8 +112,7 @@ class JacksonHttpHelper private (override val classicSystem: ExtendedActorSystem
    * @return Future[HttpResponse]
    */
   def hostRequest(
-      request: HttpRequest
-  )(implicit httpSourceQueue: HttpSourceQueue, ec: ExecutionContext): Future[HttpResponse] = {
+      request: HttpRequest)(implicit httpSourceQueue: HttpSourceQueue, ec: ExecutionContext): Future[HttpResponse] = {
     val responsePromise = Promise[HttpResponse]()
     httpSourceQueue.offer(request -> responsePromise).flatMap {
       case QueueOfferResult.Enqueued => responsePromise.future
@@ -122,8 +120,8 @@ class JacksonHttpHelper private (override val classicSystem: ExtendedActorSystem
         Future.failed(new RuntimeException("Queue overflowed. Try again later."))
       case QueueOfferResult.Failure(ex) => Future.failed(ex)
       case QueueOfferResult.QueueClosed =>
-        Future
-          .failed(new RuntimeException("Queue was closed (pool shut down) while running the request. Try again later."))
+        Future.failed(
+          new RuntimeException("Queue was closed (pool shut down) while running the request. Try again later."))
     }
   }
 
@@ -132,8 +130,7 @@ class JacksonHttpHelper private (override val classicSystem: ExtendedActorSystem
       uri: Uri,
       params: Seq[(String, Any)] = Nil,
       data: AnyRef = null,
-      headers: immutable.Seq[HttpHeader] = Nil
-  ): HttpRequest = {
+      headers: immutable.Seq[HttpHeader] = Nil): HttpRequest = {
     val entity = if (data != null) {
       data match {
         case entity: MessageEntity => entity
@@ -182,8 +179,7 @@ class JacksonHttpHelper private (override val classicSystem: ExtendedActorSystem
   }
 
   def mapHttpResponseEither[R](
-      response: HttpResponse
-  )(implicit ct: TypeTag[R], mat: Materializer): Future[Either[HSException, R]] = {
+      response: HttpResponse)(implicit ct: TypeTag[R], mat: Materializer): Future[Either[HSException, R]] = {
     implicit val ec: ExecutionContext = mat.executionContext
     mapHttpResponse(response).map(Right(_)).recoverWith {
       case e: HSException =>
@@ -210,9 +206,8 @@ class JacksonHttpHelper private (override val classicSystem: ExtendedActorSystem
     }
   }
 
-  def mapHttpResponseErrorEither[R](
-      response: HttpResponse
-  )(implicit mat: Materializer): Future[Either[HSException, R]] = {
+  def mapHttpResponseErrorEither[R](response: HttpResponse)(
+      implicit mat: Materializer): Future[Either[HSException, R]] = {
     implicit val ec: ExecutionContext = mat.executionContext
     mapHttpResponseError(response).recoverWith {
       case e: HSException =>

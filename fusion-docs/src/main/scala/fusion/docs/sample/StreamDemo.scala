@@ -23,7 +23,7 @@ import akka.stream.OverflowStrategy
 import akka.stream.scaladsl.Keep
 import akka.stream.scaladsl.Sink
 import akka.stream.scaladsl.Source
-import akka.{actor => classic}
+import akka.{ actor => classic }
 
 import scala.concurrent.Await
 import scala.concurrent.duration._

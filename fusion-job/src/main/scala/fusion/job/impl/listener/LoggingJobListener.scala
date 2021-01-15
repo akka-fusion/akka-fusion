@@ -51,9 +51,7 @@ class LoggingJobListener extends JobListener with StrictLogging {
           trigger.getKey.getGroup,
           trigger.getPreviousFireTime,
           trigger.getNextFireTime,
-          Integer.valueOf(context.getRefireCount)
-        )
-      )
+          Integer.valueOf(context.getRefireCount)))
     }
 
   override def jobExecutionVetoed(context: JobExecutionContext): Unit =
@@ -69,9 +67,7 @@ class LoggingJobListener extends JobListener with StrictLogging {
           trigger.getKey.getGroup,
           trigger.getPreviousFireTime,
           trigger.getNextFireTime,
-          Integer.valueOf(context.getRefireCount)
-        )
-      )
+          Integer.valueOf(context.getRefireCount)))
     }
 
   override def jobWasExecuted(context: JobExecutionContext, jobException: JobExecutionException): Unit =
@@ -90,10 +86,8 @@ class LoggingJobListener extends JobListener with StrictLogging {
             trigger.getPreviousFireTime,
             trigger.getNextFireTime,
             Integer.valueOf(context.getRefireCount),
-            errMsg
-          ),
-          jobException
-        )
+            errMsg),
+          jobException)
       } else {
         val result = String.valueOf(context.getResult)
         logger.info(
@@ -107,9 +101,7 @@ class LoggingJobListener extends JobListener with StrictLogging {
             trigger.getPreviousFireTime,
             trigger.getNextFireTime,
             Integer.valueOf(context.getRefireCount),
-            result
-          )
-        )
+            result))
       }
     }
 }

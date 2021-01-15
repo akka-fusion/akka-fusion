@@ -27,8 +27,8 @@ class HSException(
     val msg: String,
     val cause: Throwable,
     enableSuppression: Boolean,
-    writableStackTrace: Boolean
-) extends RuntimeException(msg, cause, enableSuppression, writableStackTrace)
+    writableStackTrace: Boolean)
+    extends RuntimeException(msg, cause, enableSuppression, writableStackTrace)
     with NoStackTrace {
   def httpStatus: Int = IntStatus.INTERNAL_ERROR
 

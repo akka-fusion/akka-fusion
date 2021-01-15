@@ -55,13 +55,11 @@ class NacosServiceDiscovery(system: ActorSystem[_]) extends ServiceDiscovery wit
   @inline private def resolveAndTimeout(
       lookup: Lookup,
       resolveTimeout: FiniteDuration,
-      f: Future[Resolved]
-  ): Future[Resolved] = {
+      f: Future[Resolved]): Future[Resolved] = {
     val promise = Promise[Resolved]()
     val cancellable = system.scheduler.scheduleOnce(
       resolveTimeout,
-      () => promise.failure(HSBadGatewayException(s"${lookup.serviceName} resolve timeout，$resolveTimeout"))
-    )
+      () => promise.failure(HSBadGatewayException(s"${lookup.serviceName} resolve timeout，$resolveTimeout")))
     Future.firstCompletedOf(List(f, promise.future)).andThen {
       case Success(_) if !cancellable.isCancelled => cancellable.cancel()
     }

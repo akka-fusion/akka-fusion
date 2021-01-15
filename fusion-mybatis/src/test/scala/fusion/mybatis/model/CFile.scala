@@ -26,6 +26,5 @@ case class CFile(
     @BeanProperty var fileSubject: String = "",
     @BeanProperty var fileUrl: String = "",
     @BeanProperty var duration: Int = 0,
-    @BeanProperty var tableAutoUptime: LocalDateTime = LocalDateTime.now()
-)
+    @BeanProperty var tableAutoUptime: LocalDateTime = LocalDateTime.now())
 // #CFile

@@ -31,8 +31,8 @@ case class OAuth2AccessToken(
     issuedAt: Instant,
     expiresAt: Instant,
     tokenType: TokenType,
-    scopes: Set[String]
-) extends TraitOAuth2Token {
+    scopes: Set[String])
+    extends TraitOAuth2Token {
 
   def toJSONString(): String = OAuth2JsonUtils.objectMapper.writeValueAsString(this)
 

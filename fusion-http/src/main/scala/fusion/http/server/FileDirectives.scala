@@ -16,18 +16,18 @@
 
 package fusion.http.server
 
-import java.io.{File, IOException}
-import java.nio.file.{Files, Path, Paths}
+import java.io.{ File, IOException }
+import java.nio.file.{ Files, Path, Paths }
 
 import akka.http.scaladsl.model.Multipart
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server._
 import akka.http.scaladsl.server.directives.FileInfo
-import akka.stream.scaladsl.{FileIO, Sink, Source}
+import akka.stream.scaladsl.{ FileIO, Sink, Source }
 import akka.util.ByteString
 import fusion.common.util.StreamUtils
 import fusion.http.model.FileTemp
-import helloscala.common.util.{DigestUtils, StringUtils}
+import helloscala.common.util.{ DigestUtils, StringUtils }
 
 import scala.collection.immutable
 import scala.concurrent.Future
@@ -37,15 +37,14 @@ trait FileDirectives {
   def createTempFileFunc(
       dir: java.nio.file.Path = Paths.get("/tmp"),
       prefix: String = "fusion-",
-      suffix: String = ".tmp"
-  ): FileInfo => File =
+      suffix: String = ".tmp"): FileInfo => File =
     fileInfo => Files.createTempFile(dir, fileInfo.fileName, suffix).toFile
 
   def uploadedMultiFile(tmpDirectory: Path): Directive1[immutable.Seq[(FileInfo, Path)]] =
     entity(as[Multipart.FormData])
       .flatMap { formData =>
         extractRequestContext.flatMap { ctx =>
-          import ctx.{executionContext, materializer}
+          import ctx.{ executionContext, materializer }
 
           val multiPartF = formData.parts
             .map { part =>
@@ -70,7 +69,7 @@ trait FileDirectives {
   def uploadedOneFile: Directive1[(FileInfo, Source[ByteString, Any])] =
     entity(as[Multipart.FormData]).flatMap { formData =>
       Directive[Tuple1[(FileInfo, Source[ByteString, Any])]] { inner => ctx =>
-        import ctx.{executionContext, materializer}
+        import ctx.{ executionContext, materializer }
 
         // Streamed multipart data must be processed in a certain way, that is, before you can expect the next part you
         // must have fully read the entity of the current part.
@@ -93,7 +92,7 @@ trait FileDirectives {
 
   def uploadedShaFile(tmpDirectory: Path): Directive[(FileInfo, FileTemp)] =
     extractRequestContext.flatMap { ctx =>
-      import ctx.{executionContext, materializer}
+      import ctx.{ executionContext, materializer }
       uploadedOneFile.flatMap {
         case (fileInfo, source) =>
           val sha = DigestUtils.digestSha256()
@@ -122,7 +121,7 @@ trait FileDirectives {
 
   def uploadedMultiShaFile(tmpDirectory: Path): Directive1[immutable.Seq[(FileInfo, FileTemp)]] =
     extractRequestContext.flatMap { ctx =>
-      import ctx.{executionContext, materializer}
+      import ctx.{ executionContext, materializer }
       uploadedMultiFile(tmpDirectory).flatMap { list =>
         val futures = list.map {
           case (fileInfo, path) =>

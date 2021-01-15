@@ -20,9 +20,9 @@ import java.util.Properties
 import com.alibaba.nacos.api.NacosFactory
 import com.typesafe.scalalogging.StrictLogging
 import fusion.cloud.discovery.DiscoveryUtils
-import fusion.cloud.discovery.client.{FusionConfigService, FusionNamingService}
+import fusion.cloud.discovery.client.{ FusionConfigService, FusionNamingService }
 import fusion.cloud.discovery.DiscoveryUtils
-import fusion.cloud.discovery.client.{FusionConfigService, FusionNamingService}
+import fusion.cloud.discovery.client.{ FusionConfigService, FusionNamingService }
 
 object NacosServiceFactory extends StrictLogging {
 
@@ -39,8 +39,7 @@ object NacosServiceFactory extends StrictLogging {
   def configService(serverAddr: String): FusionConfigService =
     new NacosConfigServiceImpl(
       NacosPropertiesUtils.configProps(DiscoveryUtils.methodConfPath),
-      NacosFactory.createConfigService(serverAddr)
-    )
+      NacosFactory.createConfigService(serverAddr))
 
   def namingService(props: Properties): FusionNamingService =
     new NacosNamingServiceImpl(props, NacosFactory.createNamingService(props))
@@ -48,6 +47,5 @@ object NacosServiceFactory extends StrictLogging {
   def namingService(addr: String): FusionNamingService =
     new NacosNamingServiceImpl(
       NacosPropertiesUtils.configProps(DiscoveryUtils.methodConfPath),
-      NacosFactory.createNamingService(addr)
-    )
+      NacosFactory.createNamingService(addr))
 }

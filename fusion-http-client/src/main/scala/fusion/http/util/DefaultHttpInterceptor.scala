@@ -17,12 +17,12 @@
 package fusion.http.util
 
 import akka.actor.typed.ActorSystem
-import akka.http.scaladsl.model.{HttpRequest, HttpResponse}
-import akka.http.scaladsl.server.{Route, RouteResult}
+import akka.http.scaladsl.model.{ HttpRequest, HttpResponse }
+import akka.http.scaladsl.server.{ Route, RouteResult }
 import com.typesafe.scalalogging.StrictLogging
 import fusion.common.constant.HttpKeys
 import fusion.core.extension.FusionCore
-import fusion.core.http.headers.{`X-Request-Time`, `X-Service`, `X-Span-Time`}
+import fusion.core.http.headers.{ `X-Request-Time`, `X-Service`, `X-Span-Time` }
 import fusion.http.interceptor.HttpInterceptor
 import helloscala.common.exception.HSInternalErrorException
 
@@ -36,17 +36,16 @@ final class DefaultHttpInterceptor(system: ActorSystem[_]) extends HttpIntercept
       if (req.headers.exists(_.name() == `X-Request-Time`.name)) None
       else Some(`X-Request-Time`.fromInstantNow()),
       if (req.headers.exists(header => header.name() == HttpKeys.X_TRACE_NAME)) None
-      else Some(HttpUtils.generateTraceHeader())
-    ).flatten
+      else Some(HttpUtils.generateTraceHeader())).flatten
     val request = req.copy(headers = extHeaders ++ req.headers)
     HttpUtils.curlLogging(request)(logger)
     val resultF = inner(ctx.withRequest(request))
     resultF.map {
       case RouteResult.Complete(response) =>
         val headers = extHeaders
-          .find(_.name() == `X-Request-Time`.name)
-          .flatMap(h => `X-Span-Time`.fromXRequestTime(h.asInstanceOf[`X-Request-Time`]))
-          .toList ::: extHeaders ++ response.headers
+            .find(_.name() == `X-Request-Time`.name)
+            .flatMap(h => `X-Span-Time`.fromXRequestTime(h.asInstanceOf[`X-Request-Time`]))
+            .toList ::: extHeaders ++ response.headers
         RouteResult.Complete(processResponse(request, response.copy(headers = headers)))
       case RouteResult.Rejected(_) => throw HSInternalErrorException("error")
     }

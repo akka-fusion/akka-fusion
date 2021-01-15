@@ -20,10 +20,10 @@ import java.nio.ByteBuffer
 import java.nio.charset.StandardCharsets
 
 import com.fasterxml.jackson.annotation.JsonIgnore
-import helloscala.common.util.{DigestUtils, StringUtils}
+import helloscala.common.util.{ DigestUtils, StringUtils }
 
 import scala.jdk.CollectionConverters._
-import scala.util.{Failure, Try}
+import scala.util.{ Failure, Try }
 
 /**
  * BSON ObjectId value.
@@ -107,8 +107,7 @@ object ObjectId {
       val networkInterfaces = networkInterfacesEnum.asScala
       val ha = networkInterfaces
         .find(ha =>
-          Try(ha.getHardwareAddress).isSuccess && ha.getHardwareAddress != null && ha.getHardwareAddress.length == 6
-        )
+          Try(ha.getHardwareAddress).isSuccess && ha.getHardwareAddress != null && ha.getHardwareAddress.length == 6)
         .map(_.getHardwareAddress)
         .getOrElse(InetAddress.getLocalHost.getHostName.getBytes(StandardCharsets.UTF_8))
       DigestUtils.md5(ha).take(3)

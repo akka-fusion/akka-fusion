@@ -32,8 +32,7 @@ object NetworkUtils {
 
   def onlineNetworkInterfaces() = {
     interfaces().filterNot(ni =>
-      ni.isLoopback || !ni.isUp || ni.isVirtual || ni.isPointToPoint || !validNetworkName(ni.getName)
-    )
+      ni.isLoopback || !ni.isUp || ni.isVirtual || ni.isPointToPoint || !validNetworkName(ni.getName))
   }
 
   def onlineInterfaceAddress(): Vector[InterfaceAddress] = {

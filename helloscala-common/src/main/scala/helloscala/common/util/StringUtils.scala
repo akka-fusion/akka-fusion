@@ -21,8 +21,8 @@ import java.io.PrintWriter
 import java.io.StringWriter
 import java.nio.file.Files
 import java.nio.file.Path
-import java.util.{HashMap => JHashMap}
-import java.util.{Map => JMap}
+import java.util.{ HashMap => JHashMap }
+import java.util.{ Map => JMap }
 
 import scala.annotation.tailrec
 import scala.collection.immutable
@@ -150,8 +150,7 @@ object StringUtils {
         }
         sb.append(
           if (isLower) Character.toLowerCase(c)
-          else Character.toUpperCase(c.toUpper)
-        )
+          else Character.toUpperCase(c.toUpper))
       }
       sb.toString()
     }

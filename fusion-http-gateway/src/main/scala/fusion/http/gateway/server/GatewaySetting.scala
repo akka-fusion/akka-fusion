@@ -20,11 +20,11 @@ import java.util.concurrent.atomic.AtomicInteger
 
 import akka.actor.ExtendedActorSystem
 import akka.discovery.ServiceDiscovery.ResolvedTarget
-import akka.discovery.{Discovery, ServiceDiscovery}
+import akka.discovery.{ Discovery, ServiceDiscovery }
 import akka.http.scaladsl.model.headers.`Timeout-Access`
-import akka.http.scaladsl.model.{HttpProtocol, HttpProtocols, Uri}
+import akka.http.scaladsl.model.{ HttpProtocol, HttpProtocols, Uri }
 import akka.pattern.CircuitBreaker
-import com.typesafe.config.{ConfigFactory, ConfigMemorySize}
+import com.typesafe.config.{ ConfigFactory, ConfigMemorySize }
 import fusion.common.constant.FusionKeys
 import fusion.core.setting.CircuitBreakerSetting
 import helloscala.common.Configuration
@@ -48,8 +48,7 @@ final case class GatewayUpstream(
     name: String,
     serviceName: Option[String],
     discovery: Option[ServiceDiscovery],
-    targets: Vector[ResolvedTarget]
-) {
+    targets: Vector[ResolvedTarget]) {
   @transient val targetsCounter = new AtomicInteger(0)
 }
 
@@ -63,8 +62,7 @@ final case class GatewayLocation(
     notProxyHeaders: Set[String],
     routingSettings: GatewayRoutingSettings,
     gateway: Option[immutable.Seq[GatewayLocation]],
-    protocol: HttpProtocol
-) {
+    protocol: HttpProtocol) {
 
   def proxyToUri(uri: Uri): Uri = {
     proxyTo
@@ -95,17 +93,14 @@ final class GatewaySetting(system: ExtendedActorSystem, prefix: String) {
       val circuitBreakerSetting = CircuitBreakerSetting(
         if (c.hasPath("default-circuit-breaker"))
           c.getConfiguration("default-circuit-breaker").withFallback(deftCircuitBreakerConf)
-        else deftCircuitBreakerConf
-      )
+        else deftCircuitBreakerConf)
       if (circuitBreakerSetting.enable)
         Some(
           CircuitBreaker(
             system.scheduler,
             circuitBreakerSetting.maxFailures,
             circuitBreakerSetting.callTimeout,
-            circuitBreakerSetting.resetTimeout
-          )
-        )
+            circuitBreakerSetting.resetTimeout))
       else None
     }
 
@@ -129,8 +124,7 @@ final class GatewaySetting(system: ExtendedActorSystem, prefix: String) {
       upstreams: Seq[GatewayUpstream],
       locationsConfig: Configuration,
       defaultTimeout: FiniteDuration,
-      defaultCircuitBreaker: Option[CircuitBreaker]
-  ): Vector[GatewayLocation] = {
+      defaultCircuitBreaker: Option[CircuitBreaker]): Vector[GatewayLocation] = {
     locationsConfig.subKeys.map { locationName =>
       val c = locationsConfig.getConfiguration(locationName)
       val upstreamName = c.getString("upstream")
@@ -142,8 +136,7 @@ final class GatewaySetting(system: ExtendedActorSystem, prefix: String) {
       val proxyTo = c.get[Option[String]]("proxy-to")
 
       val circuitBreaker = defaultCircuitBreaker.orElse(
-        CircuitBreakerSetting.getCircuitBreaker(system, s"$prefix.locations.$locationName.circuit-breaker")
-      )
+        CircuitBreakerSetting.getCircuitBreaker(system, s"$prefix.locations.$locationName.circuit-breaker"))
 
       val notProxyHeaders = c.getOrElse("not-proxy-headers", Seq[String]()).toSet
       val routingSettings =
@@ -166,8 +159,7 @@ final class GatewaySetting(system: ExtendedActorSystem, prefix: String) {
         notProxyHeaders,
         routingSettings,
         None /*gateway*/,
-        protocol
-      )
+        protocol)
     }.toVector
   }
 

@@ -17,13 +17,13 @@
 package fusion.json.json4s.http
 
 import java.lang.reflect.InvocationTargetException
-import akka.http.scaladsl.marshalling.{Marshaller, ToEntityMarshaller}
-import akka.http.scaladsl.model.{ContentTypeRange, MediaType, MediaTypes}
-import akka.http.scaladsl.unmarshalling.{FromEntityUnmarshaller, Unmarshaller}
+import akka.http.scaladsl.marshalling.{ Marshaller, ToEntityMarshaller }
+import akka.http.scaladsl.model.{ ContentTypeRange, MediaType, MediaTypes }
+import akka.http.scaladsl.unmarshalling.{ FromEntityUnmarshaller, Unmarshaller }
 import akka.stream.Materializer
 import akka.util.ByteString
 import fusion.json.json4s.Json4sUtils
-import org.json4s.{Formats, MappingException, Serialization}
+import org.json4s.{ Formats, MappingException, Serialization }
 
 import scala.concurrent.ExecutionContext
 
@@ -70,10 +70,10 @@ trait Json4sSupport {
    * @tparam A type to decode
    * @return unmarshaller for `A`
    */
-  implicit def unmarshaller[A: Manifest](implicit
+  implicit def unmarshaller[A: Manifest](
+      implicit
       serialization: Serialization = jsonUtils.serialization,
-      formats: Formats = jsonUtils.defaultFormats
-  ): FromEntityUnmarshaller[A] =
+      formats: Formats = jsonUtils.defaultFormats): FromEntityUnmarshaller[A] =
     jsonStringUnmarshaller.map(s => serialization.read(s)).recover(throwCause)
 
   /**
@@ -82,11 +82,11 @@ trait Json4sSupport {
    * @tparam A type to encode, must be upper bounded by `AnyRef`
    * @return marshaller for any `A` value
    */
-  implicit def marshaller[A <: AnyRef](implicit
+  implicit def marshaller[A <: AnyRef](
+      implicit
       serialization: Serialization = jsonUtils.serialization,
       formats: Formats = jsonUtils.defaultFormats,
-      shouldWritePretty: ShouldWritePretty = ShouldWritePretty.False
-  ): ToEntityMarshaller[A] =
+      shouldWritePretty: ShouldWritePretty = ShouldWritePretty.False): ToEntityMarshaller[A] =
     shouldWritePretty match {
       case ShouldWritePretty.False =>
         jsonStringMarshaller.compose(serialization.write[A])

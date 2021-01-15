@@ -45,8 +45,7 @@ private object OAuth2AccessTokenSerializerResolver extends Serializers.Base {
   override def findSerializer(
       config: SerializationConfig,
       `type`: JavaType,
-      beanDesc: BeanDescription
-  ): JsonSerializer[_] = {
+      beanDesc: BeanDescription): JsonSerializer[_] = {
     val rawClass = `type`.getRawClass
     if (OAUTH2_ACCESS_TOKEN.isAssignableFrom(rawClass))
       new OAuth2AccessTokenSerializer(OAUTH2_ACCESS_TOKEN)

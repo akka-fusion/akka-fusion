@@ -20,7 +20,7 @@ import java.util.Objects
 
 import akka.actor.ExtendedActorSystem
 import com.typesafe.config.Config
-import fusion.common.{ReceptionistFactory, SpawnFactory}
+import fusion.common.{ ReceptionistFactory, SpawnFactory }
 import fusion.core
 import helloscala.common.Configuration
 
@@ -41,8 +41,7 @@ object FusionApplication {
   def application: FusionApplication = {
     Objects.requireNonNull(
       _application,
-      "The configuration parameter `fusion.global-application-enable = on` needs to be set to enable this feature."
-    )
+      "The configuration parameter `fusion.global-application-enable = on` needs to be set to enable this feature.")
   }
 
   private[fusion] def setApplication(application: FusionApplication): Unit = {

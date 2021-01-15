@@ -37,14 +37,12 @@ final private[kafka] class ConsumerComponents(val system: ExtendedActorSystem)
       .withGroupId(conf.getOrElse("kafka-clients.group.id", "default"))
       .withProperty(
         ConsumerConfig.AUTO_OFFSET_RESET_CONFIG,
-        conf.getOrElse[String]("kafka-clients." + ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest")
-      )
+        conf.getOrElse[String]("kafka-clients." + ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest"))
   }
 
   override protected def componentClose(c: ConsumerSettings[String, String]): Future[Done] = Future.successful(Done)
 
   private def getConfiguration(id: String) =
     Configuration(
-      system.settings.config.getConfig(id).withFallback(system.settings.config.getConfig(ConsumerSettings.configPath))
-    )
+      system.settings.config.getConfig(id).withFallback(system.settings.config.getConfig(ConsumerSettings.configPath)))
 }

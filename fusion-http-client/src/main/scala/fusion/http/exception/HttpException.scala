@@ -26,8 +26,8 @@ case class HttpException(
     override val msg: String,
     override val data: Object = null,
     override val status: Int = IntStatus.INTERNAL_ERROR,
-    override val cause: Throwable = null
-) extends HSException(status, msg, cause) {
+    override val cause: Throwable = null)
+    extends HSException(status, msg, cause) {
   override val httpStatus: Int = statusCode.intValue()
 }
 

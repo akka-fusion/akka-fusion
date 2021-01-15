@@ -17,7 +17,7 @@
 package fusion.common.config
 
 import akka.actor.AddressFromURIString
-import com.typesafe.config.{Config, ConfigFactory}
+import com.typesafe.config.{ Config, ConfigFactory }
 import helloscala.common.Configuration
 import helloscala.common.exception.HSConfigurationException
 
@@ -68,8 +68,7 @@ object FusionConfigFactory {
       else if (c.hasPath(s"$internalPath.name")) c.getString(s"$internalPath.name")
       else
         throw HSConfigurationException(
-          s"Configuration key '$internalPath.akka.name' or '$internalPath.name' not found."
-        )
+          s"Configuration key '$internalPath.akka.name' or '$internalPath.name' not found.")
 
     val seedNodes = c.getStringList("akka.cluster.seed-nodes").asScala.filterNot(_.isEmpty).map {
       case addr if !addr.startsWith("akka://") => AddressFromURIString.parse(s"akka://$name@$addr")

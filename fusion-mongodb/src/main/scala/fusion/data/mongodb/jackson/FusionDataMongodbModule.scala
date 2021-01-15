@@ -48,8 +48,7 @@ private object ObjectIdDeserializer extends Deserializers.Base {
   override def findBeanDeserializer(
       `type`: JavaType,
       config: DeserializationConfig,
-      beanDesc: BeanDescription
-  ): JsonDeserializer[_] = {
+      beanDesc: BeanDescription): JsonDeserializer[_] = {
     val rawClass = `type`.getRawClass
     if (OBJECT_ID.isAssignableFrom(rawClass)) ObjectIdDeser
     else super.findBeanDeserializer(`type`, config, beanDesc)
@@ -61,8 +60,7 @@ private object ObjectIdSerializer extends Serializers.Base {
   override def findSerializer(
       config: SerializationConfig,
       `type`: JavaType,
-      beanDesc: BeanDescription
-  ): JsonSerializer[_] = {
+      beanDesc: BeanDescription): JsonSerializer[_] = {
     val rawClass = `type`.getRawClass
     if (OBJECT_ID.isAssignableFrom(rawClass)) ObjectIdSer
     else super.findSerializer(config, `type`, beanDesc)

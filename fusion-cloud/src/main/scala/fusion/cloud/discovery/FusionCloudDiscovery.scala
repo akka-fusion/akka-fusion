@@ -16,7 +16,7 @@
 
 package fusion.cloud.discovery
 
-import akka.actor.typed.{ActorRef, Extension}
+import akka.actor.typed.{ ActorRef, Extension }
 import akka.cluster.sharding.typed.scaladsl.EntityTypeKey
 import akka.pattern.StatusReply
 

@@ -16,7 +16,7 @@
 
 package fusion.cloud.consul.config
 
-import akka.actor.typed.{ActorSystem, ExtensionId}
+import akka.actor.typed.{ ActorSystem, ExtensionId }
 import com.typesafe.config.Config
 import fusion.cloud.config.FusionCloudConfig
 import fusion.cloud.consul.FusionConsul

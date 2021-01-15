@@ -16,8 +16,8 @@
 
 package fusion.cloud
 
-import akka.actor.typed.{ActorSystem, Extension, ExtensionId}
-import akka.cluster.sharding.typed.scaladsl.{ClusterSharding, EntityRef}
+import akka.actor.typed.{ ActorSystem, Extension, ExtensionId }
+import akka.cluster.sharding.typed.scaladsl.{ ClusterSharding, EntityRef }
 import akka.util.Timeout
 import com.typesafe.config.Config
 import fusion.cloud.FusionCloud.Constants
@@ -42,8 +42,7 @@ class FusionCloud(val system: ActorSystem[_]) extends Extension {
   val cloudDiscovery: FusionCloudDiscovery = system.dynamicAccess
     .getObjectFor[ExtensionId[_ <: FusionCloudDiscovery]](config.getString(Constants.DISCOVERY_CLASS))
     .getOrElse(
-      throw new ExceptionInInitializerError(s"Configuration path '${Constants.DISCOVERY_CLASS}' is not exists.")
-    )
+      throw new ExceptionInInitializerError(s"Configuration path '${Constants.DISCOVERY_CLASS}' is not exists."))
     .apply(system)
   def config: Config = system.settings.config
 }

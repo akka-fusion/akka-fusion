@@ -20,15 +20,15 @@ import akka.actor.ActorSystem
 import akka.http.scaladsl.marshalling.Marshal
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.unmarshalling.Unmarshaller.UnsupportedContentTypeException
-import akka.http.scaladsl.unmarshalling.{Unmarshal, Unmarshaller}
-import akka.stream.scaladsl.{Sink, Source}
+import akka.http.scaladsl.unmarshalling.{ Unmarshal, Unmarshaller }
+import akka.stream.scaladsl.{ Sink, Source }
 import com.fasterxml.jackson.databind.ObjectMapper
 import fusion.json.jackson.JacksonObjectMapperExtension
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AsyncWordSpec
 
-import scala.concurrent.{Await, Future}
+import scala.concurrent.{ Await, Future }
 import scala.concurrent.duration._
 
 final case class Foo(bar: String) {
@@ -104,9 +104,7 @@ class JacksonSupportTest extends AsyncWordSpec with Matchers with BeforeAndAfter
         .map(
           _ shouldBe UnsupportedContentTypeException(
             Some(ContentTypes.`text/plain(UTF-8)`),
-            MediaTypes.`application/json`
-          )
-        )
+            MediaTypes.`application/json`))
     }
 
     "allow unmarshalling with passed in Content-Types" in {

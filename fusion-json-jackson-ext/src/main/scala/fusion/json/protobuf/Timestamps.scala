@@ -20,7 +20,7 @@ import com.google.protobuf.TextFormat.ParseException
 import com.google.protobuf.timestamp.Timestamp
 
 import java.text.SimpleDateFormat
-import java.util.{Date, GregorianCalendar, TimeZone}
+import java.util.{ Date, GregorianCalendar, TimeZone }
 
 object Timestamps {
   // Timestamp for "0001-01-01T00:00:00Z"
@@ -45,9 +45,9 @@ object Timestamps {
 
   def isValid(ts: Timestamp): Boolean =
     ts.seconds >= TIMESTAMP_SECONDS_MIN &&
-      ts.seconds <= TIMESTAMP_SECONDS_MAX &&
-      ts.nanos >= 0 &&
-      ts.nanos < NANOS_PER_SECOND
+    ts.seconds <= TIMESTAMP_SECONDS_MAX &&
+    ts.nanos >= 0 &&
+    ts.nanos < NANOS_PER_SECOND
 
   def checkValid(ts: Timestamp): Timestamp = {
     require(isValid(ts), "Timestamp is not valid.")

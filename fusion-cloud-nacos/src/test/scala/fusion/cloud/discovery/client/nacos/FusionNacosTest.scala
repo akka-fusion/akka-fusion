@@ -20,7 +20,6 @@ import akka.actor.typed.scaladsl.adapter._
 import akka.{ actor => classic }
 import com.alibaba.nacos.api.NacosFactory
 import fusion.cloud.discovery.DiscoveryUtils
-import fusion.cloud.discovery.DiscoveryUtils
 import fusion.cloud.discovery.constant.PropKeys
 import fusion.testkit.FusionFunSuiteLike
 import helloscala.common.Configuration

@@ -8,14 +8,14 @@ object Dependencies {
   val versionJava8Compat = "0.9.1"
   val versionScalameta = "4.4.5"
   val versionScalatest = "3.1.4"
-  val versionAkka: String = sys.props.getOrElse("akka.version", "2.6.10")
+  val versionAkka: String = sys.props.getOrElse("akka.version", "2.6.12")
   val versionAkkaManagement = "1.0.9"
-  val versionAkkaHttp = "10.2.2" //"10.1.13"
+  val versionAkkaHttp = "10.2.3"
   val versionAkkaHttpCors = "1.1.1"
   val versionAlpakka = "2.0.2"
   val versionAlpakkaKafka = "2.0.6"
   val versionAkkaPersistenceCassandra = "1.0.4"
-  val versionAkkaPersistenceJdbc = "3.5.3"
+  val versionAkkaPersistenceJdbc = "5.0.0"
   val versionCassandra = "4.9.0"
   val versionJackson = "2.10.5"
   val versionElastic4s = "7.10.2"
@@ -54,7 +54,7 @@ object Dependencies {
   val versionLogstashLogback = "6.6"
   val versionJwt = "4.3.0"
   val versionJson4s = "3.6.10"
-  val versionScalapbJson4s = "0.10.2"
+  val versionScalapbJson4s = "0.10.3"
   val versionJoseJwt = "9.0.1"
 
   val _scalameta = "org.scalameta" %% "scalameta" % versionScalameta
@@ -81,8 +81,7 @@ object Dependencies {
 
   val _akkaClusters = Seq(
     "com.typesafe.akka" %% "akka-cluster-typed" % versionAkka,
-    "com.typesafe.akka" %% "akka-cluster-sharding-typed" % versionAkka
-  )
+    "com.typesafe.akka" %% "akka-cluster-sharding-typed" % versionAkka)
 
   val _akkaManagement =
     ("com.lightbend.akka.management" %% "akka-management" % versionAkkaManagement)
@@ -119,8 +118,7 @@ object Dependencies {
     _akkaHttp,
     "com.typesafe.akka" %% "akka-http-spray-json" % versionAkkaHttp,
     _akkaHttp2,
-    _akkaHttpTestkit % Test
-  )
+    _akkaHttpTestkit % Test)
 
   val _akkaGrpcRuntime = ("com.lightbend.akka.grpc" %% "akka-grpc-runtime" % akka.grpc.gen.BuildInfo.version)
     .exclude("com.typesafe", "config")
@@ -183,8 +181,7 @@ object Dependencies {
 
   val _mongodbs = Seq(
     "org.mongodb.scala" %% "mongo-scala-bson" % versionMongoScalaBson,
-    "org.mongodb" % "mongodb-driver-reactivestreams" % versionMongoDriverReactivestreams
-  )
+    "org.mongodb" % "mongodb-driver-reactivestreams" % versionMongoDriverReactivestreams)
 
   val _jacksonAnnotations = "com.fasterxml.jackson.core" % "jackson-annotations" % versionJackson
 
@@ -195,8 +192,7 @@ object Dependencies {
     "com.sksamuel.elastic4s" %% "elastic4s-client-esjava" % versionElastic4s,
     "com.sksamuel.elastic4s" %% "elastic4s-http-streams" % versionElastic4s,
     "com.sksamuel.elastic4s" %% "elastic4s-json-jackson" % versionElastic4s,
-    "com.sksamuel.elastic4s" %% "elastic4s-testkit" % versionElastic4s % Test
-  )
+    "com.sksamuel.elastic4s" %% "elastic4s-testkit" % versionElastic4s % Test)
 
   val _alpakkaText =
     ("com.lightbend.akka" %% "akka-stream-alpakka-text" % versionAlpakka)
@@ -208,8 +204,7 @@ object Dependencies {
     ("com.typesafe.akka" %% "akka-stream-kafka" % versionAlpakkaKafka)
       .exclude("com.typesafe.akka", "akka-stream")
       .exclude("org.apache.kafka", "kafka-clients")
-      .cross(CrossVersion.binary)
-  )
+      .cross(CrossVersion.binary))
 
   val _akkaDiscoveryConsul = "com.lightbend.akka.discovery" %% "akka-discovery-consul" % versionAkkaManagement
 
@@ -226,8 +221,7 @@ object Dependencies {
 
   val _guices = Seq(
     "com.google.inject" % "guice" % versionGuice,
-    "com.google.inject.extensions" % "guice-assistedinject" % versionGuice
-  )
+    "com.google.inject.extensions" % "guice-assistedinject" % versionGuice)
 
   val _scalapbJson4s = "com.thesamet.scalapb" %% "scalapb-json4s" % versionScalapbJson4s
 
@@ -297,4 +291,5 @@ object Dependencies {
   val _mssql = "com.microsoft.sqlserver" % "mssql-jdbc" % "6.4.0.jre8"
   val _commonsVfs = "org.apache.commons" % "commons-vfs2" % "2.2"
   val _alpnAgent = "org.mortbay.jetty.alpn" % "jetty-alpn-agent" % versionAlpnAgent
-  val _joseJwt = "com.nimbusds" % "nimbus-jose-jwt" % versionJoseJwt                                                                                                                                                                    }
+  val _joseJwt = "com.nimbusds" % "nimbus-jose-jwt" % versionJoseJwt
+}

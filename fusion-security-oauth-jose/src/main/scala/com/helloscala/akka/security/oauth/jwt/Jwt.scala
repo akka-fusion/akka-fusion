@@ -24,4 +24,25 @@ import com.helloscala.akka.security.oauth.core.TraitOAuth2Token
  * @author Yang Jing <a href="mailto:yang.xunjing@qq.com">yangbajing</a>
  * @date 2020-09-19 18:53:39
  */
-case class Jwt(tokenValue: String, issuedAt: Instant, expiresAt: Instant) extends TraitOAuth2Token
+case class Jwt(tokenValue: String, header: JwtHeader = JwtHeader(), claims: JwtClaims = JwtClaims())
+    extends TraitOAuth2Token {
+  override def issuedAt: Instant = claims.iss
+
+  override def expiresAt: Instant = claims.exp
+}
+
+case class JwtHeader(
+    alg: String = "",
+    typ: String = "",
+    cty: String = "",
+    crit: Set[String] = Set(),
+    customParams: Map[String, Object] = Map())
+
+case class JwtClaims(
+    iss: Instant = Instant.MIN,
+    exp: Instant = Instant.MAX,
+    sub: String = "",
+    aud: Seq[String] = Seq(),
+    nbf: Instant = Instant.MAX,
+    jti: String = "",
+    claims: Map[String, Object] = Map())

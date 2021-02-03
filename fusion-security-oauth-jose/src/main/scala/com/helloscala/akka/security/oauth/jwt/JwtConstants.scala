@@ -14,6 +14,15 @@
  * limitations under the License.
  */
 
-package fusion.oauth
+package com.helloscala.akka.security.oauth.jwt
 
-class FusionOauth {}
+import akka.http.scaladsl.model.AttributeKey
+import com.nimbusds.jwt.JWTClaimsSet
+
+/**
+ * @author Yang Jing <a href="mailto:yang.xunjing@qq.com">yangbajing</a>
+ * @date   2021-01-19 08:54:54
+ */
+object JwtConstants {
+  val JWT = AttributeKey[JWTClaimsSet]("JWT")
+}

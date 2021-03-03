@@ -57,9 +57,9 @@ object Publishing {
   lazy val publishing =
     Seq(
       publishTo := (if (version.value.endsWith("SNAPSHOT"))
-                      Some("Artifactory Realm".at(
-                        "https://jfrog-artifactory.quanguolian.xyz/artifactory/sbt;build.timestamp=" + new java.util.Date().getTime))
-                    else Some("fruits-sbt".at("https://jfrog-artifactory.quanguolian.xyz/artifactory/public-ivy"))),
+                      Some("hjgpscm-public".at(
+                        "https://jfrog-artifactory.hjgpscm.com/artifactory/public;build.timestamp=" + new java.util.Date().getTime))
+                    else Some("hjgpscm-public".at("https://jfrog-artifactory.hjgpscm.com/artifactory/public"))),
       credentials += Credentials(Path.userHome / ".sbt" / ".credentials_fruits"),
 //      bintrayOrganization := Some("artifactory"),
 //      bintrayRepository := "sbt",

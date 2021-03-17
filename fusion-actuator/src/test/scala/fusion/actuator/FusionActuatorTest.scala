@@ -21,8 +21,9 @@ import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.testkit.ScalatestRouteTest
 import fusion.json.jackson.JacksonObjectMapperExtension
 import fusion.testkit.FusionFunSuiteLike
+import org.scalatest.funsuite.AnyFunSuite
 
-class FusionActuatorTest extends FusionFunSuiteLike with ScalatestRouteTest {
+class FusionActuatorTest extends AnyFunSuite with FusionFunSuiteLike with ScalatestRouteTest {
   test("route") {
     val fusion = FusionActuator(system.toTyped)
     val route = fusion.route

@@ -106,7 +106,7 @@ class TraceHttpInterceptor(system: classic.ActorSystem) extends HttpInterceptor 
     val req = ctx.request
     val traceHeader = RawHeader("trace-id", ObjectId.get().toHexString)
     val headers = traceHeader +: req.headers
-    val request = req.copy(headers = headers)
+    val request = req.withHeaders(headers)
     route(ctx.withRequest(request)).map {
       case RouteResult.Complete(response) => RouteResult.Complete(toTrace(response, traceHeader))
       case a @ RouteResult.Rejected(_)    => a

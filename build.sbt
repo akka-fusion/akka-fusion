@@ -40,11 +40,12 @@ lazy val root = Project(id = "akka-fusion", base = file("."))
     fusionCluster,
     fusionHttp,
     fusionHttpClient,
+    fusionPulsar,
     fusionKafka,
-    fusionMongodb,
     fusionCassandra,
     fusionElasticsearch,
     fusionSlick,
+    fusionMongodb,
     fusionMybatis,
     fusionJdbc,
     fusionMail,
@@ -78,6 +79,7 @@ lazy val fusionDocs = _project("fusion-docs")
     fusionCloudConsul,
     fusionCloud,
     fusionHttpClient,
+    fusionPulsar,
     fusionKafka,
     fusionMongodb,
     fusionCassandra,
@@ -108,7 +110,8 @@ lazy val fusionDocs = _project("fusion-docs")
         "scala.version" -> scalaVersion.value,
         "scala.binary_version" -> scalaBinaryVersion.value,
         "scaladoc.akka.base_url" -> s"https://doc.akka.io/api/$versionAkka",
-        "akka.version" -> versionAkka))
+        "akka.version" -> versionAkka),
+    libraryDependencies ++= _akkaHttps)
 
 lazy val fusionSbtPlugin = _project("fusion-sbt-plugin", "sbt-plugin")
   .enablePlugins(SbtPlugin)
@@ -161,14 +164,7 @@ lazy val fusionActuatorCluster = _project("fusion-actuator-cluster")
 
 lazy val fusionActuator = _project("fusion-actuator")
   .dependsOn(fusionHttp, fusionTestkit % "test->test", fusionCore)
-  .settings(
-    libraryDependencies ++= Seq(
-        _akkaManagement,
-        _kamonStatusPage,
-        _kamonAkka,
-        _kamonAkkaHttp,
-        _kamonSystemMetrics,
-        _kamonLogback) ++ _akkaHttps)
+  .settings(libraryDependencies ++= Seq(_akkaManagement) ++ _akkaHttps)
 
 lazy val fusionJob = _project("fusion-job")
   .dependsOn(fusionJdbc, fusionTestkit % "test->test", fusionCore)
@@ -228,6 +224,10 @@ lazy val fusionCassandra = _project("fusion-cassandra")
 lazy val fusionElasticsearch = _project("fusion-elasticsearch")
   .dependsOn(fusionJsonJacksonExt, fusionTestkit % "test->test", fusionCore)
   .settings(libraryDependencies ++= _elastic4ses)
+
+lazy val fusionPulsar = _project("fusion-pulsar")
+  .dependsOn(fusionJsonJackson, fusionTestkit % "test->test", fusionCore)
+  .settings(libraryDependencies ++= Seq(_pulsar4s))
 
 lazy val fusionKafka = _project("fusion-kafka")
   .dependsOn(fusionJsonJackson, fusionTestkit % "test->test", fusionCore)

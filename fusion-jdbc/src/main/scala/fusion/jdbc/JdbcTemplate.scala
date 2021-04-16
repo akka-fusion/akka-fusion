@@ -16,14 +16,11 @@
 
 package fusion.jdbc
 
-import java.sql.Connection
-import java.sql.ResultSet
-import java.sql.SQLException
-
 import com.typesafe.config.Config
 import com.zaxxer.hikari.HikariDataSource
 import helloscala.common.Configuration
 
+import java.sql.{Connection, ResultSet, SQLException}
 import scala.annotation.varargs
 
 trait JdbcTemplate {

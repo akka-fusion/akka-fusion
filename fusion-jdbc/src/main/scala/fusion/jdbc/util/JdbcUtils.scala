@@ -16,28 +16,20 @@
 
 package fusion.jdbc.util
 
-import java.lang.reflect.Field
-import java.lang.reflect.Method
-import java.lang.reflect.Modifier
-import java.sql._
-import java.time._
-import java.util.Objects
-import java.util.Properties
-
 import com.typesafe.config.Config
 import com.typesafe.scalalogging.StrictLogging
-import com.zaxxer.hikari.HikariConfig
-import com.zaxxer.hikari.HikariDataSource
+import com.zaxxer.hikari.{HikariConfig, HikariDataSource}
 import fusion.jdbc._
 import helloscala.common.Configuration
 import helloscala.common.annotation.BeanIgnore
-import helloscala.common.util.NumberUtils
-import helloscala.common.util.StringUtils
-import helloscala.common.util.TimeUtils
-import javax.sql.DataSource
+import helloscala.common.util.{NumberUtils, StringUtils, TimeUtils}
 
-import scala.collection.immutable
-import scala.collection.mutable
+import java.lang.reflect.{Field, Method, Modifier}
+import java.sql._
+import java.time._
+import java.util.{Objects, Properties}
+import javax.sql.DataSource
+import scala.collection.{immutable, mutable}
 import scala.reflect.ClassTag
 
 object JdbcUtils extends StrictLogging {

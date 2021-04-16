@@ -16,7 +16,7 @@
 
 package fusion.cloud.discovery
 
-import helloscala.common.util.{ CollectionUtils, StringUtils }
+import helloscala.common.util.{CollectionUtils, StringUtils}
 
 /**
  * @author Yang Jing <a href="mailto:yang.xunjing@qq.com">yangbajing</a>

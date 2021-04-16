@@ -16,14 +16,9 @@
 
 package fusion.mybatis
 
+import org.apache.ibatis.session._
+
 import java.sql.Connection
-
-import org.apache.ibatis.session.Configuration
-import org.apache.ibatis.session.ExecutorType
-import org.apache.ibatis.session.SqlSession
-import org.apache.ibatis.session.SqlSessionFactory
-import org.apache.ibatis.session.TransactionIsolationLevel
-
 import scala.reflect.ClassTag
 
 final class FusionSqlSessionFactory(underlying: SqlSessionFactory) extends SqlSessionFactory {

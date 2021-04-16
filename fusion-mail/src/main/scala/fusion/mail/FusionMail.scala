@@ -17,7 +17,7 @@
 package fusion.mail
 
 import akka.actor.ExtendedActorSystem
-import fusion.common.extension.{ FusionExtension, FusionExtensionId }
+import fusion.common.extension.{FusionExtension, FusionExtensionId}
 import fusion.core.extension.FusionCore
 
 class FusionMail private (override val classicSystem: ExtendedActorSystem) extends FusionExtension {

@@ -16,12 +16,11 @@
 
 package fusion.job
 
-import java.time.Instant
-import java.util.Date
-
 import org.quartz._
 import org.quartz.impl.matchers.GroupMatcher
 
+import java.time.Instant
+import java.util.Date
 import scala.jdk.CollectionConverters._
 
 object FusionScheduler {

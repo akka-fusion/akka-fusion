@@ -1,12 +1,11 @@
-import Dependencies.{ versionScala212, versionScala213 }
+import Dependencies.{versionScala212, versionScala213}
 //import bintray.BintrayKeys._
-import com.typesafe.sbt.SbtNativePackager.autoImport.maintainer
-import de.heikoseeberger.sbtheader.HeaderPlugin.autoImport.{ headerLicense, HeaderLicense }
+import de.heikoseeberger.sbtheader.HeaderPlugin.autoImport.{HeaderLicense, headerLicense}
 import sbt.Keys._
 import sbt._
 
 object Commons {
-  import Environment.{ buildEnv, BuildEnv }
+  import Environment.{BuildEnv, buildEnv}
 
   def basicSettings =
     Seq(
@@ -34,7 +33,7 @@ object Commons {
         //if (scalaVersion.value.startsWith("2.12")) {
         //  list ++= Seq("-opt:l:inline", "-opt-inline-from")
         //}
-        if (buildEnv.value != BuildEnv.Developement) {
+        if (buildEnv.value != BuildEnv.Development) {
           list ++= Seq("-Xelide-below", "2001")
         }
         list
@@ -52,7 +51,6 @@ object Commons {
 }
 
 object Publishing {
-  import Environment.{ buildEnv, BuildEnv }
 
   lazy val publishing =
     Seq(
@@ -63,7 +61,7 @@ object Publishing {
       credentials += Credentials(Path.userHome / ".sbt" / ".credentials_fruits"),
 //      bintrayOrganization := Some("artifactory"),
 //      bintrayRepository := "sbt",
-      maintainer := "yangbajing <yang.xunjing@qq.com>",
+//      maintainer := "yangbajing <yang.xunjing@qq.com>",
       developers := List(
           Developer(
             id = "yangbajing",
@@ -81,7 +79,7 @@ object Publishing {
 
 object Environment {
   object BuildEnv extends Enumeration {
-    val Production, Stage, Test, Developement = Value
+    val Production, Stage, Test, Development = Value
   }
 
   val buildEnv = settingKey[BuildEnv.Value]("The current build environment")
@@ -91,6 +89,6 @@ object Environment {
     val defaultMessage = onLoadMessage.value
     val env = buildEnv.value
     s"""|$defaultMessage
-          |Working in build environment: $env""".stripMargin
+        |Working in build environment: $env""".stripMargin
   })
 }

@@ -16,8 +16,8 @@
 
 package fusion.common
 
-import akka.actor.typed.scaladsl.{ ActorContext, Behaviors }
-import akka.actor.typed.{ ActorRef, Behavior, Props }
+import akka.actor.typed.scaladsl.{ActorContext, Behaviors}
+import akka.actor.typed.{ActorRef, Behavior, Props}
 
 import scala.annotation.tailrec
 

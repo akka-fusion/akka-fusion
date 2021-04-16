@@ -16,18 +16,14 @@
 
 package fusion.http
 
-import java.net.InetSocketAddress
-import java.util.Objects
-import java.util.concurrent.atomic.AtomicBoolean
-
 import akka.Done
 import akka.actor.ExtendedActorSystem
 import akka.actor.typed.ActorSystem
 import akka.http.FusionRoute
 import akka.http.scaladsl.Http.ServerBinding
-import akka.http.scaladsl.model.{ HttpRequest, HttpResponse, Uri }
-import akka.http.scaladsl.server.{ ExceptionHandler, RejectionHandler, Route }
-import akka.http.scaladsl.{ ConnectionContext, Http, HttpConnectionContext }
+import akka.http.scaladsl.model.{HttpRequest, HttpResponse, Uri}
+import akka.http.scaladsl.server.{ExceptionHandler, RejectionHandler, Route}
+import akka.http.scaladsl.{ConnectionContext, Http, HttpConnectionContext}
 import akka.stream.Materializer
 import com.typesafe.config.ConfigFactory
 import com.typesafe.scalalogging.StrictLogging
@@ -42,10 +38,13 @@ import helloscala.common.Configuration
 import helloscala.common.exception.HSInternalErrorException
 import helloscala.common.util.NetworkUtils
 
+import java.net.InetSocketAddress
+import java.util.Objects
+import java.util.concurrent.atomic.AtomicBoolean
 import scala.concurrent.duration._
-import scala.concurrent.{ Await, ExecutionContextExecutor, Future }
+import scala.concurrent.{Await, ExecutionContextExecutor, Future}
 import scala.reflect.ClassTag
-import scala.util.{ Failure, Success, Try }
+import scala.util.{Failure, Success, Try}
 
 final class HttpServer(val id: String, implicit val system: ExtendedActorSystem)
     extends StrictLogging

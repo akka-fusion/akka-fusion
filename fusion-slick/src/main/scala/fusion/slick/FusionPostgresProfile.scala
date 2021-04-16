@@ -16,8 +16,6 @@
 
 package fusion.slick
 
-import java.time._
-
 import com.github.tminglei.slickpg._
 import com.github.tminglei.slickpg.str.PgStringSupport
 import com.github.tminglei.slickpg.utils.PlainSQLUtils._
@@ -25,6 +23,7 @@ import fusion.slick.pg.PgJacksonJsonSupport
 import slick.basic.Capability
 import slick.jdbc.JdbcCapabilities
 
+import java.time._
 import scala.concurrent.duration.FiniteDuration
 
 trait FusionPostgresProfile

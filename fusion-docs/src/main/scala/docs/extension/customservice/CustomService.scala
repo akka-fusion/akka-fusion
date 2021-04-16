@@ -17,9 +17,9 @@
 package docs.extension.customservice
 
 import akka.actor.typed.ActorSystem
-import fusion.common.extension.{ TypedExtension, TypedExtensionId }
+import fusion.common.extension.{TypedExtension, TypedExtensionId}
 import helloscala.common.exception.HSUnauthorizedException
-import helloscala.common.util.{ DigestUtils, StringUtils }
+import helloscala.common.util.{DigestUtils, StringUtils}
 
 import scala.concurrent.Future
 

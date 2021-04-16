@@ -16,20 +16,13 @@
 
 package fusion.jdbc.stream
 
-import java.sql.Connection
-import java.sql.PreparedStatement
-import java.sql.ResultSet
-
-import akka.stream.Attributes
-import akka.stream.Outlet
-import akka.stream.SourceShape
-import akka.stream.stage.GraphStage
-import akka.stream.stage.GraphStageLogic
-import akka.stream.stage.OutHandler
+import akka.stream.{Attributes, Outlet, SourceShape}
+import akka.stream.stage.{GraphStage, GraphStageLogic, OutHandler}
 import fusion.jdbc.ConnectionPreparedStatementCreator
 import fusion.jdbc.util.JdbcUtils
-import javax.sql.DataSource
 
+import java.sql.{Connection, PreparedStatement, ResultSet}
+import javax.sql.DataSource
 import scala.util.control.NonFatal
 
 class JdbcSourceStage(dataSource: DataSource, creator: ConnectionPreparedStatementCreator, fetchRowSize: Int)

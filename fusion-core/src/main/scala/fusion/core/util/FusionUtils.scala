@@ -16,13 +16,13 @@
 
 package fusion.core.util
 
-import java.util.concurrent.atomic.AtomicLong
-
-import akka.actor.{ typed, ActorSystem }
+import akka.actor.{ActorSystem, typed}
 import com.typesafe.config.Config
 import fusion.common.FusionProtocol
-import fusion.common.constant.{ FusionConstants, FusionKeys }
+import fusion.common.constant.{FusionConstants, FusionKeys}
 import helloscala.common.Configuration
+
+import java.util.concurrent.atomic.AtomicLong
 
 object FusionUtils {
   private val _traceIdGenerator = new AtomicLong(0)

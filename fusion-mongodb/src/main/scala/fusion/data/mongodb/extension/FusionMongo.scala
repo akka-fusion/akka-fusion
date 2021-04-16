@@ -19,9 +19,9 @@ package fusion.data.mongodb.extension
 import akka.Done
 import akka.actor.ExtendedActorSystem
 import com.mongodb.reactivestreams.client.MongoClients
-import com.mongodb.{ ConnectionString, MongoClientSettings, MongoDriverInformation }
+import com.mongodb.{ConnectionString, MongoClientSettings, MongoDriverInformation}
 import fusion.common.component.Components
-import fusion.common.extension.{ FusionExtension, FusionExtensionId }
+import fusion.common.extension.{FusionExtension, FusionExtensionId}
 import fusion.core.extension.FusionCore
 import fusion.data.mongodb.MongoTemplate
 import fusion.data.mongodb.constant.MongoConstants

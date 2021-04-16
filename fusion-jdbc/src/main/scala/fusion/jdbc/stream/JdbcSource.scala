@@ -16,14 +16,12 @@
 
 package fusion.jdbc.stream
 
-import java.sql.Connection
-import java.sql.PreparedStatement
-import java.sql.ResultSet
-
 import akka.NotUsed
 import akka.stream.scaladsl.Source
 import fusion.jdbc.ConnectionPreparedStatementCreator
 import fusion.jdbc.util.JdbcUtils
+
+import java.sql.{Connection, PreparedStatement, ResultSet}
 import javax.sql.DataSource
 
 object JdbcSource {

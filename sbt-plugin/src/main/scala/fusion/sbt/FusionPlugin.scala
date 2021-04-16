@@ -29,7 +29,6 @@ object FusionPlugin extends AutoPlugin {
   }
 
   object autoImport extends Keys
-  import autoImport._
 
   override def projectSettings: Seq[sbt.Setting[_]] =
     defaultSettings //++ configSettings(Compile) ++ configSettings(Test)

@@ -16,13 +16,9 @@
 
 package fusion.job.impl
 
-import java.time.OffsetDateTime
+import org.quartz._
 
-import org.quartz.DisallowConcurrentExecution
-import org.quartz.InterruptableJob
-import org.quartz.Job
-import org.quartz.JobExecutionContext
-import org.quartz.UnableToInterruptJobException
+import java.time.OffsetDateTime
 
 class DefaultJob extends Job {
   override def execute(context: JobExecutionContext): Unit = {}

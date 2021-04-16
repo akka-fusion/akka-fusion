@@ -16,25 +16,24 @@
 
 package fusion.job
 
-import java.util
-
 import akka.Done
 import akka.actor.ExtendedActorSystem
 import com.typesafe.scalalogging.StrictLogging
 import fusion.common.component.Components
 import fusion.jdbc.FusionJdbc
-import fusion.job.impl.{ FactoryHelper, FusionJdbcConnectionProvider }
+import fusion.job.impl.{FactoryHelper, FusionJdbcConnectionProvider}
 import helloscala.common.Configuration
 import org.quartz._
 import org.quartz.impl.jdbcjobstore.JobStoreSupport
-import org.quartz.impl.{ DefaultThreadExecutor, DirectSchedulerFactory, StdSchedulerFactory }
+import org.quartz.impl.{DefaultThreadExecutor, DirectSchedulerFactory, StdSchedulerFactory}
 import org.quartz.simpl.RAMJobStore
-import org.quartz.spi.{ JobStore, SchedulerPlugin, ThreadExecutor, ThreadPool }
+import org.quartz.spi.{JobStore, SchedulerPlugin, ThreadExecutor, ThreadPool}
 import org.quartz.utils.DBConnectionManager
 
+import java.util
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters._
-import scala.util.{ Failure, Success }
+import scala.util.{Failure, Success}
 
 class FusionJobComponents(system: ExtendedActorSystem)
     extends Components[FusionScheduler]("fusion.job.default")

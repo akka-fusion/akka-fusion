@@ -16,13 +16,13 @@
 
 package fusion.core
 
-import java.util.Objects
-
 import akka.actor.ExtendedActorSystem
 import com.typesafe.config.Config
-import fusion.common.{ ReceptionistFactory, SpawnFactory }
+import fusion.common.{ReceptionistFactory, SpawnFactory}
 import fusion.core
 import helloscala.common.Configuration
+
+import java.util.Objects
 
 trait ClassicApplication extends SpawnFactory {
   def classicSystem: akka.actor.ActorSystem = extendedActorSystem

@@ -16,9 +16,9 @@
 
 package fusion.kafka.commn.serialization
 
-import java.util
-
 import org.apache.kafka.common.serialization.Deserializer
+
+import java.util
 
 class JacksonDeserializer extends Deserializer[String] {
   override def configure(configs: util.Map[String, _], isKey: Boolean): Unit = ???

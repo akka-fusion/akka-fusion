@@ -17,12 +17,10 @@
 package fusion.doc
 
 import helloscala.common.util.Utils
-import org.apache.poi.ss.usermodel.Row
-import org.apache.poi.ss.usermodel.Sheet
-import org.apache.poi.ss.usermodel.Workbook
+import org.apache.poi.ss.usermodel.{Row, Sheet, Workbook}
 
-import scala.jdk.CollectionConverters._
 import scala.collection.immutable
+import scala.jdk.CollectionConverters._
 
 object ExcelUtils {
 

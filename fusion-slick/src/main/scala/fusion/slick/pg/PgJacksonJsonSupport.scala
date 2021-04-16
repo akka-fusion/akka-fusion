@@ -17,11 +17,11 @@
 package fusion.slick.pg
 
 import com.fasterxml.jackson.databind.node.NullNode
-import com.fasterxml.jackson.databind.{ JsonNode, ObjectMapper }
+import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper}
 import com.github.tminglei.slickpg.ExPostgresProfile
 import com.github.tminglei.slickpg.array.PgArrayJdbcTypes
 import com.github.tminglei.slickpg.json.PgJsonExtensions
-import com.github.tminglei.slickpg.utils.{ PgCommonJdbcTypes, SimpleArrayUtils }
+import com.github.tminglei.slickpg.utils.{PgCommonJdbcTypes, SimpleArrayUtils}
 import slick.jdbc._
 
 import scala.language.implicitConversions

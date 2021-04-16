@@ -17,7 +17,6 @@
 package fusion.inject
 
 import javax.inject.Named
-
 import scala.reflect.ClassTag
 
 trait InjectSupport {

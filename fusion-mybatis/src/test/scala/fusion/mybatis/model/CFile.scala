@@ -17,7 +17,6 @@
 package fusion.mybatis.model
 
 import java.time.LocalDateTime
-
 import scala.beans.BeanProperty
 
 // #CFile

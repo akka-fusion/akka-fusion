@@ -18,17 +18,12 @@ package fusion.mybatis
 
 import akka.Done
 import akka.actor.ExtendedActorSystem
-import com.baomidou.mybatisplus.annotation.{ FieldStrategy, IdType }
-import com.baomidou.mybatisplus.core.{ MybatisConfiguration, MybatisSqlSessionFactoryBuilder }
+import com.baomidou.mybatisplus.annotation.{FieldStrategy, IdType}
 import com.baomidou.mybatisplus.core.config.GlobalConfig
 import com.baomidou.mybatisplus.core.config.GlobalConfig.DbConfig
 import com.baomidou.mybatisplus.core.incrementer.IKeyGenerator
-import com.baomidou.mybatisplus.extension.incrementer.{
-  DB2KeyGenerator,
-  H2KeyGenerator,
-  OracleKeyGenerator,
-  PostgreKeyGenerator
-}
+import com.baomidou.mybatisplus.core.{MybatisConfiguration, MybatisSqlSessionFactoryBuilder}
+import com.baomidou.mybatisplus.extension.incrementer.{DB2KeyGenerator, H2KeyGenerator, OracleKeyGenerator, PostgreKeyGenerator}
 import com.typesafe.scalalogging.StrictLogging
 import fusion.common.component.Components
 import fusion.jdbc.FusionJdbc
@@ -41,7 +36,7 @@ import org.apache.ibatis.plugin.Interceptor
 import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory
 
 import scala.concurrent.Future
-import scala.util.{ Failure, Success }
+import scala.util.{Failure, Success}
 
 class MybatisComponents(system: ExtendedActorSystem)
     extends Components[FusionSqlSessionFactory](MybatisConstants.PATH_DEFAULT)

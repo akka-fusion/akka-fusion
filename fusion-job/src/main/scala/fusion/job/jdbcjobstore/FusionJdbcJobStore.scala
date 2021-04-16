@@ -16,10 +16,10 @@
 
 package fusion.job.jdbcjobstore
 
-import java.sql.Connection
-
 import org.quartz.impl.jdbcjobstore.JobStoreSupport
 import org.quartz.impl.jdbcjobstore.JobStoreSupport.TransactionCallback
+
+import java.sql.Connection
 
 class FusionJdbcJobStore extends JobStoreSupport {
   override def getNonManagedTXConnection(): Connection = getConnection()

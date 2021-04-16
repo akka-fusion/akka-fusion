@@ -17,8 +17,7 @@
 package fusion.core.extension
 
 import akka.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
-import org.scalatest.BeforeAndAfterAll
-import org.scalatest.FunSuiteLike
+import org.scalatest.{BeforeAndAfterAll, FunSuiteLike}
 
 class FusionCoreTest extends ScalaTestWithActorTestKit with FunSuiteLike with BeforeAndAfterAll {
   test("core") {

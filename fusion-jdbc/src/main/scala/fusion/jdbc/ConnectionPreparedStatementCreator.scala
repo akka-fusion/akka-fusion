@@ -16,10 +16,9 @@
 
 package fusion.jdbc
 
-import java.sql.Connection
-import java.sql.PreparedStatement
-
 import helloscala.common.util.StringUtils
+
+import java.sql.{Connection, PreparedStatement}
 
 @FunctionalInterface
 trait ConnectionPreparedStatementCreator {

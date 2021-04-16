@@ -17,7 +17,7 @@
 package fusion.cloud
 
 import akka.actor.ReflectiveDynamicAccess
-import com.typesafe.config.{ Config, ConfigFactory }
+import com.typesafe.config.{Config, ConfigFactory}
 
 /**
  * @author Yang Jing <a href="mailto:yang.xunjing@qq.com">yangbajing</a>

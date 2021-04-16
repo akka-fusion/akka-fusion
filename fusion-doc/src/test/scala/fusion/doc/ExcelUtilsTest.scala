@@ -16,11 +16,11 @@
 
 package fusion.doc
 
-import java.nio.file.Paths
-
 import org.apache.poi.ss.usermodel.WorkbookFactory
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
+
+import java.nio.file.Paths
 
 class ExcelUtilsTest extends AnyFunSuite with Matchers {
   test("render xlsx") {

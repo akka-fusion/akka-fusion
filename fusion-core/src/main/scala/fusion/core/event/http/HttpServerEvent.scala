@@ -16,10 +16,9 @@
 
 package fusion.core.event.http
 
-import java.net.InetSocketAddress
-
 import fusion.core.event.FusionEvent
 
+import java.net.InetSocketAddress
 import scala.util.Try
 
 trait HttpServerEvent extends FusionEvent

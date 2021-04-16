@@ -16,13 +16,13 @@
 
 package fusion.inject.builtin
 
-import akka.actor.typed.{ ActorSystem, Scheduler }
+import akka.actor.typed.Scheduler
 import akka.stream.Materializer
-import akka.{ actor => classic }
-import fusion.json.jackson.http.{ JacksonHttpHelper, JacksonSupport }
-import fusion.json.jackson.{ JacksonObjectMapperExtension, ScalaObjectMapper }
-import javax.inject.{ Inject, Provider, Singleton }
+import akka.{actor => classic}
+import fusion.json.jackson.http.{JacksonHttpHelper, JacksonSupport}
+import fusion.json.jackson.{JacksonObjectMapperExtension, ScalaObjectMapper}
 
+import javax.inject.{Inject, Provider, Singleton}
 import scala.concurrent.ExecutionContextExecutor
 
 @Singleton

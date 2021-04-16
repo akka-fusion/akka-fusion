@@ -17,9 +17,9 @@
 package fusion.inject.builtin
 
 import akka.actor.ActorSystem
-import akka.http.scaladsl.marshalling.{ Marshaller, ToEntityMarshaller }
-import akka.http.scaladsl.model.{ ContentTypes, HttpEntity, MediaTypes }
-import akka.http.scaladsl.unmarshalling.{ FromEntityUnmarshaller, Unmarshal, Unmarshaller }
+import akka.http.scaladsl.marshalling.{Marshaller, ToEntityMarshaller}
+import akka.http.scaladsl.model.{ContentTypes, HttpEntity, MediaTypes}
+import akka.http.scaladsl.unmarshalling.{FromEntityUnmarshaller, Unmarshal, Unmarshaller}
 import akka.serialization.jackson.JacksonObjectMapperProvider
 import akka.testkit.TestKit
 import akka.util.ByteString

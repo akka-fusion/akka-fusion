@@ -16,13 +16,12 @@
 
 package fusion.mail
 
-import java.util.Properties
-
 import akka.Done
 import fusion.common.component.Components
 import fusion.mail.constant.MailConstants
 import helloscala.common.Configuration
 
+import java.util.Properties
 import scala.concurrent.Future
 
 class MailComponents(val configuration: Configuration)

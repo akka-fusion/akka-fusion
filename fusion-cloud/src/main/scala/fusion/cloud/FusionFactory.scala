@@ -16,7 +16,7 @@
 
 package fusion.cloud
 
-import akka.actor.typed.{ ActorSystem, Behavior }
+import akka.actor.typed.{ActorSystem, Behavior}
 import com.typesafe.config.Config
 
 /**

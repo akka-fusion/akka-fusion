@@ -16,13 +16,12 @@
 
 package fusion.jdbc
 
-import java.time.OffsetDateTime
-
 import akka.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
 import com.zaxxer.hikari.HikariDataSource
 import fusion.jdbc.util.JdbcUtils
 import fusion.testkit.FusionFunSuiteLike
 
+import java.time.OffsetDateTime
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
 

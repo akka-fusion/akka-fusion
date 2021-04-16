@@ -16,7 +16,7 @@
 
 package fusion.grpc
 
-import scalapb.json4s.{ JsonFormat, Parser, Printer }
+import scalapb.json4s.{JsonFormat, Parser, Printer}
 
 object ProtobufUtils {
   val parser: Parser = JsonFormat.parser

@@ -16,13 +16,12 @@
 
 package fusion.jdbc.stream
 
-import java.sql.PreparedStatement
-
 import akka.stream.scaladsl.Sink
 import fusion.jdbc.ConnectionPreparedStatementCreator
 import fusion.jdbc.util.JdbcUtils
-import javax.sql.DataSource
 
+import java.sql.PreparedStatement
+import javax.sql.DataSource
 import scala.concurrent.Future
 
 object JdbcSink {

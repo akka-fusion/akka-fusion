@@ -16,20 +16,17 @@
 
 package fusion.jdbc
 
-import java.sql.Connection
-import java.sql.PreparedStatement
-import java.sql.ResultSet
-import java.util.Objects
-
 import com.typesafe.scalalogging.Logger
 import com.zaxxer.hikari.HikariDataSource
 import fusion.jdbc.util.JdbcUtils
 import helloscala.common.util.Utils
 import org.slf4j.LoggerFactory
 
+import java.sql.{Connection, PreparedStatement, ResultSet}
+import java.util.Objects
 import scala.annotation.varargs
-import scala.jdk.CollectionConverters._
 import scala.collection.mutable
+import scala.jdk.CollectionConverters._
 import scala.util.control.NonFatal
 
 private[jdbc] class JdbcTemplateImpl(

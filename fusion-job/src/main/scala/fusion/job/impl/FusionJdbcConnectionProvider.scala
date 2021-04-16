@@ -16,10 +16,10 @@
 
 package fusion.job.impl
 
-import java.sql.Connection
-
 import com.zaxxer.hikari.HikariDataSource
 import org.quartz.utils.ConnectionProvider
+
+import java.sql.Connection
 
 class FusionJdbcConnectionProvider(dataSource: HikariDataSource) extends ConnectionProvider {
   override def getConnection: Connection = dataSource.getConnection

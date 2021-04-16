@@ -23,7 +23,7 @@ import fusion.http.server.AbstractRoute
 import fusion.json.jackson.JacksonObjectMapperExtension
 import fusion.json.jackson.http.JacksonSupport
 
-import scala.concurrent.{ ExecutionContext, Future }
+import scala.concurrent.{ExecutionContext, Future}
 
 // #SampleApplication
 object SampleApplication {

@@ -16,14 +16,11 @@
 
 package fusion.job.impl.listener
 
-import java.text.MessageFormat
-
 import com.typesafe.scalalogging.StrictLogging
-import org.quartz.JobExecutionContext
-import org.quartz.Trigger
 import org.quartz.Trigger.CompletedExecutionInstruction
-import org.quartz.TriggerListener
+import org.quartz.{JobExecutionContext, Trigger, TriggerListener}
 
+import java.text.MessageFormat
 import scala.beans.BeanProperty
 
 class LoggingTriggerListener extends TriggerListener with StrictLogging {

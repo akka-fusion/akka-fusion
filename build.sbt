@@ -10,10 +10,10 @@ ThisBuild / buildEnv := {
       case "prod"  => Some(BuildEnv.Production)
       case "stage" => Some(BuildEnv.Stage)
       case "test"  => Some(BuildEnv.Test)
-      case "dev"   => Some(BuildEnv.Developement)
+      case "dev"   => Some(BuildEnv.Development)
       case _       => None
     }
-    .getOrElse(BuildEnv.Developement)
+    .getOrElse(BuildEnv.Development)
 }
 
 ThisBuild / scalaVersion := versionScala213

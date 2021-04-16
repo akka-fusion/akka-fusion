@@ -16,18 +16,17 @@
 
 package fusion.common.util
 
-import java.nio.file.Path
-
 import akka.Done
 import akka.stream.Materializer
-import akka.stream.scaladsl.{ FileIO, Sink, Source }
+import akka.stream.scaladsl.{FileIO, Sink, Source}
 import akka.util.ByteString
 import helloscala.common.util.DigestUtils.digestSha256
 import helloscala.common.util.StringUtils
 import org.reactivestreams.Publisher
 
+import java.nio.file.Path
 import scala.collection.immutable
-import scala.concurrent.{ ExecutionContext, Future }
+import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
 
 object StreamUtils {

@@ -16,8 +16,8 @@
 
 package fusion.sbt
 
-import sbt._
 import fusion.sbt.gen.BuildInfo
+import sbt._
 
 object FusionImport {
   val fusionActuator = component("fusion-actuator")

@@ -2,7 +2,7 @@ import sbt._
 
 object Dependencies {
   val versionScala212 = "2.12.12"
-  val versionScala213 = "2.13.4"
+  val versionScala213 = "2.13.5"
   val versionScalaXml = "1.3.0"
   val versionScalaCollectionCompat = "2.4.2"
   val versionJava8Compat = "0.9.1"
@@ -26,7 +26,7 @@ object Dependencies {
   val versionUuidGenerator = "4.0.1"
   val versionHanlp = "portable-1.7.8"
   val versionSlick = "3.3.3"
-  val versionSlickPg = "0.19.4"
+  val versionSlickPg = "0.19.5"
   val versionPoi = "4.1.2"
   val versionQuartz = "2.3.2"
   val versionBcprovJdk15on = "1.68"

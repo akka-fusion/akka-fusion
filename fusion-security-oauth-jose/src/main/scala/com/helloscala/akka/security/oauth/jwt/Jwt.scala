@@ -16,9 +16,10 @@
 
 package com.helloscala.akka.security.oauth.jwt
 
-import java.time.Instant
-
 import com.helloscala.akka.security.oauth.core.TraitOAuth2Token
+
+import java.time.Instant
+import java.time.temporal.ChronoUnit
 
 /**
  * @author Yang Jing <a href="mailto:yang.xunjing@qq.com">yangbajing</a>
@@ -39,8 +40,8 @@ case class JwtHeader(
     customParams: Map[String, Object] = Map())
 
 case class JwtClaims(
-    iss: Instant = Instant.MIN,
-    exp: Instant = Instant.MAX,
+    iss: Instant = Instant.now(),
+    exp: Instant = Instant.now().plus(30, ChronoUnit.DAYS),
     sub: String = "",
     aud: Seq[String] = Seq(),
     nbf: Instant = Instant.MAX,

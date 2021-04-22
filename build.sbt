@@ -55,6 +55,7 @@ lazy val root = Project(id = "akka-fusion", base = file("."))
     fusionJsonJackson,
     fusionSecurity,
     fusionTestkit,
+    fusionHttpTestkit,
     fusionProtobufV3,
     fusionCore,
     helloscalaCommon)
@@ -89,6 +90,7 @@ lazy val fusionDocs = _project("fusion-docs")
     fusionMail,
     fusionSecurity,
     fusionTestkit,
+    fusionHttpTestkit,
     fusionCore,
     helloscalaCommon)
   .settings(Publishing.noPublish: _*)
@@ -190,7 +192,7 @@ lazy val fusionSecurityOauthCore = _project("fusion-security-oauth-core")
 
 lazy val fusionHttp = _project("fusion-http")
   .dependsOn(fusionCloudConsul % "test->test", fusionCloud, fusionTestkit % "test->test", fusionCore)
-  .settings(libraryDependencies ++= Seq(_akkaManagement, _logbackClassic % Test))
+  .settings(libraryDependencies ++= Seq(_akkaManagement, _logbackClassic % Test) ++ _akkaHttps)
 
 lazy val fusionHttpClient = _project("fusion-http-client")
   .dependsOn(fusionProtobufV3, fusionJsonJackson, fusionTestkit % "test->test", fusionCore)
@@ -254,6 +256,11 @@ lazy val fusionTestkit = _project("fusion-testkit")
   .dependsOn(fusionCore)
   .settings(Publishing.publishing: _*)
   .settings(libraryDependencies ++= Seq(_akkaTypedTestkit, _akkaStreamTestkit, _scalatest))
+
+lazy val fusionHttpTestkit = _project("fusion-http-testkit")
+  .dependsOn(fusionCore)
+  .settings(Publishing.publishing: _*)
+  .settings(libraryDependencies ++= Seq(_akkaHttpTestkit))
 
 lazy val fusionProtobufV3 = _project("fusion-protobuf-v3")
   .dependsOn(fusionCore)

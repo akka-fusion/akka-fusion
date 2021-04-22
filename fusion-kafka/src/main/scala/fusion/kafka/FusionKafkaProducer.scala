@@ -18,7 +18,7 @@ package fusion.kafka
 
 import akka.actor.ExtendedActorSystem
 import akka.kafka.ProducerSettings
-import fusion.common.extension.{FusionExtension, FusionExtensionId}
+import fusion.common.extension.{ FusionExtension, FusionExtensionId }
 
 final class FusionKafkaProducer private (override val classicSystem: ExtendedActorSystem) extends FusionExtension {
   def producer: ProducerSettings[String, String] = producers.component

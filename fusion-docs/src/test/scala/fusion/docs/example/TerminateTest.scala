@@ -18,13 +18,13 @@ package fusion.docs.example
 
 import akka.actor.CoordinatedShutdown
 import akka.testkit.TestKit
-import akka.{Done, actor => classic}
+import akka.{ Done, actor => classic }
 import com.typesafe.scalalogging.StrictLogging
 import fusion.testkit.FusionFunSuiteLike
 import org.scalatest.BeforeAndAfterAll
 
 import java.util.concurrent.TimeUnit
-import scala.concurrent.{Await, Future}
+import scala.concurrent.{ Await, Future }
 import scala.concurrent.duration.Duration
 
 class TerminateTest

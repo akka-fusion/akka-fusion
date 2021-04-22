@@ -17,7 +17,7 @@
 package fusion.core.setting
 
 import akka.pattern.CircuitBreaker
-import akka.{actor => classic}
+import akka.{ actor => classic }
 import com.typesafe.config.ConfigFactory
 import fusion.common.constant.FusionKeys
 import helloscala.common.Configuration

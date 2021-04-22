@@ -16,10 +16,10 @@
 
 package fusion.core.util
 
-import akka.actor.{ActorSystem, typed}
+import akka.actor.{ typed, ActorSystem }
 import com.typesafe.config.Config
 import fusion.common.FusionProtocol
-import fusion.common.constant.{FusionConstants, FusionKeys}
+import fusion.common.constant.{ FusionConstants, FusionKeys }
 import helloscala.common.Configuration
 
 import java.util.concurrent.atomic.AtomicLong

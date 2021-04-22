@@ -17,7 +17,7 @@
 package fusion.doc
 
 import helloscala.common.util.Utils
-import org.apache.poi.ss.usermodel.{Row, Sheet, Workbook}
+import org.apache.poi.ss.usermodel.{ Row, Sheet, Workbook }
 
 import scala.collection.immutable
 import scala.jdk.CollectionConverters._

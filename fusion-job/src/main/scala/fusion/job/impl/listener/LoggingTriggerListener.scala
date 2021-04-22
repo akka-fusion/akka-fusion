@@ -18,7 +18,7 @@ package fusion.job.impl.listener
 
 import com.typesafe.scalalogging.StrictLogging
 import org.quartz.Trigger.CompletedExecutionInstruction
-import org.quartz.{JobExecutionContext, Trigger, TriggerListener}
+import org.quartz.{ JobExecutionContext, Trigger, TriggerListener }
 
 import java.text.MessageFormat
 import scala.beans.BeanProperty

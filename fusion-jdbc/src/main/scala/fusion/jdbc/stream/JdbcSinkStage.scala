@@ -16,14 +16,14 @@
 
 package fusion.jdbc.stream
 
-import akka.stream.{Attributes, Inlet, SinkShape}
-import akka.stream.stage.{GraphStageLogic, GraphStageWithMaterializedValue, InHandler}
+import akka.stream.{ Attributes, Inlet, SinkShape }
+import akka.stream.stage.{ GraphStageLogic, GraphStageWithMaterializedValue, InHandler }
 import fusion.jdbc.ConnectionPreparedStatementCreator
 import fusion.jdbc.util.JdbcUtils
 
-import java.sql.{Connection, PreparedStatement}
+import java.sql.{ Connection, PreparedStatement }
 import javax.sql.DataSource
-import scala.concurrent.{Future, Promise}
+import scala.concurrent.{ Future, Promise }
 import scala.util.control.NonFatal
 
 class JdbcSinkStage[T](

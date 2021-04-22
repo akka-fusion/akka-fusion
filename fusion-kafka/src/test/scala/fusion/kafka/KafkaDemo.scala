@@ -17,11 +17,11 @@
 package fusion.kafka
 
 import akka.actor.typed.scaladsl.adapter._
-import akka.kafka.scaladsl.{Consumer, Producer}
-import akka.kafka.{ProducerMessage, Subscriptions}
-import akka.stream.scaladsl.{Keep, Sink, Source}
-import akka.stream.{Materializer, OverflowStrategy}
-import akka.{actor => classic}
+import akka.kafka.scaladsl.{ Consumer, Producer }
+import akka.kafka.{ ProducerMessage, Subscriptions }
+import akka.stream.scaladsl.{ Keep, Sink, Source }
+import akka.stream.{ Materializer, OverflowStrategy }
+import akka.{ actor => classic }
 import com.fasterxml.jackson.databind.ObjectMapper
 import fusion.json.jackson.ScalaObjectMapper
 

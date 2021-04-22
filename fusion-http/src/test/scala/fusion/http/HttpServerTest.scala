@@ -19,7 +19,7 @@ package fusion.http
 import akka.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
 import akka.actor.typed.scaladsl.adapter._
 import akka.http.scaladsl.Http
-import akka.http.scaladsl.model.{HttpRequest, Uri}
+import akka.http.scaladsl.model.{ HttpRequest, Uri }
 import akka.http.scaladsl.server.Directives._
 import fusion.testkit.FusionFunSuiteLike
 

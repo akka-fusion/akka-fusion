@@ -16,7 +16,7 @@
 
 package akka.fusion
 
-import akka.actor.{ActorSystem, ActorSystemImpl}
+import akka.actor.{ ActorSystem, ActorSystemImpl }
 
 import java.util.concurrent.TimeoutException
 import scala.concurrent.Await

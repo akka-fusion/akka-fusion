@@ -18,7 +18,7 @@ package fusion.log.logback
 
 import ch.qos.logback.classic.pattern.ClassicConverter
 import ch.qos.logback.classic.spi.ILoggingEvent
-import helloscala.common.util.{StringUtils, Utils}
+import helloscala.common.util.{ StringUtils, Utils }
 
 import java.net.InetAddress
 

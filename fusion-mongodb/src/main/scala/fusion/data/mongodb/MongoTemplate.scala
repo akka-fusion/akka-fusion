@@ -17,15 +17,15 @@
 package fusion.data.mongodb
 
 import akka.stream.Materializer
-import akka.stream.scaladsl.{Sink, Source}
+import akka.stream.scaladsl.{ Sink, Source }
 import com.mongodb.ClientSessionOptions
 import com.mongodb.client.model.ReplaceOptions
 import com.mongodb.reactivestreams.client._
 import fusion.data.mongodb.codec.FusionCodecProvider
 import org.bson.Document
 import org.bson.codecs.configuration.CodecRegistries._
-import org.bson.codecs.configuration.{CodecProvider, CodecRegistry}
-import org.mongodb.scala.bson.codecs.{DocumentCodecProvider, IterableCodecProvider}
+import org.bson.codecs.configuration.{ CodecProvider, CodecRegistry }
+import org.mongodb.scala.bson.codecs.{ DocumentCodecProvider, IterableCodecProvider }
 import org.reactivestreams.Publisher
 
 import scala.collection.immutable

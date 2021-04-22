@@ -17,8 +17,8 @@
 package fusion.common.extension
 
 import akka.actor.typed.scaladsl.adapter._
-import akka.actor.typed.{ActorSystem, Extension, ExtensionId}
-import akka.{actor => classic}
+import akka.actor.typed.{ ActorSystem, Extension, ExtensionId }
+import akka.{ actor => classic }
 import helloscala.common.Configuration
 
 trait TypedExtension extends Extension {

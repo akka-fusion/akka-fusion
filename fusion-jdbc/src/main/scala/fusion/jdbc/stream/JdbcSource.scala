@@ -21,7 +21,7 @@ import akka.stream.scaladsl.Source
 import fusion.jdbc.ConnectionPreparedStatementCreator
 import fusion.jdbc.util.JdbcUtils
 
-import java.sql.{Connection, PreparedStatement, ResultSet}
+import java.sql.{ Connection, PreparedStatement, ResultSet }
 import javax.sql.DataSource
 
 object JdbcSource {

@@ -16,9 +16,9 @@
 
 package fusion.docs.sample
 
-import akka.stream.{Materializer, OverflowStrategy}
-import akka.stream.scaladsl.{Keep, Sink, Source}
-import akka.{actor => classic}
+import akka.stream.{ Materializer, OverflowStrategy }
+import akka.stream.scaladsl.{ Keep, Sink, Source }
+import akka.{ actor => classic }
 
 import java.util.concurrent.TimeUnit
 import scala.concurrent.Await

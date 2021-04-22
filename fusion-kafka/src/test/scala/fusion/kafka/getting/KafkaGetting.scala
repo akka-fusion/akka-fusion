@@ -16,13 +16,13 @@
 
 package fusion.kafka.getting
 
-import akka.kafka.{ConsumerSettings, ProducerSettings, Subscriptions}
-import akka.kafka.scaladsl.{Consumer, Producer}
-import akka.stream.{Materializer, OverflowStrategy}
-import akka.stream.scaladsl.{Keep, Sink, Source}
-import akka.{actor => classic}
+import akka.kafka.{ ConsumerSettings, ProducerSettings, Subscriptions }
+import akka.kafka.scaladsl.{ Consumer, Producer }
+import akka.stream.{ Materializer, OverflowStrategy }
+import akka.stream.scaladsl.{ Keep, Sink, Source }
+import akka.{ actor => classic }
 import org.apache.kafka.clients.producer.ProducerRecord
-import org.apache.kafka.common.serialization.{StringDeserializer, StringSerializer}
+import org.apache.kafka.common.serialization.{ StringDeserializer, StringSerializer }
 
 import scala.concurrent.Await
 import scala.concurrent.duration._

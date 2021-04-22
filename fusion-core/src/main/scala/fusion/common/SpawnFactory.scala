@@ -16,9 +16,9 @@
 
 package fusion.common
 
-import akka.actor.typed.receptionist.{Receptionist, ServiceKey}
+import akka.actor.typed.receptionist.{ Receptionist, ServiceKey }
 import akka.actor.typed.scaladsl.AskPattern._
-import akka.actor.typed.{ActorRef, ActorSystem, Behavior, Props}
+import akka.actor.typed.{ ActorRef, ActorSystem, Behavior, Props }
 import akka.util.Timeout
 import helloscala.common.exception.HSInternalErrorException
 

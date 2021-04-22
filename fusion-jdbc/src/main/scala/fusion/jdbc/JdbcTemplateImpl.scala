@@ -22,7 +22,7 @@ import fusion.jdbc.util.JdbcUtils
 import helloscala.common.util.Utils
 import org.slf4j.LoggerFactory
 
-import java.sql.{Connection, PreparedStatement, ResultSet}
+import java.sql.{ Connection, PreparedStatement, ResultSet }
 import java.util.Objects
 import scala.annotation.varargs
 import scala.collection.mutable

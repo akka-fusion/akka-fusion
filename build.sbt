@@ -33,7 +33,6 @@ lazy val root = Project(id = "akka-fusion", base = file("."))
     fusionLog,
     fusionGrpc,
     fusionHttpGateway,
-    fusionCloudNacos,
     fusionCloudConsul,
     fusionCloud,
     fusionActuator,
@@ -75,7 +74,6 @@ lazy val fusionDocs = _project("fusion-docs")
     fusionHttpGateway,
     fusionActuator,
     fusionCluster,
-    fusionCloudNacos,
     fusionCloudConsul,
     fusionCloud,
     fusionHttpClient,
@@ -150,10 +148,6 @@ lazy val fusionCloudConsul = _project("fusion-cloud-consul")
   .dependsOn(fusionCloud, fusionTestkit % "test->test", fusionCore)
   .settings(libraryDependencies ++= Seq(_akkaDiscoveryConsul))
 
-lazy val fusionCloudNacos = _project("fusion-cloud-nacos")
-  .dependsOn(fusionCloud, fusionTestkit % "test->test", fusionCore)
-  .settings(libraryDependencies ++= Seq(_nacosClient, _logbackClassic % Test))
-
 lazy val fusionCloud = _project("fusion-cloud")
   .dependsOn(fusionHttpClient, fusionTestkit % "test->test", fusionCore)
   .settings(libraryDependencies ++= Seq(_akkaManagement, _chimney, _akkaDiscovery) ++ _akkaClusters.map(_ % Provided))
@@ -227,7 +221,7 @@ lazy val fusionElasticsearch = _project("fusion-elasticsearch")
 
 lazy val fusionPulsar = _project("fusion-pulsar")
   .dependsOn(fusionJsonJackson, fusionTestkit % "test->test", fusionCore)
-  .settings(libraryDependencies ++= Seq(_pulsar4s))
+  .settings(libraryDependencies ++= Seq(_pulsar4s, _pulsarClient))
 
 lazy val fusionKafka = _project("fusion-kafka")
   .dependsOn(fusionJsonJackson, fusionTestkit % "test->test", fusionCore)

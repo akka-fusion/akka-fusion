@@ -16,7 +16,7 @@
 
 package fusion.core.http.headers
 
-import akka.http.scaladsl.model.headers.{ModeledCustomHeader, ModeledCustomHeaderCompanion}
+import akka.http.scaladsl.model.headers.{ ModeledCustomHeader, ModeledCustomHeaderCompanion }
 import com.typesafe.scalalogging.StrictLogging
 import fusion.common.constant.HttpKeys
 

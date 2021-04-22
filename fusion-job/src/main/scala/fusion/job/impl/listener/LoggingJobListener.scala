@@ -17,7 +17,7 @@
 package fusion.job.impl.listener
 
 import com.typesafe.scalalogging.StrictLogging
-import org.quartz.{JobExecutionContext, JobExecutionException, JobListener}
+import org.quartz.{ JobExecutionContext, JobExecutionException, JobListener }
 
 import java.text.MessageFormat
 import scala.beans.BeanProperty

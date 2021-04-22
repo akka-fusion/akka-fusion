@@ -17,7 +17,7 @@
 package fusion.data.mongodb.codec
 
 import org.bson.codecs.Codec
-import org.bson.codecs.configuration.{CodecProvider, CodecRegistry}
+import org.bson.codecs.configuration.{ CodecProvider, CodecRegistry }
 
 class FusionCodecProvider extends CodecProvider {
 

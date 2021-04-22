@@ -21,7 +21,7 @@ import akka.stream.scaladsl.Flow
 import akka.util.ByteString
 import fusion.jdbc.util.JdbcUtils
 
-import java.nio.charset.{Charset, StandardCharsets}
+import java.nio.charset.{ Charset, StandardCharsets }
 import java.sql.ResultSet
 import scala.collection.immutable
 

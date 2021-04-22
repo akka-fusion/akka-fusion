@@ -19,19 +19,19 @@ package fusion.http.server
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.model.headers.CacheDirectives
 import akka.http.scaladsl.server.Directives._
-import akka.http.scaladsl.server.PathMatcher.{Matched, Unmatched}
+import akka.http.scaladsl.server.PathMatcher.{ Matched, Unmatched }
 import akka.http.scaladsl.server._
 import akka.http.scaladsl.server.directives.FileInfo
-import akka.http.scaladsl.unmarshalling.{FromRequestUnmarshaller, FromStringUnmarshaller, Unmarshaller}
-import akka.stream.scaladsl.{FileIO, Sink, Source}
+import akka.http.scaladsl.unmarshalling.{ FromRequestUnmarshaller, FromStringUnmarshaller, Unmarshaller }
+import akka.stream.scaladsl.{ FileIO, Sink, Source }
 import fusion.http.AkkaHttpSourceQueue
 import fusion.http.rejection.ForbiddenRejection
 import fusion.http.util.HttpUtils
 import helloscala.common.util.TimeUtils
 
 import java.io.File
-import java.nio.charset.{Charset, StandardCharsets}
-import java.time.{LocalDate, LocalDateTime, LocalTime, OffsetDateTime}
+import java.nio.charset.{ Charset, StandardCharsets }
+import java.time.{ LocalDate, LocalDateTime, LocalTime, OffsetDateTime }
 import scala.collection.immutable
 
 trait HttpDirectives {

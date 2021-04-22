@@ -18,16 +18,16 @@ package docs.core
 
 import akka.actor.ExtendedActorSystem
 import akka.http.scaladsl.model.headers.RawHeader
-import akka.http.scaladsl.model.{HttpRequest, HttpResponse, StatusCodes}
-import akka.http.scaladsl.server.{Route, RouteResult}
-import akka.{actor => classic}
+import akka.http.scaladsl.model.{ HttpRequest, HttpResponse, StatusCodes }
+import akka.http.scaladsl.server.{ Route, RouteResult }
+import akka.{ actor => classic }
 import fusion.core.http.HttpHandler
 import fusion.http.exception.HttpResponseException
 import fusion.http.interceptor.HttpInterceptor
 import org.bson.types.ObjectId
 
 import scala.concurrent.duration.Duration
-import scala.concurrent.{Await, Future}
+import scala.concurrent.{ Await, Future }
 
 object HttpHandlerDoc {
   private val system = classic.ActorSystem().asInstanceOf[ExtendedActorSystem]

@@ -21,8 +21,8 @@ import com.zaxxer.hikari.HikariConfig
 import helloscala.common.util.Utils
 
 import java.lang.reflect.Method
-import java.util.{Locale, Properties}
-import java.util.regex.{Matcher, Pattern}
+import java.util.{ Locale, Properties }
+import java.util.regex.{ Matcher, Pattern }
 
 object PropertyElf extends StrictLogging {
   private val GETTER_PATTERN: Pattern = Pattern.compile("(get|is)[A-Z].+")

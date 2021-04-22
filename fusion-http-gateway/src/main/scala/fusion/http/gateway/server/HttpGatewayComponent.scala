@@ -151,8 +151,8 @@ abstract class HttpGatewayComponent(id: String)(implicit val system: ExtendedAct
           logger.trace(s"discovery health target: ${upstream.serviceName} $target")
           val targetUri = uri.withAuthority(
             target.host,
-            target.port
-              .getOrElse(throw HSBadGatewayException(s"服务未指定端口号：$serviceName；[${target.host}:${target.port}]")))
+            target.port.getOrElse(
+              throw HSBadGatewayException(s"服务未指定端口号：$serviceName；[${target.host}:${target.port}]")))
           req.copy(uri = targetUri, protocol = location.protocol)
         }
     }

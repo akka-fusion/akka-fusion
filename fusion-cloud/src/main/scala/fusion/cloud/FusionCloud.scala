@@ -16,8 +16,8 @@
 
 package fusion.cloud
 
-import akka.actor.typed.{ActorSystem, Extension, ExtensionId}
-import akka.cluster.sharding.typed.scaladsl.{ClusterSharding, EntityRef}
+import akka.actor.typed.{ ActorSystem, Extension, ExtensionId }
+import akka.cluster.sharding.typed.scaladsl.{ ClusterSharding, EntityRef }
 import akka.util.Timeout
 import com.typesafe.config.Config
 import fusion.cloud.FusionCloud.Constants

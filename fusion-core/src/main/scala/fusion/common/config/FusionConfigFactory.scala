@@ -17,7 +17,7 @@
 package fusion.common.config
 
 import akka.actor.AddressFromURIString
-import com.typesafe.config.{Config, ConfigFactory}
+import com.typesafe.config.{ Config, ConfigFactory }
 import helloscala.common.Configuration
 import helloscala.common.exception.HSConfigurationException
 

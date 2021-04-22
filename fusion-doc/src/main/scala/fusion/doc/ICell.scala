@@ -16,7 +16,7 @@
 
 package fusion.doc
 
-import org.apache.poi.ss.usermodel.{Cell, CellType}
+import org.apache.poi.ss.usermodel.{ Cell, CellType }
 
 trait ICell {
   def num: Int

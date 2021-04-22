@@ -16,12 +16,12 @@
 
 package akka.http
 
-import akka.http.scaladsl.model.{HttpRequest, HttpResponse}
+import akka.http.scaladsl.model.{ HttpRequest, HttpResponse }
 import akka.http.scaladsl.server._
-import akka.http.scaladsl.settings.{ParserSettings, RoutingSettings}
+import akka.http.scaladsl.settings.{ ParserSettings, RoutingSettings }
 import akka.stream.Materializer
 
-import scala.concurrent.{ExecutionContextExecutor, Future}
+import scala.concurrent.{ ExecutionContextExecutor, Future }
 
 object FusionRoute {
 

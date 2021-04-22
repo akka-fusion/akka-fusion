@@ -45,7 +45,6 @@ buildInfoKeys ++= Seq(
   "versionPoi" -> versionPoi,
   "versionQuartz" -> versionQuartz,
   "versionBcprovJdk15on" -> versionBcprovJdk15on,
-  "versionNacos" -> versionNacos,
   "versionJsch" -> versionJsch,
   "versionJakartaMail" -> versionJakartaMail,
   "versionHikariCP" -> versionHikariCP,

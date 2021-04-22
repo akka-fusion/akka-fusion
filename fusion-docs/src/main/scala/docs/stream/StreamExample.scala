@@ -17,10 +17,10 @@
 package docs.stream
 
 import akka.kafka.scaladsl.Consumer
-import akka.kafka.{ConsumerSettings, Subscriptions}
+import akka.kafka.{ ConsumerSettings, Subscriptions }
 import akka.stream.Materializer
-import akka.stream.scaladsl.{Sink, Source}
-import akka.{Done, actor => classic}
+import akka.stream.scaladsl.{ Sink, Source }
+import akka.{ Done, actor => classic }
 import fusion.json.jackson.JacksonObjectMapperExtension
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.common.serialization.StringDeserializer

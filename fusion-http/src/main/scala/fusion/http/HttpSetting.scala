@@ -17,7 +17,7 @@
 package fusion.http
 
 import com.typesafe.config.Config
-import com.typesafe.sslconfig.ssl.{SSLConfigFactory, SSLConfigSettings}
+import com.typesafe.sslconfig.ssl.{ SSLConfigFactory, SSLConfigSettings }
 import fusion.http.constant.HttpConstants
 import helloscala.common.Configuration
 

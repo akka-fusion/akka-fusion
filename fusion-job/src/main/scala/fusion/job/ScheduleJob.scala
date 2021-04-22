@@ -16,7 +16,7 @@
 
 package fusion.job
 
-import org.quartz.{Job, JobExecutionContext}
+import org.quartz.{ Job, JobExecutionContext }
 
 trait ScheduleJob extends Job {
 

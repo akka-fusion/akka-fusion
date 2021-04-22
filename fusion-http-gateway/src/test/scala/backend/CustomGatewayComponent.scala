@@ -14,25 +14,8 @@
  * limitations under the License.
  */
 
-package fusion.cloud.discovery.constant
-
-/**
- * Used by nacos or discoveryx.
+package backend /**
+ * @author Yang Jing <a href="mailto:yang.xunjing@qq.com">yangbajing</a>
+ * @date 2021-01-16 13:40:48
  */
-object PropKeys {
-  val SERVER_ADDR = "serverAddr"
-  val NAMESPACE = "namespace"
-  val DATA_ID = "dataId"
-  val GROUP = "group"
-  val CLUSTER_NAME = "clusterName"
-  val TIMEOUT_MS = "timeoutMs"
-
-  val SERVICE_NAME = "serviceName"
-  val INSTANCE_IP = "instanceIp"
-  val INSTANCE_PORT = "instancePort"
-  val INSTANCE_WEIGHT = "instanceWeight"
-  val HEALTHY = "healthy"
-  val EPHEMERAL = "ephemeral"
-  val ENABLE = "enable"
-  val AUTO_REGISTER_INSTANCE = "autoRegisterInstance"
-}
+class CustomGatewayComponent {}

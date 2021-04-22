@@ -4,11 +4,11 @@ object Dependencies {
   val versionScala212 = "2.12.12"
   val versionScala213 = "2.13.5"
   val versionScalaXml = "1.3.0"
-  val versionScalaCollectionCompat = "2.4.2"
+  val versionScalaCollectionCompat = "2.4.3"
   val versionJava8Compat = "0.9.1"
   val versionScalameta = "4.4.10"
   val versionScalatest = "3.1.4"
-  val versionAkka: String = sys.props.getOrElse("akka.version", "2.6.13")
+  val versionAkka: String = sys.props.getOrElse("akka.version", "2.6.14")
   val versionAkkaManagement = "1.0.10"
   val versionAkkaHttp = "10.2.4"
   val versionAkkaHttpCors = "1.1.1"
@@ -16,13 +16,13 @@ object Dependencies {
   val versionAlpakkaKafka = "2.0.7"
   val versionAkkaPersistenceCassandra = "1.0.5"
   val versionAkkaPersistenceJdbc = "5.0.0"
-  val versionCassandra = "4.9.0"
-  val versionJackson = "2.10.5"
-  val versionElastic4s = "7.10.3"
+  val versionCassandra = "4.11.0"
+  val versionJackson = "2.11.4"
+  val versionElastic4s = "7.12.0"
   val versionConfig = "1.4.1"
-  val versionPureconfig = "0.14.1"
-  val versionChimeny = "0.6.1"
-  val versionGuice = "4.2.3"
+  val versionPureconfig = "0.15.0"
+  val versionChimney = "0.6.1"
+  val versionGuice = "5.0.1"
   val versionUuidGenerator = "4.0.1"
   val versionHanlp = "portable-1.7.8"
   val versionSlick = "3.3.3"
@@ -30,29 +30,33 @@ object Dependencies {
   val versionPoi = "4.1.2"
   val versionQuartz = "2.3.2"
   val versionBcprovJdk15on = "1.68"
-  val versionNacos = "1.3.3"
   val versionJsch = "0.1.55"
-  val versionJakartaMail = "2.0.0"
-  val versionHikariCP = "3.4.5"
-  val versionMybatisPlus = "3.4.1"
+  val versionJakartaMail = "2.0.1"
+  val versionHikariCP = "4.0.3"
+  val versionMybatisPlus = "3.4.2"
   val versionSlf4j = "1.7.30"
-  val versionLombok = "1.18.16"
-  val versionMySQL = "8.0.22"
-  val versionPostgres = "42.2.18"
-  val versionRequests = "0.6.5"
-  val versionFastparse = "2.3.1"
-  val versionOsLib = "0.7.3"
-  val versionMongoScalaBson = "4.1.1"
-  val versionMongoDriverReactivestreams = "4.1.1"
-  val versionBson = "4.1.1"
+  val versionLombok = "1.18.20"
+  val versionMySQL = "8.0.24"
+  val versionH2 = "1.4.200"
+  val versionMssqlJdbc = "9.2.1.jre11"
+  val versionPostgres = "42.2.19"
+  val versionCommonsVfs2 = "2.8"
+  val versionRequests = "0.6.7"
+  val versionFastparse = "2.3.2"
+  val versionOsLib = "0.7.4"
+  val versionMongoScalaBson = "4.2.3"
+  val versionMongoDriverReactivestreams = "4.2.3"
+  val versionBson = "4.2.3"
   val versionKafka = "2.6.1"
   val versionAlpnAgent = "2.0.10"
   val versionLogback = "1.2.3"
-  val versionScalaLogging = "3.9.2"
+  val versionScalaLogging = "3.9.3"
   val versionLogstashLogback = "6.6"
-  val versionJwt = "4.3.0"
-  val versionScalapbJson4s = "0.10.3"
-  val versionJoseJwt = "9.7"
+  val versionJwt = "5.0.0"
+  val versionScalapbJson4s = "0.11.0"
+  val versionJoseJwt = "9.8.1"
+  val versionPulsar4sAkkaStreams = "2.7.2"
+  val versionPulsar = "2.7.1"
 
   val _scalameta = "org.scalameta" %% "scalameta" % versionScalameta
   val _scalaXml = ("org.scala-lang.modules" %% "scala-xml" % versionScalaXml).exclude("org.scala-lang", "scala-library")
@@ -206,7 +210,7 @@ object Dependencies {
 
   val _pureconfig = "com.github.pureconfig" %% "pureconfig" % versionPureconfig
 
-  val _chimney = "io.scalaland" %% "chimney" % versionChimeny
+  val _chimney = "io.scalaland" %% "chimney" % versionChimney
 
   val _javaxInject = "javax.inject" % "javax.inject" % "1"
 
@@ -243,15 +247,16 @@ object Dependencies {
   val _lombok = "org.projectlombok" % "lombok" % versionLombok
   val _postgresql = "org.postgresql" % "postgresql" % versionPostgres
   val _mysql = "mysql" % "mysql-connector-java" % versionMySQL
-  val _h2 = "com.h2database" % "h2" % "1.4.200"
+  val _h2 = "com.h2database" % "h2" % versionH2
   val _hikariCP = "com.zaxxer" % "HikariCP" % versionHikariCP
   val _jsch = "com.jcraft" % "jsch" % versionJsch
-  val _nacosClient = "com.alibaba.nacos" % "nacos-client" % versionNacos
   val _jakartaMail = "com.sun.mail" % "jakarta.mail" % versionJakartaMail
   val _bson = "org.mongodb" % "bson" % versionBson
-  val _mssql = "com.microsoft.sqlserver" % "mssql-jdbc" % "6.4.0.jre8"
-  val _commonsVfs = "org.apache.commons" % "commons-vfs2" % "2.2"
+  val _mssql = "com.microsoft.sqlserver" % "mssql-jdbc" % versionMssqlJdbc
+  val _commonsVfs = "org.apache.commons" % "commons-vfs2" % versionCommonsVfs2
   val _alpnAgent = "org.mortbay.jetty.alpn" % "jetty-alpn-agent" % versionAlpnAgent
   val _joseJwt = "com.nimbusds" % "nimbus-jose-jwt" % versionJoseJwt
-  val _pulsar4s = "com.sksamuel.pulsar4s" %% "pulsar4s-akka-streams" % "2.7.2"
+  val _pulsar4s = ("com.sksamuel.pulsar4s" %% "pulsar4s-akka-streams" % versionPulsar4sAkkaStreams)
+    .exclude("org.apache.pulsar", "pulsar-client")
+  val _pulsarClient = "org.apache.pulsar" % "pulsar-client" % versionPulsar
 }

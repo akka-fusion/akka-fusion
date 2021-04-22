@@ -21,7 +21,7 @@ import com.typesafe.scalalogging.StrictLogging
 import helloscala.common.Configuration
 
 import scala.collection.mutable
-import scala.concurrent.{Await, ExecutionContext, Future}
+import scala.concurrent.{ Await, ExecutionContext, Future }
 import scala.concurrent.duration._
 
 // #Components

@@ -16,7 +16,7 @@
 
 package fusion.data.mongodb.jackson
 
-import com.fasterxml.jackson.core.{JsonGenerator, JsonParseException, JsonParser}
+import com.fasterxml.jackson.core.{ JsonGenerator, JsonParseException, JsonParser }
 import com.fasterxml.jackson.databind._
 import com.fasterxml.jackson.databind.deser.Deserializers
 import com.fasterxml.jackson.databind.ser.Serializers

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019-2021 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,13 @@
 
 package fusion.core.util
 
-import java.util.concurrent.atomic.AtomicLong
-
-import akka.actor.{ ActorSystem, typed }
+import akka.actor.{ typed, ActorSystem }
 import com.typesafe.config.Config
 import fusion.common.FusionProtocol
 import fusion.common.constant.{ FusionConstants, FusionKeys }
 import helloscala.common.Configuration
+
+import java.util.concurrent.atomic.AtomicLong
 
 object FusionUtils {
   private val _traceIdGenerator = new AtomicLong(0)

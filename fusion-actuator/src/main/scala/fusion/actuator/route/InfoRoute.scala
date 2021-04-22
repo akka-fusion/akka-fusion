@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019-2021 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,8 @@ final class InfoRoute(val system: ExtendedActorSystem) extends ActuatorRoute wit
   private val EMPTY = HttpEntity(ContentTypes.`application/json`, "{}")
   override val name: String = "info"
 
-  override def route: Route = get {
-    complete(EMPTY)
-  }
+  override def route: Route =
+    get {
+      complete(EMPTY)
+    }
 }

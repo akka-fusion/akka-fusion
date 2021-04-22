@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019-2021 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,28 +16,20 @@
 
 package fusion.jdbc.util
 
-import java.lang.reflect.Field
-import java.lang.reflect.Method
-import java.lang.reflect.Modifier
-import java.sql._
-import java.time._
-import java.util.Objects
-import java.util.Properties
-
 import com.typesafe.config.Config
 import com.typesafe.scalalogging.StrictLogging
-import com.zaxxer.hikari.HikariConfig
-import com.zaxxer.hikari.HikariDataSource
+import com.zaxxer.hikari.{ HikariConfig, HikariDataSource }
 import fusion.jdbc._
 import helloscala.common.Configuration
 import helloscala.common.annotation.BeanIgnore
-import helloscala.common.util.NumberUtils
-import helloscala.common.util.StringUtils
-import helloscala.common.util.TimeUtils
-import javax.sql.DataSource
+import helloscala.common.util.{ NumberUtils, StringUtils, TimeUtils }
 
-import scala.collection.immutable
-import scala.collection.mutable
+import java.lang.reflect.{ Field, Method, Modifier }
+import java.sql._
+import java.time._
+import java.util.{ Objects, Properties }
+import javax.sql.DataSource
+import scala.collection.{ immutable, mutable }
 import scala.reflect.ClassTag
 
 object JdbcUtils extends StrictLogging {
@@ -292,6 +284,7 @@ object JdbcUtils extends StrictLogging {
 
   def preparedStatementActionUseUpdate(args: Iterable[Any]): PreparedStatementAction[Int] =
     new PreparedStatementActionImpl(args, new PreparedStatementAction[Int] {
+
       override def apply(pstmt: PreparedStatement): Int = {
         setStatementParameters(pstmt, args)
         pstmt.executeUpdate()
@@ -302,6 +295,7 @@ object JdbcUtils extends StrictLogging {
       args: Map[String, Any],
       paramIndex: Map[String, Int]): PreparedStatementAction[Int] =
     new PreparedStatementActionImpl(args, new PreparedStatementAction[Int] {
+
       override def apply(pstmt: PreparedStatement): Int = {
         for ((param, index) <- paramIndex) {
           setParameter(pstmt, index, args(param))
@@ -313,6 +307,7 @@ object JdbcUtils extends StrictLogging {
   def preparedStatementActionUseBatchUpdate(
       argsList: Iterable[Iterable[Any]]): PreparedStatementAction[scala.Array[Int]] =
     new PreparedStatementActionImpl(argsList, new PreparedStatementAction[scala.Array[Int]] {
+
       override def apply(pstmt: PreparedStatement): scala.Array[Int] = {
         for (args <- argsList) {
           setStatementParameters(pstmt, args)
@@ -326,6 +321,7 @@ object JdbcUtils extends StrictLogging {
       argsList: Iterable[Map[String, Any]],
       paramIndex: Map[String, Int]): PreparedStatementAction[scala.Array[Int]] =
     new PreparedStatementActionImpl(argsList, new PreparedStatementAction[scala.Array[Int]] {
+
       override def apply(pstmt: PreparedStatement): scala.Array[Int] = {
         for (args <- argsList) {
           for ((param, index) <- paramIndex) {
@@ -459,10 +455,11 @@ object JdbcUtils extends StrictLogging {
     }
   }
 
-  def closeDataSource(ds: DataSource): Unit = ds match {
-    case hds: HikariDataSource => closeDataSource(hds)
-    case _                     => // do nothing
-  }
+  def closeDataSource(ds: DataSource): Unit =
+    ds match {
+      case hds: HikariDataSource => closeDataSource(hds)
+      case _                     => // do nothing
+    }
 
   def isString(sqlType: Int): Boolean =
     Types.VARCHAR == sqlType || Types.VARCHAR == Types.CHAR || Types.VARCHAR == Types.LONGNVARCHAR ||
@@ -582,7 +579,8 @@ object JdbcUtils extends StrictLogging {
       val parameters = actionFunc match {
         case actionFuncImpl: PreparedStatementActionImpl[_] =>
           parameterTypes.zip(actionFuncImpl.args).map {
-            case (paramType, value) => s"\t\t$paramType: $value"
+            case (paramType, value) =>
+              s"\t\t$paramType: $value"
           }
         case _ =>
           parameterTypes.map(paramType => s"\t\t$paramType:")

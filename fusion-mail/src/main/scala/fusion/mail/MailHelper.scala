@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019-2021 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,11 @@
 
 package fusion.mail
 
+import jakarta.mail.internet.MimeMessage
+import jakarta.mail.{ Authenticator, Message, Session, Transport }
+
 import java.io.InputStream
 import java.util.Properties
-
-import javax.mail.internet.MimeMessage
-import javax.mail._
 
 class MailHelper(props: Properties, authenticator: Authenticator) extends AutoCloseable {
   private val session = Session.getDefaultInstance(props, authenticator)

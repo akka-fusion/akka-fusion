@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019-2021 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,7 @@
 package fusion.core.extension
 
 import akka.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
-import org.scalatest.BeforeAndAfterAll
-import org.scalatest.FunSuiteLike
+import org.scalatest.{ BeforeAndAfterAll, FunSuiteLike }
 
 class FusionCoreTest extends ScalaTestWithActorTestKit with FunSuiteLike with BeforeAndAfterAll {
   test("core") {

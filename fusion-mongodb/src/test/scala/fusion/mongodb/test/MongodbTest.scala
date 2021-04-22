@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019-2021 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,9 +20,9 @@ import akka.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
 import akka.actor.typed.scaladsl.adapter._
 import akka.stream.Materializer
 import akka.stream.scaladsl.{ Sink, Source }
-import com.mongodb.{ ConnectionString, MongoClientSettings }
 import com.mongodb.client.model.{ Filters, ReplaceOptions }
 import com.mongodb.reactivestreams.client.{ MongoClients, MongoCollection }
+import com.mongodb.{ ConnectionString, MongoClientSettings }
 import fusion.data.mongodb.MongoTemplate
 import org.bson.Document
 import org.bson.types.ObjectId

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019-2021 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,11 +41,8 @@ class FusionESClient(val underlying: ElasticClient, val config: Configuration) {
   // Executes the given request type T, and returns an effect of Response[U]
   // where U is particular to the request type.
   // For example a search request will return a Response[SearchResponse].
-  def execute[T, U, F[_]](t: T)(
-      implicit
-      executor: Executor[F],
-      functor: Functor[F],
-      handler: Handler[T, U]): F[Response[U]] = {
+  def execute[T, U, F[_]](
+      t: T)(implicit executor: Executor[F], functor: Functor[F], handler: Handler[T, U]): F[Response[U]] = {
     import scala.language.higherKinds
     val request = handler.build(t)
     val f = executor.exec(client, request)

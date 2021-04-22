@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019-2021 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,10 +19,10 @@ package fusion.mybatis
 import akka.Done
 import akka.actor.ExtendedActorSystem
 import com.baomidou.mybatisplus.annotation.{ FieldStrategy, IdType }
-import com.baomidou.mybatisplus.core.{ MybatisConfiguration, MybatisSqlSessionFactoryBuilder }
 import com.baomidou.mybatisplus.core.config.GlobalConfig
 import com.baomidou.mybatisplus.core.config.GlobalConfig.DbConfig
 import com.baomidou.mybatisplus.core.incrementer.IKeyGenerator
+import com.baomidou.mybatisplus.core.{ MybatisConfiguration, MybatisSqlSessionFactoryBuilder }
 import com.baomidou.mybatisplus.extension.incrementer.{
   DB2KeyGenerator,
   H2KeyGenerator,
@@ -92,13 +92,14 @@ class MybatisComponents(system: ExtendedActorSystem)
     gc
   }
 
-  private def getKeyGenerator(keyGenerator: String): IKeyGenerator = keyGenerator.toLowerCase match {
-    case "postgres" | "postgre" => new PostgreKeyGenerator()
-    case "db2"                  => new DB2KeyGenerator()
-    case "h2"                   => new H2KeyGenerator()
-    case "oracle"               => new OracleKeyGenerator()
-    case other                  => throw new ExceptionInInitializerError(s"KeyGenerator 不存在：$other")
-  }
+  private def getKeyGenerator(keyGenerator: String): IKeyGenerator =
+    keyGenerator.toLowerCase match {
+      case "postgres" | "postgre" => new PostgreKeyGenerator()
+      case "db2"                  => new DB2KeyGenerator()
+      case "h2"                   => new H2KeyGenerator()
+      case "oracle"               => new OracleKeyGenerator()
+      case other                  => throw new ExceptionInInitializerError(s"KeyGenerator 不存在：$other")
+    }
 
   private def createConfiguration(c: Configuration, environment: Environment): MybatisConfiguration = {
     val configuration = new MybatisConfiguration(environment)

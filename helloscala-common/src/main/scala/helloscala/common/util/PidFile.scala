@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019-2021 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ object PidFile {
 }
 
 class PidFile(val pid: Long) {
+
   /**
    * Creates a new PidFile and writes the current process ID into the provided path
    *
@@ -71,6 +72,7 @@ class PidFile(val pid: Long) {
 
   private def addShutdownHook(path: Path): Unit =
     Runtime.getRuntime.addShutdownHook(new Thread() {
+
       override def run(): Unit =
         try {
           Files.deleteIfExists(path)

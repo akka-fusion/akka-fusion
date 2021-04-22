@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019-2021 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,12 +51,13 @@ object StringUtils {
 
   def blankReplaceAll(text: String, replacement: String): String = text.replaceAll(REGEX_STR_BLANK, replacement)
 
-  def extractFirstName(msg: Any): Option[String] = msg match {
-    case c: AnyRef =>
-      val s = convertPropertyToUnderscore(c.getClass.getSimpleName)
-      Some(s.take(s.indexOf('_')))
-    case _ => None
-  }
+  def extractFirstName(msg: Any): Option[String] =
+    msg match {
+      case c: AnyRef =>
+        val s = convertPropertyToUnderscore(c.getClass.getSimpleName)
+        Some(s.take(s.indexOf('_')))
+      case _ => None
+    }
 
   def option(text: String): Option[String] = if (isBlank(text)) None else Some(text)
 
@@ -69,8 +70,8 @@ object StringUtils {
     val hex = new Array[Char](2 * bytes.length)
     var i = 0
     while (i < bytes.length) {
-      hex(2 * i) = HEX_CHARS((bytes(i) & 0xF0) >>> 4)
-      hex(2 * i + 1) = HEX_CHARS(bytes(i) & 0x0F)
+      hex(2 * i) = HEX_CHARS((bytes(i) & 0xf0) >>> 4)
+      hex(2 * i + 1) = HEX_CHARS(bytes(i) & 0x0f)
       i = i + 1
     }
     new String(hex)
@@ -241,18 +242,19 @@ object StringUtils {
   def snakeCaseToCamelCase(name: String, upperInitial: Boolean = false): String = {
     val b = new StringBuilder()
     @tailrec
-    def inner(name: String, index: Int, capNext: Boolean): Unit = if (name.nonEmpty) {
-      val (r, capNext2) = name.head match {
-        case c if c.isLower => (Some(if (capNext) c.toUpper else c), false)
-        case c if c.isUpper =>
-          // force first letter to lower unless forced to capitalize it.
-          (Some(if (index == 0 && !capNext) c.toLower else c), false)
-        case c if c.isDigit => (Some(c), true)
-        case _              => (None, true)
+    def inner(name: String, index: Int, capNext: Boolean): Unit =
+      if (name.nonEmpty) {
+        val (r, capNext2) = name.head match {
+          case c if c.isLower => (Some(if (capNext) c.toUpper else c), false)
+          case c if c.isUpper =>
+            // force first letter to lower unless forced to capitalize it.
+            (Some(if (index == 0 && !capNext) c.toLower else c), false)
+          case c if c.isDigit => (Some(c), true)
+          case _              => (None, true)
+        }
+        r.foreach(b.append)
+        inner(name.tail, index + 1, capNext2)
       }
-      r.foreach(b.append)
-      inner(name.tail, index + 1, capNext2)
-    }
     inner(name, 0, upperInitial)
     b.toString
   }
@@ -317,9 +319,9 @@ object StringUtils {
     val hexChars = new Array[Char](bytes.length * 2)
     var j = 0
     while (j < bytes.length) {
-      val v = bytes(j) & 0xFF
+      val v = bytes(j) & 0xff
       hexChars(j * 2) = HEX_CHARS(v >>> 4)
-      hexChars(j * 2 + 1) = HEX_CHARS(v & 0x0F)
+      hexChars(j * 2 + 1) = HEX_CHARS(v & 0x0f)
       j += 1
     }
     hexChars

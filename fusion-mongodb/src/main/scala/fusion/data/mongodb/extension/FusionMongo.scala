@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019-2021 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,10 +34,11 @@ final private[mongodb] class MongoComponents(system: ExtendedActorSystem)
   import system.dispatcher
   override def configuration: Configuration = Configuration(system.settings.config)
 
-  override protected def componentClose(c: MongoTemplate): Future[Done] = Future {
-    c.close()
-    Done
-  }
+  override protected def componentClose(c: MongoTemplate): Future[Done] =
+    Future {
+      c.close()
+      Done
+    }
 
   override protected def createComponent(id: String): MongoTemplate = {
     require(system.settings.config.hasPath(id), s"配置路径不存在，$id")

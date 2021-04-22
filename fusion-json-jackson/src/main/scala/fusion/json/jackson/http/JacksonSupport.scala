@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019-2021 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -114,7 +114,8 @@ trait JacksonSupport {
    * @return unmarshaller for any `A` value
    */
   implicit def fromByteStringUnmarshaller[A](
-      implicit ct: TypeTag[A],
+      implicit
+      ct: TypeTag[A],
       objectMapper: ObjectMapper): Unmarshaller[ByteString, A] =
     Unmarshaller { _ => bs =>
       Future.fromTry(Try(objectMapper.readValue(bs.toArray, typeReference[A])))
@@ -127,7 +128,8 @@ trait JacksonSupport {
    * @return unmarshaller for `Source[A, _]`
    */
   implicit def sourceUnmarshaller[A](
-      implicit ct: TypeTag[A],
+      implicit
+      ct: TypeTag[A],
       objectMapper: ObjectMapper,
       support: JsonEntityStreamingSupport = EntityStreamingSupport.json()): FromEntityUnmarshaller[SourceOf[A]] =
     Unmarshaller
@@ -154,7 +156,8 @@ trait JacksonSupport {
    * @return marshaller for any `SourceOf[A]` value
    */
   implicit def sourceMarshaller[A](
-      implicit ct: TypeTag[A],
+      implicit
+      ct: TypeTag[A],
       objectMapper: ObjectMapper,
       support: JsonEntityStreamingSupport = EntityStreamingSupport.json()): ToEntityMarshaller[SourceOf[A]] =
     jsonSourceStringMarshaller.compose(jsonSource[A])

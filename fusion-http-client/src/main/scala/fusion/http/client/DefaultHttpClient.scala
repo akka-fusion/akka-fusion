@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019-2021 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,6 +31,7 @@ import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
 class DefaultHttpClient private ()(implicit val classicSystem: classic.ActorSystem) extends HttpClient {
+
   /**
    * 发送 Http 请求
    *
@@ -49,8 +50,7 @@ class DefaultHttpClient private ()(implicit val classicSystem: classic.ActorSyst
       entity: T = HttpEntity.Empty,
       headers: immutable.Seq[HttpHeader] = Nil,
       protocol: HttpProtocol = HttpProtocols.`HTTP/1.1`)(
-      implicit
-      m: Marshaller[T, RequestEntity],
+      implicit m: Marshaller[T, RequestEntity],
       mat: Materializer,
       ec: ExecutionContext = null): Future[HttpResponse] = {
     val eec = if (Objects.isNull(ec)) mat.executionContext else ec

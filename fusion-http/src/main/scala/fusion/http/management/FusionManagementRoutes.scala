@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019-2021 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,25 +29,29 @@ import scala.concurrent.Await
 import scala.concurrent.duration._
 
 class FusionManagementRoutes(system: ExtendedActorSystem) extends ManagementRouteProvider {
-  override def routes(settings: ManagementRouteProviderSettings): Route = pathPrefix("fusion") {
-    shutdownRoute ~
-    healthRoute
-  }
 
-  def shutdownRoute: Route = (path("shutdown") & post) {
-    val d = 1.second
-    val msg = s"${d}后开始关闭Fusion系统"
-    new Thread(() => {
-      Thread.sleep(d.toMillis)
-      system.terminate()
-      val atMost =
-        Configuration(system.settings.config).get[Duration](s"${AkkaUtils.AKKA_MANAGEMENT_FUSION}.terminate-timeout")
-      Await.ready(system.whenTerminated, atMost)
-    }).start()
-    complete(HttpUtils.entityJson(s"""{"status":${IntStatus.OK},"msg":"$msg"}"""))
-  }
+  override def routes(settings: ManagementRouteProviderSettings): Route =
+    pathPrefix("fusion") {
+      shutdownRoute ~
+      healthRoute
+    }
 
-  def healthRoute: Route = (path("health") & get) {
-    complete(StatusCodes.OK)
-  }
+  def shutdownRoute: Route =
+    (path("shutdown") & post) {
+      val d = 1.second
+      val msg = s"${d}后开始关闭Fusion系统"
+      new Thread(() => {
+        Thread.sleep(d.toMillis)
+        system.terminate()
+        val atMost =
+          Configuration(system.settings.config).get[Duration](s"${AkkaUtils.AKKA_MANAGEMENT_FUSION}.terminate-timeout")
+        Await.ready(system.whenTerminated, atMost)
+      }).start()
+      complete(HttpUtils.entityJson(s"""{"status":${IntStatus.OK},"msg":"$msg"}"""))
+    }
+
+  def healthRoute: Route =
+    (path("health") & get) {
+      complete(StatusCodes.OK)
+    }
 }

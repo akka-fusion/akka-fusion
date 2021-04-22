@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019-2021 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,12 @@
 
 package fusion.mail
 
-import java.util.concurrent.TimeUnit
-
 import akka.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
 import fusion.testkit.FusionFunSuiteLike
-import javax.mail.Message.RecipientType
+import jakarta.mail.Message.RecipientType
 import org.scalatest.BeforeAndAfterAll
+
+import java.util.concurrent.TimeUnit
 
 class FusionMailTest extends ScalaTestWithActorTestKit with FusionFunSuiteLike with BeforeAndAfterAll {
   test("init") {

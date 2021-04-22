@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019-2021 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -85,6 +85,7 @@ object GuiceApplication extends ExtensionId[GuiceApplication] with ExtensionIdPr
 }
 
 class ClassicGuiceApplication(val injector: FusionInjector) extends GuiceApplication {
+
   override def spawn[T](behavior: Behavior[T], props: Props): ActorRef[T] =
     classicSystem.spawnAnonymous(behavior, props)
 
@@ -94,8 +95,8 @@ class ClassicGuiceApplication(val injector: FusionInjector) extends GuiceApplica
 
 class TypedGuiceApplication(val injector: FusionInjector) extends GuiceApplication {
   import akka.actor.typed.scaladsl.AskPattern._
-  private implicit val timeout: Timeout = 5.seconds
-  private implicit val scheduler: Scheduler = typedSystem.scheduler
+  implicit private val timeout: Timeout = 5.seconds
+  implicit private val scheduler: Scheduler = typedSystem.scheduler
 
   override def spawn[T](behavior: Behavior[T], props: Props): ActorRef[T] = _spawn(behavior, null, props)
 

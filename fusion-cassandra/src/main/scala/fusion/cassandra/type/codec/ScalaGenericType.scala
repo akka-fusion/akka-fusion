@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019-2021 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import edu.umd.cs.findbugs.annotations.NonNull
 class ScalaTypeParameter[T] extends TypeParameter[T]() {}
 
 object ScalaGenericType {
+
   @NonNull def seqOf[T](@NonNull elementType: GenericType[T]): GenericType[Seq[T]] = {
     val token: TypeToken[Seq[T]] =
       new TypeToken[Seq[T]]() {}.where(new ScalaTypeParameter[T](), elementType.__getToken())

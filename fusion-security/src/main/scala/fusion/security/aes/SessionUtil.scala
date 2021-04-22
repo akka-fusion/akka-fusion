@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019-2021 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import java.util.concurrent.ThreadLocalRandom
 import helloscala.common.util.StringUtils
 
 object SessionUtil {
+
   def randomString(length: Int): String = {
     // http://stackoverflow.com/questions/41107/how-to-generate-a-random-alpha-numeric-string
     val random = ThreadLocalRandom.current()

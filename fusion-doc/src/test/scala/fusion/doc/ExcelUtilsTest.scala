@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019-2021 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,11 @@
 
 package fusion.doc
 
-import java.nio.file.Paths
-
 import org.apache.poi.ss.usermodel.WorkbookFactory
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
+
+import java.nio.file.Paths
 
 class ExcelUtilsTest extends AnyFunSuite with Matchers {
   test("render xlsx") {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019-2021 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import com.sksamuel.exts.Logging
 import scala.util.Try
 
 object ElasticJackson {
+
   trait Implicits extends Logging {
     def objectMapper: ObjectMapper
 
@@ -31,7 +32,8 @@ object ElasticJackson {
       (t: T) => mapper.writeValueAsString(t)
 
     implicit def JacksonJsonHitReader[T](
-        implicit manifest: Manifest[T],
+        implicit
+        manifest: Manifest[T],
         mapper: ObjectMapper = objectMapper): HitReader[T] =
       (hit: Hit) =>
         Try {
@@ -46,7 +48,8 @@ object ElasticJackson {
             hit
               .sourceFieldOpt("_timestamp")
               .collect {
-                case f => f.toString
+                case f =>
+                  f.toString
               }
               .foreach(node.put("_timestamp", _))
           mapper.readValue(mapper.writeValueAsBytes(node), manifest.runtimeClass).asInstanceOf[T]

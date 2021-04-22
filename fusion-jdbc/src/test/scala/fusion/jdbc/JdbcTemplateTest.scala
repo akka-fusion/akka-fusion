@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019-2021 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,12 @@
 
 package fusion.jdbc
 
-import java.time.OffsetDateTime
-
 import akka.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
 import com.zaxxer.hikari.HikariDataSource
 import fusion.jdbc.util.JdbcUtils
 import fusion.testkit.FusionFunSuiteLike
 
+import java.time.OffsetDateTime
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
 

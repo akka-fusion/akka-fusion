@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019-2021 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,6 +49,7 @@ trait PgJacksonJsonSupport extends PgJsonExtensions with PgCommonJdbcTypes {
   trait JsonImplicits extends JacksonImplicits
 
   trait JacksonImplicits extends JacksonCodeGenSupport {
+
     implicit val jacksonJsonTypeMapper: JdbcType[JsonNode] = new GenericJdbcType[JsonNode](
       pgjson,
       v => Try(objectMapper.readTree(v)).getOrElse(NullNode.instance),

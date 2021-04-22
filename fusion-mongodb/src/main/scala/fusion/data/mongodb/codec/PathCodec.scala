@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019-2021 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,17 +16,14 @@
 
 package fusion.data.mongodb.codec
 
-import java.nio.file.Path
-import java.nio.file.Paths
+import org.bson.{ BsonReader, BsonWriter }
+import org.bson.codecs.{ Codec, DecoderContext, EncoderContext }
 
-import org.bson.BsonReader
-import org.bson.BsonWriter
-import org.bson.codecs.Codec
-import org.bson.codecs.DecoderContext
-import org.bson.codecs.EncoderContext
+import java.nio.file.{ Path, Paths }
 
 // XXX Path是一个 Iterable[Path]，会造成write时被单成数组而造成无限循环
 class PathCodec extends Codec[Path] {
+
   override def decode(reader: BsonReader, decoderContext: DecoderContext): Path =
     Paths.get(reader.readString())
 

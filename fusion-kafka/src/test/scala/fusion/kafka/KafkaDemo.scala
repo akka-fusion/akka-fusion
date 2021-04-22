@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019-2021 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,10 +17,10 @@
 package fusion.kafka
 
 import akka.actor.typed.scaladsl.adapter._
-import akka.kafka.{ ProducerMessage, Subscriptions }
 import akka.kafka.scaladsl.{ Consumer, Producer }
-import akka.stream.{ Materializer, OverflowStrategy }
+import akka.kafka.{ ProducerMessage, Subscriptions }
 import akka.stream.scaladsl.{ Keep, Sink, Source }
+import akka.stream.{ Materializer, OverflowStrategy }
 import akka.{ actor => classic }
 import com.fasterxml.jackson.databind.ObjectMapper
 import fusion.json.jackson.ScalaObjectMapper

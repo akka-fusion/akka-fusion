@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019-2021 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,14 +17,13 @@
 package fusion.doc
 
 import helloscala.common.util.Utils
-import org.apache.poi.ss.usermodel.Row
-import org.apache.poi.ss.usermodel.Sheet
-import org.apache.poi.ss.usermodel.Workbook
+import org.apache.poi.ss.usermodel.{ Row, Sheet, Workbook }
 
-import scala.jdk.CollectionConverters._
 import scala.collection.immutable
+import scala.jdk.CollectionConverters._
 
 object ExcelUtils {
+
   def parse(wb: Workbook): immutable.Seq[RichSheet] = {
     Utils.using(wb)(_ =>
       toList(wb).map { sheet =>

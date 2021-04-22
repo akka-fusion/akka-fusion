@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019-2021 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,15 +16,15 @@
 
 package fusion.http.server
 
-import akka.http.scaladsl.model.HttpRequest
-import akka.http.scaladsl.model.HttpResponse
-import akka.http.scaladsl.server.Route
+import akka.http.scaladsl.model.{ HttpRequest, HttpResponse }
 import akka.http.scaladsl.server.Directives._
+import akka.http.scaladsl.server.Route
 import com.typesafe.scalalogging.StrictLogging
 
 import scala.concurrent.Future
 
 object GrpcUtils extends StrictLogging {
+
   def contactToRoute(partials: PartialFunction[HttpRequest, Future[HttpResponse]]*): HttpRequest => Route = {
     contactToRouteCustom(partials: _*) {
       case req =>
@@ -37,7 +37,8 @@ object GrpcUtils extends StrictLogging {
       rejectPF: PartialFunction[HttpRequest, Route]): HttpRequest => Route = {
     partials
       .foldLeft(PartialFunction.empty[HttpRequest, Future[HttpResponse]]) {
-        case (acc, pf) => acc.orElse(pf)
+        case (acc, pf) =>
+          acc.orElse(pf)
       }
       .andThen(f =>
         onSuccess(f) { response =>

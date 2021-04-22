@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019-2021 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +16,9 @@
 
 package fusion.mybatis
 
+import org.apache.ibatis.session._
+
 import java.sql.Connection
-
-import org.apache.ibatis.session.Configuration
-import org.apache.ibatis.session.ExecutorType
-import org.apache.ibatis.session.SqlSession
-import org.apache.ibatis.session.SqlSessionFactory
-import org.apache.ibatis.session.TransactionIsolationLevel
-
 import scala.reflect.ClassTag
 
 final class FusionSqlSessionFactory(underlying: SqlSessionFactory) extends SqlSessionFactory {

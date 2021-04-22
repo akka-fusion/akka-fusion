@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019-2021 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,10 @@
 
 package fusion.job.impl.listener
 
-import java.text.MessageFormat
-
 import com.typesafe.scalalogging.StrictLogging
-import org.quartz.JobExecutionContext
-import org.quartz.JobExecutionException
-import org.quartz.JobListener
+import org.quartz.{ JobExecutionContext, JobExecutionException, JobListener }
 
+import java.text.MessageFormat
 import scala.beans.BeanProperty
 
 class LoggingJobListener extends JobListener with StrictLogging {
@@ -38,35 +35,37 @@ class LoggingJobListener extends JobListener with StrictLogging {
 
   override def getName: String = "LoggingJobListener"
 
-  override def jobToBeExecuted(context: JobExecutionContext): Unit = logger.whenInfoEnabled {
-    val trigger = context.getTrigger()
-    logger.info(
-      MessageFormat.format(
-        getJobToBeFiredMessage,
-        context.getJobDetail.getKey.getName,
-        context.getJobDetail.getKey.getGroup,
-        new java.util.Date(),
-        trigger.getKey.getName,
-        trigger.getKey.getGroup,
-        trigger.getPreviousFireTime,
-        trigger.getNextFireTime,
-        Integer.valueOf(context.getRefireCount)))
-  }
+  override def jobToBeExecuted(context: JobExecutionContext): Unit =
+    logger.whenInfoEnabled {
+      val trigger = context.getTrigger()
+      logger.info(
+        MessageFormat.format(
+          getJobToBeFiredMessage,
+          context.getJobDetail.getKey.getName,
+          context.getJobDetail.getKey.getGroup,
+          new java.util.Date(),
+          trigger.getKey.getName,
+          trigger.getKey.getGroup,
+          trigger.getPreviousFireTime,
+          trigger.getNextFireTime,
+          Integer.valueOf(context.getRefireCount)))
+    }
 
-  override def jobExecutionVetoed(context: JobExecutionContext): Unit = logger.whenInfoEnabled {
-    val trigger = context.getTrigger()
-    logger.info(
-      MessageFormat.format(
-        getJobWasVetoedMessage,
-        context.getJobDetail.getKey.getName,
-        context.getJobDetail.getKey.getGroup,
-        new java.util.Date(),
-        trigger.getKey.getName,
-        trigger.getKey.getGroup,
-        trigger.getPreviousFireTime,
-        trigger.getNextFireTime,
-        Integer.valueOf(context.getRefireCount)))
-  }
+  override def jobExecutionVetoed(context: JobExecutionContext): Unit =
+    logger.whenInfoEnabled {
+      val trigger = context.getTrigger()
+      logger.info(
+        MessageFormat.format(
+          getJobWasVetoedMessage,
+          context.getJobDetail.getKey.getName,
+          context.getJobDetail.getKey.getGroup,
+          new java.util.Date(),
+          trigger.getKey.getName,
+          trigger.getKey.getGroup,
+          trigger.getPreviousFireTime,
+          trigger.getNextFireTime,
+          Integer.valueOf(context.getRefireCount)))
+    }
 
   override def jobWasExecuted(context: JobExecutionContext, jobException: JobExecutionException): Unit =
     logger.whenInfoEnabled {

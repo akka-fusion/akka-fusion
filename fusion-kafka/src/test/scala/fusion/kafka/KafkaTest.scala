@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019-2021 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,6 @@
 
 package fusion.kafka
 
-import java.util.concurrent.TimeUnit
-
 import akka.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
 import akka.actor.typed.scaladsl.adapter._
 import akka.kafka.ProducerMessage.PassThroughResult
@@ -25,11 +23,13 @@ import akka.kafka.scaladsl.Consumer.DrainingControl
 import akka.kafka.scaladsl.{ Consumer, Producer }
 import akka.kafka.{ ProducerMessage, Subscriptions }
 import akka.stream.Materializer
-import akka.stream.scaladsl.{ Keep, Sink, Source }
+import akka.stream.scaladsl.{ Sink, Source }
 import com.fasterxml.jackson.databind.ObjectMapper
 import fusion.json.jackson.ScalaObjectMapper
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.scalatest.funsuite.AnyFunSuiteLike
+
+import java.util.concurrent.TimeUnit
 
 case class FileEntity(_id: String, hash: String, suffix: String, localPath: String)
 
@@ -63,8 +63,7 @@ class KafkaTest extends ScalaTestWithActorTestKit with AnyFunSuiteLike {
       .map { record =>
         println(record.key() + ": " + record.value())
       }
-      .toMat(Sink.seq)(Keep.both)
-      .mapMaterializedValue(DrainingControl.apply)
+      .toMat(Sink.seq)(DrainingControl.apply)
       .run()
 
     TimeUnit.SECONDS.sleep(10)

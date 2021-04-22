@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019-2021 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +16,14 @@
 
 package fusion.mybatis
 
-import java.util.function.Consumer
-
 import akka.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
 import com.baomidou.mybatisplus.core.metadata.IPage
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page
 import fusion.mybatis.mapper.FileMapper
 import fusion.mybatis.model.CFile
 import fusion.testkit.FusionFunSuiteLike
+
+import java.util.function.Consumer
 
 // #FusionMybatisTest
 class FusionMybatisTest extends ScalaTestWithActorTestKit with FusionFunSuiteLike {

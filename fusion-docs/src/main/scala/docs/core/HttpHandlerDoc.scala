@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019-2021 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -79,6 +79,7 @@ object HttpHandlerDoc {
 
   // #TerminationHttpInterceptor
   class TerminationHttpInterceptor extends HttpInterceptor {
+
     override def filter(handler: HttpHandler): HttpHandler = { req =>
       //handler(req).flatMap(resp => Future.failed(HttpResponseException(resp)))
 //      handler(req).map(resp => throw HttpResponseException(resp))
@@ -90,6 +91,7 @@ object HttpHandlerDoc {
 
 // #NothingHttpInterceptor
 class NothingHttpInterceptor extends HttpInterceptor {
+
   override def interceptor(route: Route): Route = { ctx =>
     route(ctx)
   }
@@ -104,7 +106,7 @@ class TraceHttpInterceptor(system: classic.ActorSystem) extends HttpInterceptor 
     val req = ctx.request
     val traceHeader = RawHeader("trace-id", ObjectId.get().toHexString)
     val headers = traceHeader +: req.headers
-    val request = req.copy(headers = headers)
+    val request = req.withHeaders(headers)
     route(ctx.withRequest(request)).map {
       case RouteResult.Complete(response) => RouteResult.Complete(toTrace(response, traceHeader))
       case a @ RouteResult.Rejected(_)    => a

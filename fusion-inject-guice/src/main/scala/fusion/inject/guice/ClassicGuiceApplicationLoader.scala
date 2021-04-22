@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019-2021 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import fusion.core.{ FusionApplication, FusionApplicationLoader }
 import helloscala.common.Configuration
 
 class ClassicGuiceApplicationLoader extends FusionApplicationLoader {
+
   override def load(context: FusionApplicationLoader.Context): FusionApplication = {
     val configuration = Configuration(
       FusionConfigFactory.arrangeConfig(Configuration.fromDiscovery().underlying, FusionConstants.FUSION))
@@ -36,6 +37,7 @@ class ClassicGuiceApplicationLoader extends FusionApplicationLoader {
 }
 
 class TypedGuiceApplicationLoader extends FusionApplicationLoader {
+
   override def load(context: FusionApplicationLoader.Context): FusionApplication = {
     val configuration = Configuration(
       FusionConfigFactory.arrangeConfig(Configuration.fromDiscovery().underlying, FusionConstants.FUSION))

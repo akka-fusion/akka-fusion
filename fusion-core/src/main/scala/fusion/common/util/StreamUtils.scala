@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019-2021 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,6 @@
 
 package fusion.common.util
 
-import java.nio.file.Path
-
 import akka.Done
 import akka.stream.Materializer
 import akka.stream.scaladsl.{ FileIO, Sink, Source }
@@ -26,20 +24,25 @@ import helloscala.common.util.DigestUtils.digestSha256
 import helloscala.common.util.StringUtils
 import org.reactivestreams.Publisher
 
+import java.nio.file.Path
 import scala.collection.immutable
 import scala.concurrent.{ ExecutionContext, Future }
 import scala.util.Try
 
 object StreamUtils {
+
   object AsInt {
     def unapply(bs: ByteString): Option[Int] = Try(bs.utf8String.toInt).toOption
   }
+
   object AsLong {
     def unapply(bs: ByteString): Option[Long] = Try(bs.utf8String.toLong).toOption
   }
+
   object AsDouble {
     def unapply(bs: ByteString): Option[Double] = Try(bs.utf8String.toDouble).toOption
   }
+
   object AsBoolean {
     def unapply(bs: ByteString): Option[Boolean] = Try(bs.utf8String.toBoolean).toOption
   }

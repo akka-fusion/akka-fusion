@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019-2021 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,8 +20,8 @@ import akka.Done
 import akka.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
 import akka.actor.typed.scaladsl.adapter._
 import akka.stream.ActorAttributes.SupervisionStrategy
-import akka.stream.{ Attributes, Materializer, Supervision }
 import akka.stream.scaladsl.{ Flow, Sink, Source }
+import akka.stream.{ Attributes, Materializer, Supervision }
 import com.mongodb.client.model.Filters
 import com.mongodb.client.model.geojson.{ Point, Polygon, Position }
 import com.mongodb.reactivestreams.client._

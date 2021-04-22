@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019-2021 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,6 +41,7 @@ class JacksonObjectMapperExtension private (override val classicSystem: Extended
 }
 
 object JacksonObjectMapperExtension extends FusionExtensionId[JacksonObjectMapperExtension] {
+
   override def createExtension(system: ExtendedActorSystem): JacksonObjectMapperExtension =
     new JacksonObjectMapperExtension(system)
 }

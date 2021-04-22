@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019-2021 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,19 +16,19 @@
 
 package fusion.jdbc.stream
 
-import java.sql.Connection
-import java.sql.PreparedStatement
-import java.sql.ResultSet
-
 import akka.NotUsed
 import akka.stream.scaladsl.Source
 import fusion.jdbc.ConnectionPreparedStatementCreator
 import fusion.jdbc.util.JdbcUtils
+
+import java.sql.{ Connection, PreparedStatement, ResultSet }
 import javax.sql.DataSource
 
 object JdbcSource {
+
   def apply(sql: String, args: Iterable[Any], fetchRowSize: Int)(
-      implicit dataSource: DataSource): Source[ResultSet, NotUsed] = {
+      implicit
+      dataSource: DataSource): Source[ResultSet, NotUsed] = {
     val connCreator = new ConnectionPreparedStatementCreator {
       override def apply(conn: Connection): PreparedStatement = {
         val stmt = conn.prepareStatement(sql, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY)
@@ -39,6 +39,7 @@ object JdbcSource {
   }
 
   def apply(creator: ConnectionPreparedStatementCreator, fetchRowSize: Int)(
-      implicit dataSource: DataSource): Source[ResultSet, NotUsed] =
+      implicit
+      dataSource: DataSource): Source[ResultSet, NotUsed] =
     Source.fromGraph(new JdbcSourceStage(dataSource, creator, fetchRowSize))
 }

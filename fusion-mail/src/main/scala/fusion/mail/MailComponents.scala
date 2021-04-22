@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019-2021 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,22 +16,23 @@
 
 package fusion.mail
 
-import java.util.Properties
-
 import akka.Done
 import fusion.common.component.Components
 import fusion.mail.constant.MailConstants
 import helloscala.common.Configuration
 
+import java.util.Properties
 import scala.concurrent.Future
 
 class MailComponents(val configuration: Configuration)
     extends Components[MailHelper](s"${MailConstants.CONF_ROOT}.default") {
+
   override protected def createComponent(id: String): MailHelper =
     new MailHelper(configuration.get[Properties](id), null)
 
-  override protected def componentClose(c: MailHelper): Future[Done] = Future.successful {
-    c.close()
-    Done
-  }
+  override protected def componentClose(c: MailHelper): Future[Done] =
+    Future.successful {
+      c.close()
+      Done
+    }
 }

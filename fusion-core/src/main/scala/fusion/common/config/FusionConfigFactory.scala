@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019-2021 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import helloscala.common.exception.HSConfigurationException
 import scala.jdk.CollectionConverters._
 
 object FusionConfigFactory {
+
   def arrangeConfig(originalConfig: Config): Config = {
     if (originalConfig.hasPath("fusion.configuration")) {
       val c = Configuration(originalConfig.getConfig("fusion.configuration"))
@@ -63,11 +64,11 @@ object FusionConfigFactory {
   private def arrangeAkkaConfig(originalConfig: Config, internalPath: String): Config = {
     val c = arrangeModuleConfig(originalConfig, internalPath, "akka")
     val name =
-      if (c.hasPath(s"$internalPath.akka-name")) c.getString(s"$internalPath.akka-name")
+      if (c.hasPath(s"$internalPath.akka.name")) c.getString(s"$internalPath.akka.name")
       else if (c.hasPath(s"$internalPath.name")) c.getString(s"$internalPath.name")
       else
         throw HSConfigurationException(
-          s"Configuration key '$internalPath.akka-name' or '$internalPath.name' not found.")
+          s"Configuration key '$internalPath.akka.name' or '$internalPath.name' not found.")
 
     val seedNodes = c.getStringList("akka.cluster.seed-nodes").asScala.filterNot(_.isEmpty).map {
       case addr if !addr.startsWith("akka://") => AddressFromURIString.parse(s"akka://$name@$addr")

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019-2021 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,7 +47,6 @@ object Utils extends StrictLogging {
   private lazy val _randomBasedUuid = Generators.randomBasedGenerator(new SecureRandom())
 
   /**
-   *
    * @param functions 函数列表
    * @param defaultValue 默认值
    * @param valueStopFunc 停止查找判断
@@ -93,12 +92,13 @@ object Utils extends StrictLogging {
       throw HSInternalErrorException(msg)
   }
 
-  def try2option[T](value: Try[T], log: Throwable => Unit): Option[T] = value match {
-    case Success(v) => Some(v)
-    case Failure(e) =>
-      log(e)
-      None
-  }
+  def try2option[T](value: Try[T], log: Throwable => Unit): Option[T] =
+    value match {
+      case Success(v) => Some(v)
+      case Failure(e) =>
+        log(e)
+        None
+    }
 
   def using[T <: AutoCloseable, R](res: T)(func: T => R): R = {
     assert(res != null, "Resource res must not null")
@@ -216,24 +216,26 @@ object Utils extends StrictLogging {
     m
   }
 
-  def boxed(v: Any): Object = v match {
-    case o: AnyRef  => o
-    case i: Int     => Int.box(i)
-    case l: Long    => Long.box(l)
-    case d: Double  => Double.box(d)
-    case s: Short   => Short.box(s)
-    case f: Float   => Float.box(f)
-    case c: Char    => Float.box(c)
-    case b: Boolean => Boolean.box(b)
-    case b: Byte    => Byte.box(b)
-    case o          => o.asInstanceOf[Object]
-  }
+  def boxed(v: Any): Object =
+    v match {
+      case o: AnyRef  => o
+      case i: Int     => Int.box(i)
+      case l: Long    => Long.box(l)
+      case d: Double  => Double.box(d)
+      case s: Short   => Short.box(s)
+      case f: Float   => Float.box(f)
+      case c: Char    => Float.box(c)
+      case b: Boolean => Boolean.box(b)
+      case b: Byte    => Byte.box(b)
+      case o          => o.asInstanceOf[Object]
+    }
 
-  def sqlBoxed(v: Any): Object = v match {
-    case ldt: LocalDateTime => TimeUtils.toSqlTimestamp(ldt)
-    case ld: LocalDate      => TimeUtils.toSqlDate(ld)
-    case o                  => o.asInstanceOf[Object]
-  }
+  def sqlBoxed(v: Any): Object =
+    v match {
+      case ldt: LocalDateTime => TimeUtils.toSqlTimestamp(ldt)
+      case ld: LocalDate      => TimeUtils.toSqlDate(ld)
+      case o                  => o.asInstanceOf[Object]
+    }
 
   def boxedSQL(v: Any): Object =
     try {

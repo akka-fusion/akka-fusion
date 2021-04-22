@@ -1,12 +1,11 @@
 import Dependencies.{ versionScala212, versionScala213 }
-import bintray.BintrayKeys._
-import com.typesafe.sbt.SbtNativePackager.autoImport.maintainer
-import de.heikoseeberger.sbtheader.HeaderPlugin.autoImport.{ HeaderLicense, headerLicense }
+//import bintray.BintrayKeys._
+import de.heikoseeberger.sbtheader.HeaderPlugin.autoImport.{ headerLicense, HeaderLicense }
 import sbt.Keys._
 import sbt._
 
 object Commons {
-  import Environment.{ BuildEnv, buildEnv }
+  import Environment.{ buildEnv, BuildEnv }
 
   def basicSettings =
     Seq(
@@ -16,7 +15,7 @@ object Commons {
       homepage := Some(url("https://akka-fusion.github.io/akka-fusion")),
       startYear := Some(2019),
       licenses += ("Apache-2.0", new URL("https://www.apache.org/licenses/LICENSE-2.0.txt")),
-      headerLicense := Some(HeaderLicense.ALv2("2019", "helloscala.com")),
+      headerLicense := Some(HeaderLicense.ALv2("2019-2021", "helloscala.com")),
       crossScalaVersions := Seq(versionScala212, versionScala213),
       scalacOptions ++= {
         var list = Seq(
@@ -34,7 +33,7 @@ object Commons {
         //if (scalaVersion.value.startsWith("2.12")) {
         //  list ++= Seq("-opt:l:inline", "-opt-inline-from")
         //}
-        if (buildEnv.value != BuildEnv.Developement) {
+        if (buildEnv.value != BuildEnv.Development) {
           list ++= Seq("-Xelide-below", "2001")
         }
         list
@@ -44,7 +43,7 @@ object Commons {
       shellPrompt := { s =>
         Project.extract(s).currentProject.id + " > "
       },
-      resolvers += Resolver.bintrayRepo("akka", "snapshots"),
+      //resolvers += Resolver.bintrayRepo("akka", "snapshots"),
       fork in run := true,
       fork in Test := true,
       parallelExecution in Test := false,
@@ -52,20 +51,27 @@ object Commons {
 }
 
 object Publishing {
-  lazy val publishing = Seq(
-    bintrayOrganization := Some("helloscala"),
-    bintrayRepository := "maven",
-    maintainer := "yangbajing <yang.xunjing@qq.com>",
-    developers := List(
-        Developer(
-          id = "yangbajing",
-          name = "Yang Jing",
-          email = "yang.xunjing@qq.com",
-          url = url("https://github.com/yangbajing"))),
-    scmInfo := Some(
-        ScmInfo(
-          url("https://github.com/akka-fusion/akka-fusion"),
-          "scm:git:git@github.com:akka-fusion/akka-fusion.git")))
+
+  lazy val publishing =
+    Seq(
+      publishTo := (if (version.value.endsWith("SNAPSHOT"))
+                      Some("hjgpscm-public".at(
+                        "https://jfrog-artifactory.hjgpscm.com/artifactory/public;build.timestamp=" + new java.util.Date().getTime))
+                    else Some("hjgpscm-public".at("https://jfrog-artifactory.hjgpscm.com/artifactory/public"))),
+      credentials += Credentials(Path.userHome / ".sbt" / ".credentials_fruits"),
+//      bintrayOrganization := Some("artifactory"),
+//      bintrayRepository := "sbt",
+//      maintainer := "yangbajing <yang.xunjing@qq.com>",
+      developers := List(
+          Developer(
+            id = "yangbajing",
+            name = "Yang Jing",
+            email = "yang.xunjing@qq.com",
+            url = url("https://github.com/yangbajing"))),
+      scmInfo := Some(
+          ScmInfo(
+            url("https://github.com/akka-fusion/akka-fusion"),
+            "scm:git:git@github.com:akka-fusion/akka-fusion.git")))
 
   lazy val noPublish =
     Seq(publish := ((): Unit), publishLocal := ((): Unit), publishTo := None)
@@ -73,7 +79,7 @@ object Publishing {
 
 object Environment {
   object BuildEnv extends Enumeration {
-    val Production, Stage, Test, Developement = Value
+    val Production, Stage, Test, Development = Value
   }
 
   val buildEnv = settingKey[BuildEnv.Value]("The current build environment")
@@ -83,6 +89,6 @@ object Environment {
     val defaultMessage = onLoadMessage.value
     val env = buildEnv.value
     s"""|$defaultMessage
-          |Working in build environment: $env""".stripMargin
+        |Working in build environment: $env""".stripMargin
   })
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019-2021 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ case class UserBO(id: String, nickname: String, avatarId: String, avatarUrl: Str
 case class UserDO(id: String, nickname: String, avatarId: String, password: String, salt: String)
 
 class UserRepository {
+
   def findByAccount(account: String): Future[UserDO] =
     Future.successful(UserDO(StringUtils.randomString(24), account, StringUtils.randomString(24), "password", "salt"))
 
@@ -38,9 +39,11 @@ class UserRepository {
 
 // #CustomService
 class FileService private (override val typedSystem: ActorSystem[Nothing]) extends TypedExtension {
-  def findUrlById(fileId: String): Future[String] = Future.successful {
-    s"http://localhost:9999/file/$fileId.png"
-  }
+
+  def findUrlById(fileId: String): Future[String] =
+    Future.successful {
+      s"http://localhost:9999/file/$fileId.png"
+    }
 }
 
 object FileService extends TypedExtensionId[FileService] {

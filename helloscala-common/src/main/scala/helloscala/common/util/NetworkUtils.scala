@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019-2021 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ import java.net.NetworkInterface
 import scala.jdk.CollectionConverters._
 
 object NetworkUtils {
-  private val validNetworkNamePrefixes = List("eth", "enp", "wlp")
+  private val validNetworkNamePrefixes = List("eth", "enp", "wlp", "eno")
   def validNetworkName(name: String) = validNetworkNamePrefixes.exists(prefix => name.startsWith(prefix))
 
   def interfaces(): Vector[NetworkInterface] = NetworkInterface.getNetworkInterfaces.asScala.toVector
@@ -43,9 +43,10 @@ object NetworkUtils {
     onlineInterfaceAddress().view.filter(ia => ia.getAddress.isInstanceOf[Inet4Address]).map(_.getAddress).headOption
   }
 
-  def toInetSocketAddress(address: String, defaultPort: Int): InetSocketAddress = address.split(':') match {
-    case Array(host, AsInt(port)) => InetSocketAddress.createUnresolved(host, port)
-    case Array(host)              => InetSocketAddress.createUnresolved(host, defaultPort)
-    case _                        => throw new ExceptionInInitializerError(s"无效的通信地址：$address")
-  }
+  def toInetSocketAddress(address: String, defaultPort: Int): InetSocketAddress =
+    address.split(':') match {
+      case Array(host, AsInt(port)) => InetSocketAddress.createUnresolved(host, port)
+      case Array(host)              => InetSocketAddress.createUnresolved(host, defaultPort)
+      case _                        => throw new ExceptionInInitializerError(s"无效的通信地址：$address")
+    }
 }

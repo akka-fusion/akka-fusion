@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019-2021 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,17 +16,15 @@
 
 package akka.http
 
-import akka.http.scaladsl.model.HttpRequest
-import akka.http.scaladsl.model.HttpResponse
+import akka.http.scaladsl.model.{ HttpRequest, HttpResponse }
 import akka.http.scaladsl.server._
-import akka.http.scaladsl.settings.ParserSettings
-import akka.http.scaladsl.settings.RoutingSettings
+import akka.http.scaladsl.settings.{ ParserSettings, RoutingSettings }
 import akka.stream.Materializer
 
-import scala.concurrent.ExecutionContextExecutor
-import scala.concurrent.Future
+import scala.concurrent.{ ExecutionContextExecutor, Future }
 
 object FusionRoute {
+
   /**
    * Turns a `Route` into an async handler function.
    */

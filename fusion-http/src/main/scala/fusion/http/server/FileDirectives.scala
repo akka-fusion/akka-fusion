@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019-2021 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,6 @@
 
 package fusion.http.server
 
-import java.io.{ File, IOException }
-import java.nio.file.{ Files, Path, Paths }
-
 import akka.http.scaladsl.model.Multipart
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server._
@@ -29,10 +26,13 @@ import fusion.common.util.StreamUtils
 import fusion.http.model.FileTemp
 import helloscala.common.util.{ DigestUtils, StringUtils }
 
+import java.io.{ File, IOException }
+import java.nio.file.{ Files, Path, Paths }
 import scala.collection.immutable
 import scala.concurrent.Future
 
 trait FileDirectives {
+
   def createTempFileFunc(
       dir: java.nio.file.Path = Paths.get("/tmp"),
       prefix: String = "fusion-",
@@ -65,8 +65,8 @@ trait FileDirectives {
         case list => provide(list)
       }
 
-  def uploadedOneFile: Directive1[(FileInfo, Source[ByteString, Any])] = entity(as[Multipart.FormData]).flatMap {
-    formData =>
+  def uploadedOneFile: Directive1[(FileInfo, Source[ByteString, Any])] =
+    entity(as[Multipart.FormData]).flatMap { formData =>
       Directive[Tuple1[(FileInfo, Source[ByteString, Any])]] { inner => ctx =>
         import ctx.{ executionContext, materializer }
 
@@ -87,7 +87,7 @@ trait FileDirectives {
           }
           .map(_.getOrElse(RouteResult.Rejected(ValidationRejection("filename未指定") :: Nil)))
       }
-  }
+    }
 
   def uploadedShaFile(tmpDirectory: Path): Directive[(FileInfo, FileTemp)] =
     extractRequestContext.flatMap { ctx =>

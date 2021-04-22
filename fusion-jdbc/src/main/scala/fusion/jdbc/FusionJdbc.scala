@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019-2021 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,10 +33,11 @@ final private[jdbc] class JdbcComponents(system: ExtendedActorSystem)
     extends Components[HikariDataSource](JdbcConstants.PATH_DEFAULT) {
   override def configuration: Configuration = Configuration(system.settings.config)
 
-  override protected def componentClose(c: HikariDataSource): Future[Done] = Future.successful {
-    c.close()
-    Done
-  }
+  override protected def componentClose(c: HikariDataSource): Future[Done] =
+    Future.successful {
+      c.close()
+      Done
+    }
 
   override protected def createComponent(id: String): HikariDataSource =
     JdbcUtils.createHikariDataSource(configuration.getConfig(id))

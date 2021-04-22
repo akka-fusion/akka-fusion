@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019-2021 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -133,6 +133,7 @@ object ConfigLoader {
 
   implicit val propertiesLoader: ConfigLoader[Properties] =
     new ConfigLoader[Properties] {
+
       def make(props: Properties, parentKeys: String, obj: ConfigObject): Unit =
         obj.keySet().forEach { key =>
           val value = obj.get(key)
@@ -159,6 +160,7 @@ object ConfigLoader {
 
   implicit val scalaMapLoader: ConfigLoader[Map[String, String]] =
     new ConfigLoader[Map[String, String]] {
+
       def make(props: mutable.Map[String, String], parentKeys: String, obj: ConfigObject): Unit =
         obj.keySet().forEach { key: String =>
           val value = obj.get(key)

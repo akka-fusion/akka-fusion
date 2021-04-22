@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019-2021 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -234,7 +234,8 @@ object HttpUtils extends BaseHttpUtils with StrictLogging {
   }
 
   def cachedHostConnectionPool(uri: Uri, bufferSize: Int)(
-      implicit system: classic.ActorSystem,
+      implicit
+      system: classic.ActorSystem,
       mat: Materializer): HttpSourceQueue = {
     uri.scheme match {
       case "http"  => cachedHostConnectionPool(uri.authority.host.address(), uri.effectivePort, bufferSize)
@@ -252,7 +253,8 @@ object HttpUtils extends BaseHttpUtils with StrictLogging {
    * @return
    */
   def cachedHostConnectionPool(host: String, port: Int, bufferSize: Int)(
-      implicit system: classic.ActorSystem,
+      implicit
+      system: classic.ActorSystem,
       mat: Materializer): HttpSourceQueue = {
     val poolClientFlow = Http().cachedHostConnectionPool[Promise[HttpResponse]](host, port)
     Source
@@ -274,7 +276,8 @@ object HttpUtils extends BaseHttpUtils with StrictLogging {
    * @return
    */
   def cachedHostConnectionPoolHttps(host: String, port: Int, bufferSize: Int)(
-      implicit system: classic.ActorSystem,
+      implicit
+      system: classic.ActorSystem,
       mat: Materializer): HttpSourceQueue = {
     val poolClientFlow = Http().cachedHostConnectionPoolHttps[Promise[HttpResponse]](host, port)
     Source
@@ -323,7 +326,8 @@ object HttpUtils extends BaseHttpUtils with StrictLogging {
       params: Seq[(String, String)] = Nil,
       data: A = null,
       headers: immutable.Seq[HttpHeader] = Nil)(
-      implicit httpSourceQueue: HttpSourceQueue,
+      implicit
+      httpSourceQueue: HttpSourceQueue,
       m: Marshaller[A, RequestEntity],
       ec: ExecutionContext): Future[HttpResponse] = {
     val entityF: Future[RequestEntity] = data match {
@@ -394,7 +398,8 @@ object HttpUtils extends BaseHttpUtils with StrictLogging {
   }
 
   def curlLoggingResponse(req: HttpRequest, resp: HttpResponse, printResponseEntity: Boolean = false)(
-      implicit log: Logger): HttpResponse = {
+      implicit
+      log: Logger): HttpResponse = {
     log.whenDebugEnabled {
       val sb = new StringBuilder
       sb.append("HttpResponse").append("\n")

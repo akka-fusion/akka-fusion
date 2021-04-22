@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019-2021 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,10 @@
 
 package fusion.job
 
-import org.quartz.Job
-import org.quartz.JobExecutionContext
+import org.quartz.{ Job, JobExecutionContext }
 
 trait ScheduleJob extends Job {
+
   def detailTrigger(context: JobExecutionContext): String =
     context.getJobDetail.getKey.toString + ":" + context.getTrigger.getKey.toString
 }

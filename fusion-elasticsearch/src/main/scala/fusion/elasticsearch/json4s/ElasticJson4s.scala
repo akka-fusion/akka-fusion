@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019-2021 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,16 +18,19 @@ package fusion.elasticsearch.json4s
 
 import com.sksamuel.elastic4s.{ AggReader, Hit, HitReader, Indexable }
 import com.sksamuel.exts.Logging
-import fusion.json.json4s.JsonUtils
+import fusion.json.json4s.Json4sUtils
 import org.json4s.{ Formats, Serialization }
 
 import scala.util.Try
 
 object ElasticJson4s {
+
   trait Implicits extends Logging {
-    def jsonUtils: JsonUtils
+    def jsonUtils: Json4sUtils
+
     implicit def Json4sHitReader[T](
-        implicit mf: Manifest[T],
+        implicit
+        mf: Manifest[T],
         formats: Formats = jsonUtils.defaultFormats,
         json4s: Serialization = jsonUtils.serialization): HitReader[T] =
       (hit: Hit) =>
@@ -36,7 +39,8 @@ object ElasticJson4s {
         }
 
     implicit def Json4sAggReader[T](
-        implicit mf: Manifest[T],
+        implicit
+        mf: Manifest[T],
         formats: Formats = jsonUtils.defaultFormats,
         json4s: Serialization = jsonUtils.serialization): AggReader[T] =
       (json: String) =>
@@ -45,7 +49,8 @@ object ElasticJson4s {
         }
 
     implicit def Json4sIndexable[T <: AnyRef](
-        implicit formats: Formats = jsonUtils.defaultFormats,
+        implicit
+        formats: Formats = jsonUtils.defaultFormats,
         json4s: Serialization = jsonUtils.serialization): Indexable[T] =
       (t: T) => json4s.write(t)
   }

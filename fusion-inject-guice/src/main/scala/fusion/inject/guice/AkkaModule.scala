@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019-2021 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import helloscala.common.Configuration
 
 class AkkaModule(configuration: Configuration, system: classic.ActorSystem, typedSystem: ActorSystem[Nothing])
     extends AbstractModule {
+
   override def configure(): Unit = {
     bind(classOf[Configuration]).toInstance(configuration)
     bind(classOf[Config]).toInstance(configuration.underlying)

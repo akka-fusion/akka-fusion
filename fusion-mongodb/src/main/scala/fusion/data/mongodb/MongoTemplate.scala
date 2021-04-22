@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019-2021 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,18 +17,15 @@
 package fusion.data.mongodb
 
 import akka.stream.Materializer
-import akka.stream.scaladsl.Sink
-import akka.stream.scaladsl.Source
+import akka.stream.scaladsl.{ Sink, Source }
 import com.mongodb.ClientSessionOptions
 import com.mongodb.client.model.ReplaceOptions
 import com.mongodb.reactivestreams.client._
 import fusion.data.mongodb.codec.FusionCodecProvider
 import org.bson.Document
 import org.bson.codecs.configuration.CodecRegistries._
-import org.bson.codecs.configuration.CodecProvider
-import org.bson.codecs.configuration.CodecRegistry
-import org.mongodb.scala.bson.codecs.DocumentCodecProvider
-import org.mongodb.scala.bson.codecs.IterableCodecProvider
+import org.bson.codecs.configuration.{ CodecProvider, CodecRegistry }
+import org.mongodb.scala.bson.codecs.{ DocumentCodecProvider, IterableCodecProvider }
 import org.reactivestreams.Publisher
 
 import scala.collection.immutable
@@ -82,6 +79,7 @@ class MongoTemplate private (val client: MongoClient, defaultDbName: String) ext
 }
 
 object MongoTemplate {
+
   val DEFAULT_CODEC_REGISTRY: CodecRegistry = fromRegistries(
     MongoClients.getDefaultCodecRegistry,
     fromProviders(DocumentCodecProvider(), IterableCodecProvider()),

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019-2021 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ package fusion.core.setting
 import helloscala.common.Configuration
 
 class RunMode(configuration: Configuration) {
+
   val active: String = configuration
     .get[Option[String]]("fusion.profiles.active")
     .orElse(configuration.get[Option[String]]("spring.profiles.active"))

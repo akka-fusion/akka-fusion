@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019-2021 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,13 @@
 
 package fusion.core
 
-import java.util.Objects
-
 import akka.actor.ExtendedActorSystem
 import com.typesafe.config.Config
 import fusion.common.{ ReceptionistFactory, SpawnFactory }
 import fusion.core
 import helloscala.common.Configuration
+
+import java.util.Objects
 
 trait ClassicApplication extends SpawnFactory {
   def classicSystem: akka.actor.ActorSystem = extendedActorSystem

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019-2021 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,18 +16,15 @@
 
 package fusion.docs.example
 
-import java.util.concurrent.TimeUnit
-
 import akka.actor.CoordinatedShutdown
 import akka.testkit.TestKit
-import akka.Done
-import akka.{ actor => classic }
+import akka.{ Done, actor => classic }
 import com.typesafe.scalalogging.StrictLogging
 import fusion.testkit.FusionFunSuiteLike
 import org.scalatest.BeforeAndAfterAll
 
-import scala.concurrent.Await
-import scala.concurrent.Future
+import java.util.concurrent.TimeUnit
+import scala.concurrent.{ Await, Future }
 import scala.concurrent.duration.Duration
 
 class TerminateTest

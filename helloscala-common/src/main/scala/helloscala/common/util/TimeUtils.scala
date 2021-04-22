@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019-2021 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -193,20 +193,21 @@ object TimeUtils extends StrictLogging {
 
   private val OFFSET_REGEX = "([:\\d-+]+)".r
 
-  def zoneOf(str: String): ZoneId = str match {
-    case OFFSET_REGEX(offset) => zoneOffsetOf(offset)
-    case _ =>
-      val begin = str.indexOf('[') + 1
-      if (begin > 0) {
-        require(begin > 0 && begin < str.length, s"$str 无有效的'['符号")
-        val end = str.indexOf(']')
-        require(end > begin && end < str.length, s"$str 无有效的']'符号")
-        val id = str.substring(begin, end)
-        ZoneId.of(id)
-      } else {
-        ZoneId.of(str)
-      }
-  }
+  def zoneOf(str: String): ZoneId =
+    str match {
+      case OFFSET_REGEX(offset) => zoneOffsetOf(offset)
+      case _ =>
+        val begin = str.indexOf('[') + 1
+        if (begin > 0) {
+          require(begin > 0 && begin < str.length, s"$str 无有效的'['符号")
+          val end = str.indexOf(']')
+          require(end > begin && end < str.length, s"$str 无有效的']'符号")
+          val id = str.substring(begin, end)
+          ZoneId.of(id)
+        } else {
+          ZoneId.of(str)
+        }
+    }
 
   def zoneOffsetOf(str: String): ZoneOffset =
     if (str.indexOf('-') >= 0 || str.indexOf('+') >= 0) ZoneOffset.of(str)

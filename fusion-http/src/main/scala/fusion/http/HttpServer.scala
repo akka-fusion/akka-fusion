@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019-2021 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,10 +15,6 @@
  */
 
 package fusion.http
-
-import java.net.InetSocketAddress
-import java.util.Objects
-import java.util.concurrent.atomic.AtomicBoolean
 
 import akka.Done
 import akka.actor.ExtendedActorSystem
@@ -42,6 +38,9 @@ import helloscala.common.Configuration
 import helloscala.common.exception.HSInternalErrorException
 import helloscala.common.util.NetworkUtils
 
+import java.net.InetSocketAddress
+import java.util.Objects
+import java.util.concurrent.atomic.AtomicBoolean
 import scala.concurrent.duration._
 import scala.concurrent.{ Await, ExecutionContextExecutor, Future }
 import scala.reflect.ClassTag
@@ -73,7 +72,8 @@ final class HttpServer(val id: String, implicit val system: ExtendedActorSystem)
     Await.result(startHandlerAsync(handler), duration)
 
   def startHandlerAsync(handler: HttpHandler)(
-      implicit rejectionHandler: RejectionHandler = createRejectionHandler(),
+      implicit
+      rejectionHandler: RejectionHandler = createRejectionHandler(),
       exceptionHandler: ExceptionHandler = createExceptionHandler()): Future[ServerBinding] = {
     import akka.http.scaladsl.server.Directives._
     val route = extractRequest { request =>
@@ -100,7 +100,8 @@ final class HttpServer(val id: String, implicit val system: ExtendedActorSystem)
   }
 
   def startRouteAsync(_route: Route)(
-      implicit rejectionHandler: RejectionHandler = createRejectionHandler(),
+      implicit
+      rejectionHandler: RejectionHandler = createRejectionHandler(),
       exceptionHandler: ExceptionHandler = createExceptionHandler()): Future[ServerBinding] = {
     if (!_isStarted.compareAndSet(false, true)) {
       throw HSInternalErrorException("HttpServer只允许start一次")
@@ -109,8 +110,10 @@ final class HttpServer(val id: String, implicit val system: ExtendedActorSystem)
     val connectionContext = generateConnectionContext()
 
     val handler = toHandler(Route.seal(_route))
-    val bindingFuture =
+    val bindingFuture = {
       Http().bindAndHandleAsync(handler, httpSetting.server.host, httpSetting.server.port, connectionContext)
+//      Http().newServerAt(httpSetting.server.host, httpSetting.server.port).bind(handler)
+    }
     maybeEventualBinding = Some(bindingFuture)
     bindingFuture.failed.foreach { cause =>
       afterHttpBindingFailure(cause, connectionContext.isSecure)

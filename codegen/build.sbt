@@ -38,8 +38,6 @@ buildInfoKeys ++= Seq(
   "versionConfig" -> versionConfig,
   "versionPureconfig" -> versionPureconfig,
   "versionGuice" -> versionGuice,
-  "versionKamon" -> versionKamon,
-  "versionKanela" -> versionKanela,
   "versionUuidGenerator" -> versionUuidGenerator,
   "versionHanlp" -> versionHanlp,
   "versionSlick" -> versionSlick,
@@ -47,7 +45,6 @@ buildInfoKeys ++= Seq(
   "versionPoi" -> versionPoi,
   "versionQuartz" -> versionQuartz,
   "versionBcprovJdk15on" -> versionBcprovJdk15on,
-  "versionNacos" -> versionNacos,
   "versionJsch" -> versionJsch,
   "versionJakartaMail" -> versionJakartaMail,
   "versionHikariCP" -> versionHikariCP,
@@ -67,5 +64,4 @@ buildInfoKeys ++= Seq(
   "versionScalaLogging" -> versionScalaLogging,
   "versionLogstashLogback" -> versionLogstashLogback,
   "versionJwt" -> versionJwt,
-  "versionJson4s" -> versionJson4s,
   "versionScalapbJson4s" -> versionScalapbJson4s)

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019-2021 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,9 +32,11 @@ case class Name(first: String, last: String)
 
 class JacksonMapperTest extends TestKit(ActorSystem()) with AnyFunSuiteLike with ScalaFutures with Matchers {
   import system.dispatcher
+
   class ScalaObjectMapper(mapper: ObjectMapper)
       extends ObjectMapper(mapper)
       with com.fasterxml.jackson.module.scala.ScalaObjectMapper
+
   private val scalaObjectMapper = new ScalaObjectMapper(
     JacksonObjectMapperProvider(system).getOrCreate("jackson-json", None))
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019-2021 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,9 +59,11 @@ object PubSubs {
       func <- ins.subscribies.get(subId)
     } func(PubSubMessage(subId, topic, message))
 
-  def send(message: Any): Unit = ins.subscribies.foreach {
-    case (id, func) => func(PubSubMessage(id, "", message))
-  }
+  def send(message: Any): Unit =
+    ins.subscribies.foreach {
+      case (id, func) =>
+        func(PubSubMessage(id, "", message))
+    }
 }
 
 object PubSubDemo extends App {

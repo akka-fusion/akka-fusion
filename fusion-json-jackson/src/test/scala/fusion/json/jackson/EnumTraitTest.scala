@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019-2021 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ import org.scalatest.matchers.should.Matchers
 
 abstract class EnumTraitDeserHelper[A <: EnumTrait](cls: Class[A], comp: EnumTraitCompanion)
     extends StdDeserializer[A](cls) {
+
   override def deserialize(p: JsonParser, ctxt: DeserializationContext): A = {
     val value = p.getValueAsInt
     comp.fromValue(value) match {

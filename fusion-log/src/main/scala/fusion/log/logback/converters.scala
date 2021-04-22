@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019-2021 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,14 @@
 
 package fusion.log.logback
 
-import java.net.InetAddress
-
 import ch.qos.logback.classic.pattern.ClassicConverter
 import ch.qos.logback.classic.spi.ILoggingEvent
 import helloscala.common.util.{ StringUtils, Utils }
 
+import java.net.InetAddress
+
 object Converters {
+
   val hosts = List(
     () => System.getProperty("fusion.http.default.server.host"),
     () => System.getProperty("http.host"), // spring
@@ -48,6 +49,7 @@ object Converters {
 }
 
 class LogHostNameConverter extends ClassicConverter {
+
   override def convert(event: ILoggingEvent): String =
     try {
       InetAddress.getLocalHost.getCanonicalHostName

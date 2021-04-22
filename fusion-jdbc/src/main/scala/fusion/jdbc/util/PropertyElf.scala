@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019-2021 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,15 +16,13 @@
 
 package fusion.jdbc.util
 
-import java.lang.reflect.Method
-import java.util.regex.Matcher
-import java.util.regex.Pattern
-import java.util.Locale
-import java.util.Properties
-
 import com.typesafe.scalalogging.StrictLogging
 import com.zaxxer.hikari.HikariConfig
 import helloscala.common.util.Utils
+
+import java.lang.reflect.Method
+import java.util.{ Locale, Properties }
+import java.util.regex.{ Matcher, Pattern }
 
 object PropertyElf extends StrictLogging {
   private val GETTER_PATTERN: Pattern = Pattern.compile("(get|is)[A-Z].+")

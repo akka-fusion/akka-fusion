@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019-2021 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@ import fusion.json.jackson.{ JacksonConstants, ScalaObjectMapper }
 import scala.concurrent.{ ExecutionContext, ExecutionContextExecutor }
 
 class BuiltinModule extends AbstractModule {
+
   override def configure(): Unit = {
     bind(classOf[Materializer]).toProvider(classOf[MaterializerProvider])
     bind(classOf[ExecutionContextExecutor]).toProvider(classOf[ExecutionContextExecutorProvider])

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019-2021 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,9 @@
 
 package fusion.kafka.commn.serialization
 
-import java.util
-
 import org.apache.kafka.common.serialization.Deserializer
+
+import java.util
 
 class JacksonDeserializer extends Deserializer[String] {
   override def configure(configs: util.Map[String, _], isKey: Boolean): Unit = ???

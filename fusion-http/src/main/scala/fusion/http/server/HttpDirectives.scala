@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019-2021 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,6 @@
 
 package fusion.http.server
 
-import java.io.File
-import java.nio.charset.{ Charset, StandardCharsets }
-import java.time.{ LocalDate, LocalDateTime, LocalTime, OffsetDateTime }
-
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.model.headers.CacheDirectives
 import akka.http.scaladsl.server.Directives._
@@ -33,9 +29,13 @@ import fusion.http.rejection.ForbiddenRejection
 import fusion.http.util.HttpUtils
 import helloscala.common.util.TimeUtils
 
+import java.io.File
+import java.nio.charset.{ Charset, StandardCharsets }
+import java.time.{ LocalDate, LocalDateTime, LocalTime, OffsetDateTime }
 import scala.collection.immutable
 
 trait HttpDirectives {
+
   implicit class ContentTypeRich(contentType: ContentType) {
     def charset: Charset = contentType.charsetOption.map(_.nioCharset()).getOrElse(StandardCharsets.UTF_8)
   }
@@ -54,10 +54,11 @@ trait HttpDirectives {
 
   def curlLogging(logger: com.typesafe.scalalogging.Logger): Directive0 =
     mapRequest { req =>
-      def entity = req.entity match {
-        case HttpEntity.Empty => ""
-        case _                => "\n" + req.entity
-      }
+      def entity =
+        req.entity match {
+          case HttpEntity.Empty => ""
+          case _                => "\n" + req.entity
+        }
 
       logger.debug(s"""
                       |method: ${req.method.value}

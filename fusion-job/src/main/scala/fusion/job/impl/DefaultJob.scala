@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019-2021 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,9 @@
 
 package fusion.job.impl
 
-import java.time.OffsetDateTime
+import org.quartz._
 
-import org.quartz.DisallowConcurrentExecution
-import org.quartz.InterruptableJob
-import org.quartz.Job
-import org.quartz.JobExecutionContext
-import org.quartz.UnableToInterruptJobException
+import java.time.OffsetDateTime
 
 class DefaultJob extends Job {
   override def execute(context: JobExecutionContext): Unit = {}
@@ -34,6 +30,7 @@ class DefaultDisallowConcurrentJob extends Job {
 }
 
 class DefaultInterruptableJob extends InterruptableJob {
+
   override def interrupt(): Unit = {
     throw new UnableToInterruptJobException(s"interrupt on ${OffsetDateTime.now()}")
   }

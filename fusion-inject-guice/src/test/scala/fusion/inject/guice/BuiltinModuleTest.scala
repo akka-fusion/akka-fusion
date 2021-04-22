@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019-2021 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ import org.scalatest.matchers.should.Matchers
 
 class BuiltinModuleTest extends AnyFunSuite with Matchers {
   private val configuration = Configuration.load()
+
   private val injector = {
     import akka.actor.typed.scaladsl.adapter._
     val system = FusionUtils.createTypedActorSystem(configuration)

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019-2021 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -250,7 +250,7 @@ object Configuration extends StrictLogging {
         val clz = Option(Class.forName("fusion.discovery.DiscoveryUtils"))
           .getOrElse(Class.forName("fusion.discovery.DiscoveryUtils$"))
         val service = clz.getMethod("defaultConfigService").invoke(null)
-        val clzConfigService = Class.forName("fusion.discovery.client.FusionConfigService")
+        val clzConfigService = Class.forName("fusion.cloud.discovery.client.FusionConfigService")
         val value = clzConfigService.getMethod("getConfig").invoke(service)
         val confStr = Objects.requireNonNull(value, "未能获取到配置内容").toString
         logger.info(s"收到配置内容：$confStr")

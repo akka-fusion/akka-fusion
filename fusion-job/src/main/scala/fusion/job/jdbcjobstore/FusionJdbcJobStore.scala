@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019-2021 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,10 @@
 
 package fusion.job.jdbcjobstore
 
-import java.sql.Connection
-
 import org.quartz.impl.jdbcjobstore.JobStoreSupport
 import org.quartz.impl.jdbcjobstore.JobStoreSupport.TransactionCallback
+
+import java.sql.Connection
 
 class FusionJdbcJobStore extends JobStoreSupport {
   override def getNonManagedTXConnection(): Connection = getConnection()

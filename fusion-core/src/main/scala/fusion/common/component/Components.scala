@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019-2021 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,9 +21,7 @@ import com.typesafe.scalalogging.StrictLogging
 import helloscala.common.Configuration
 
 import scala.collection.mutable
-import scala.concurrent.Await
-import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
+import scala.concurrent.{ Await, ExecutionContext, Future }
 import scala.concurrent.duration._
 
 // #Components
@@ -63,8 +61,9 @@ abstract class Components[T](DEFAULT_ID: String) extends StrictLogging {
     other
   }
 
-  def closeAsync()(implicit ec: ExecutionContext): Future[Done] = synchronized {
-    Future.sequence(components.valuesIterator.map(componentClose).toList).map(_ => Done)
-  }
+  def closeAsync()(implicit ec: ExecutionContext): Future[Done] =
+    synchronized {
+      Future.sequence(components.valuesIterator.map(componentClose).toList).map(_ => Done)
+    }
 }
 // #Components

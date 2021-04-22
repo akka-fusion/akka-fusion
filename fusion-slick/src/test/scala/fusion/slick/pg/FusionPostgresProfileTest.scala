@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019-2021 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,6 @@
 
 package fusion.slick.pg
 
-import java.time.LocalDateTime
-
 import akka.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
 import com.fasterxml.jackson.databind.ObjectMapper
 import fusion.jdbc.FusionJdbc
@@ -25,6 +23,8 @@ import fusion.jdbc.util.JdbcUtils
 import fusion.slick.FusionPostgresProfile
 import fusion.testkit.FusionFunSuiteLike
 import helloscala.common.util.Utils
+
+import java.time.LocalDateTime
 
 object FusionPostgresProfile extends FusionPostgresProfile {
   override def objectMapper: ObjectMapper = new ObjectMapper()

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019-2021 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -62,6 +62,7 @@ trait ActorTypedReferenceTrait {
 }
 
 trait ActorTypedReferenceCompanion {
+
   def fromTyped[T](ref: ActorRef[T]): String =
     ActorRefResolver(FusionApplication.application.typedSystem).toSerializationFormat(ref)
   def fromClassic(ref: classic.ActorRef): String = Serialization.serializedActorPath(ref)

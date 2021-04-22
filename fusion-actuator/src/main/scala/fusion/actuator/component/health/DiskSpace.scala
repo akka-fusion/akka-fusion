@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019-2021 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import fusion.core.model.Health
 import fusion.core.model.HealthComponent
 
 object DiskSpace extends HealthComponent {
+
   override def health: Health = {
     var free = 0L
     var total = 0L

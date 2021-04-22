@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019-2021 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +16,14 @@
 
 package fusion.http.util
 
-import java.util.concurrent.ConcurrentHashMap
-
 import akka.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
 import akka.actor.typed.scaladsl.adapter._
 import akka.http.scaladsl.model.Uri.Authority
 import akka.stream.Materializer
 import fusion.core.http.HttpSourceQueue
 import fusion.testkit.FusionFunSuiteLike
+
+import java.util.concurrent.ConcurrentHashMap
 
 class HttpUtilsTest extends ScalaTestWithActorTestKit with FusionFunSuiteLike {
   implicit private def classicSystem = system.toClassic

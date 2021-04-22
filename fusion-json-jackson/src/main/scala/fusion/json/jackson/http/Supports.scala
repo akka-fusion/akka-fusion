@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019-2021 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import akka.http.scaladsl.unmarshalling.Unmarshaller
 import akka.util.ByteString
 
 object Supports {
+
   val jsonStringUnmarshaller: FromEntityUnmarshaller[String] =
     Unmarshaller.byteStringUnmarshaller
       .forContentTypes(MediaTypes.`application/json`, MediaTypes.`text/plain`)

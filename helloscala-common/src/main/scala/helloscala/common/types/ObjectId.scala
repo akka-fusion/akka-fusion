@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019-2021 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,6 +35,7 @@ import scala.util.{ Failure, Try }
  */
 @SerialVersionUID(239421902L) //@ApiModel(parent = classOf[String])
 class ObjectId private (private val raw: Array[Byte]) extends Serializable with Equals {
+
   /** ObjectId hexadecimal String representation */
   @JsonIgnore
   lazy val stringify: String = StringUtils.hex2Str(raw)
@@ -43,10 +44,11 @@ class ObjectId private (private val raw: Array[Byte]) extends Serializable with 
 
   override def canEqual(that: Any): Boolean = that.isInstanceOf[ObjectId]
 
-  override def equals(that: Any): Boolean = that match {
-    case other: ObjectId => java.util.Arrays.equals(raw, other.raw)
-    case _               => false
-  }
+  override def equals(that: Any): Boolean =
+    that match {
+      case other: ObjectId => java.util.Arrays.equals(raw, other.raw)
+      case _               => false
+    }
 
   @JsonIgnore
   override lazy val hashCode: Int = java.util.Arrays.hashCode(raw)
@@ -113,9 +115,9 @@ object ObjectId {
       val threadId = Thread.currentThread.getId.toInt
       val arr = new Array[Byte](3)
 
-      arr(0) = (threadId & 0xFF).toByte
-      arr(1) = (threadId >> 8 & 0xFF).toByte
-      arr(2) = (threadId >> 16 & 0xFF).toByte
+      arr(0) = (threadId & 0xff).toByte
+      arr(1) = (threadId >> 8 & 0xff).toByte
+      arr(2) = (threadId >> 16 & 0xff).toByte
 
       arr
     }
@@ -133,10 +135,11 @@ object ObjectId {
    * Constructs a BSON ObjectId element from a hexadecimal String representation.
    * Throws an exception if the given argument is not a valid ObjectID.
    */
-  def apply(id: String): ObjectId = parse(id) match {
-    case scala.util.Success(value) => value
-    case scala.util.Failure(e)     => throw e
-  }
+  def apply(id: String): ObjectId =
+    parse(id) match {
+      case scala.util.Success(value) => value
+      case scala.util.Failure(e)     => throw e
+    }
 
   def apply(array: Array[Byte]): ObjectId = {
     if (array.length != 12)
@@ -199,9 +202,9 @@ object ObjectId {
     val id = new Array[Byte](12)
 
     id(0) = (timestamp >>> 24).toByte
-    id(1) = (timestamp >> 16 & 0xFF).toByte
-    id(2) = (timestamp >> 8 & 0xFF).toByte
-    id(3) = (timestamp & 0xFF).toByte
+    id(1) = (timestamp >> 16 & 0xff).toByte
+    id(2) = (timestamp >> 8 & 0xff).toByte
+    id(3) = (timestamp & 0xff).toByte
 
     if (!fillOnlyTimestamp) {
       // machine id, 3 first bytes of md5(macadress or hostname)
@@ -211,14 +214,14 @@ object ObjectId {
 
       // 2 bytes of the pid or thread id. Thread id in our case. Low endian
       val threadId = Thread.currentThread.getId.toInt
-      id(7) = (threadId & 0xFF).toByte
-      id(8) = (threadId >> 8 & 0xFF).toByte
+      id(7) = (threadId & 0xff).toByte
+      id(8) = (threadId >> 8 & 0xff).toByte
 
       // 3 bytes of counter sequence, which start is randomized. Big endian
       val c = counter()
-      id(9) = (c >> 16 & 0xFF).toByte
-      id(10) = (c >> 8 & 0xFF).toByte
-      id(11) = (c & 0xFF).toByte
+      id(9) = (c >> 16 & 0xff).toByte
+      id(10) = (c >> 8 & 0xff).toByte
+      id(11) = (c & 0xff).toByte
     }
 
     ObjectId(id)

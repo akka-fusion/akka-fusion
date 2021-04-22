@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019-2021 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,20 +16,19 @@
 
 package fusion.jdbc.stream
 
-import java.nio.charset.Charset
-import java.nio.charset.StandardCharsets
-import java.sql.ResultSet
-
 import akka.NotUsed
 import akka.stream.scaladsl.Flow
 import akka.util.ByteString
 import fusion.jdbc.util.JdbcUtils
 
+import java.nio.charset.{ Charset, StandardCharsets }
+import java.sql.ResultSet
 import scala.collection.immutable
 
 case class JdbcResultSet(rs: ResultSet, values: immutable.IndexedSeq[AnyRef])
 
 object JdbcFlow {
+
   def flowToText(valueSeparator: Char = ','): Flow[immutable.IndexedSeq[AnyRef], String, NotUsed] =
     Flow[immutable.IndexedSeq[AnyRef]].map { values =>
       val builder = new java.lang.StringBuilder()

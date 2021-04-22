@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019-2021 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@ case class Item(href: String, templated: Boolean)
 
 class FusionActuatorRoute(system: ExtendedActorSystem, actuatorSetting: ActuatorSetting) extends StrictLogging {
   private val objectMapper = JacksonObjectMapperExtension(system).objectMapperJson
+
   private val components: Seq[ActuatorRoute] =
     FusionCore(system).configuration.get[Seq[String]]("fusion.actuator.routes").flatMap { fqcn =>
       Utils.try2option(

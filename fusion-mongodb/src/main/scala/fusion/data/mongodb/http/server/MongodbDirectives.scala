@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019-2021 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,11 @@
 
 package fusion.data.mongodb.http.server
 
-import akka.http.scaladsl.unmarshalling.FromStringUnmarshaller
-import akka.http.scaladsl.unmarshalling.Unmarshaller
+import akka.http.scaladsl.unmarshalling.{ FromStringUnmarshaller, Unmarshaller }
 import org.bson.types.ObjectId
 
 trait MongodbDirectives {
+
   implicit def objectIdFromStringUnmarshaller: FromStringUnmarshaller[ObjectId] =
     MongodbDirectives._objectIdFromStringUnmarshaller
 }

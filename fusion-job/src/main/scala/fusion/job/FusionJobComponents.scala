@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019-2021 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,6 @@
 
 package fusion.job
 
-import java.util
-
 import akka.Done
 import akka.actor.ExtendedActorSystem
 import com.typesafe.scalalogging.StrictLogging
@@ -32,6 +30,7 @@ import org.quartz.simpl.RAMJobStore
 import org.quartz.spi.{ JobStore, SchedulerPlugin, ThreadExecutor, ThreadPool }
 import org.quartz.utils.DBConnectionManager
 
+import java.util
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters._
 import scala.util.{ Failure, Success }

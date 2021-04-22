@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019-2021 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -182,7 +182,8 @@ class JacksonHttpHelper private (override val classicSystem: ExtendedActorSystem
       response: HttpResponse)(implicit ct: TypeTag[R], mat: Materializer): Future[Either[HSException, R]] = {
     implicit val ec: ExecutionContext = mat.executionContext
     mapHttpResponse(response).map(Right(_)).recoverWith {
-      case e: HSException => Future.successful(Left(e))
+      case e: HSException =>
+        Future.successful(Left(e))
     }
   }
 
@@ -209,7 +210,8 @@ class JacksonHttpHelper private (override val classicSystem: ExtendedActorSystem
       implicit mat: Materializer): Future[Either[HSException, R]] = {
     implicit val ec: ExecutionContext = mat.executionContext
     mapHttpResponseError(response).recoverWith {
-      case e: HSException => Future.successful(Left(e))
+      case e: HSException =>
+        Future.successful(Left(e))
     }
   }
 }

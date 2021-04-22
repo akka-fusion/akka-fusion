@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019-2021 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@
 
 package docs.stream
 
-import akka.kafka.{ ConsumerSettings, Subscriptions }
 import akka.kafka.scaladsl.Consumer
+import akka.kafka.{ ConsumerSettings, Subscriptions }
 import akka.stream.Materializer
 import akka.stream.scaladsl.{ Sink, Source }
 import akka.{ Done, actor => classic }
@@ -33,17 +33,20 @@ object StreamExample {
   implicit val mat = Materializer.matFromSystem(system)
   import system.dispatcher
 
-  def findOrgIdsByArea(area: String): Future[List[String]] = Future {
-    (0 until Random.nextInt(50)).map(_.toString).toList
-  }
+  def findOrgIdsByArea(area: String): Future[List[String]] =
+    Future {
+      (0 until Random.nextInt(50)).map(_.toString).toList
+    }
 
-  def findUserIdsByOrgId(orgId: String): Future[List[String]] = Future {
-    (0 until Random.nextInt(50)).map(n => s"$orgId-$n").toList
-  }
+  def findUserIdsByOrgId(orgId: String): Future[List[String]] =
+    Future {
+      (0 until Random.nextInt(50)).map(n => s"$orgId-$n").toList
+    }
 
-  def findImeisByUserIds(userIds: Iterable[String]): Future[List[String]] = Future {
-    userIds.map(id => "imei-" + id).toList
-  }
+  def findImeisByUserIds(userIds: Iterable[String]): Future[List[String]] =
+    Future {
+      userIds.map(id => "imei-" + id).toList
+    }
 
   def batchSendMessage(imeis: Seq[String], content: String): Unit = {
     println(s"发送消息内容为：$content, imeis个数：${imeis.size}")

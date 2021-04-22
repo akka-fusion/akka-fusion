@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019-2021 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import com.typesafe.config.Config
 import com.typesafe.config.ConfigParseOptions
 
 object ConfigurationHelper {
+
   def fromProperties(props: Properties): Config =
     Parseable.newProperties(props, ConfigParseOptions.defaults()).parse().asInstanceOf[AbstractConfigObject].toConfig
 }

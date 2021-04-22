@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019-2021 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,13 +17,12 @@
 package fusion.json.json4s.http
 
 import java.lang.reflect.InvocationTargetException
-
 import akka.http.scaladsl.marshalling.{ Marshaller, ToEntityMarshaller }
 import akka.http.scaladsl.model.{ ContentTypeRange, MediaType, MediaTypes }
 import akka.http.scaladsl.unmarshalling.{ FromEntityUnmarshaller, Unmarshaller }
 import akka.stream.Materializer
 import akka.util.ByteString
-import fusion.json.json4s.JsonUtils
+import fusion.json.json4s.Json4sUtils
 import org.json4s.{ Formats, MappingException, Serialization }
 
 import scala.concurrent.ExecutionContext
@@ -50,7 +49,7 @@ object Json4sSupports {
 trait Json4sSupport {
   import Json4sSupports._
 
-  def jsonUtils: JsonUtils
+  def jsonUtils: Json4sUtils
 
   def unmarshallerContentTypes: Seq[ContentTypeRange] = mediaTypes.map(ContentTypeRange.apply)
 
@@ -72,7 +71,8 @@ trait Json4sSupport {
    * @return unmarshaller for `A`
    */
   implicit def unmarshaller[A: Manifest](
-      implicit serialization: Serialization = jsonUtils.serialization,
+      implicit
+      serialization: Serialization = jsonUtils.serialization,
       formats: Formats = jsonUtils.defaultFormats): FromEntityUnmarshaller[A] =
     jsonStringUnmarshaller.map(s => serialization.read(s)).recover(throwCause)
 
@@ -83,7 +83,8 @@ trait Json4sSupport {
    * @return marshaller for any `A` value
    */
   implicit def marshaller[A <: AnyRef](
-      implicit serialization: Serialization = jsonUtils.serialization,
+      implicit
+      serialization: Serialization = jsonUtils.serialization,
       formats: Formats = jsonUtils.defaultFormats,
       shouldWritePretty: ShouldWritePretty = ShouldWritePretty.False): ToEntityMarshaller[A] =
     shouldWritePretty match {

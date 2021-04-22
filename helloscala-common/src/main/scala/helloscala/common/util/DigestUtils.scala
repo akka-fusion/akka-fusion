@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019-2021 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import java.nio.file.{ Files, Path }
 import java.security.MessageDigest
 
 object MessageDigestAlgorithms {
+
   /**
    * The MD5 message digest algorithm defined in RFC 1321.
    */

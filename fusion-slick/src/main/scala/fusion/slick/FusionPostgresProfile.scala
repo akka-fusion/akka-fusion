@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019-2021 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,6 @@
 
 package fusion.slick
 
-import java.time._
-
 import com.github.tminglei.slickpg._
 import com.github.tminglei.slickpg.str.PgStringSupport
 import com.github.tminglei.slickpg.utils.PlainSQLUtils._
@@ -25,6 +23,7 @@ import fusion.slick.pg.PgJacksonJsonSupport
 import slick.basic.Capability
 import slick.jdbc.JdbcCapabilities
 
+import java.time._
 import scala.concurrent.duration.FiniteDuration
 
 trait FusionPostgresProfile

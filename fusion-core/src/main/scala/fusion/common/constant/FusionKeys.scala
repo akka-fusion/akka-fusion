@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019-2021 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ package fusion.common.constant
 
 object FusionKeys {
   val FUSION_NAME = "fusion.name"
-  val AKKA_NAME = "fusion.akka-name"
+  val AKKA_NAME = "fusion.akka.name"
   val PIDFILE = "fusion.pidfile"
   val GLOBAL_APPLICATION_ENABLE = "fusion.global-application-enable"
   val PROFILES_ACTIVE_PATH = "fusion.profiles.active"

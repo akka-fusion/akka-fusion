@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019-2021 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,6 @@ object FusionPlugin extends AutoPlugin {
   }
 
   object autoImport extends Keys
-  import autoImport._
 
   override def projectSettings: Seq[sbt.Setting[_]] =
     defaultSettings //++ configSettings(Compile) ++ configSettings(Test)

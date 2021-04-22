@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019-2021 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,6 @@
 
 package fusion.core.extension
 
-import java.nio.file.Paths
-
 import akka.actor.ExtendedActorSystem
 import akka.actor.typed._
 import akka.actor.typed.scaladsl.adapter._
@@ -31,6 +29,7 @@ import fusion.core.http.headers.`X-Service`
 import fusion.core.setting.CoreSetting
 import helloscala.common.util.{ PidFile, Utils }
 
+import java.nio.file.Paths
 import scala.util.control.NonFatal
 
 final class FusionCore private (override val classicSystem: ExtendedActorSystem)
@@ -42,8 +41,9 @@ final class FusionCore private (override val classicSystem: ExtendedActorSystem)
   val setting: CoreSetting = new CoreSetting(configuration)
   val events = new FusionEvents()
   val shutdowns = new FusionCoordinatedShutdown(classicSystem)
+
   val currentXService: HttpHeader = {
-    val serviceName = configuration.get[Option[String]]("fusion.discovery.nacos.serviceName").getOrElse(name)
+    val serviceName = configuration.get[Option[String]]("fusion.application.name").getOrElse(name)
     `X-Service`(serviceName)
   }
 

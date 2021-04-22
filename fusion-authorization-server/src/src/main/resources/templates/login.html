@@ -1,0 +1,29 @@
+<html>
+<head>
+    <title>Login</title>
+</head>
+<body>
+<form action="/oauth2/login" method="post">
+    <input hidden id="authorizeUri" name="authorizeUri" value="request">
+    <div>
+        <label>username</label>
+        <input name="username">
+    </div>
+    <div>
+        <label>password</label>
+        <input name="password" type="password">
+    </div>
+    <div>
+        <button type="reset">Reset</button>
+        <button type="submit">Login</button>
+    </div>
+</form>
+<script src="https://cdn.bootcdn.net/ajax/libs/jquery/1.10.0/jquery.js"></script>
+<script>
+  var params = new URLSearchParams(window.location.search);
+  var authorizUri = params.get('authorizeUri');
+  var elem = document.getElementById('authorizeUri');
+  elem.setAttribute('value', authorizUri);
+</script>
+</body>
+</html>

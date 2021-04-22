@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 helloscala.com
+ * Copyright 2019-2021 helloscala.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,11 @@
 
 package fusion.core.http.headers
 
-import java.time.Instant
-
 import akka.http.scaladsl.model.headers.{ ModeledCustomHeader, ModeledCustomHeaderCompanion }
 import com.typesafe.scalalogging.StrictLogging
 import fusion.common.constant.HttpKeys
 
+import java.time.Instant
 import scala.concurrent.duration.FiniteDuration
 import scala.util.Try
 

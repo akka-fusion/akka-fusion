@@ -88,9 +88,9 @@ Akka 有自己的日志级别配置项。所以，最好将 Akka 的日志级别
 akka.loglevel = "DEBUG"
 ```
 
-在 actor 中，可以通过 `ActorContext[T]` 上提供的 `log` 方法来使用 Akka 日志，它将使用 Akka 定义的日志组织
+在 actor 中，可以通过 `ActorContext[T]` 上提供的 `log` 方法来使用 Akka 日志。
 
-当 `akka-actor-typed` 和 `akka-slf4j` 存在于类依赖路径上时，Akka 的事件日志处理 actor 将向 SLF4J 发送事件，并自动启用 `akka.event.slf4j.Slf4jLogger` 和 `akka.event.slf4j.Slf4jLoggingFilter` 类，而无需要任何配置。若需要手动配置 Akka 使用 SLF4J 输出日志，请确保如下配置，否则将使用默认日志输出到终端。
+当 `akka-actor-typed` 和 `akka-slf4j` 存在于类依赖路径上时，Akka 的事件日志处理 actor 将向 SLF4J 发送事件，并自动启用 `akka.event.slf4j.Slf4jLogger` 和 `akka.event.slf4j.Slf4jLoggingFilter` 类，而无需要任何配置。若需要手动配置 Akka 使用 SLF4J 输出日志，请确保如下配置，否则将使用默认日志实现并输出日志内容到终端。
 
 ```hocon
 akka {
@@ -178,7 +178,9 @@ Fusion Log 预定义了几个转换规则参数，可以在 Appender 的编码�
 
 _通过 `LoggingEventCompositeJsonEncoder` 提供了 JSON 格式日志输出支持，它是 logstash 提供的一个 logback encoder 和 appender 库，在此可以查询更多详细：[https://github.com/logstash/logstash-logback-encoder](https://github.com/logstash/logstash-logback-encoder) 。_
 
-## Filebeat 配置
+## 通过 Filebeat 输出日志到 Elastic-stack
+
+### filebeat 配置
 
 **filebeat.yml 参考配置如：**
 
@@ -191,3 +193,13 @@ _通过 `LoggingEventCompositeJsonEncoder` 提供了 JSON 格式日志输出支�
     keys_under_root: true
     overwrite_keys: true
 ```
+
+### 通过 Docker 启动 elastic-stack
+
+这里选择使用 filebeat 直接把日志数据输出到 Elasticsearch，不使用 Logstack 做中转。
+
+通过 docker-compose，可以很方便的启动 elastic-stack：`docker-compose up -d`
+
+**docker-compose.yml**
+
+@@snip [defaults.xml](../../../../../fusion-log/docker-compose.yml) 

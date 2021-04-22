@@ -53,7 +53,7 @@ object Dependencies {
   val versionScalaLogging = "3.9.3"
   val versionLogstashLogback = "6.6"
   val versionJwt = "5.0.0"
-  val versionScalapbJson4s = "0.11.0"
+  val versionScalapbJson4s = "0.10.3"
   val versionJoseJwt = "9.8.1"
   val versionPulsar4sAkkaStreams = "2.7.2"
   val versionPulsar = "2.7.1"
@@ -170,12 +170,7 @@ object Dependencies {
       .excludeAll(ExclusionRule("com.typesafe.akka"))
       .cross(CrossVersion.binary)
 
-  val _akkaPersistenceJdbc =
-    ("com.github.dnvriend" %% "akka-persistence-jdbc" % "3.5.2")
-      .excludeAll(ExclusionRule("com.typesafe.akka"))
-      .cross(CrossVersion.binary)
-
-  val _consulClient = "com.orbitz.consul" % "consul-client" % "1.4.2"
+  val _consulClient = "com.orbitz.consul" % "consul-client" % "1.5.1"
 
   val _mongodbs = Seq(
     "org.mongodb.scala" %% "mongo-scala-bson" % versionMongoScalaBson,
@@ -221,9 +216,10 @@ object Dependencies {
     "com.google.inject" % "guice" % versionGuice,
     "com.google.inject.extensions" % "guice-assistedinject" % versionGuice)
 
-  val _scalapbJson4s = "com.thesamet.scalapb" %% "scalapb-json4s" % versionScalapbJson4s
+  val _scalapbJson4s = ("com.thesamet.scalapb" %% "scalapb-json4s" % versionScalapbJson4s)
+    .exclude("com.thesamet.scalapb", "scalapb-runtime")
 
-//  val _oshiCore = "com.github.oshi" % "oshi-core" % "4.3.0"
+  val _scalapbRuntime = "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion
 
   val _osLib = "com.lihaoyi" %% "os-lib" % versionOsLib
   val _requests = "com.lihaoyi" %% "requests" % versionRequests
@@ -248,7 +244,7 @@ object Dependencies {
   val _postgresql = "org.postgresql" % "postgresql" % versionPostgres
   val _mysql = "mysql" % "mysql-connector-java" % versionMySQL
   val _h2 = "com.h2database" % "h2" % versionH2
-  val _hikariCP = "com.zaxxer" % "HikariCP" % versionHikariCP
+  val _hikariCP = ("com.zaxxer" % "HikariCP" % versionHikariCP).exclude("org.slf4j", "slf4j-api")
   val _jsch = "com.jcraft" % "jsch" % versionJsch
   val _jakartaMail = "com.sun.mail" % "jakarta.mail" % versionJakartaMail
   val _bson = "org.mongodb" % "bson" % versionBson

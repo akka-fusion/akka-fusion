@@ -151,7 +151,7 @@ lazy val fusionCloudConsul = _project("fusion-cloud-consul")
   .settings(libraryDependencies ++= Seq(_akkaDiscoveryConsul))
 
 lazy val fusionCloud = _project("fusion-cloud")
-  .dependsOn(fusionHttpClient, fusionTestkit % "test->test", fusionCore)
+  .dependsOn(fusionHttpClient, fusionCluster % "provided->provided", fusionTestkit % "test->test", fusionCore)
   .settings(libraryDependencies ++= Seq(_akkaManagement, _chimney, _akkaDiscovery) ++ _akkaClusters.map(_ % Provided))
 
 lazy val fusionActuatorCluster = _project("fusion-actuator-cluster")
@@ -175,8 +175,12 @@ lazy val fusionCluster = _project("fusion-cluster")
   .settings(libraryDependencies ++= Seq(_akkaManagement, _akkaManagementClusterHttp) ++ _akkaClusters)
 
 lazy val fusionGrpc = _project("fusion-grpc")
-  .dependsOn(fusionTestkit % "test->test", fusionCore)
-  .settings(libraryDependencies ++= Seq(_scalapbJson4s))
+  .dependsOn(fusionTestkit % "test->test", fusionJsonJacksonExt, fusionCloudConsul)
+  .settings(
+    libraryDependencies ++= Seq(
+        _scalapbJson4s,
+        _scalapbRuntime,
+        "io.grpc" % "grpc-core" % akka.grpc.gen.BuildInfo.grpcVersion) ++ _akkaClusters.map(_ % Provided))
 
 lazy val fusionAuthorizationServer = _project("fusion-authorization-server")
   .dependsOn(fusionSecurityOauthCore, fusionHttp, fusionTestkit % "test->test")

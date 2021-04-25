@@ -51,16 +51,16 @@ class FusionCloudDiscoveryConsul()(implicit val system: ActorSystem[_])
   private def init(): Unit = {
     FusionCore(system).events.http.addListener {
       case HttpBindingServerEvent(Success(inet), isSecure) => registerCurrentService(inet, isSecure)
-      case HttpBindingServerEvent(Failure(e), _)           => logger.error("Http Server绑定错误，未能自动注册到Nacos", e)
+      case HttpBindingServerEvent(Failure(e), _)           => logger.error("Http Server绑定错误，未能自动注册到服务发现服务。", e)
     }
   }
 
   private def registerCurrentService(inet: InetSocketAddress, isSecure: Boolean): Unit = {
     import system.executionContext
     val managementF: Future[Uri] = AkkaManagement(system).start()
-    for {
+    val future = for {
       uri <- managementF
-    } {
+    } yield {
       val originalInst = configureServiceInstance(
         Some(ServiceInstance(address = Some(inet.getHostString), port = Some(inet.getPort))))
       val address = originalInst.address.getOrElse(uri.authority.host.address())
@@ -75,6 +75,10 @@ class FusionCloudDiscoveryConsul()(implicit val system: ActorSystem[_])
 
       logger.info(s"Startup HTTP server successful, register instance was $currentInst.")
       register(currentInst)
+    }
+    future.onComplete {
+      case Success(inst) => logger.info(s"Register current service successful, instance is $inst")
+      case Failure(e)    => logger.error(s"Register current service failure.", e)
     }
   }
 

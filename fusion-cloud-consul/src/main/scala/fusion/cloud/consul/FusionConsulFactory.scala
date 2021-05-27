@@ -42,7 +42,7 @@ class FusionConsulFactory(val fusionConsul: FusionConsul, val config: Config) ex
     }
 
   private def init(): Unit = {
-    actorSystem.classicSystem.registerOnTermination(() => fusionConsul.close())
+    actorSystem.classicSystem.registerOnTermination { fusionConsul.close() }
   }
 
   override private[fusion] def createActorSystem[T](guardianBehavior: Behavior[T]): ActorSystem[T] = {

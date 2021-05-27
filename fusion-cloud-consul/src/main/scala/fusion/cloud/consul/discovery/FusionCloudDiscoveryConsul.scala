@@ -30,6 +30,7 @@ import fusion.core.extension.FusionCore
 import helloscala.common.util.{ NetworkUtils, StringUtils }
 
 import java.net.InetSocketAddress
+import java.util.Objects
 import java.util.concurrent.locks.ReentrantReadWriteLock
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters._
@@ -44,6 +45,7 @@ class FusionCloudDiscoveryConsul()(implicit val system: ActorSystem[_])
     with StrictLogging {
   private val instLock = new ReentrantReadWriteLock(true)
   private var _instance: Option[ServiceInstance] = None
+  private val serviceInstances = new java.util.HashMap[String, ServiceInstance]()
   val cloudConfig: FusionCloudConfigConsul = FusionCloudConfigConsul(system)
 
   init()
@@ -52,6 +54,9 @@ class FusionCloudDiscoveryConsul()(implicit val system: ActorSystem[_])
     FusionCore(system).events.http.addListener {
       case HttpBindingServerEvent(Success(inet), isSecure) => registerCurrentService(inet, isSecure)
       case HttpBindingServerEvent(Failure(e), _)           => logger.error("Http Server绑定错误，未能自动注册到服务发现服务。", e)
+    }
+    system.classicSystem.registerOnTermination {
+      serviceInstances.keySet.forEach(id => cloudConfig.fusionConsul.deregister(id))
     }
   }
 
@@ -77,8 +82,10 @@ class FusionCloudDiscoveryConsul()(implicit val system: ActorSystem[_])
       register(currentInst)
     }
     future.onComplete {
-      case Success(inst) => logger.info(s"Register current service successful, instance is $inst")
-      case Failure(e)    => logger.error(s"Register current service failure.", e)
+      case Success(inst) =>
+        _instance = Some(inst)
+        logger.info(s"Register current service successful, instance is $inst")
+      case Failure(e) => logger.error(s"Register current service failure.", e)
     }
   }
 
@@ -90,12 +97,6 @@ class FusionCloudDiscoveryConsul()(implicit val system: ActorSystem[_])
   }
 
   def config: Config = cloudConfig.config
-
-  def register(registration: ImmutableRegistration): FusionCloudDiscoveryConsul = {
-    logger.info(s"Register current service instance is $registration")
-    cloudConfig.fusionConsul.register(registration)
-    this
-  }
 
   override def configureServiceInstance(maybeInstance: Option[ServiceInstance]): ServiceInstance = {
     val lock = instLock.writeLock()
@@ -143,14 +144,24 @@ class FusionCloudDiscoveryConsul()(implicit val system: ActorSystem[_])
         }
         builder.addChecks(regCheckBuilder.build())
       }
-      register(builder.build())
 
-      _instance = Some(servInst)
+      val registration = builder.build()
+      cloudConfig.fusionConsul.register(registration)
+      addServiceInstance(servInst)
       servInst
     } finally {
       lock.unlock()
     }
   }
+
+  private def addServiceInstance(servInst: ServiceInstance): Unit = {
+    val prev = serviceInstances.get(servInst.id)
+    if (Objects.nonNull(prev)) {
+      cloudConfig.fusionConsul.deregister(servInst.id)
+    }
+    serviceInstances.put(servInst.id, servInst)
+  }
+
 }
 
 object FusionCloudDiscoveryConsul extends ExtensionId[FusionCloudDiscoveryConsul] {

@@ -45,8 +45,14 @@ class FusionConsul private (val consul: Consul) extends AutoCloseable with Stric
   def getValuesAsString(key: String, charset: Charset = StandardCharsets.UTF_8): Vector[String] =
     consul.keyValueClient().getValuesAsString(key, charset).asScala.toVector
 
-  def register(registration: Registration): FusionConsul = {
+  def register(registration: Registration): FusionConsul = synchronized {
+    logger.info(s"Register current service instance is $registration")
     consul.agentClient().register(registration)
+    this
+  }
+
+  def deregister(serviceId: String): FusionConsul = synchronized {
+    consul.agentClient().deregister(serviceId)
     this
   }
 

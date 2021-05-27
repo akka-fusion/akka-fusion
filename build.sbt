@@ -22,8 +22,6 @@ ThisBuild / crossScalaVersions := Seq(versionScala212, versionScala213)
 
 ThisBuild / scalafmtOnCompile := true
 
-ThisBuild / sonarUseExternalConfig := true
-
 lazy val root = Project(id = "akka-fusion", base = file("."))
   .aggregate(
     fusionInjectGuiceTestkit,
@@ -61,7 +59,7 @@ lazy val root = Project(id = "akka-fusion", base = file("."))
     helloscalaCommon)
   .settings(Publishing.noPublish: _*)
   .settings(Environment.settings: _*)
-  .settings(aggregate in sonarScan := false, skip in publish := true)
+  .settings(publish / skip := true)
 //.settings(
 //  addCommandAlias("fix", "all compile:scalafix test:scalafix"),
 //  addCommandAlias("fixCheck", "; compile:scalafix --check ; test:scalafix --check"))

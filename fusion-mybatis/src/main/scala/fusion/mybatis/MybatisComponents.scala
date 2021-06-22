@@ -58,7 +58,7 @@ class MybatisComponents(system: ExtendedActorSystem)
     val environment = new Environment(envId, new JdbcTransactionFactory(), dataSource)
 
     val mybatisConfiguration = createConfiguration(c, environment)
-    mybatisConfiguration.setGlobalConfig(createGlobalConfig(c))
+//    mybatisConfiguration.setGlobalConfig(createGlobalConfig(c))
     new FusionSqlSessionFactory(new MybatisSqlSessionFactoryBuilder().build(mybatisConfiguration))
   }
 
@@ -74,7 +74,7 @@ class MybatisComponents(system: ExtendedActorSystem)
     c.computeIfForeach[Boolean]("global-config.capital-mode", dbConfig.setCapitalMode)
     c.computeIfForeach[String](
       "global-config.key-generator",
-      keyGenerator => dbConfig.setKeyGenerator(getKeyGenerator(keyGenerator)))
+      keyGenerator => dbConfig.setKeyGenerators(getKeyGenerators(keyGenerator)))
     c.computeIfForeach[String]("global-config.logic-delete-value", dbConfig.setLogicDeleteValue)
     c.computeIfForeach[String]("global-config.logic-not-delete-value", dbConfig.setLogicNotDeleteValue)
     c.computeIfForeach[String](
@@ -92,14 +92,18 @@ class MybatisComponents(system: ExtendedActorSystem)
     gc
   }
 
-  private def getKeyGenerator(keyGenerator: String): IKeyGenerator =
-    keyGenerator.toLowerCase match {
+  private def getKeyGenerators(keyGenerator: String): java.util.List[IKeyGenerator] = {
+    val list = new java.util.ArrayList[IKeyGenerator](1)
+    val kg = keyGenerator.toLowerCase match {
       case "postgres" | "postgre" => new PostgreKeyGenerator()
       case "db2"                  => new DB2KeyGenerator()
       case "h2"                   => new H2KeyGenerator()
       case "oracle"               => new OracleKeyGenerator()
       case other                  => throw new ExceptionInInitializerError(s"KeyGenerator 不存在：$other")
     }
+    list.add(kg)
+    list
+  }
 
   private def createConfiguration(c: Configuration, environment: Environment): MybatisConfiguration = {
     val configuration = new MybatisConfiguration(environment)

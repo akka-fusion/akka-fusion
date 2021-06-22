@@ -299,6 +299,7 @@ lazy val helloscalaCommon = _project("helloscala-common")
         _scalaLogging,
         _uuidGenerator,
         "org.scala-lang" % "scala-reflect" % scalaVersion.value,
+        "org.scala-lang" % "scala-library" % scalaVersion.value,
         _scalaCollectionCompat,
         _scalaJava8Compat,
         _scalatest % Test))

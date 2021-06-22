@@ -66,7 +66,7 @@ class FusionCloudDiscoveryConsul()(implicit val system: ActorSystem[_])
     val future = for {
       uri <- managementF
     } yield {
-      val originalInst = configureServiceInstance(
+      val originalInst: ServiceInstance = configureServiceInstance(
         Some(ServiceInstance(address = Some(inet.getHostString), port = Some(inet.getPort))))
       val address = originalInst.address.getOrElse(uri.authority.host.address())
 

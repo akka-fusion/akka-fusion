@@ -28,8 +28,6 @@ object GatewayApplication {
 
   def main(args: Array[String]): Unit = {
     val system = FusionConfigFactory.fromByConfig().initActorSystem(SpawnProtocol())
-    implicit val classicSystem = system.classicSystem
-
     val route = complete("Hello world!")
     val binding = FusionHttpServer(system).component.startRouteSync(route)
     println(binding)

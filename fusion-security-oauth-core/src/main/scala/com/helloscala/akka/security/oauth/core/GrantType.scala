@@ -23,7 +23,7 @@ import com.helloscala.akka.security.oauth.jacksons.GrantTypeSerializer
 
 /**
  * @author Yang Jing <a href="mailto:yang.xunjing@qq.com">yangbajing</a>
- * @date 2020-09-19 09:13:30
+ * @since 2020-09-19 09:13:30
  */
 @JsonSerialize(using = classOf[GrantTypeSerializer])
 @JsonDeserialize(using = classOf[GrantTypeDeserializer])

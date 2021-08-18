@@ -27,7 +27,7 @@ import scala.jdk.CollectionConverters._
 
 /**
  * @author Yang Jing <a href="mailto:yang.xunjing@qq.com">yangbajing</a>
- * @date 2020-12-01 18:50:02
+ * @since 2020-12-01 18:50:02
  */
 class FusionConsul private (val consul: Consul) extends AutoCloseable with StrictLogging {
 

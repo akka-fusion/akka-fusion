@@ -30,7 +30,7 @@ import scala.concurrent.duration._
 
 /**
  * @author Yang Jing <a href="mailto:yang.xunjing@qq.com">yangbajing</a>
- * @date 2020-09-19 18:28:55
+ * @since 2020-09-19 18:28:55
  */
 object JwtEncoder {
   trait Command

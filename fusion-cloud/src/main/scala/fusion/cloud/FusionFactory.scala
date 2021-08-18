@@ -21,7 +21,7 @@ import com.typesafe.config.Config
 
 /**
  * @author Yang Jing <a href="mailto:yang.xunjing@qq.com">yangbajing</a>
- * @date 2020-12-01 23:40:06
+ * @since 2020-12-01 23:40:06
  */
 trait FusionFactory extends FusionActorSystemFactory {
   def config: Config

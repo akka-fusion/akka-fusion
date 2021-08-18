@@ -14,30 +14,29 @@
  * limitations under the License.
  */
 
-package com.helloscala.akka.security.oauth.util
+package fusion.cloud.discovery
 
-import akka.http.scaladsl.model.ContentTypes
-import akka.http.scaladsl.model.FormData
+import akka.actor.ClassicActorSystemProvider
+import akka.discovery.{ Discovery, ServiceDiscovery }
 import akka.http.scaladsl.model.HttpRequest
-import akka.http.scaladsl.unmarshalling.Unmarshal
-import akka.stream.Materializer
 
-import scala.concurrent.Future
+import scala.concurrent.ExecutionContext
+import scala.concurrent.duration._
 
 /**
  * @author Yang Jing <a href="mailto:yang.xunjing@qq.com">yangbajing</a>
- * @since 2020-09-19 11:16:03
+ * @since v0.0.1 2021-08-13 16:26:11
  */
-object HttpUtils {
+object DiscoveryHttpUtils {
+  implicit def mapToServiceDiscoveryFromSystemProvider(provider: ClassicActorSystemProvider): ServiceDiscovery =
+    Discovery(provider).discovery
 
-  def getParameterValues(request: HttpRequest, name: String)(implicit ec: Materializer): Future[List[String]] = {
-    import ec.executionContext
-    val query = request.uri.query()
-    query.getAll(name) match {
-      case Nil if request.entity.contentType == ContentTypes.`application/x-www-form-urlencoded` =>
-        Unmarshal(request.entity).to[FormData].map(form => form.fields.getAll(name))
-      case values => Future.successful(values)
+  def wrapperService(serviceName: String, resolveTimeout: FiniteDuration = 2.seconds)(
+      implicit discovery: ServiceDiscovery,
+      ec: ExecutionContext): HttpRequest = {
+    discovery.lookup(serviceName, resolveTimeout).map { resolved =>
+      resolved.addresses
     }
+    ???
   }
-
 }

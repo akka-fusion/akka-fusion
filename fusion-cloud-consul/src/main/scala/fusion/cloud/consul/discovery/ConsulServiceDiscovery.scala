@@ -16,42 +16,40 @@
 
 package fusion.cloud.consul.discovery
 
+import akka.actor.ActorSystem
+import akka.actor.typed.scaladsl.adapter._
+import akka.discovery.ServiceDiscovery.{ Resolved, ResolvedTarget }
+import akka.discovery.{ Lookup, ServiceDiscovery }
+import akka.pattern.after
+import com.orbitz.consul.async.ConsulResponseCallback
+import com.orbitz.consul.model.ConsulResponse
+import com.orbitz.consul.model.catalog.CatalogService
+import com.orbitz.consul.option.QueryOptions
+import fusion.cloud.consul.config.FusionCloudConsul
+
 import java.net.InetAddress
 import java.util
 import java.util.concurrent.TimeoutException
-import akka.actor.ActorSystem
-
 import scala.collection.immutable.Seq
-import scala.concurrent.{ ExecutionContext, Future, Promise }
-import akka.pattern.after
-import com.google.common.net.HostAndPort
-import com.orbitz.consul.Consul
-import com.orbitz.consul.async.ConsulResponseCallback
-import com.orbitz.consul.model.ConsulResponse
-import ConsulGrpcServiceDiscovery._
-import akka.discovery.ServiceDiscovery.{ Resolved, ResolvedTarget }
-import akka.discovery.consul.ConsulSettings
-import akka.discovery.{ Lookup, ServiceDiscovery }
-import com.orbitz.consul.model.catalog.CatalogService
-import com.orbitz.consul.option.QueryOptions
-
+import scala.collection.mutable
 import scala.concurrent.duration.FiniteDuration
-import scala.util.Try
+import scala.concurrent.{ ExecutionContext, Future, Promise }
 import scala.jdk.CollectionConverters._
+import scala.util.Try
 
 /**
  * @author Yang Jing <a href="mailto:yang.xunjing@qq.com">yangbajing</a>
- * @date   2021-01-14 17:45:25
+ * @since   2021-01-14 17:45:25
  */
-class ConsulGrpcServiceDiscovery(system: ActorSystem) extends ServiceDiscovery {
+class ConsulServiceDiscovery(system: ActorSystem) extends ServiceDiscovery {
+  import ConsulServiceDiscovery._
 
   private val settings = ConsulSettings.get(system)
 
-  private val consul =
-    Consul.builder().withHostAndPort(HostAndPort.fromParts(settings.consulHost, settings.consulPort)).build()
+  private val consul = FusionCloudConsul(system.toTyped).fusionConsul.consul
 
   override def lookup(lookup: Lookup, resolveTimeout: FiniteDuration): Future[Resolved] = {
-    implicit val ec = system.dispatcher
+    implicit val ec: ExecutionContext = system.dispatcher
     Future.firstCompletedOf(
       Seq(
         after(resolveTimeout, using = system.scheduler)(
@@ -75,17 +73,27 @@ class ConsulGrpcServiceDiscovery(system: ActorSystem) extends ServiceDiscovery {
   }
 
   private def extractResolvedTargetFromCatalogService(catalogService: CatalogService) = {
-    val port = catalogService.getServiceTags.asScala
-      .find(_.startsWith(settings.applicationAkkaManagementPortTagPrefix))
-      .map(_.replace(settings.applicationAkkaManagementPortTagPrefix, ""))
-      .flatMap { maybePort =>
-        Try(maybePort.toInt).toOption
-      }
+    val serviceTags = catalogService.getServiceTags.asScala
+    val port = findGrpcPort(serviceTags)
+      .orElse(findAkkaManagementPort(serviceTags))
+      .flatMap(maybePort => Try(maybePort.toInt).toOption)
     val address = catalogService.getServiceAddress
     ResolvedTarget(
       host = address,
       port = Some(port.getOrElse(catalogService.getServicePort)),
       address = Try(InetAddress.getByName(address)).toOption)
+  }
+
+  private def findAkkaManagementPort(serviceTags: mutable.Buffer[String]) = {
+    serviceTags
+      .find(_.startsWith(settings.applicationAkkaManagementPortTagPrefix))
+      .map(_.replace(settings.applicationAkkaManagementPortTagPrefix, ""))
+  }
+
+  private def findGrpcPort(serviceTags: mutable.Buffer[String]) = {
+    serviceTags
+      .find(_.startsWith(settings.applicationGrpcPortTagPrefix))
+      .map(_.replace(settings.applicationGrpcPortTagPrefix, ""))
   }
 
   private def getServicesWithTags: Future[ConsulResponse[util.Map[String, util.List[String]]]] = {
@@ -96,12 +104,12 @@ class ConsulGrpcServiceDiscovery(system: ActorSystem) extends ServiceDiscovery {
   private def getService(name: String) =
     ((callback: ConsulResponseCallback[util.List[CatalogService]]) =>
       consul.catalogClient().getService(name, QueryOptions.BLANK, callback)).asFuture
+
 }
 
-object ConsulGrpcServiceDiscovery {
+object ConsulServiceDiscovery {
 
   implicit class ConsulResponseFutureDecorator[T](f: ConsulResponseCallback[T] => Unit) {
-
     def asFuture: Future[ConsulResponse[T]] = {
       val callback = new ConsulResponseFutureCallback[T]
       Try(f(callback)).recover[Unit] {
@@ -113,7 +121,7 @@ object ConsulGrpcServiceDiscovery {
 
   final case class ConsulResponseFutureCallback[T]() extends ConsulResponseCallback[T] {
 
-    private val promise = Promise[ConsulResponse[T]]
+    private val promise = Promise[ConsulResponse[T]]()
 
     def fail(exception: Throwable) = promise.failure(exception)
 
@@ -127,4 +135,5 @@ object ConsulGrpcServiceDiscovery {
       promise.failure(throwable)
     }
   }
+
 }

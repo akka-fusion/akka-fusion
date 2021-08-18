@@ -11,7 +11,7 @@ import scala.reflect.ClassTag
 
 /**
  * @author Yang Jing <a href="mailto:yang.xunjing@qq.com">yangbajing</a>
- * @date 2020-09-20 13:53:27
+ * @since 2020-09-20 13:53:27
  */
 case class ManagedKey(
     id: String,

@@ -8,7 +8,7 @@ import akka.actor.typed.scaladsl.Behaviors
 
 /**
  * @author Yang Jing <a href="mailto:yang.xunjing@qq.com">yangbajing</a>
- * @date 2020-09-20 13:52:11
+ * @since 2020-09-20 13:52:11
  */
 object KeyManager {
   trait Command

@@ -24,14 +24,14 @@ import fusion.core.extension.FusionCore
 
 /**
  * @author Yang Jing <a href="mailto:yang.xunjing@qq.com">yangbajing</a>
- * @date 2020-12-02 11:42:25
+ * @since 2020-12-02 11:42:25
  */
-class FusionCloudConfigConsul()(implicit val system: ActorSystem[_]) extends FusionCloudConfig {
+class FusionCloudConsul()(implicit val system: ActorSystem[_]) extends FusionCloudConfig {
   val fusionConsul: FusionConsul = FusionConsul.fromByConfig(system.settings.config)
   FusionCore(system).shutdowns.addJvmShutdownHook(fusionConsul.close())
   override def config: Config = system.settings.config
 }
 
-object FusionCloudConfigConsul extends ExtensionId[FusionCloudConfigConsul] {
-  override def createExtension(system: ActorSystem[_]): FusionCloudConfigConsul = new FusionCloudConfigConsul()(system)
+object FusionCloudConsul extends ExtensionId[FusionCloudConsul] {
+  override def createExtension(system: ActorSystem[_]): FusionCloudConsul = new FusionCloudConsul()(system)
 }

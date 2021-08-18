@@ -21,7 +21,7 @@ import com.nimbusds.jose.JWSHeader
 
 /**
  * @author Yang Jing <a href="mailto:yang.xunjing@qq.com">yangbajing</a>
- * @date 2020-09-20 13:46:52
+ * @since 2020-09-20 13:46:52
  */
 case class JoseHeader(header: Header) {
 

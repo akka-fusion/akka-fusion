@@ -22,7 +22,7 @@ import fusion.cloud.FusionConfigFactory
 
 /**
  * @author Yang Jing <a href="mailto:yang.xunjing@qq.com">yangbajing</a>
- * @date   2021-01-11 21:39:52
+ * @since   2021-01-11 21:39:52
  */
 object GatewayApplication {
 

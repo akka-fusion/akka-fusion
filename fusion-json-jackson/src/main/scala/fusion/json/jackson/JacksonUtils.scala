@@ -18,6 +18,6 @@ package fusion.json.jackson
 
 /**
  * @author Yang Jing <a href="mailto:yang.xunjing@qq.com">yangbajing</a>
- * @date   2021-01-13 10:37:09
+ * @since   2021-01-13 10:37:09
  */
 object JacksonUtils {}

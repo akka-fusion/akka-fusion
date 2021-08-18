@@ -28,7 +28,7 @@ import scala.concurrent.duration._
 
 /**
  * @author Yang Jing <a href="mailto:yang.xunjing@qq.com">yangbajing</a>
- * @date 2020-12-02 13:34:38
+ * @since 2020-12-02 13:34:38
  */
 class FusionCloud(val system: ActorSystem[_]) extends Extension {
   implicit val timeout: Timeout = 5.seconds

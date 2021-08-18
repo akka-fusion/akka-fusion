@@ -146,7 +146,7 @@ lazy val fusionHttpGateway = _project("fusion-http-gateway")
 
 lazy val fusionCloudConsul = _project("fusion-cloud-consul")
   .dependsOn(fusionCloud, fusionTestkit % "test->test", fusionCore)
-  .settings(libraryDependencies ++= Seq(_akkaDiscoveryConsul))
+  .settings(libraryDependencies ++= Seq(_jacksonDatabind, _jacksonDatatypeJdk8, _jacksonDatatypeGuava, _consulClient))
 
 lazy val fusionCloud = _project("fusion-cloud")
   .dependsOn(fusionHttpClient, fusionCluster % "provided->provided", fusionTestkit % "test->test", fusionCore)

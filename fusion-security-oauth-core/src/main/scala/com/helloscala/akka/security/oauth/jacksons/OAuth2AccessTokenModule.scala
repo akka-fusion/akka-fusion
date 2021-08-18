@@ -27,7 +27,7 @@ import java.time.Duration
 
 /**
  * @author Yang Jing <a href="mailto:yang.xunjing@qq.com">yangbajing</a>
- * @date 2020-09-19 09:39:55
+ * @since 2020-09-19 09:39:55
  */
 trait OAuth2AccessTokenModule extends JacksonModule {
   this += OAuth2AccessTokenSerializerResolver

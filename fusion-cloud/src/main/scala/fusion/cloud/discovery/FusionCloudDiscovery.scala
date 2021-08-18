@@ -22,7 +22,7 @@ import akka.pattern.StatusReply
 
 /**
  * @author Yang Jing <a href="mailto:yang.xunjing@qq.com">yangbajing</a>
- * @date 2020-12-02 12:08:17
+ * @since 2020-12-02 12:08:17
  */
 trait FusionCloudDiscovery extends Extension {
   def register(servInst: ServiceInstance): ServiceInstance

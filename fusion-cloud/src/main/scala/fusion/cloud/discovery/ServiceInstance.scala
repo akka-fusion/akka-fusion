@@ -20,7 +20,7 @@ import helloscala.common.util.{ CollectionUtils, StringUtils }
 
 /**
  * @author Yang Jing <a href="mailto:yang.xunjing@qq.com">yangbajing</a>
- * @date   2021-01-11 09:27:50
+ * @since   2021-01-11 09:27:50
  */
 case class ServiceInstance(
     id: String = "",

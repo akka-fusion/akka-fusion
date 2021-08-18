@@ -9,7 +9,7 @@ object Dependencies {
   val versionScalameta = "4.4.26"
   val versionScalatest = "3.1.4"
   val versionAkka = "2.6.15"
-  val versionAkkaManagement = "1.1.0"
+  val versionAkkaManagement = "1.1.1"
   val versionAkkaHttp = "10.2.6"
   val versionAkkaHttpCors = "1.1.1"
   val versionAlpakka = "3.0.2"
@@ -57,6 +57,7 @@ object Dependencies {
   val versionJoseJwt = "9.11.3"
   val versionPulsar4sAkkaStreams = "2.7.3"
   val versionPulsar = "2.7.2"
+  val versionConsul = "1.5.3"
 
   val _scalameta = "org.scalameta" %% "scalameta" % versionScalameta
   val _scalaXml = ("org.scala-lang.modules" %% "scala-xml" % versionScalaXml).exclude("org.scala-lang", "scala-library")
@@ -170,13 +171,15 @@ object Dependencies {
       .excludeAll(ExclusionRule("com.typesafe.akka"))
       .cross(CrossVersion.binary)
 
-  val _consulClient = "com.orbitz.consul" % "consul-client" % "1.5.1"
-
   val _mongodbs = Seq(
     "org.mongodb.scala" %% "mongo-scala-bson" % versionMongoScalaBson,
     "org.mongodb" % "mongodb-driver-reactivestreams" % versionMongoDriverReactivestreams)
 
   val _jacksonAnnotations = "com.fasterxml.jackson.core" % "jackson-annotations" % versionJackson
+
+  val _jacksonDatabind = "com.fasterxml.jackson.core" % "jackson-databind" % versionJackson
+  val _jacksonDatatypeJdk8 = "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % versionJackson
+  val _jacksonDatatypeGuava = "com.fasterxml.jackson.datatype" % "jackson-datatype-guava" % versionJackson
 
   val _cassandras = Seq("com.datastax.oss" % "java-driver-core" % versionCassandra)
 
@@ -198,8 +201,6 @@ object Dependencies {
       .exclude("com.typesafe.akka", "akka-stream")
       .exclude("org.apache.kafka", "kafka-clients")
       .cross(CrossVersion.binary))
-
-  val _akkaDiscoveryConsul = "com.lightbend.akka.discovery" %% "akka-discovery-consul" % versionAkkaManagement
 
   val _config = "com.typesafe" % "config" % versionConfig
 
@@ -255,4 +256,7 @@ object Dependencies {
   val _pulsar4s = ("com.sksamuel.pulsar4s" %% "pulsar4s-akka-streams" % versionPulsar4sAkkaStreams)
     .exclude("org.apache.pulsar", "pulsar-client")
   val _pulsarClient = "org.apache.pulsar" % "pulsar-client" % versionPulsar
+  val _consulClient =
+    ("com.orbitz.consul" % "consul-client" % versionConsul)
+      .excludeAll(ExclusionRule("com.fasterxml.jackson.core"), ExclusionRule("com.fasterxml.jackson.datatype"))
 }

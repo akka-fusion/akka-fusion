@@ -20,7 +20,7 @@ import slick.lifted.Rep
 
 /**
  * @author Yang Jing <a href="mailto:yang.xunjing@qq.com">yangbajing</a>
- * @date   2021-04-25 15:20:33
+ * @since   2021-04-25 15:20:33
  */
 object SlickUtils {
   def optionBoolean(condition: Boolean, rep: Rep[Boolean]): Option[Rep[Boolean]] = {

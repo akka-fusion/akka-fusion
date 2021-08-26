@@ -18,7 +18,9 @@ package fusion.http
 
 import akka.actor.typed.SpawnProtocol
 import akka.http.scaladsl.server.Directives._
+import akka.management.scaladsl.AkkaManagement
 import fusion.cloud.FusionConfigFactory
+import fusion.cloud.consul.discovery.FusionCloudDiscoveryConsul
 
 /**
  * @author Yang Jing <a href="mailto:yang.xunjing@qq.com">yangbajing</a>
@@ -28,7 +30,10 @@ object GatewayApplication {
 
   def main(args: Array[String]): Unit = {
     val system = FusionConfigFactory.fromByConfig().initActorSystem(SpawnProtocol())
+    import system.executionContext
     val route = complete("Hello world!")
+    //AkkaManagement(system).start().onComplete(value => println(s"Akka Management start result is $value"))
+    FusionCloudDiscoveryConsul(system)
     val binding = FusionHttpServer(system).component.startRouteSync(route)
     println(binding)
     //    FusionWeb(system).startAsync(route)

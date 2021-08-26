@@ -81,6 +81,9 @@ class FusionCloudDiscoveryConsul()(implicit val system: ActorSystem[_])
       if (config.hasPath("akka.management.http.base-path")) {
         http += "/" + config.getString("akka.management.http.base-path")
       }
+      if (http.last != '/') {
+        http += '/'
+      }
       http += config.getString("akka.management.health-checks.readiness-path") // "/health/ready"
       val check = ServiceCheck(interval = "5.s", http = http)
       val currentInst = originalInst.copy(checks = originalInst.checks :+ check)

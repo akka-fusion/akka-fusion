@@ -57,7 +57,7 @@ object Dependencies {
   val versionJoseJwt = "9.11.3"
   val versionPulsar4sAkkaStreams = "2.7.3"
   val versionPulsar = "2.7.2"
-  val versionConsul = "1.5.3"
+  val versionConsul = "1.4.2"
 
   val _scalameta = "org.scalameta" %% "scalameta" % versionScalameta
   val _scalaXml = ("org.scala-lang.modules" %% "scala-xml" % versionScalaXml).exclude("org.scala-lang", "scala-library")

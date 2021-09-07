@@ -225,7 +225,7 @@ lazy val fusionElasticsearch = _project("fusion-elasticsearch")
 
 lazy val fusionPulsar = _project("fusion-pulsar")
   .dependsOn(fusionJsonJackson, fusionTestkit % "test->test", fusionCore)
-  .settings(libraryDependencies ++= Seq(_pulsar4s, _pulsarClient))
+  .settings(libraryDependencies ++= Seq(/*_pulsar4s, */_pulsarClient))
 
 lazy val fusionKafka = _project("fusion-kafka")
   .dependsOn(fusionJsonJackson, fusionTestkit % "test->test", fusionCore)

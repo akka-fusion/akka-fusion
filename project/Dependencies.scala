@@ -5,14 +5,14 @@ object Dependencies {
   val versionScala213 = "2.13.6"
   val versionScalaXml = "2.0.1"
   val versionScalaCollectionCompat = "2.5.0"
-  val versionJava8Compat = "0.9.1"
+  val versionJava8Compat = "1.0.0"
   val versionScalameta = "4.4.26"
   val versionScalatest = "3.1.4"
-  val versionAkka = "2.6.15"
+  val versionAkka = "2.6.16"
   val versionAkkaManagement = "1.1.1"
   val versionAkkaHttp = "10.2.6"
   val versionAkkaHttpCors = "1.1.1"
-  val versionAlpakka = "3.0.2"
+  val versionAlpakka = "3.0.3"
   val versionAlpakkaKafka = "2.1.1"
   val versionAkkaPersistenceCassandra = "1.0.5"
   val versionAkkaPersistenceJdbc = "5.0.1"
@@ -255,6 +255,7 @@ object Dependencies {
   val _joseJwt = "com.nimbusds" % "nimbus-jose-jwt" % versionJoseJwt
   val _pulsar4s = ("com.sksamuel.pulsar4s" %% "pulsar4s-akka-streams" % versionPulsar4sAkkaStreams)
     .exclude("org.apache.pulsar", "pulsar-client")
+    .exclude("org.scala-lang.modules", "scala-java8-compat").cross(CrossVersion.binary)
   val _pulsarClient = "org.apache.pulsar" % "pulsar-client" % versionPulsar
   val _consulClient =
     ("com.orbitz.consul" % "consul-client" % versionConsul)

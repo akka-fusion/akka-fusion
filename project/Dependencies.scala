@@ -58,6 +58,7 @@ object Dependencies {
   val versionPulsar4sAkkaStreams = "2.7.3"
   val versionPulsar = "2.7.2"
   val versionConsul = "1.4.2"
+  val versionConsulApi = "1.4.5"
 
   val _scalameta = "org.scalameta" %% "scalameta" % versionScalameta
   val _scalaXml = ("org.scala-lang.modules" %% "scala-xml" % versionScalaXml).exclude("org.scala-lang", "scala-library")
@@ -260,4 +261,7 @@ object Dependencies {
   val _consulClient =
     ("com.orbitz.consul" % "consul-client" % versionConsul)
       .excludeAll(ExclusionRule("com.fasterxml.jackson.core"), ExclusionRule("com.fasterxml.jackson.datatype"))
+
+  val _consulApi = "com.ecwid.consul" % "consul-api" % versionConsulApi
+
 }

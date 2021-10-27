@@ -575,20 +575,31 @@ object JdbcUtils extends StrictLogging {
     }
 
     var dumpParameters = ""
+    val dumpBs = new StringBuilder()
+
     if (parameterTypes.nonEmpty) {
-      val parameters = actionFunc match {
+      actionFunc match {
         case actionFuncImpl: PreparedStatementActionImpl[_] =>
-          parameterTypes.zip(actionFuncImpl.args).map {
-            case (paramType, value) =>
-              s"\t\t$paramType: $value"
+          dumpBs.append('\n').append('\t').append("types:").append('\t')
+          parameterTypes.foreach(pt => dumpBs.append(pt).append(", "))
+          dumpBs.delete(dumpBs.length() - 2, dumpBs.length())
+          dumpBs.append('\n')
+          actionFuncImpl.args.foreach { arg =>
+            dumpBs.append('\t').append('\t').append(arg).append('\n')
           }
+          dumpBs.delete(dumpBs.length() - 1, dumpBs.length())
         case _ =>
           parameterTypes.map(paramType => s"\t\t$paramType:")
       }
-      dumpParameters = "\n" + parameters.mkString("\n")
+      if (dumpBs.nonEmpty) {
+        dumpBs.prepended('\n')
+        dumpBs.append('\n')
+        dumpParameters = dumpBs.toString
+      }
     }
 
-    logger.info(s"SQL PRINT[$dua] $sql $dumpParameters")
+    val message = s"SQL PRINT[$dua] $sql$dumpParameters"
+    logger.info(message)
   }
 
   def handleWarnings(ignoreWarnings: Boolean, allowPrintLog: Boolean, stmt: Statement): Unit =

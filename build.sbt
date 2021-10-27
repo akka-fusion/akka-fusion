@@ -146,7 +146,13 @@ lazy val fusionHttpGateway = _project("fusion-http-gateway")
 
 lazy val fusionCloudConsul = _project("fusion-cloud-consul")
   .dependsOn(fusionCloud, fusionTestkit % "test->test", fusionCore)
-  .settings(libraryDependencies ++= Seq(_jacksonDatabind, _jacksonDatatypeJdk8, _jacksonDatatypeGuava, _consulClient))
+  .settings(
+    libraryDependencies ++= Seq(
+        _consulClient,
+        _consulApi,
+        _jacksonDatatypeJdk8,
+        _jacksonDatatypeGuava,
+        _jacksonDatabind))
 
 lazy val fusionCloud = _project("fusion-cloud")
   .dependsOn(fusionHttpClient, fusionCluster % "provided->provided", fusionTestkit % "test->test", fusionCore)
@@ -225,7 +231,7 @@ lazy val fusionElasticsearch = _project("fusion-elasticsearch")
 
 lazy val fusionPulsar = _project("fusion-pulsar")
   .dependsOn(fusionJsonJackson, fusionTestkit % "test->test", fusionCore)
-  .settings(libraryDependencies ++= Seq(/*_pulsar4s, */_pulsarClient))
+  .settings(libraryDependencies ++= Seq( /*_pulsar4s, */ _pulsarClient))
 
 lazy val fusionKafka = _project("fusion-kafka")
   .dependsOn(fusionJsonJackson, fusionTestkit % "test->test", fusionCore)

@@ -14,10 +14,25 @@
  * limitations under the License.
  */
 
-package fusion.json.jackson
+package fusion.jdbc.util
+
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpec
+
+import java.time.Instant
 
 /**
  * @author Yang Jing <a href="mailto:yang.xunjing@qq.com">yangbajing</a>
- * @since   2021-01-13 10:37:09
+ * @since v1.1 2021-09-15 21:21:03
  */
-object JacksonUtils {}
+class JdbcUtilsTest extends AnyWordSpec with Matchers {
+
+  "JdbcUtilsTest" should {
+    "handleSqlLogs" in {
+      val types = Seq("int4", "varchar", "float8")
+      val psFunc = JdbcUtils.preparedStatementCreator("insert into test(id, text, amount) values(?, ?, )")
+      val actionFunc = JdbcUtils.preparedStatementActionUseBatchUpdate(Seq(Seq(1, "aaa", 3.3), Seq(2, "bbb", 43.2)))
+      JdbcUtils.handleSqlLogs(Instant.now(), types, psFunc, actionFunc)
+    }
+  }
+}

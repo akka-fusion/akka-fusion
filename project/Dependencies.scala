@@ -2,16 +2,16 @@ import sbt._
 
 object Dependencies {
   val versionScala212 = "2.12.14"
-  val versionScala213 = "2.13.6"
+  val versionScala213 = "2.13.7"
   val versionScalaXml = "2.0.1"
   val versionScalaCollectionCompat = "2.5.0"
-  val versionJava8Compat = "1.0.0"
+  val versionJava8Compat = "1.0.2"
   val versionScalameta = "4.4.26"
   val versionScalatest = "3.1.4"
-  val versionAkka = "2.6.16"
+  val versionAkka = "2.6.17"
   val versionAkkaManagement = "1.1.1"
-  val versionAkkaHttp = "10.2.6"
-  val versionAkkaHttpCors = "1.1.1"
+  val versionAkkaHttp = "10.2.7"
+  val versionAkkaHttpCors = "1.1.2"
   val versionAlpakka = "3.0.3"
   val versionAlpakkaKafka = "2.1.1"
   val versionAkkaPersistenceCassandra = "1.0.5"
@@ -20,7 +20,7 @@ object Dependencies {
   val versionJackson = "2.11.4"
   val versionElastic4s = "7.13.0"
   val versionConfig = "1.4.1"
-  val versionPureconfig = "0.16.0"
+  val versionPureconfig = "0.17.0"
   val versionChimney = "0.6.1"
   val versionGuice = "5.0.1"
   val versionUuidGenerator = "4.0.1"
@@ -35,8 +35,8 @@ object Dependencies {
   val versionHikariCP = "3.4.5"
   val versionMybatisPlus = "3.4.3.1"
   val versionSlf4j = "1.7.32"
-  val versionLombok = "1.18.20"
-  val versionMySQL = "8.0.26"
+  val versionLombok = "1.18.22"
+  val versionMySQL = "8.0.27"
   val versionH2 = "1.4.200"
   val versionMssqlJdbc = "9.4.0.jre11"
   val versionPostgres = "42.2.23"
@@ -49,7 +49,7 @@ object Dependencies {
   val versionBson = "4.2.3"
   val versionKafka = "2.7.1"
   val versionAlpnAgent = "2.0.10"
-  val versionLogback = "1.2.5"
+  val versionLogback = "1.2.6"
   val versionScalaLogging = "3.9.4"
   val versionLogstashLogback = "6.6"
   val versionJwt = "5.0.0"
@@ -256,7 +256,8 @@ object Dependencies {
   val _joseJwt = "com.nimbusds" % "nimbus-jose-jwt" % versionJoseJwt
   val _pulsar4s = ("com.sksamuel.pulsar4s" %% "pulsar4s-akka-streams" % versionPulsar4sAkkaStreams)
     .exclude("org.apache.pulsar", "pulsar-client")
-    .exclude("org.scala-lang.modules", "scala-java8-compat").cross(CrossVersion.binary)
+    .exclude("org.scala-lang.modules", "scala-java8-compat")
+    .cross(CrossVersion.binary)
   val _pulsarClient = "org.apache.pulsar" % "pulsar-client" % versionPulsar
   val _consulClient =
     ("com.orbitz.consul" % "consul-client" % versionConsul)

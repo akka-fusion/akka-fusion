@@ -126,7 +126,7 @@ lazy val codegen = _project("codegen")
   .settings(
     scalaVersion := versionScala212,
 //    bintrayRepository := "ivy",
-    scriptedBufferLog := false,
+    //scriptedBufferLog := false,
     publishMavenStyle := false,
     buildInfoPackage := "fusion.sbt.gen")
 

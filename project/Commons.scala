@@ -58,7 +58,7 @@ object Publishing {
                       Some("hjgpscm-public".at(
                         "https://jfrog-artifactory.hjgpscm.com/artifactory/public" /*;build.timestamp=" + new java.util.Date().getTime*/ ))
                     else Some("hjgpscm-public".at("https://jfrog-artifactory.hjgpscm.com/artifactory/public"))),
-      credentials += Credentials(Path.userHome / ".sbt" / ".credentials_fruits"),
+      credentials += Credentials(Path.userHome / ".sbt" / ".credentials_hjfruit"),
 //      bintrayOrganization := Some("artifactory"),
 //      bintrayRepository := "sbt",
 //      maintainer := "yangbajing <yang.xunjing@qq.com>",

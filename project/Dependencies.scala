@@ -1,62 +1,64 @@
 import sbt._
 
 object Dependencies {
-  val versionScala212 = "2.12.12"
-  val versionScala213 = "2.13.5"
-  val versionScalaXml = "1.3.0"
-  val versionScalaCollectionCompat = "2.4.3"
-  val versionJava8Compat = "0.9.1"
-  val versionScalameta = "4.4.10"
+  val versionScala212 = "2.12.14"
+  val versionScala213 = "2.13.7"
+  val versionScalaXml = "2.0.1"
+  val versionScalaCollectionCompat = "2.5.0"
+  val versionJava8Compat = "1.0.2"
+  val versionScalameta = "4.4.26"
   val versionScalatest = "3.1.4"
-  val versionAkka: String = sys.props.getOrElse("akka.version", "2.6.14")
-  val versionAkkaManagement = "1.0.10"
-  val versionAkkaHttp = "10.2.4"
-  val versionAkkaHttpCors = "1.1.1"
-  val versionAlpakka = "2.0.2"
-  val versionAlpakkaKafka = "2.0.7"
+  val versionAkka = "2.6.17"
+  val versionAkkaManagement = "1.1.1"
+  val versionAkkaHttp = "10.2.7"
+  val versionAkkaHttpCors = "1.1.2"
+  val versionAlpakka = "3.0.3"
+  val versionAlpakkaKafka = "2.1.1"
   val versionAkkaPersistenceCassandra = "1.0.5"
-  val versionAkkaPersistenceJdbc = "5.0.0"
-  val versionCassandra = "4.11.0"
+  val versionAkkaPersistenceJdbc = "5.0.1"
+  val versionCassandra = "4.13.0"
   val versionJackson = "2.11.4"
-  val versionElastic4s = "7.12.0"
+  val versionElastic4s = "7.13.0"
   val versionConfig = "1.4.1"
-  val versionPureconfig = "0.15.0"
+  val versionPureconfig = "0.17.0"
   val versionChimney = "0.6.1"
   val versionGuice = "5.0.1"
   val versionUuidGenerator = "4.0.1"
-  val versionHanlp = "portable-1.7.8"
+  val versionHanlp = "portable-1.8.2"
   val versionSlick = "3.3.3"
-  val versionSlickPg = "0.19.5"
+  val versionSlickPg = "0.19.7"
   val versionPoi = "4.1.2"
   val versionQuartz = "2.3.2"
-  val versionBcprovJdk15on = "1.68"
+  val versionBcprovJdk15on = "1.69"
   val versionJsch = "0.1.55"
   val versionJakartaMail = "2.0.1"
-  val versionHikariCP = "4.0.3"
-  val versionMybatisPlus = "3.4.2"
-  val versionSlf4j = "1.7.30"
-  val versionLombok = "1.18.20"
-  val versionMySQL = "8.0.24"
+  val versionHikariCP = "3.4.5"
+  val versionMybatisPlus = "3.4.3.1"
+  val versionSlf4j = "1.7.32"
+  val versionLombok = "1.18.22"
+  val versionMySQL = "8.0.27"
   val versionH2 = "1.4.200"
-  val versionMssqlJdbc = "9.2.1.jre11"
-  val versionPostgres = "42.2.19"
-  val versionCommonsVfs2 = "2.8"
-  val versionRequests = "0.6.7"
+  val versionMssqlJdbc = "9.4.0.jre11"
+  val versionPostgres = "42.2.23"
+  val versionCommonsVfs2 = "2.9.0"
+  val versionRequests = "0.6.9"
   val versionFastparse = "2.3.2"
-  val versionOsLib = "0.7.4"
+  val versionOsLib = "0.7.8"
   val versionMongoScalaBson = "4.2.3"
   val versionMongoDriverReactivestreams = "4.2.3"
   val versionBson = "4.2.3"
-  val versionKafka = "2.6.1"
+  val versionKafka = "2.7.1"
   val versionAlpnAgent = "2.0.10"
-  val versionLogback = "1.2.3"
-  val versionScalaLogging = "3.9.3"
+  val versionLogback = "1.2.6"
+  val versionScalaLogging = "3.9.4"
   val versionLogstashLogback = "6.6"
   val versionJwt = "5.0.0"
-  val versionScalapbJson4s = "0.10.3"
-  val versionJoseJwt = "9.8.1"
-  val versionPulsar4sAkkaStreams = "2.7.2"
-  val versionPulsar = "2.7.1"
+  val versionScalapbJson4s = "0.11.1"
+  val versionJoseJwt = "9.11.3"
+  val versionPulsar4sAkkaStreams = "2.7.3"
+  val versionPulsar = "2.7.2"
+  val versionConsul = "1.4.2"
+  val versionConsulApi = "1.4.5"
 
   val _scalameta = "org.scalameta" %% "scalameta" % versionScalameta
   val _scalaXml = ("org.scala-lang.modules" %% "scala-xml" % versionScalaXml).exclude("org.scala-lang", "scala-library")
@@ -170,13 +172,15 @@ object Dependencies {
       .excludeAll(ExclusionRule("com.typesafe.akka"))
       .cross(CrossVersion.binary)
 
-  val _consulClient = "com.orbitz.consul" % "consul-client" % "1.5.1"
-
   val _mongodbs = Seq(
     "org.mongodb.scala" %% "mongo-scala-bson" % versionMongoScalaBson,
     "org.mongodb" % "mongodb-driver-reactivestreams" % versionMongoDriverReactivestreams)
 
   val _jacksonAnnotations = "com.fasterxml.jackson.core" % "jackson-annotations" % versionJackson
+
+  val _jacksonDatabind = "com.fasterxml.jackson.core" % "jackson-databind" % versionJackson
+  val _jacksonDatatypeJdk8 = "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % versionJackson
+  val _jacksonDatatypeGuava = "com.fasterxml.jackson.datatype" % "jackson-datatype-guava" % versionJackson
 
   val _cassandras = Seq("com.datastax.oss" % "java-driver-core" % versionCassandra)
 
@@ -198,8 +202,6 @@ object Dependencies {
       .exclude("com.typesafe.akka", "akka-stream")
       .exclude("org.apache.kafka", "kafka-clients")
       .cross(CrossVersion.binary))
-
-  val _akkaDiscoveryConsul = "com.lightbend.akka.discovery" %% "akka-discovery-consul" % versionAkkaManagement
 
   val _config = "com.typesafe" % "config" % versionConfig
 
@@ -254,5 +256,13 @@ object Dependencies {
   val _joseJwt = "com.nimbusds" % "nimbus-jose-jwt" % versionJoseJwt
   val _pulsar4s = ("com.sksamuel.pulsar4s" %% "pulsar4s-akka-streams" % versionPulsar4sAkkaStreams)
     .exclude("org.apache.pulsar", "pulsar-client")
+    .exclude("org.scala-lang.modules", "scala-java8-compat")
+    .cross(CrossVersion.binary)
   val _pulsarClient = "org.apache.pulsar" % "pulsar-client" % versionPulsar
+  val _consulClient =
+    ("com.orbitz.consul" % "consul-client" % versionConsul)
+      .excludeAll(ExclusionRule("com.fasterxml.jackson.core"), ExclusionRule("com.fasterxml.jackson.datatype"))
+
+  val _consulApi = "com.ecwid.consul" % "consul-api" % versionConsulApi
+
 }

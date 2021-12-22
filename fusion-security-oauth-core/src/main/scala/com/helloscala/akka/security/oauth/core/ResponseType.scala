@@ -23,7 +23,7 @@ import com.helloscala.akka.security.oauth.jacksons.ResponseTypeSerializer
 
 /**
  * @author Yang Jing <a href="mailto:yang.xunjing@qq.com">yangbajing</a>
- * @date 2020-09-23 12:40:13
+ * @since 2020-09-23 12:40:13
  */
 @JsonSerialize(using = classOf[ResponseTypeSerializer])
 @JsonDeserialize(using = classOf[ResponseTypeDeserializer])

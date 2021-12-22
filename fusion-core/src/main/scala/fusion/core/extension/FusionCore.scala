@@ -19,13 +19,11 @@ package fusion.core.extension
 import akka.actor.ExtendedActorSystem
 import akka.actor.typed._
 import akka.actor.typed.scaladsl.adapter._
-import akka.http.scaladsl.model.HttpHeader
 import com.typesafe.scalalogging.StrictLogging
 import fusion.common.constant.{ FusionConstants, FusionKeys }
 import fusion.common.extension.{ FusionCoordinatedShutdown, FusionExtension, FusionExtensionId }
 import fusion.common.{ ReceptionistFactory, SpawnFactory }
 import fusion.core.event.FusionEvents
-import fusion.core.http.headers.`X-Service`
 import fusion.core.setting.CoreSetting
 import helloscala.common.util.{ PidFile, Utils }
 
@@ -41,11 +39,6 @@ final class FusionCore private (override val classicSystem: ExtendedActorSystem)
   val setting: CoreSetting = new CoreSetting(configuration)
   val events = new FusionEvents()
   val shutdowns = new FusionCoordinatedShutdown(classicSystem)
-
-  val currentXService: HttpHeader = {
-    val serviceName = configuration.get[Option[String]]("fusion.application.name").getOrElse(name)
-    `X-Service`(serviceName)
-  }
 
   writePidfile()
   System.setProperty(

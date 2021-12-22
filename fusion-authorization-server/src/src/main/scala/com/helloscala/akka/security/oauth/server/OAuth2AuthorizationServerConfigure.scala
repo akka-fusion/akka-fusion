@@ -16,7 +16,7 @@ import scala.reflect.ClassTag
 
 /**
  * @author Yang Jing <a href="mailto:yang.xunjing@qq.com">yangbajing</a>
- * @date 2020-09-20 22:20:15
+ * @since 2020-09-20 22:20:15
  */
 class OAuth2AuthorizationServerConfigure(system: ActorSystem[_]) {
   implicit private val typedSystem = system

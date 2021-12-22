@@ -27,6 +27,7 @@ import akka.stream.scaladsl.{ FileIO, Sink, Source }
 import fusion.http.AkkaHttpSourceQueue
 import fusion.http.rejection.ForbiddenRejection
 import fusion.http.util.HttpUtils
+import helloscala.common.types.ObjectId
 import helloscala.common.util.TimeUtils
 
 import java.io.File
@@ -39,6 +40,9 @@ trait HttpDirectives {
   implicit class ContentTypeRich(contentType: ContentType) {
     def charset: Charset = contentType.charsetOption.map(_.nioCharset()).getOrElse(StandardCharsets.UTF_8)
   }
+
+  implicit def objectIdFromStringUnmarshaller: FromStringUnmarshaller[ObjectId] =
+    HttpDirectives._objectIdFromStringUnmarshaller
 
   implicit def localDateFromStringUnmarshaller: FromStringUnmarshaller[LocalDate] =
     HttpDirectives._localDateFromStringUnmarshaller
@@ -168,6 +172,8 @@ trait HttpDirectives {
 }
 
 object HttpDirectives extends HttpDirectives {
+  private val _objectIdFromStringUnmarshaller = Unmarshaller.strict[String, ObjectId](ObjectId.apply)
+
   private val _localDateFromStringUnmarshaller = Unmarshaller.strict[String, LocalDate](TimeUtils.toLocalDate)
 
   private val _localTimeFromStringUnmarshaller = Unmarshaller.strict[String, LocalTime](TimeUtils.toLocalTime)
@@ -177,13 +183,6 @@ object HttpDirectives extends HttpDirectives {
 
   private val _offsetDateTimeFromStringUnmarshaller =
     Unmarshaller.strict[String, OffsetDateTime](TimeUtils.toOffsetDateTime)
-//  def ObjectIdPath: PathMatcher1[ObjectId] =
-//    PathMatcher("""[\da-fA-F]{24}""".r) flatMap { string =>
-//      try ObjectId.parse(string).toOption
-//      catch {
-//        case _: IllegalArgumentException => None
-//      }
-//    }
 
 //  def ObjectIdSegment: PathMatcher1[String] =
 //    PathMatcher("""[\da-fA-F]{24}""".r) flatMap { string =>

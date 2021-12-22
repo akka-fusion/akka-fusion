@@ -12,7 +12,7 @@ import scala.collection.mutable
 
 /**
  * @author Yang Jing <a href="mailto:yang.xunjing@qq.com">yangbajing</a>
- * @date 2020-09-19 17:53:41
+ * @since 2020-09-19 17:53:41
  */
 object RegisteredClientRepository {
   trait Command

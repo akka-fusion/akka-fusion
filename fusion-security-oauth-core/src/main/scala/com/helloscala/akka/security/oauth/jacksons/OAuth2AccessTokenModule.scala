@@ -16,24 +16,18 @@
 
 package com.helloscala.akka.security.oauth.jacksons
 
-import java.time.Duration
-
 import com.fasterxml.jackson.core.JsonGenerator
-import com.fasterxml.jackson.databind.`type`.ReferenceType
-import com.fasterxml.jackson.databind.jsontype.TypeSerializer
+import com.fasterxml.jackson.databind._
 import com.fasterxml.jackson.databind.ser.Serializers
 import com.fasterxml.jackson.databind.ser.std.StdSerializer
-import com.fasterxml.jackson.databind.BeanDescription
-import com.fasterxml.jackson.databind.JavaType
-import com.fasterxml.jackson.databind.JsonSerializer
-import com.fasterxml.jackson.databind.SerializationConfig
-import com.fasterxml.jackson.databind.SerializerProvider
 import com.fasterxml.jackson.module.scala.JacksonModule
 import com.helloscala.akka.security.oauth.core.OAuth2AccessToken
 
+import java.time.Duration
+
 /**
  * @author Yang Jing <a href="mailto:yang.xunjing@qq.com">yangbajing</a>
- * @date 2020-09-19 09:39:55
+ * @since 2020-09-19 09:39:55
  */
 trait OAuth2AccessTokenModule extends JacksonModule {
   this += OAuth2AccessTokenSerializerResolver

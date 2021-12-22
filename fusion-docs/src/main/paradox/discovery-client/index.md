@@ -6,7 +6,6 @@ Fusion提供服务注册、发现功能，当前支持 [Nacos](https://nacos.io/
 
 @@@ index
 
-* [nacos](nacos.md)
 
 @@@
 

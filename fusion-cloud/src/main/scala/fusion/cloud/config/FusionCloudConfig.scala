@@ -21,7 +21,7 @@ import com.typesafe.config.Config
 
 /**
  * @author Yang Jing <a href="mailto:yang.xunjing@qq.com">yangbajing</a>
- * @date 2020-12-02 11:41:25
+ * @since 2020-12-02 11:41:25
  */
 trait FusionCloudConfig extends Extension with BaseConfigProperties
 

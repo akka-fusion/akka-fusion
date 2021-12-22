@@ -16,10 +16,10 @@
 
 package fusion.jdbc.stream
 
-import akka.stream.{ Attributes, Inlet, SinkShape }
 import akka.stream.stage.{ GraphStageLogic, GraphStageWithMaterializedValue, InHandler }
-import fusion.jdbc.ConnectionPreparedStatementCreator
-import fusion.jdbc.util.JdbcUtils
+import akka.stream.{ Attributes, Inlet, SinkShape }
+import helloscala.jdbc.ConnectionPreparedStatementCreator
+import helloscala.jdbc.util.JdbcUtils
 
 import java.sql.{ Connection, PreparedStatement }
 import javax.sql.DataSource

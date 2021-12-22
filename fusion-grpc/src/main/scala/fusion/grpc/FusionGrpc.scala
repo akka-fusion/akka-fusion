@@ -25,7 +25,7 @@ import scala.util.{ Failure, Success }
 
 /**
  * @author Yang Jing <a href="mailto:yang.xunjing@qq.com">yangbajing</a>
- * @date   2021-04-22 15:27:00
+ * @since   2021-04-22 15:27:00
  */
 class FusionGrpc(val system: ActorSystem[_]) extends Extension with StrictLogging {
   import system.executionContext

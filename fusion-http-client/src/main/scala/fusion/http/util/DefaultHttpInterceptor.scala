@@ -17,7 +17,7 @@
 package fusion.http.util
 
 import akka.actor.typed.ActorSystem
-import akka.http.scaladsl.model.{ HttpRequest, HttpResponse }
+import akka.http.scaladsl.model.{ HttpHeader, HttpRequest, HttpResponse }
 import akka.http.scaladsl.server.{ Route, RouteResult }
 import com.typesafe.scalalogging.StrictLogging
 import fusion.common.constant.HttpKeys
@@ -28,7 +28,11 @@ import helloscala.common.exception.HSInternalErrorException
 
 final class DefaultHttpInterceptor(system: ActorSystem[_]) extends HttpInterceptor with StrictLogging {
   import system.executionContext
-  private val core = FusionCore(system)
+  val currentXService: HttpHeader = {
+    val serviceName =
+      FusionCore(system).configuration.get[Option[String]]("fusion.application.name").getOrElse(system.name)
+    `X-Service`(serviceName)
+  }
 
   override def interceptor(inner: Route): Route = { ctx =>
     val req = ctx.request
@@ -56,8 +60,8 @@ final class DefaultHttpInterceptor(system: ActorSystem[_]) extends HttpIntercept
       case Some(serviceHeader) if serviceHeader.value().nonEmpty => // pre call service name
       case _                                                     => // API Gateway
     }
-    val headers = core.currentXService +: resp.headers
-    val response = resp.copy(headers = headers)
+    val headers = currentXService +: resp.headers
+    val response = resp.withHeaders(headers)
     HttpUtils.curlLoggingResponse(request, response, printResponseEntity = true)(logger)
   }
 }

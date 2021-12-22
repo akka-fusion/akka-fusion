@@ -22,46 +22,58 @@ import akka.management.scaladsl.AkkaManagement
 import com.orbitz.consul.model.agent.{ ImmutableRegCheck, ImmutableRegistration }
 import com.typesafe.config.Config
 import com.typesafe.scalalogging.StrictLogging
+import fusion.cloud.consul.FusionConsulFactory
 import fusion.cloud.consul.FusionConsulFactory.DISCOVERY
-import fusion.cloud.consul.config.FusionCloudConfigConsul
+import fusion.cloud.consul.config.FusionCloudConsul
 import fusion.cloud.discovery.{ FusionCloudDiscovery, ServiceCheck, ServiceInstance }
 import fusion.core.event.http.HttpBindingServerEvent
 import fusion.core.extension.FusionCore
 import helloscala.common.util.{ NetworkUtils, StringUtils }
 
 import java.net.InetSocketAddress
+import java.util.Objects
 import java.util.concurrent.locks.ReentrantReadWriteLock
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters._
+import scala.util.control.NonFatal
 import scala.util.{ Failure, Success }
 
 /**
  * @author Yang Jing <a href="mailto:yang.xunjing@qq.com">yangbajing</a>
- * @date 2020-12-02 11:43:49
+ * @since 2020-12-02 11:43:49
  */
 class FusionCloudDiscoveryConsul()(implicit val system: ActorSystem[_])
     extends FusionCloudDiscovery
     with StrictLogging {
   private val instLock = new ReentrantReadWriteLock(true)
   private var _instance: Option[ServiceInstance] = None
-  val cloudConfig: FusionCloudConfigConsul = FusionCloudConfigConsul(system)
+  private val serviceInstances = new java.util.HashMap[String, ServiceInstance]()
+  val cloudConfig: FusionCloudConsul = FusionCloudConsul(system)
 
   init()
 
   private def init(): Unit = {
     FusionCore(system).events.http.addListener {
       case HttpBindingServerEvent(Success(inet), isSecure) => registerCurrentService(inet, isSecure)
-      case HttpBindingServerEvent(Failure(e), _)           => logger.error("Http Server绑定错误，未能自动注册到Nacos", e)
+      case HttpBindingServerEvent(Failure(e), _)           => logger.error("Http Server绑定错误，未能自动注册到服务发现服务。", e)
+    }
+    system.classicSystem.registerOnTermination {
+      serviceInstances.keySet.forEach(id => cloudConfig.fusionConsul.deregister(id))
     }
   }
 
   private def registerCurrentService(inet: InetSocketAddress, isSecure: Boolean): Unit = {
     import system.executionContext
+
+    if (!config.getBoolean(FusionConsulFactory.DISCOVERY.REGISTER)) {
+      return
+    }
+
     val managementF: Future[Uri] = AkkaManagement(system).start()
-    for {
+    val future = for {
       uri <- managementF
-    } {
-      val originalInst = configureServiceInstance(
+    } yield {
+      val originalInst: ServiceInstance = configureServiceInstance(
         Some(ServiceInstance(address = Some(inet.getHostString), port = Some(inet.getPort))))
       val address = originalInst.address.getOrElse(uri.authority.host.address())
 
@@ -69,12 +81,21 @@ class FusionCloudDiscoveryConsul()(implicit val system: ActorSystem[_])
       if (config.hasPath("akka.management.http.base-path")) {
         http += "/" + config.getString("akka.management.http.base-path")
       }
-      http += "/health/alive"
+      if (http.last != '/') {
+        http += '/'
+      }
+      http += config.getString("akka.management.health-checks.readiness-path") // "/health/ready"
       val check = ServiceCheck(interval = "5.s", http = http)
       val currentInst = originalInst.copy(checks = originalInst.checks :+ check)
 
       logger.info(s"Startup HTTP server successful, register instance was $currentInst.")
       register(currentInst)
+    }
+    future.onComplete {
+      case Success(inst) =>
+        _instance = Some(inst)
+        logger.info(s"Register current service successful, instance is $inst")
+      case Failure(e) => logger.error(s"Register current service failure.", e)
     }
   }
 
@@ -87,12 +108,6 @@ class FusionCloudDiscoveryConsul()(implicit val system: ActorSystem[_])
 
   def config: Config = cloudConfig.config
 
-  def register(registration: ImmutableRegistration): FusionCloudDiscoveryConsul = {
-    logger.info(s"Register current service instance is $registration")
-    cloudConfig.fusionConsul.register(registration)
-    this
-  }
-
   override def configureServiceInstance(maybeInstance: Option[ServiceInstance]): ServiceInstance = {
     val lock = instLock.writeLock()
     lock.lock()
@@ -103,12 +118,11 @@ class FusionCloudDiscoveryConsul()(implicit val system: ActorSystem[_])
       val inst = getServiceInstance.getOrElse(ServiceInstance()).merge(maybeInstance)
 
       val serverPort = inst.port.getOrElse(cloudConfig.serverPort)
-      val grpcServerPort = serverPort
       val tags =
         if (config.hasPath(DISCOVERY.TAGS)) config.getStringList(DISCOVERY.TAGS)
         else new java.util.LinkedList[String]()
-      tags.add("secure=" + (config.hasPath(DISCOVERY.SECURE) && config.getBoolean(DISCOVERY.SECURE)))
-      tags.add(s"gRPC.port=$grpcServerPort")
+
+      appendGrpc(tags, serverPort)
 
       inst.copy(
         id = s"$applicationName-$serverHost-$serverPort",
@@ -118,6 +132,17 @@ class FusionCloudDiscoveryConsul()(implicit val system: ActorSystem[_])
         tags = tags.asScala.toVector)
     } finally {
       lock.unlock()
+    }
+  }
+
+  private def appendGrpc(tags: java.util.List[String], serverPort: Int): Unit = {
+    try {
+      Class.forName("akka.grpc.scaladsl.ServiceHandler")
+      val grpcServerPort = serverPort
+      tags.add("secure=" + (config.hasPath(DISCOVERY.SECURE) && config.getBoolean(DISCOVERY.SECURE)))
+      tags.add(s"gRPC.port=$grpcServerPort")
+    } catch {
+      case NonFatal(e) => // do nothing
     }
   }
 
@@ -139,14 +164,24 @@ class FusionCloudDiscoveryConsul()(implicit val system: ActorSystem[_])
         }
         builder.addChecks(regCheckBuilder.build())
       }
-      register(builder.build())
 
-      _instance = Some(servInst)
+      val registration = builder.build()
+      cloudConfig.fusionConsul.register(registration)
+      addServiceInstance(servInst)
       servInst
     } finally {
       lock.unlock()
     }
   }
+
+  private def addServiceInstance(servInst: ServiceInstance): Unit = {
+    val prev = serviceInstances.get(servInst.id)
+    if (Objects.nonNull(prev)) {
+      cloudConfig.fusionConsul.deregister(servInst.id)
+    }
+    serviceInstances.put(servInst.id, servInst)
+  }
+
 }
 
 object FusionCloudDiscoveryConsul extends ExtensionId[FusionCloudDiscoveryConsul] {

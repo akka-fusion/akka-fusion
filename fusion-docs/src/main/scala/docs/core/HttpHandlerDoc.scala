@@ -113,9 +113,7 @@ class TraceHttpInterceptor(system: classic.ActorSystem) extends HttpInterceptor 
     }
   }
 
-  private def toTrace(response: HttpResponse, traceHeader: RawHeader): HttpResponse = {
-    val headers = traceHeader +: response.headers
-    response.copy(headers = headers)
-  }
+  private def toTrace(response: HttpResponse, traceHeader: RawHeader): HttpResponse =
+    response.withHeaders(traceHeader +: response.headers)
 }
 // #TraceHttpInterceptor

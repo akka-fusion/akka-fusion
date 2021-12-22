@@ -1,0 +1,109 @@
+version: '3'
+
+services:
+  af-consul-server:
+    container_name: af-consul-server
+    build:
+      context: ./software/consul
+      dockerfile: Dockerfile
+    restart: on-failure
+    ports:
+      - 8500:8500
+      - 8600:8600/udp
+    command: agent -server -ui -node=server -bootstrap-expect=1 -client=0.0.0.0 -http-port=8500
+    networks:
+      - afnet
+
+  af-postgres:
+    container_name: af-postgres
+    build:
+      context: ./software/postgres
+      dockerfile: Dockerfile
+    restart: on-failure
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_PASSWORD: 2021.Hj
+    volumes:
+      - ./var/postgresql:/var/lib/postgresql
+    networks:
+      - afnet
+
+  af-pulsar:
+    image: apachepulsar/pulsar:2.8.1
+    container_name: af-pulsar
+    restart: on-failure
+    command: "bin/pulsar standalone"
+    volumes:
+      - ./var/pulsar/data:/pulsar/data
+#      - ./var/pulsar/conf:/pulsar/conf
+    ports:
+      - 6650:6650
+      - 8080:8080
+    networks:
+      - afnet
+
+#  af-elasticsearch:
+#    image: docker.elastic.co/elasticsearch/elasticsearch:7.10
+#    container_name: af-elasticsearch
+#    restart: on-failure
+#    user: elasticsearch
+#    environment:
+#      - cluster.name=af-elasticsearch
+#      - discovery.type=single-node
+#      - bootstrap.memory_lock=true
+#      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+#    ulimits:
+#      memlock:
+#        soft: -1
+#        hard: -1
+#    volumes:
+#      # mkdir -p ./var/elasticsearch/data; sudo chown -R 1000:1000 ./var/elasticsearch/data
+#      - ./var/elasticsearch/data:/usr/share/elasticsearch/data
+#    ports:
+#      - 9200:9200
+#      - 9300:9300
+#    networks:
+#      - afnet
+
+#  af-kibana:
+#    image: docker.elastic.co/kibana/kibana:7.10.0
+#    container_name: af-kibana
+#    depends_on:
+#      - af-elasticsearch
+#    restart: on-failure
+#    environment:
+#      SERVER_NAME: af-kibana
+#      ELASTICSEARCH_HOSTS: http://af-elasticsearch:9200
+#    #    volumes:
+#    #      - ./kibana.yml:/usr/share/kibana/config/kibana.yml
+#    ports:
+#      - 5601:5601
+#    networks:
+#      - afnet
+
+#  af-apm-server:
+#    image: docker.elastic.co/apm/apm-server:7.10.0
+#    container_name: af-apm-server
+#    depends_on:
+#      - af-elasticsearch
+#    restart: on-failure
+#    user: apm-server
+##    environment:
+##      - output.elasticsearch.hosts="af-elasticsearch:9200"
+#    volumes:
+#      - ./software/apm-server/apm-server.docker.yml:/usr/share/apm-server/apm-server.yml:ro
+#    networks:
+#      - afnet
+
+#  af-zookeeper:
+#    container_name: af-zookeeper
+#    image: zookeeper:3.5
+#    restart: on-failure
+#    ports:
+#      - "2181:2181"
+#    networks:
+#      - afnet
+
+networks:
+  afnet:

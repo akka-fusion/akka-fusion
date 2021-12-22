@@ -1,3 +1,3 @@
 # Fusion JDBC 配置
 
-@@snip [Fusion JDBC](../../../../../fusion-jdbc/src/test/resources/application.conf) { #jdbc_default }
+@@snip [Fusion JDBC](../../../../../helloscala-jdbc/src/test/resources/application-test.conf) { #jdbc_default }

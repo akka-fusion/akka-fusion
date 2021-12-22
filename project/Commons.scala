@@ -38,15 +38,15 @@ object Commons {
         }
         list
       },
-      javacOptions in Compile ++= Seq("-Xlint:unchecked", "-Xlint:deprecation"),
-      javaOptions in run ++= Seq("-Xms128m", "-Xmx1024m", "-Djava.library.path=./target/native"),
+      Compile / javacOptions ++= Seq("-Xlint:unchecked", "-Xlint:deprecation"),
+      run / javaOptions ++= Seq("-Xms128m", "-Xmx1024m", "-Djava.library.path=./target/native"),
       shellPrompt := { s =>
         Project.extract(s).currentProject.id + " > "
       },
       //resolvers += Resolver.bintrayRepo("akka", "snapshots"),
-      fork in run := true,
-      fork in Test := true,
-      parallelExecution in Test := false,
+      run / fork := true,
+      Test / fork := true,
+      Test / parallelExecution := false,
       libraryDependencies ++= Seq(Dependencies._scalatest % Test)) ++ Environment.settings // ++ Formatting.settings
 }
 
@@ -56,9 +56,9 @@ object Publishing {
     Seq(
       publishTo := (if (version.value.endsWith("SNAPSHOT"))
                       Some("hjgpscm-public".at(
-                        "https://jfrog-artifactory.hjgpscm.com/artifactory/public;build.timestamp=" + new java.util.Date().getTime))
+                        "https://jfrog-artifactory.hjgpscm.com/artifactory/public" /*;build.timestamp=" + new java.util.Date().getTime*/ ))
                     else Some("hjgpscm-public".at("https://jfrog-artifactory.hjgpscm.com/artifactory/public"))),
-      credentials += Credentials(Path.userHome / ".sbt" / ".credentials_fruits"),
+      credentials += Credentials(Path.userHome / ".sbt" / ".credentials_hjfruit"),
 //      bintrayOrganization := Some("artifactory"),
 //      bintrayRepository := "sbt",
 //      maintainer := "yangbajing <yang.xunjing@qq.com>",

@@ -21,11 +21,17 @@ import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Route
 import com.typesafe.scalalogging.StrictLogging
 import fusion.core.model.{ Health, HealthComponent }
+import fusion.http.server.JacksonDirectives
+import fusion.json.jackson.http.{ DefaultJacksonSupport, JacksonSupport }
 import helloscala.common.util.Utils
 
 import scala.jdk.CollectionConverters._
 
-final class HealthRoute(val system: ExtendedActorSystem) extends ActuatorRoute with StrictLogging {
+final class HealthRoute(val system: ExtendedActorSystem)
+    extends ActuatorRoute
+    with JacksonDirectives
+    with StrictLogging {
+  override val jacksonSupport: JacksonSupport = DefaultJacksonSupport
   override val name = "health"
 
   private val healths: Map[String, HealthComponent] = system.settings.config

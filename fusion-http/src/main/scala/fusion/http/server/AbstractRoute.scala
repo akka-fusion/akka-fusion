@@ -22,4 +22,4 @@ trait BaseRoute extends Directives {
   def route: Route
 }
 
-trait AbstractRoute extends BaseRoute with HttpDirectives with JacksonDirectives with FileDirectives {}
+trait AbstractRoute extends BaseRoute with HttpDirectives with FileDirectives {}

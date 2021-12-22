@@ -2,7 +2,7 @@ package com.helloscala.akka.security.oauth.server.authentication.client
 
 /**
  * @author Yang Jing <a href="mailto:yang.xunjing@qq.com">yangbajing</a>
- * @date 2020-09-19 17:18:13
+ * @since 2020-09-19 17:18:13
  */
 case class RegisteredClient(
     id: String,

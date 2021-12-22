@@ -16,12 +16,12 @@
 
 package helloscala.common.types
 
-import java.nio.ByteBuffer
-import java.nio.charset.StandardCharsets
-
 import com.fasterxml.jackson.annotation.JsonIgnore
+import helloscala.common.exception.HSBadRequestException
 import helloscala.common.util.{ DigestUtils, StringUtils }
 
+import java.nio.ByteBuffer
+import java.nio.charset.StandardCharsets
 import scala.jdk.CollectionConverters._
 import scala.util.{ Failure, Try }
 
@@ -143,7 +143,7 @@ object ObjectId {
 
   def apply(array: Array[Byte]): ObjectId = {
     if (array.length != 12)
-      throw new IllegalArgumentException(s"wrong byte array for an ObjectId (size ${array.length})")
+      throw HSBadRequestException(s"wrong byte array for an ObjectId (size ${array.length})")
     new ObjectId(java.util.Arrays.copyOf(array, 12))
   }
 
@@ -153,7 +153,7 @@ object ObjectId {
   def parse(id: String): Try[ObjectId] =
     if (isValid(id)) Try(new ObjectId(StringUtils.str2Hex(id)))
     else
-      Failure(new IllegalArgumentException(s"Wrong ObjectId (It is not a valid 16 Decimal 24 bit string): '$id'"))
+      Failure(HSBadRequestException(s"Wrong ObjectId (It is not a valid 16 Decimal 24 bit string): '$id'"))
 
   def isValid(id: String): Boolean =
     StringUtils.isNoneBlank(id) && id.length == 24 && id.forall(StringUtils.isHex)

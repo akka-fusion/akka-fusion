@@ -22,7 +22,7 @@ import org.scalatest.wordspec.AnyWordSpec
 
 /**
  * @author Yang Jing <a href="mailto:yang.xunjing@qq.com">yangbajing</a>
- * @date 2020-09-20 18:29:31
+ * @since 2020-09-20 18:29:31
  */
 class KeyUtilsTest extends AnyWordSpec with Matchers with BeforeAndAfterAll {
 

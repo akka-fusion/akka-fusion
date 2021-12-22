@@ -21,7 +21,7 @@ import com.typesafe.config.{ Config, ConfigFactory }
 
 /**
  * @author Yang Jing <a href="mailto:yang.xunjing@qq.com">yangbajing</a>
- * @date   2021-01-11 14:33:30
+ * @since   2021-01-11 14:33:30
  */
 object FusionConfigFactory {
   val dynamicAccess = new ReflectiveDynamicAccess(Thread.currentThread().getContextClassLoader)

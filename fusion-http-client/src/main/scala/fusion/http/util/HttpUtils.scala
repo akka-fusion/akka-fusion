@@ -16,10 +16,6 @@
 
 package fusion.http.util
 
-import java.io.InputStream
-import java.nio.charset.{ Charset, UnsupportedCharsetException }
-import java.security.{ KeyStore, SecureRandom }
-
 import akka.http.scaladsl.marshalling.{ Marshal, Marshaller }
 import akka.http.scaladsl.model.Uri.Authority
 import akka.http.scaladsl.model._
@@ -38,8 +34,11 @@ import fusion.core.http.HttpSourceQueue
 import fusion.core.http.headers.`X-Trace-Id`
 import fusion.core.util.FusionUtils
 import helloscala.common.util.StringUtils
-import javax.net.ssl.{ KeyManagerFactory, SSLContext, TrustManagerFactory }
 
+import java.io.InputStream
+import java.nio.charset.{ Charset, UnsupportedCharsetException }
+import java.security.{ KeyStore, SecureRandom }
+import javax.net.ssl.{ KeyManagerFactory, SSLContext, TrustManagerFactory }
 import scala.collection.immutable
 import scala.concurrent.duration._
 import scala.concurrent.{ Await, ExecutionContext, Future, Promise }
@@ -314,7 +313,7 @@ object HttpUtils extends BaseHttpUtils with StrictLogging {
       hcc = new HttpsConnectionContext(sslContext)
     } catch {
       case NonFatal(e) =>
-        e.printStackTrace()
+        logger.error("Critical error, exit system.", e)
         System.exit(-1)
     }
     hcc

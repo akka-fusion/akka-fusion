@@ -26,7 +26,7 @@ import scala.concurrent.Future
 
 /**
  * @author Yang Jing <a href="mailto:yang.xunjing@qq.com">yangbajing</a>
- * @date 2020-09-19 11:16:03
+ * @since 2020-09-19 11:16:03
  */
 object HttpUtils {
 

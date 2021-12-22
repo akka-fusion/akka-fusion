@@ -29,7 +29,7 @@ import com.helloscala.akka.security.oauth.core.TokenType
 
 /**
  * @author Yang Jing <a href="mailto:yang.xunjing@qq.com">yangbajing</a>
- * @date 2020-09-19 09:57:46
+ * @since 2020-09-19 09:57:46
  */
 trait OAuth2JacksonModule extends OAuth2AccessTokenModule
 

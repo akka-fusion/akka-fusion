@@ -30,7 +30,7 @@ import scala.concurrent.duration._
 
 /**
  * @author Yang Jing <a href="mailto:yang.xunjing@qq.com">yangbajing</a>
- * @date 2020-09-19 16:31:19
+ * @since 2020-09-19 16:31:19
  */
 class OAuth2Route(system: ActorSystem[_]) extends OAuth2Directive {
   private def oauth2Extension = OAuth2Extension(system)

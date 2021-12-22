@@ -10,7 +10,7 @@ import com.helloscala.akka.security.oauth.server.authentication.OAuth2AccessToke
 
 /**
  * @author Yang Jing <a href="mailto:yang.xunjing@qq.com">yangbajing</a>
- * @date 2020-09-19 18:34:53
+ * @since 2020-09-19 18:34:53
  */
 object OAuth2AuthorizationService {
   trait Command

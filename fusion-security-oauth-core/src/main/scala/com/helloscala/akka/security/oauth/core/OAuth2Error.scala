@@ -23,7 +23,7 @@ import scala.collection.mutable
 
 /**
  * @author Yang Jing <a href="mailto:yang.xunjing@qq.com">yangbajing</a>
- * @date 2020-09-23 14:31:31
+ * @since 2020-09-23 14:31:31
  */
 case class OAuth2Error(errorCode: String, description: String, uri: String)
 

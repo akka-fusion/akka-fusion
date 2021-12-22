@@ -24,11 +24,10 @@ import com.typesafe.scalalogging.StrictLogging
 
 import java.nio.charset.{ Charset, StandardCharsets }
 import scala.jdk.CollectionConverters._
-import scala.jdk.OptionConverters._
 
 /**
  * @author Yang Jing <a href="mailto:yang.xunjing@qq.com">yangbajing</a>
- * @date 2020-12-01 18:50:02
+ * @since 2020-12-01 18:50:02
  */
 class FusionConsul private (val consul: Consul) extends AutoCloseable with StrictLogging {
 
@@ -39,14 +38,22 @@ class FusionConsul private (val consul: Consul) extends AutoCloseable with Stric
     config.withFallback(localConfig).withFallback(ConfigFactory.load()).resolve()
   }
 
-  def getValueAsString(key: String, charset: Charset = StandardCharsets.UTF_8): Option[String] =
-    consul.keyValueClient().getValueAsString(key, charset).toScala
+  def getValueAsString(key: String, charset: Charset = StandardCharsets.UTF_8): Option[String] = {
+    val optional = consul.keyValueClient().getValueAsString(key, charset)
+    if (optional.isPresent) Some(optional.get()) else None
+  }
 
   def getValuesAsString(key: String, charset: Charset = StandardCharsets.UTF_8): Vector[String] =
     consul.keyValueClient().getValuesAsString(key, charset).asScala.toVector
 
-  def register(registration: Registration): FusionConsul = {
+  def register(registration: Registration): FusionConsul = synchronized {
+    logger.info(s"Register current service instance is $registration")
     consul.agentClient().register(registration)
+    this
+  }
+
+  def deregister(serviceId: String): FusionConsul = synchronized {
+    consul.agentClient().deregister(serviceId)
     this
   }
 

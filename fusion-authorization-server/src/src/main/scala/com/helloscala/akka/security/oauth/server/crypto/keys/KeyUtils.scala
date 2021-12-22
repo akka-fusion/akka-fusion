@@ -25,7 +25,7 @@ import org.bouncycastle.util.io.pem.PemWriter
 
 /**
  * @author Yang Jing <a href="mailto:yang.xunjing@qq.com">yangbajing</a>
- * @date 2020-09-20 14:06:18
+ * @since 2020-09-20 14:06:18
  */
 object KeyUtils {
   def writePem(path: Path, typ: String, encoded: Array[Byte]): Unit = {

@@ -17,7 +17,7 @@ import scala.reflect.ClassTag
 
 /**
  * @author Yang Jing <a href="mailto:yang.xunjing@qq.com">yangbajing</a>
- * @date 2020-09-19 17:20:58
+ * @since 2020-09-19 17:20:58
  */
 class OAuth2Extension()(implicit val system: ActorSystem[_]) extends Extension {
   private implicit val timeout: Timeout = 5.seconds

@@ -24,7 +24,7 @@ import com.helloscala.akka.security.oauth.util.OAuth2JsonUtils
 
 /**
  * @author Yang Jing <a href="mailto:yang.xunjing@qq.com">yangbajing</a>
- * @date 2020-09-19 09:13:02
+ * @since 2020-09-19 09:13:02
  */
 case class OAuth2AccessToken(
     tokenValue: String,

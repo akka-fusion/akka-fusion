@@ -21,9 +21,13 @@ import com.zaxxer.hikari.HikariConfig
 import helloscala.common.util.Utils
 
 import java.lang.reflect.Method
-import java.util.{ Locale, Properties }
 import java.util.regex.{ Matcher, Pattern }
+import java.util.{ Locale, Properties }
 
+/**
+ * @author Yang Jing <a href="mailto:yang.xunjing@qq.com">yangbajing</a>
+ * @since 2021-12-16 20:36:24
+ */
 object PropertyElf extends StrictLogging {
   private val GETTER_PATTERN: Pattern = Pattern.compile("(get|is)[A-Z].+")
 
@@ -31,9 +35,11 @@ object PropertyElf extends StrictLogging {
     if (target == null || properties == null) return
     val methods: java.util.List[Method] = java.util.Arrays.asList(target.getClass.getMethods(): _*)
     properties.forEach((key: Any, value: Any) => {
-      if (target.isInstanceOf[HikariConfig] && key.toString.startsWith("dataSource."))
-        target.asInstanceOf[HikariConfig].addDataSourceProperty(key.toString.substring("dataSource.".length), value)
-      else setProperty(target, key.toString, Utils.boxed(value), methods)
+      target match {
+        case config: HikariConfig if key.toString.startsWith("dataSource.") =>
+          config.addDataSourceProperty(key.toString.substring("dataSource.".length), value)
+        case _ => setProperty(target, key.toString, Utils.boxed(value), methods)
+      }
     })
   }
 
@@ -110,7 +116,7 @@ object PropertyElf extends StrictLogging {
       else
         try {
           logger.debug("Try to create a new instance of \"{}\"", propValue.toString)
-          val arg = Class.forName(propValue.toString).newInstance().asInstanceOf[Object]
+          val arg = Class.forName(propValue.toString).getDeclaredConstructor().newInstance().asInstanceOf[Object]
           writeMethod.invoke(target, arg)
         } catch {
           case e @ (_: InstantiationException | _: ClassNotFoundException) =>

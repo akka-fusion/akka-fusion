@@ -18,7 +18,7 @@ package com.helloscala.akka.security.oauth.constant
 
 /**
  * @author Yang Jing <a href="mailto:yang.xunjing@qq.com">yangbajing</a>
- * @date 2020-09-19 11:29:11
+ * @since 2020-09-19 11:29:11
  */
 object OAuth2ParameterNames {
 

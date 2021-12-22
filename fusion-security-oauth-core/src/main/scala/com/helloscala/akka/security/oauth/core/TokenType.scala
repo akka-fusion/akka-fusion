@@ -23,7 +23,7 @@ import com.helloscala.akka.security.oauth.jacksons.TokenTypeSerializer
 
 /**
  * @author Yang Jing <a href="mailto:yang.xunjing@qq.com">yangbajing</a>
- * @date 2020-09-19 09:24:53
+ * @since 2020-09-19 09:24:53
  */
 @JsonSerialize(using = classOf[TokenTypeSerializer])
 @JsonDeserialize(using = classOf[TokenTypeDeserializer])

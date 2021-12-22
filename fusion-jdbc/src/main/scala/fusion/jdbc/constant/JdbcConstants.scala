@@ -18,5 +18,9 @@ package fusion.jdbc.constant
 
 object JdbcConstants {
   val PATH_ROOT = "fusion.jdbc"
+
   val PATH_DEFAULT = s"$PATH_ROOT.default"
+
+  // Read only
+  val PATH_RO = s"$PATH_ROOT.ro"
 }

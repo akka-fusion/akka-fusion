@@ -21,7 +21,7 @@ import com.nimbusds.jwt.JWTClaimsSet
 
 /**
  * @author Yang Jing <a href="mailto:yang.xunjing@qq.com">yangbajing</a>
- * @date   2021-01-19 08:54:54
+ * @since   2021-01-19 08:54:54
  */
 object JwtConstants {
   val JWT = AttributeKey[JWTClaimsSet]("JWT")

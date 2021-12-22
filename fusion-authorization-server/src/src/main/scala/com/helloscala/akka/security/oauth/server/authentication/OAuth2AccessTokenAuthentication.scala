@@ -10,7 +10,7 @@ import com.helloscala.akka.security.oauth.server.authentication.client.Registere
 /**
  * OAuth 2 access token
  * @author Yang Jing <a href="mailto:yang.xunjing@qq.com">yangbajing</a>
- * @date 2020-09-19 16:32:24
+ * @since 2020-09-19 16:32:24
  */
 case class OAuth2AccessTokenAuthentication(
     grantType: GrantType,

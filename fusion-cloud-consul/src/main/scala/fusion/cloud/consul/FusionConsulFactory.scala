@@ -26,7 +26,7 @@ import java.util.Objects
 
 /**
  * @author Yang Jing <a href="mailto:yang.xunjing@qq.com">yangbajing</a>
- * @date 2020-12-01 22:48:40
+ * @since 2020-12-01 22:48:40
  */
 class FusionConsulFactory(val fusionConsul: FusionConsul, val config: Config) extends FusionFactory {
   private var _actorSystem: ActorSystem[Nothing] = _
@@ -42,7 +42,7 @@ class FusionConsulFactory(val fusionConsul: FusionConsul, val config: Config) ex
     }
 
   private def init(): Unit = {
-    actorSystem.classicSystem.registerOnTermination(() => fusionConsul.close())
+    actorSystem.classicSystem.registerOnTermination { fusionConsul.close() }
   }
 
   override private[fusion] def createActorSystem[T](guardianBehavior: Behavior[T]): ActorSystem[T] = {
@@ -69,6 +69,7 @@ object FusionConsulFactory extends FusionConfigFactory {
     private val BASE = "fusion.cloud.consul.discovery"
     val TAGS = s"$BASE.tags"
     val SECURE = s"$BASE.secure"
+    val REGISTER = s"$BASE.register"
   }
 
   override def createConfig(localConfig: Config = ConfigFactory.load()): FusionConsulFactory = {

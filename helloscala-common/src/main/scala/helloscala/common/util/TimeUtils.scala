@@ -23,8 +23,8 @@ import java.sql.{ Date => SQLDate }
 import java.sql.{ Time => SQLTime }
 import java.sql.{ Timestamp => SQLTimestamp }
 import java.util.concurrent.TimeUnit
-
 import com.typesafe.scalalogging.StrictLogging
+import helloscala.common.exception.HSBadRequestException
 
 import scala.concurrent.duration.FiniteDuration
 import scala.util.Try
@@ -107,11 +107,11 @@ object TimeUtils extends StrictLogging {
         case Array(y) =>
           (y.toInt, 1, 1)
         case _ =>
-          throw new IllegalArgumentException(s"$date is invalid iso date format")
+          throw HSBadRequestException(s"$date is invalid iso date format")
       }
 
       if (year < 0 || year > 9999)
-        throw new IllegalArgumentException(s"$date is invalid iso date format ($year)")
+        throw HSBadRequestException(s"$date is invalid iso date format ($year)")
 
       LocalDate.of(year, month, day)
     }

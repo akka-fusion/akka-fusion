@@ -23,8 +23,8 @@ import fusion.common.component.Components
 import fusion.common.extension.{ FusionExtension, FusionExtensionId }
 import fusion.core.extension.FusionCore
 import fusion.jdbc.constant.JdbcConstants
-import fusion.jdbc.util.JdbcUtils
 import helloscala.common.Configuration
+import helloscala.jdbc.util.JdbcUtils
 
 import scala.concurrent.Future
 

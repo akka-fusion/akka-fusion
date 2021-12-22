@@ -16,8 +16,6 @@
 
 package fusion.json.jackson.http
 
-import java.lang.reflect.{ ParameterizedType, Type => JType }
-
 import akka.http.javadsl.common.JsonEntityStreamingSupport
 import akka.http.scaladsl.common.EntityStreamingSupport
 import akka.http.scaladsl.marshalling._
@@ -26,9 +24,12 @@ import akka.http.scaladsl.unmarshalling.{ FromEntityUnmarshaller, Unmarshal, Unm
 import akka.http.scaladsl.util.FastFuture
 import akka.stream.scaladsl.{ Flow, Source }
 import akka.util.ByteString
+import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.core.`type`.TypeReference
-import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.{ DeserializationFeature, ObjectMapper, SerializationFeature }
 
+import java.lang.reflect.{ ParameterizedType, Type => JType }
+import java.util.TimeZone
 import scala.collection.immutable.Seq
 import scala.concurrent.Future
 import scala.reflect.runtime.universe._
@@ -165,4 +166,21 @@ trait JacksonSupport {
 
 class JacksonSupportImpl()(implicit override val objectMapper: ObjectMapper) extends JacksonSupport
 
-//object JacksonSupport extends JacksonSupport
+object DefaultJacksonSupport extends JacksonSupport {
+  override implicit def objectMapper: ObjectMapper =
+    (new ObjectMapper() with com.fasterxml.jackson.module.scala.ScalaObjectMapper)
+      .findAndRegisterModules()
+      .setTimeZone(TimeZone.getTimeZone("Asia/Chongqing"))
+      .configure(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS, false)
+      .configure(SerializationFeature.WRITE_DURATIONS_AS_TIMESTAMPS, true)
+      .configure(SerializationFeature.WRITE_DATES_WITH_ZONE_ID, true)
+      .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, true)
+      .configure(SerializationFeature.WRITE_DATE_KEYS_AS_TIMESTAMPS, false)
+      .configure(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS, false)
+      .configure(SerializationFeature.WRITE_ENUMS_USING_TO_STRING, true)
+      .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+      .configure(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS, true)
+      .configure(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS, false)
+      .configure(DeserializationFeature.READ_ENUMS_USING_TO_STRING, true)
+      .setSerializationInclusion(JsonInclude.Include.NON_NULL)
+}

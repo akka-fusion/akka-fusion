@@ -56,6 +56,7 @@ lazy val root = Project(id = "akka-fusion", base = file("."))
     fusionHttpTestkit,
     fusionProtobufV3,
     fusionCore,
+    helloscalaJdbc,
     helloscalaCommon)
   .settings(Publishing.noPublish: _*)
   .settings(Environment.settings: _*)
@@ -65,7 +66,7 @@ lazy val root = Project(id = "akka-fusion", base = file("."))
 //  addCommandAlias("fixCheck", "; compile:scalafix --check ; test:scalafix --check"))
 
 lazy val fusionDocs = _project("fusion-docs")
-  .enablePlugins(ParadoxMaterialThemePlugin)
+  .enablePlugins(ParadoxPlugin)
   .dependsOn(
     fusionInjectGuice,
     fusionJob,
@@ -90,18 +91,19 @@ lazy val fusionDocs = _project("fusion-docs")
     fusionTestkit,
     fusionHttpTestkit,
     fusionCore,
+    helloscalaJdbc,
     helloscalaCommon)
   .settings(Publishing.noPublish: _*)
   .settings(
-    Compile / paradoxMaterialTheme ~= {
-      _.withLanguage(java.util.Locale.SIMPLIFIED_CHINESE)
-        .withColor("indigo", "red")
-        .withRepository(uri("https://github.com/akka-fusion/akka-fusion"))
-        .withSocial(
-          uri("https://akka-fusion.github.io/akka-fusion/"),
-          uri("https://github.com/akka-fusion"),
-          uri("https://weibo.com/yangbajing"))
-    },
+//    Compile / paradoxMaterialTheme ~= {
+//      _.withLanguage(java.util.Locale.SIMPLIFIED_CHINESE)
+//        .withColor("indigo", "red")
+//        .withRepository(uri("https://github.com/akka-fusion/akka-fusion"))
+//        .withSocial(
+//          uri("https://akka-fusion.github.io/akka-fusion/"),
+//          uri("https://github.com/akka-fusion"),
+//          uri("https://weibo.com/yangbajing"))
+//    },
     paradoxProperties ++= Map(
         "github.base_url" -> s"https://github.com/akka-fusion/akka-fusion/tree/${version.value}",
         "version" -> version.value,
@@ -187,7 +189,7 @@ lazy val fusionGrpc = _project("fusion-grpc")
         "io.grpc" % "grpc-core" % akka.grpc.gen.BuildInfo.grpcVersion) ++ _akkaClusters.map(_ % Provided))
 
 lazy val fusionAuthorizationServer = _project("fusion-authorization-server")
-  .dependsOn(fusionSecurityOauthCore, fusionHttp, fusionTestkit % "test->test")
+  .dependsOn(fusionSecurityOauthJose, fusionSecurityOauthCore, fusionHttp, fusionTestkit % "test->test")
   .settings(libraryDependencies ++= Seq())
 
 lazy val fusionSecurityOauthJose = _project("fusion-security-oauth-jose")
@@ -246,8 +248,15 @@ lazy val fusionMybatis = _project("fusion-mybatis")
   .settings(libraryDependencies ++= Seq(_mybatisPlus, _lombok % Provided, _postgresql % Test, _mysql % Test))
 
 lazy val fusionJdbc = _project("fusion-jdbc")
-  .dependsOn(fusionTestkit % "test->test", fusionCore)
-  .settings(libraryDependencies ++= Seq(_hikariCP, _postgresql % Test, _mysql % Test))
+  .dependsOn(helloscalaJdbc % "compile->compile;test->test", fusionCore, fusionTestkit % "test->test")
+  .settings(libraryDependencies ++= Seq(_hikariCP))
+
+lazy val helloscalaJdbc = _project("helloscala-jdbc")
+  .dependsOn(fusionTestkit % "test->test", helloscalaCommon)
+  .settings(
+    organization := "com.helloscala",
+    organizationName := "Helloscala",
+    libraryDependencies ++= Seq(_hikariCP % Provided, _postgresql % Test, _mysql % Test))
 
 lazy val fusionDoc =
   _project("fusion-doc").dependsOn(fusionTestkit % "test->test", fusionCore).settings(libraryDependencies ++= _pois)

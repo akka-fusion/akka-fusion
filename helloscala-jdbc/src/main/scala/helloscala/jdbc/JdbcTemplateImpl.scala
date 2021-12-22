@@ -14,23 +14,23 @@
  * limitations under the License.
  */
 
-package fusion.jdbc
+package helloscala.jdbc
 
 import com.typesafe.scalalogging.Logger
-import com.zaxxer.hikari.HikariDataSource
-import fusion.jdbc.util.JdbcUtils
 import helloscala.common.util.Utils
+import helloscala.jdbc.util.JdbcUtils
 import org.slf4j.LoggerFactory
 
 import java.sql.{ Connection, PreparedStatement, ResultSet }
 import java.util.Objects
+import javax.sql.DataSource
 import scala.annotation.varargs
 import scala.collection.mutable
 import scala.jdk.CollectionConverters._
 import scala.util.control.NonFatal
 
 private[jdbc] class JdbcTemplateImpl(
-    val dataSource: HikariDataSource,
+    val dataSource: DataSource,
     _useTransaction: Boolean,
     ignoreWarnings: Boolean,
     _allowPrintLog: Boolean)

@@ -16,9 +16,6 @@
 
 package fusion.http.gateway.server
 
-import java.util.concurrent.{ ConcurrentHashMap, TimeoutException }
-import java.util.function.Consumer
-
 import akka.Done
 import akka.actor.ExtendedActorSystem
 import akka.http.scaladsl.model._
@@ -27,19 +24,22 @@ import akka.http.scaladsl.settings.RoutingSettings
 import akka.stream.{ Materializer, QueueOfferResult }
 import com.typesafe.scalalogging.StrictLogging
 import fusion.core.http.HttpSourceQueue
-import fusion.http.server.AbstractRoute
+import fusion.http.server.{ AbstractRoute, JacksonDirectives }
 import fusion.http.util.HttpUtils
 import fusion.json.jackson.JacksonObjectMapperExtension
 import fusion.json.jackson.http.JacksonSupport
 import helloscala.common.exception.{ HSBadGatewayException, HSServiceUnavailableException }
 import helloscala.common.util.CollectionUtils
 
-import scala.concurrent.{ Future, Promise }
+import java.util.concurrent.{ ConcurrentHashMap, TimeoutException }
+import java.util.function.Consumer
 import scala.concurrent.duration._
+import scala.concurrent.{ Future, Promise }
 import scala.util.{ Failure, Success }
 
 abstract class HttpGatewayComponent(id: String)(implicit val system: ExtendedActorSystem)
     extends AbstractRoute
+    with JacksonDirectives
     with StrictLogging {
   override val jacksonSupport: JacksonSupport = JacksonObjectMapperExtension(system).jacksonSupport
   implicit protected val materializer: Materializer = Materializer.matFromSystem(system)

@@ -14,16 +14,20 @@
  * limitations under the License.
  */
 
-package fusion.jdbc
+package helloscala.jdbc
 
-import java.sql.PreparedStatement
+import helloscala.common.util.StringUtils
+
+import java.sql.{ Connection, PreparedStatement }
 
 @FunctionalInterface
-trait PreparedStatementAction[R] {
-  def apply(pstmt: PreparedStatement): R
+trait ConnectionPreparedStatementCreator {
+  def apply(conn: Connection): PreparedStatement
 }
 
-class PreparedStatementActionImpl[R](val args: Iterable[Any], func: PreparedStatementAction[R])
-    extends PreparedStatementAction[R] {
-  override def apply(pstmt: PreparedStatement): R = func(pstmt)
+class ConnectionPreparedStatementCreatorImpl(sql: String, namedSql: String = "")
+    extends ConnectionPreparedStatementCreator {
+  def getSql: String = if (StringUtils.isNoneBlank(namedSql)) namedSql else sql
+
+  override def apply(conn: Connection): PreparedStatement = conn.prepareStatement(sql)
 }

@@ -103,3 +103,4 @@ logs/
 !/sbt-dist/bin/
 .bsp/
 node_modules/
+!/scripts/docker/var/

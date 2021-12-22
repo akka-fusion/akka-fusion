@@ -19,7 +19,7 @@ package fusion.docs.sample
 import akka.actor.ActorSystem
 import akka.http.scaladsl.server.Route
 import fusion.http.FusionHttpServer
-import fusion.http.server.AbstractRoute
+import fusion.http.server.{ AbstractRoute, JacksonDirectives }
 import fusion.json.jackson.JacksonObjectMapperExtension
 import fusion.json.jackson.http.JacksonSupport
 
@@ -38,7 +38,9 @@ object SampleApplication {
 }
 
 // Controller
-class SampleRoute(sampleService: SampleService)(implicit system: ActorSystem) extends AbstractRoute {
+class SampleRoute(sampleService: SampleService)(implicit system: ActorSystem)
+    extends AbstractRoute
+    with JacksonDirectives {
   override val jacksonSupport: JacksonSupport = JacksonObjectMapperExtension(system).jacksonSupport
 
   override def route: Route =

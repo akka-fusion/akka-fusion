@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fusion.jdbc.util
+package helloscala.jdbc.util
 
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
@@ -33,6 +33,13 @@ class JdbcUtilsTest extends AnyWordSpec with Matchers {
       val psFunc = JdbcUtils.preparedStatementCreator("insert into test(id, text, amount) values(?, ?, )")
       val actionFunc = JdbcUtils.preparedStatementActionUseBatchUpdate(Seq(Seq(1, "aaa", 3.3), Seq(2, "bbb", 43.2)))
       JdbcUtils.handleSqlLogs(Instant.now(), types, psFunc, actionFunc)
+    }
+
+    "namedParameterToQuestionMarked" in {
+      val sql = "insert into test(name, age, sex) values(:name, :age, '1'::int)"
+      val (realSql, data) = JdbcUtils.namedParameterToQuestionMarked(sql)
+      println(realSql)
+      println(data)
     }
   }
 }

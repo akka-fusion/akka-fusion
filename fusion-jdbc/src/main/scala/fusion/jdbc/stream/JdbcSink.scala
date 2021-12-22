@@ -17,8 +17,8 @@
 package fusion.jdbc.stream
 
 import akka.stream.scaladsl.Sink
-import fusion.jdbc.ConnectionPreparedStatementCreator
-import fusion.jdbc.util.JdbcUtils
+import helloscala.jdbc.ConnectionPreparedStatementCreator
+import helloscala.jdbc.util.JdbcUtils
 
 import java.sql.PreparedStatement
 import javax.sql.DataSource

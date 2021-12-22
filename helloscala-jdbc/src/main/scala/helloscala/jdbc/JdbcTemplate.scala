@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-package fusion.jdbc
+package helloscala.jdbc
 
 import com.typesafe.config.Config
-import com.zaxxer.hikari.HikariDataSource
 import helloscala.common.Configuration
 
 import java.sql.{ Connection, ResultSet, SQLException }
+import javax.sql.DataSource
 import scala.annotation.varargs
 
 trait JdbcTemplate {
   // 数据库源
-  val dataSource: HikariDataSource
+  val dataSource: DataSource
 
   /**
    * 使用事物来执行 function（ func 内可包含多个数据库操作函数)
@@ -186,19 +186,19 @@ trait JdbcTemplate {
 object JdbcTemplate {
   val EmptyConnection: Connection = null
 
-  def apply(dataSource: HikariDataSource, config: Config): JdbcTemplate = apply(dataSource, Configuration(config))
+  def apply(dataSource: DataSource, config: Config): JdbcTemplate = apply(dataSource, Configuration(config))
 
-  def apply(dataSource: HikariDataSource, configuration: Configuration): JdbcTemplate =
+  def apply(dataSource: DataSource, configuration: Configuration): JdbcTemplate =
     apply(
       dataSource,
       configuration.getOrElse[Boolean]("useTransaction", true),
       configuration.getOrElse[Boolean]("ignoreWarnings", true),
       configuration.getOrElse[Boolean]("allowPrintLog", true))
 
-  def apply(dataSource: HikariDataSource): JdbcTemplate = apply(dataSource, true, true, true)
+  def apply(dataSource: DataSource): JdbcTemplate = apply(dataSource, true, true, true)
 
   def apply(
-      dataSource: HikariDataSource,
+      dataSource: DataSource,
       useTransaction: Boolean,
       ignoreWarnings: Boolean,
       allowPrintLog: Boolean): JdbcTemplate =

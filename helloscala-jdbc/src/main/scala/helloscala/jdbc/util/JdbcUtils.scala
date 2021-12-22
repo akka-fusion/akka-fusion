@@ -14,15 +14,20 @@
  * limitations under the License.
  */
 
-package fusion.jdbc.util
+package helloscala.jdbc.util
 
 import com.typesafe.config.Config
 import com.typesafe.scalalogging.StrictLogging
 import com.zaxxer.hikari.{ HikariConfig, HikariDataSource }
-import fusion.jdbc._
 import helloscala.common.Configuration
 import helloscala.common.annotation.BeanIgnore
 import helloscala.common.util.{ NumberUtils, StringUtils, TimeUtils }
+import helloscala.jdbc.{
+  ConnectionPreparedStatementCreator,
+  ConnectionPreparedStatementCreatorImpl,
+  PreparedStatementAction,
+  PreparedStatementActionImpl
+}
 
 import java.lang.reflect.{ Field, Method, Modifier }
 import java.sql._
@@ -245,29 +250,41 @@ object JdbcUtils extends StrictLogging {
    * 将所有 [TAG]name 命名参数替换成 ?
    *
    * @param sql 采用命名参数编写的SQL语句
-   * @param TAG 命名参数前缀，默认为 '?'
+   * @param TAG 命名参数前缀，默认为 ':'
    * @return (转换后SQL语句，提取出的参数和索引)，索引从1开始编号
    */
-  def namedParameterToQuestionMarked(sql: String, TAG: Char = '?'): (String, Map[String, Int]) = {
+  def namedParameterToQuestionMarked(sql: String, TAG: Char = ':'): (String, Map[String, Int]) = {
     val sqlBuf = new java.lang.StringBuilder()
     var paramBuf = new StringBuilder()
     val params = mutable.Map.empty[String, Int]
     var idx = 0
     var isName = false
-    sql.foreach {
-      case TAG =>
-        sqlBuf.append('?')
-        isName = true
-      case c @ (',' | ')') if isName =>
-        sqlBuf.append(c)
-        idx += 1
-        params += (paramBuf.toString.trim -> idx)
-        paramBuf = new StringBuilder()
-        isName = false
-      case c if isName =>
-        paramBuf.append(c)
-      case c =>
-        sqlBuf.append(c)
+    val iter = Iterator.from(0)
+    var i = 0
+    iter.next()
+    while (i < sql.length) {
+      val ch = sql.charAt(i)
+      i += 1
+      ch match {
+        case TAG =>
+          if (i < sql.length && sql.charAt(i) == TAG) {
+            i += 1
+            sqlBuf.append(TAG).append(TAG)
+          } else {
+            sqlBuf.append('?')
+            isName = true
+          }
+        case c @ (',' | ')') if isName =>
+          sqlBuf.append(c)
+          idx += 1
+          params += (paramBuf.toString.trim -> idx)
+          paramBuf = new StringBuilder()
+          isName = false
+        case c if isName =>
+          paramBuf.append(c)
+        case c =>
+          sqlBuf.append(c)
+      }
     }
     if (paramBuf.nonEmpty) {
       idx += 1
@@ -385,7 +402,7 @@ object JdbcUtils extends StrictLogging {
   def resultSetToBean[T](rs: ResultSet)(implicit ev1: ClassTag[T]): T = resultSetToBean(rs, toPropertiesName = true)
 
   def resultSetToBean[T](rs: ResultSet, toPropertiesName: Boolean)(implicit ev1: ClassTag[T]): T = {
-    val dest = ev1.runtimeClass.newInstance().asInstanceOf[T]
+    val dest = ev1.runtimeClass.getDeclaredConstructor().newInstance().asInstanceOf[T]
     val cls = dest.getClass
     val fields = filterFields(cls.getDeclaredFields)
     val metaData = rs.getMetaData

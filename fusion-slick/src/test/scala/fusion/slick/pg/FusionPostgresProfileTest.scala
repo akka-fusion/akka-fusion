@@ -19,10 +19,10 @@ package fusion.slick.pg
 import akka.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
 import com.fasterxml.jackson.databind.ObjectMapper
 import fusion.jdbc.FusionJdbc
-import fusion.jdbc.util.JdbcUtils
 import fusion.slick.FusionPostgresProfile
 import fusion.testkit.FusionFunSuiteLike
 import helloscala.common.util.Utils
+import helloscala.jdbc.util.JdbcUtils
 
 import java.time.LocalDateTime
 
